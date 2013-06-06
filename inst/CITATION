@@ -1,0 +1,14 @@
+citHeader("To cite the evmix package in publications please use:")
+
+citEntry(entry="Misc",
+  title = "Extreme Value Mixture Modelling and Threshold Estimation",
+  author = "Y. Hu and C. J. Scarrott", year = 2013, 
+  note = "Available on CRAN", 
+  url = "http://www.math.canterbury.ac.nz/~c.scarrott/evmix",
+  institution = "University of Canterbury, New Zealand",
+  textVersion = paste("Hu, Y. and Scarrott, C.J.", "(2013).",
+    "evmix: Extreme Value Mixture Modelling and Threshold Estimation.",
+    "Available on CRAN.", "URL: http://www.math.canterbury.ac.nz/~c.scarrott/evmix")
+)
+
+citFooter("Thanks, Carl.")

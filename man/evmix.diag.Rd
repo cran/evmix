@@ -1,0 +1,180 @@
+\name{evmix.diag}
+\alias{densplot}
+\alias{evmix.diag}
+\alias{pplot}
+\alias{qplot}
+\alias{rlplot}
+\title{Diagnostic Plots for Extreme Value Mixture Models}
+\usage{
+  evmix.diag(modelfit, upperfocus = TRUE, ci = TRUE,
+    alpha = 0.05, N = 1000, legend = FALSE, ...)
+
+  rlplot(modelfit, upperfocus = TRUE, ci = TRUE,
+    alpha = 0.05, N = 1000, legend = TRUE, ...)
+
+  qplot(modelfit, upperfocus = TRUE, ci = TRUE,
+    alpha = 0.05, N = 1000, legend = TRUE, ...)
+
+  pplot(modelfit, upperfocus = TRUE, ci = TRUE,
+    alpha = 0.05, N = 1000, legend = TRUE, ...)
+
+  densplot(modelfit, upperfocus = TRUE, legend = TRUE, ...)
+}
+\arguments{
+  \item{modelfit}{fitted extreme value mixture model
+  object}
+
+  \item{upperfocus}{logical, should plot focus on upper
+  tail?}
+
+  \item{ci}{logical, should Monte Carlo based CI's be
+  plotted}
+
+  \item{alpha}{logical, significance level (0, 1)}
+
+  \item{N}{number of Monte Carlo simulation for CI (N>=10)}
+
+  \item{legend}{logical, should legend be included}
+
+  \item{...}{further arguments to be passed to the plotting
+  functions}
+}
+\value{
+  \code{\link[evmix:evmix.diag]{rlplot}} gives the return
+  level plot, \code{\link[evmix:evmix.diag]{qplot}} gives
+  the Q-Q plot, \code{\link[evmix:evmix.diag]{pplot}} gives
+  the P-P plot, \code{\link[evmix:evmix.diag]{densplot}}
+  gives density plot and
+  \code{\link[evmix:evmix.diag]{evmix.diag}} gives the
+  collection of all 4.
+}
+\description{
+  The classic four diagnostic plots for evaluating extreme
+  value mixture models: 1) return level plot, 2) Q-Q plot,
+  3) P-P plot and 4) density plot. Each plot is available
+  individually or as the usual 2x2 collection.
+}
+\details{
+  Model diagnostics are available for all the fitted
+  extreme mixture models in the
+  \code{\link[evmix:evmix-package]{evmix}} package. These
+  \code{modelfit} is output by all the fitting functions,
+  e.g. \code{\link[evmix:fgpd]{fgpd}} and
+  \code{\link[evmix:fnormgpd]{fnormgpd}}.
+
+  Consistent with \code{\link[evd:plot.uvevd]{plot}}
+  function in the \code{\link[evd:gpd]{evd}} library the
+  \code{\link[stats:ppoints]{ppoints}} to estimate the
+  empirical cumulative probabilities. The current default
+  behaviour of this function is to use \deqn{(i-0.5)/n} as
+  the estimate for the \eqn{i}th order statistic of the
+  given sample of size \eqn{n}.
+
+  The return level plot quantile (\eqn{x_p} where \eqn{P(X
+  \le x_p)=p} on the \eqn{y}-axis and the (approximate)
+  return period \eqn{1/p} is shown on the \eqn{x}-axis. It
+  is approximate as the tranformation \eqn{-log(-log(p))
+  \approx 1/p} is used for the \eqn{x}-axis, which is
+  common in extreme value application as Type I
+  (\eqn{\xi=0}) upper tail behaviour will be linear on this
+  scale. The approximation is better for smaller upper tail
+  probability.
+
+  The crosses are the empirical quantiles/return levels
+  (i.e. the ordered sample data) against their
+  corresponding transfomred empirical return period (from
+  \code{\link[stats:ppoints]{ppoints}}). The solid line is
+  the theoretical return level (quantile) function using
+  the estimated model parameters. The estimated threshold
+  \code{u} and tail fraction \code{phiu} are shown. For the
+  two tailed models both thresholds \code{ul} and \code{ur}
+  and corresponding tail fractions \code{phiul} and
+  \code{phiur} are shown. The approximate pointwise
+  confidence intervals for the quantiles are obtained by
+  Monte Carlo simulation using the estimated parameters.
+  Notice that these intervals ignore the parameter
+  estimation uncertainty.
+
+  The Q-Q and P-P plots have the empirical values on the
+  \eqn{y}-axis and theoretical values from the fitted model
+  on the \eqn{x}-axis.
+
+  The density plot provides a histogram of the sample data
+  overlaid with the fitted density and a standard kernel
+  density estimate using the
+  \code{\link[stats:density]{density}} function. The
+  default settings for the
+  \code{\link[stats:density]{density}} function are used.
+  Note that for distributions with bounded support (e.g.
+  GPD) with high density near the boundary standard kernel
+  density estimators exhibit a negative bias due to leakage
+  past the boundary. So in this case they should not be
+  taken too seriously.
+
+  For the kernel density estimates (i.e. \code{kden} and
+  \code{bckden}) there is no threshold, so no upper tail
+  focus is carried out.
+
+  See \code{\link[evd:plot.uvevd]{plot.uvevd}} for more
+  detailed explanations of these types of plots.
+}
+\note{
+  For all mixture models the missing values are removed by
+  the fitting functions (e.g.
+  \code{\link[evmix:fnormgpd]{fnormgpd}} and
+  \code{\link[evmix:fgng]{fgng}}). However, these are
+  retained in the GPD fitting
+  \code{\link[evmix:fgpd]{fgpd}}, as they are interpreted
+  as values below the threshold.
+
+  By default all the plots focus in on the upper tail, but
+  they can be used to display the fit over the entire range
+  of support.
+
+  You cannot pass \code{xlim} or \code{ylim} to the
+  plotting functions via \code{...}
+
+  Error checking of the inputs (e.g. invalid probabilities)
+  is carried out and will either stop or give warning
+  message as appropriate.
+}
+\examples{
+\dontrun{
+x = sort(rnorm(1000))
+fit = fnormgpd(x)
+evmix.diag(fit)
+
+# repeat without focussing on upper tail
+par(mfrow=c(2,2))
+rlplot(fit, upperfocus = FALSE)
+qplot(fit, upperfocus = FALSE)
+pplot(fit, upperfocus = FALSE)
+densplot(fit, upperfocus = FALSE)
+}
+}
+\author{
+  Yang Hu and Carl Scarrott
+  \email{carl.scarrott@canterbury.ac.nz}
+}
+\references{
+  Based on model diagnostic functions in the
+  \code{\link[evd:gpd]{evd}} package.
+
+  \url{http://en.wikipedia.org/wiki/Q-Q_plot}
+
+  \url{http://en.wikipedia.org/wiki/P-P_plot}
+
+  Scarrott, C.J. and MacDonald, A. (2012). A review of
+  extreme value threshold estimation and uncertainty
+  quantification. REVSTAT - Statistical Journal 10(1),
+  33-59. Available from
+  \url{http://www.ine.pt/revstat/pdf/rs120102.pdf}
+
+  Coles S.G. (2004). An Introduction to the Statistical
+  Modelling of Extreme Values. Springer-Verlag: London.
+}
+\seealso{
+  \code{\link[stats:ppoints]{ppoints}} and
+  \code{\link[evd:plot.uvevd]{plot.uvevd}}
+}
+

@@ -1,0 +1,184 @@
+\name{tcplot}
+\alias{tcplot}
+\alias{tscaleplot}
+\alias{tshapeplot}
+\title{Parameter Threshold Stability Plots}
+\usage{
+  tcplot(data, tlim = NULL, nt = min(100, length(data)),
+    p.or.n = FALSE, alpha = 0.05, ylim.xi = NULL,
+    ylim.sigmau = NULL, legend.loc = "bottomleft",
+    try.thresh = quantile(data, 0.9, na.rm = TRUE), ...)
+
+  tshapeplot(data, tlim = NULL,
+    nt = min(100, length(data)), p.or.n = FALSE,
+    alpha = 0.05, ylim = NULL, legend.loc = "bottomleft",
+    try.thresh = quantile(data, 0.9, na.rm = TRUE),
+    main = "Shape Threshold Stability Plot",
+    xlab = "Threshold u", ylab = "Shape Parameter", ...)
+
+  tscaleplot(data, tlim = NULL,
+    nt = min(100, length(data)), p.or.n = FALSE,
+    alpha = 0.05, ylim = NULL, legend.loc = "bottomleft",
+    try.thresh = quantile(data, 0.9, na.rm = TRUE),
+    main = "Modified Scale Threshold Stability Plot",
+    xlab = "Threshold u",
+    ylab = "Modified Scale Parameter", ...)
+}
+\arguments{
+  \item{ylim.xi}{y-axis limits for shape parameter or
+  \code{NULL}}
+
+  \item{ylim.sigmau}{y-axis limits for scale parameter or
+  \code{NULL}}
+
+  \item{data}{vector of sample data}
+
+  \item{tlim}{vector of (lower, upper) limits of range of
+  threshold to plot MRL, or \code{NULL} to use default
+  values}
+
+  \item{nt}{number of thresholds for which to evaluate MRL}
+
+  \item{p.or.n}{logical, should tail fraction
+  (\code{FALSE}) or number of exceedances (\code{TRUE}) be
+  given on upper x-axis}
+
+  \item{alpha}{logical, significance level (0, 1)}
+
+  \item{legend.loc}{location of legend (see
+  \code{\link[graphics:legend]{legend}})}
+
+  \item{try.thresh}{vector of threshold to fit GPD using
+  MLE and show theoretical MRL}
+
+  \item{...}{further arguments to be passed to the plotting
+  functions}
+
+  \item{ylim}{y-axis limits or \code{NULL}}
+
+  \item{main}{title of plot}
+
+  \item{xlab}{x-axis label}
+
+  \item{ylab}{y-axis label}
+}
+\value{
+  \code{\link[evmix:tcplot]{tshapeplot}} and
+  \code{\link[evmix:tcplot]{tscaleplot}} produces the
+  threshold stability plot for the shape and scale
+  parameter respectively. They also returns a matrix
+  containing columns of the threshold, number of
+  exceedances, MLE shape/scale and their standard devation
+  and \eqn{100(1 - \alpha)\%} Wald confidence interval.
+  Where the observed information matrix is not obtainable
+  the standard deviation and confidence intervals are
+  \code{NA}. For the \code{\link[evmix:tcplot]{tscaleplot}}
+  the modified scale quantities are also provided.
+  \code{\link[evmix:tcplot]{tcplot}} produces both plots on
+  one graph and outputs a merged dataframe of results.
+}
+\description{
+  Plots the sample mean residual life (MRL) plot.
+}
+\details{
+  The MLE of the (modified) GPD scale and shape (xi)
+  parameters are plotted against as reange of possible
+  threshold. Known as the threshold stability plots (Coles,
+  2001). The modified scale parameter is \eqn{\sigma_u -
+  u\xi}. If the GPD is a suitable model for a threshold
+  \eqn{u} then for all higher threshold \eqn{v > u} it will
+  also be suitable, with the shape and modified scale being
+  constant.
+
+  In practice there is sample uncertainty in the parameter
+  estimates, which must be taken into account when choosing
+  a threshold.
+
+  The usual asymptotic Wald confidence intervals are shown
+  based on the observed information matrix to measure this
+  undertainty. The sampling density of the Wald normal
+  approximation is shown by a greyscale image, where
+  lighter greys indicate low density.
+
+  A pre-chosen threshold (or more than one) can be given in
+  \code{try.thresh}. The GPD is fitted to the excesses
+  using maximum likelihood estimation. The estimated
+  parameters are plot as a horizontal line which is solid
+  above this threshold where the parameter from smaller
+  tail fraction should be the same if the GPD is a good
+  model (upto sample uncertainty). The threshold should
+  always be chosen to be as low as possible to reduce
+  sample uncertainty. Therefore, below the pre-chosen
+  threshold, where the GPD should not be a good model, the
+  line is dashed and the parameter estimates should now
+  deviate from the dashed line (otherwise a lower threshold
+  could be used). If no threshold limits are provided
+  \code{tlim = NULL} then the lowest threshold is set to be
+  just below the median data point and the maximum
+  threshold is set to the 11th largest datapoint. This is a
+  slightly lower order statistic compared to that used in
+  the MRL plot \code{\link[evmix:mrlplot]{mrlplot}}
+  function to account for the fact the maximum likelihood
+  estimation is likely to be very unreliable with 10 or
+  fewer datapoints.
+
+  The range of permitted thresholds is just below the
+  minimum datapoint and the second largest value. If there
+  are less unique values of data within the threshold range
+  than the number of threshold evalations requested, then
+  instead of a sequence of thresholds they will be set to
+  each unique datapoint, i.e. MLE will only be applied
+  where there is data.
+
+  The missing (\code{NA} and \code{NaN}) and non-finite
+  values are ignored.
+
+  The lower x-axis is the threshold and an upper axis
+  either gives the number of exceedances (\code{p.or.n =
+  FALSE}) or proportion of excess (\code{p.or.n = TRUE}).
+  Note that unlike the \code{gpd} related functions the
+  missing values are ignored, so do not add to the lower
+  tail fraction. But ignoring the missing values is
+  consistent with all the other mixture model functions.
+}
+\note{
+  If the user specifies the threshold range, the thresholds
+  above the sixth largest are dropped. A warning message is
+  given if any thresholds have at most 10 exceedances, in
+  which case the maximum likelihood estimation is
+  unreliable. If there are less than 10 exceedances of the
+  minimum threshold then the function will stop.
+
+  Error checking of the inputs (e.g. invalid probabilities)
+  is carried out and will either stop or give warning
+  message as appropriate.
+}
+\examples{
+\dontrun{
+x = rnorm(1000)
+tcplot(x)
+tshapeplot(x, tlim = c(0, 2))
+tscaleplot(x, tlim = c(0, 2), try.thresh = c(0.5, 1, 1.5))
+tcplot(x, tlim = c(0, 2), try.thresh = c(0.5, 1, 1.5))
+}
+}
+\author{
+  Yang Hu and Carl Scarrott
+  \email{carl.scarrott@canterbury.ac.nz}
+}
+\references{
+  Scarrott, C.J. and MacDonald, A. (2012). A review of
+  extreme value threshold estimation and uncertainty
+  quantification. REVSTAT - Statistical Journal 10(1),
+  33-59. Available from
+  \url{http://www.ine.pt/revstat/pdf/rs120102.pdf}
+
+  Coles S.G. (2004). An Introduction to the Statistical
+  Modelling of Extreme Values. Springer-Verlag: London.
+}
+\seealso{
+  \code{\link[evmix:mrlplot]{mrlplot}} and
+  \code{\link[evd:tcplot]{tcplot}} from
+  \code{\link[evd:mrlplot]{evd}} library
+}
+
