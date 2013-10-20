@@ -1,105 +1,144 @@
 #' @export
+#' 
 #' @title MLE Fitting of Generalised Pareto Distribution (GPD)
-#'
-#' @description Maximum likelihood estimation for fitting the GPD with parameters
-#' scale \code{sigmau} and shape \code{xi} to the threshold exceedances, conditional
-#' on being above a threshold \code{u}. Unconditional likelihood fitting also
-#' provided when the probability \code{phiu} of being above the threshold
-#' \code{u} is given.
-#'
-#' @inheritParams gpd
+#'   
+#' @description Maximum likelihood estimation for fitting the GPD with
+#'   parameters scale \code{sigmau} and shape \code{xi} to the threshold
+#'   exceedances, conditional on being above a threshold \code{u}. Unconditional
+#'   likelihood fitting also provided when the probability \code{phiu} of being
+#'   above the threshold \code{u} is given.
+#'   
 #' @param x          vector of sample data
+#' @param u          scalar threshold
+#' @param sigmau     scalar scale parameter (positive)
+#' @param xi         scalar shape parameter
 #' @param pvector    vector of initial values of GPD parameters (\code{sigmau}, \code{xi}) or \code{NULL}
-#' @param phiu       probability of being above threshold [0,1] or \code{NULL}
+#' @param phiu       probability of being above threshold \eqn{[0, 1]} or \code{NULL}, see Details
 #' @param std.err    logical, should standard errors be calculated
 #' @param method     optimisation method (see \code{\link[stats:optim]{optim}})
+#' @param control    optimisation control list (see \code{\link[stats:optim]{optim}})
 #' @param finitelik  logical, should log-likelihood return finite value for invalid parameters
+#' @param log        logical, if \code{TRUE} then log-likelihood rather than likelihood is output
 #' @param ...        optional inputs passed to \code{\link[stats:optim]{optim}}
-#' 
+#'   
 #' @details The GPD is fitted to the exceedances of the threshold \code{u} using
-#' maximum likelihood estimation. The estimated parameters, variance-covariance matrix
-#' and their standard errors are automatically output.
-#' 
-#' The default value for \code{phiu} is NULL, which means it will be estimated as the 
-#' MLE of the tail fraction which is the sample proportion above the threshold.
-#' In this case the standard error for 
-#' \code{phiu} is estimated and output as \code{sephiu}. Consistent with the 
-#' \code{\link[evd:fpot]{evd}} library the missing values 
-#' (\code{NA} and \code{NaN}) are assumed to be below the threshold. 
-#' 
-#' Otherwise, \code{phiu} can be specified as any value over [0, 1] leading to
-#' the unconditional log-likelihood being used for estimation. In this case the
-#' standard error will be output as \code{NA}. The value of \code{phiu} does not
-#' effect the GPD parameter estimates, only the value of the likelihood, as:
-#' 
-#' \deqn{L(\sigma_u, \xi; u, \phi_u) = (\phi_u ^ {n_u}) L(\sigma_u, \xi; u, \phi_u=1)}
-#' 
-#' where the GPD has scale \eqn{\sigma_u} and shape \eqn{\xi}, the threshold is \eqn{u}
-#' and \eqn{nu} is the number of exceedances. A non-unit value for \code{phiu} simply
-#' scales the likelihood, and shifts the log-likelihood, thus the GPD parameter
-#' estimates are invariant to \code{phiu}.
-#' 
-#' The default optimisation algorithm is "BFGS", which requires a finite negative 
-#' log-likelihood function evaluation \code{finitelik=TRUE}. For invalid 
-#' parameters, a zero likelihood is replaced with \code{exp(-1e6)}. The "BFGS" 
-#' optimisation algorithms require finite values for likelihood, so any user 
-#' input for \code{finitelik} will be overridden and set to \code{finitelik=TRUE} 
-#' if either of these optimisation methods is chosen.
-#' 
-#' It will display a warning for non-zero convergence result comes from 
-#' \code{\link[stats:optim]{optim}} function call.
-#' 
-#' If the hessian is of reduced rank then the variance covariance (from inverse hessian)
-#' and standard error of parameters cannot be calculated, then by default 
-#' \code{std.err=TRUE} and the function will stop. If you want the parameter estimates
-#' even if the hessian is of reduced rank (e.g. in a simulation study) then
-#' set \code{std.err=FALSE}. 
-#' 
-#' @return Returns a simple list with the following elements
-#'
+#'   maximum likelihood estimation. The estimated parameters, 
+#'   variance-covariance matrix and their standard errors are automatically 
+#'   output.
+#'   
+#'   The log-likelihood and negative log-likelihood are also provided for wider 
+#'   usage, e.g. constructing your own extreme value mixture model or profile
+#'   likelihood functions. The 
+#'   parameter vector \code{pvector} must be specified in the negative 
+#'   log-likelihood \code{\link[evmix:fgpd]{nlgpd}}.
+#'   
+#'   Log-likelihood calculations are carried out in 
+#'   \code{\link[evmix:fgpd]{lgpd}}, which takes parameters as inputs in the 
+#'   same form as distribution functions. The negative log-likelihood is a 
+#'   wrapper for \code{\link[evmix:fgpd]{lgpd}}, designed towards making it 
+#'   useable for optimisation (e.g. parameters are given a vector as first 
+#'   input).
+#'   
+#'   The default value for the tail fraction \code{phiu} in the fitting function
+#'   \code{\link[evmix:fgpd]{fgpd}} is \code{NULL}, in which case the MLE is calculated 
+#'   using the sample proportion of exceedances. In this case the standard error for \code{phiu} is 
+#'   estimated and output as \code{se.phiu}, otherwise it is set to \code{NA}. Consistent with the 
+#'   \code{\link[evd:fpot]{evd}} library the missing values (\code{NA} and 
+#'   \code{NaN}) are assumed to be below the threshold in calculating the tail fraction.
+#'   
+#'   Otherwise, in the fitting function \code{\link[evmix:fgpd]{fgpd}} the tail 
+#'   fraction \code{phiu} can be specified as any value over \eqn{(0, 1]}, i.e.
+#'   excludes \eqn{\phi_u=0}, leading to the unconditional log-likelihood being
+#'   used for estimation. In this case the standard error will be output as \code{NA}.
+#'   
+#'   In the log-likelihood functions \code{\link[evmix:fgpd]{lgpd}} and 
+#'   \code{\link[evmix:fgpd]{nlgpd}} the tail fraction \code{phiu} cannot be
+#'   \code{NULL} but can be over the range \eqn{[0, 1]}, i.e. which includes
+#'   \eqn{\phi_u=0}.
+#'   
+#'   The value of \code{phiu} does not effect the GPD parameter estimates, only
+#'   the value of the likelihood, as:
+#'   
+#'   \deqn{L(\sigma_u, \xi; u, \phi_u) = (\phi_u ^ {n_u}) L(\sigma_u, \xi; u,
+#'   \phi_u=1)}
+#'   
+#'   where the GPD has scale \eqn{\sigma_u} and shape \eqn{\xi}, the threshold
+#'   is \eqn{u} and \eqn{nu} is the number of exceedances. A non-unit value for
+#'   \code{phiu} simply scales the likelihood and shifts the log-likelihood,
+#'   thus the GPD parameter estimates are invariant to \code{phiu}.
+#'   
+#'   The default optimisation algorithm is "BFGS", which requires a finite
+#'   negative log-likelihood function evaluation \code{finitelik=TRUE}. For
+#'   invalid parameters, a zero likelihood is replaced with \code{exp(-1e6)}.
+#'   The "BFGS" optimisation algorithms require finite values for likelihood, so
+#'   any user input for \code{finitelik} will be overridden and set to
+#'   \code{finitelik=TRUE} if either of these optimisation methods is chosen.
+#'   
+#'   It will display a warning for non-zero convergence result comes from 
+#'   \code{\link[stats:optim]{optim}} function call.
+#'   
+#'   If the hessian is of reduced rank then the variance covariance (from
+#'   inverse hessian) and standard error of parameters cannot be calculated,
+#'   then by default \code{std.err=TRUE} and the function will stop. If you want
+#'   the parameter estimates even if the hessian is of reduced rank (e.g. in a
+#'   simulation study) then set \code{std.err=FALSE}.
+#'   
+#' @return \code{\link[evmix:fgpd]{lgpd}} gives (log-)likelihood and 
+#'   \code{\link[evmix:fgpd]{nlgpd}} gives the negative log-likelihood. 
+#'   \code{\link[evmix:fgpd]{fgpd}} returns a simple list with the following
+#'   elements
+#'   
 #' \tabular{ll}{
 #' \code{call}: \tab \code{optim} call\cr
 #' \code{x}: \tab data vector \code{x}\cr
 #' \code{init}: \tab \code{pvector}\cr
 #' \code{optim}: \tab complete \code{optim} output\cr
-#' \code{mle}: \tab vector of MLE of model parameters\cr
-#' \code{cov}: \tab variance-covariance matrix of MLE of model parameters\cr
-#' \code{se}: \tab vector of standard errors of MLE of model parameters\cr
+#' \code{mle}: \tab vector of MLE of parameters\cr
+#' \code{cov}: \tab variance-covariance matrix of MLE of parameters\cr
+#' \code{se}: \tab vector of standard errors of MLE of parameters\cr
 #' \code{rate}: \tab \code{phiu} to be consistent with \code{\link[evd:fpot]{evd}}\cr
 #' \code{nllh}: \tab minimum negative log-likelihood\cr
-#' \code{allparams}: \tab vector of MLE of GPD parameters and (possibly given) \code{phiu}\cr
-#' \code{allse}: \tab vector of standard error of GPD parameters and (possibly given) \code{phiu}\cr
 #' \code{n}: \tab total sample size\cr
 #' \code{u}: \tab threshold\cr
 #' \code{sigmau}: \tab MLE of GPD scale\cr
 #' \code{xi}: \tab MLE of GPD shape\cr
 #' \code{phiu}: \tab MLE of tail fraction\cr
+#'  \code{se.phiu}: \tab standard error of MLE of tail fraction (parameterised approach using sample proportion)\cr
 #' }
-#' 
+#'   
 #' The output list has some duplicate entries and repeats some of the inputs to both 
-#' provide similar items to those from \code{\link[evd:fpot]{fpot}} and to make it 
-#' as useable as possible.
-#'  
-#' @note Unlike all the distribution functions for the GPD, the MLE fitting only permits
-#' single scalar values for each parameter, \code{phiu} and threshold \code{u}. Only the
-#' data is a vector.
-#' 
-#' When \code{pvector=NULL} then the initial values are calculated, type \code{fgpd} to
-#' see the default formulae used. The GPD fitting is not very sensitive to the
-#' initial values, so you will rarely have to  give alternatives. Avoid setting the
-#' starting value for the shape parameter to \code{xi=0} as depending on the
-#' optimisation method it may be get stuck.
-#' 
-#' Default values for the threshold \code{u=0} and tail fraction \code{phiu=NULL} are given.
-#' If the threshold is left as the default \code{u=0} and the tail fraction set to 
-#' \code{phiu=1} then MLE assumes tha excesses over the threshold are given, rather
-#' than exceedances.
-#' 
-#' The fitting function will stop if infinite sample values are given.
-#' 
-#' Error checking of the inputs is carried out and will either stop or give warning message
-#' as appropriate.
-#' 
+#' provide similar items to those from \code{\link[evd:fpot]{fpot}} and increase usability.
+#'   
+#' @note Unlike all the distribution functions for the GPD, the MLE fitting only
+#'   permits single scalar values for each parameter, \code{phiu} and threshold
+#'   \code{u}.
+#'   
+#'   When \code{pvector=NULL} then the initial values are calculated, type
+#'   \code{fgpd} to see the default formulae used. The GPD fitting is not very
+#'   sensitive to the initial values, so you will rarely have to  give
+#'   alternatives. Avoid setting the starting value for the shape parameter to
+#'   \code{xi=0} as depending on the optimisation method it may be get stuck.
+#'   
+#'   Default values for the threshold \code{u=0} and tail fraction
+#'   \code{phiu=NULL} are given in the fitting \code{\link[evmix:fgpd]{fpgd}},
+#'   in which case the MLE assumes that excesses over the threshold are given,
+#'   rather than exceedances.
+#'   
+#'   The usual default of \code{phiu=1} is given in the likelihood functions
+#'   \code{\link[evmix:fgpd]{lpgd}} and \code{\link[evmix:fgpd]{nlpgd}}.
+#'   
+#'   The \code{\link[evmix:fgpd]{lgpd}} also has the usual defaults for the
+#'   other parameters, but \code{\link[evmix:fgpd]{nlgpd}} has no defaults.
+#'   
+#'   Infinite sample values are dropped in fitting function
+#'   \code{\link[evmix:fgpd]{fpgd}}, but missing values are used to estimate
+#'   \code{phiu} as described above. But in likelihood functions
+#'   \code{\link[evmix:fgpd]{lpgd}} and \code{\link[evmix:fgpd]{nlpgd}} both
+#'   infinite and missing values are ignored.
+#'   
+#'   Error checking of the inputs is carried out and will either stop or give
+#'   warning message as appropriate.
+#'   
 #' @references
 #' 
 #' Based on GPD fitting function in the \code{\link[evd:fpot]{evd}} package.
@@ -107,11 +146,13 @@
 #' \url{http://en.wikipedia.org/wiki/Generalized_Pareto_distribution}
 #' 
 #' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
-#'
-#' @seealso \code{\link[evd:gpd]{dgpd}}, \code{\link[evd:fpot]{fpot}}
-#' and \code{\link[MASS:fitdistr]{fitdistr}}
-#' @family   gpd
-#' 
+#'   
+#' @seealso \code{\link[evd:gpd]{dgpd}}, \code{\link[evd:fpot]{fpot}} and
+#'   \code{\link[MASS:fitdistr]{fitdistr}}
+#'   
+#' @aliases fgpd lgpd nlgpd
+#' @family  gpd fgpd
+#'   
 #' @examples
 #' par(mfrow=c(2,1))
 #' x = rgpd(1000, u = 10, sigmau = 5, xi = 0.2)
@@ -130,31 +171,31 @@
 #' lines(xx, dgpd(xx, u = fit$u, sigmau = fit$sigmau, xi = fit$xi, phiu = fit$phiu),
 #'   col = "red", lwd = 2)
 #' legend("topright", c("True Density","Fitted Density"), col=c("black", "red"), lty = 1)
+#' 
 
 # maximum likelihood fitting for GPD
-fgpd <- function(x, u = 0, phiu = NULL, pvector = NULL, std.err = TRUE, method = "BFGS",
-  finitelik = TRUE, ...) {
+fgpd <- function(x, u = 0, phiu = NULL, pvector = NULL, std.err = TRUE,
+  method = "BFGS", control = list(maxit = 10000), finitelik = TRUE, ...) {
 
   call <- match.call()
     
   # Check properties of inputs
-  if (missing(x))
-    stop("x must be a non-empty numeric vector")
-    
-  if (length(x) == 0 | mode(x) != "numeric") 
-    stop("x must be a non-empty numeric vector")
+  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.param(u)
+  check.prob(prob = phiu, allownull = TRUE) # don't use check.phiu as TRUE only valid for mixture models
+  check.nparam(pvector, nparam = 2, allownull = TRUE)
+  check.logic(logicarg = std.err)
+  check.optim(method)
+  check.control(control)
+  check.logic(logicarg = finitelik)
 
-  if (any(is.infinite(x)))
-    stop("infinite cases must be removed")
+  if (any(is.infinite(x))) warning("infinite cases have been removed")
   
-  if (!is.logical(finitelik))
-    stop("finitelik must be logical")
+  x = x[!is.infinite(x)] # ignore infinite cases only (all mixture models also ignore missing)
 
-  if ((method == "L-BFGS-B") | (method == "BFGS"))
-    finitelik = TRUE
-    
-  if (any(!is.finite(u) | is.logical(u)))
-    stop("parameters must be numeric")
+  check.quant(x, allowmiss = TRUE)
+
+  if ((method == "L-BFGS-B") | (method == "BFGS")) finitelik = TRUE
   
   if (any(is.na(x)))
     warning("missing values are treated as below threshold when estimating tail fraction")
@@ -162,42 +203,35 @@ fgpd <- function(x, u = 0, phiu = NULL, pvector = NULL, std.err = TRUE, method =
   # assume NA or NaN are below threshold consistent with evd library
   # hence use which() to ignore these
 
-  # check for x values in range
-  whichexc = which(x > u)
-  nu = length(whichexc)
   n = length(x)
+  xu = x[which(x > u)]
+  nu = length(xu)
   
   if (nu < 1)
     stop("no elements of x are above threshold")
     
+  # set default values if pvector is NULL
   if (is.null(pvector)) {
-    yu = x[whichexc] - u
+    yu = xu - u
     pvector[1] = sqrt(6 * var(yu)) / pi
     pvector[2] = 0.1
-  } else {
-    if (length(pvector)!=2)
-      stop("Initial values for two GPD parameters must be specified")
-    if (any(!is.finite(pvector)) | is.logical(pvector))
-      stop("initial parameters must be numeric")
   }
   
   if (is.null(phiu)) {
     # assume NA or NaN are below threshold consistent with evd library
     # hence use which() to ignore these when estimating phiu
     phiu = nu / n
-    sephiu = sqrt(phiu * (1 - phiu) / n)
+    se.phiu = sqrt(phiu * (1 - phiu) / n)
   } else {
-    if ((phiu < 0)  | (phiu > 1))
-      stop("phiu must between 0 and 1 (inclusive)")
-    sephiu = NA
+    if (phiu == 0) stop("tail probability must be in (0, 1]")
+    se.phiu = NA
   }
   
-  nllh = nlgpd(pvector, x = x, u = u, phiu = phiu, finitelik = finitelik)
-  if (is.infinite(nllh))
-    stop("initial parameter values are invalid")
+  nllh = nlgpd(pvector, xu, u, phiu)
+  if (is.infinite(nllh)) stop("initial parameter values are invalid")
 
-  fit = optim(par = as.vector(pvector), fn = nlgpd, x = x, u = u, phiu = phiu, finitelik = finitelik,
-    method = method, hessian = TRUE, ...)
+  fit = optim(par = as.vector(pvector), fn = nlgpd, x = xu, u = u, phiu = phiu,
+    finitelik = finitelik, method = method, hessian = TRUE, ...)
   
   conv = TRUE
   if ((fit$convergence != 0) | any(fit$par == pvector) | (abs(fit$value) >= 1e6)) {
@@ -229,9 +263,79 @@ fgpd <- function(x, u = 0, phiu = NULL, pvector = NULL, std.err = TRUE, method =
 
   list(call = call, x = as.vector(x), init = as.vector(pvector), optim = fit,
     conv = conv, cov = invhess, mle = fit$par, se = se, rate = phiu, nllh = fit$value,
-    allparam = c(fit$par, phiu), allse = c(se, sephiu), n = n,
-    u = u, sigmau = fit$par[1], xi = fit$par[2], phiu = phiu)
+    n = n, u = u, sigmau = fit$par[1], xi = fit$par[2], phiu = phiu, se.phiu = se.phiu)
 }
 
+#' @export
+#' @aliases fgpd lgpd nlgpd
+#' @rdname  fgpd
 
+# log-likelihood function for GPD
+# will not stop evaluation unless it has to
+lgpd <- function(x, u = 0, sigmau = 1, xi = 0, phiu = 1, log = TRUE) {
 
+  # Check properties of inputs
+  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.param(param = u)
+  check.param(param = sigmau) # do not check positivity in likelihood
+  check.param(param = xi)
+  check.prob(prob = phiu) # don't use check.phiu as TRUE only valid for mixture models
+  check.logic(logicarg = log)
+
+  check.inputn(c(length(u), length(sigmau), length(xi), length(phiu)))
+
+  if (any(!is.finite(x))) {
+    warning("non-finite cases have been removed")
+    x[!is.finite(x)] = NA # ignore missing and infinite cases
+  }
+  
+  # assume NA or NaN are below threshold consistent with evd library
+  # hence use which() to ignore these
+  
+  xu = x[which(x > u)]
+  nu = length(xu)
+  
+  yu = (xu - u) / sigmau # used when shape is zero
+  syu = 1 + xi * yu      # used when shape non-zero  
+    
+  if ((min(syu) <= 0) | (sigmau <= 0) | (phiu < 0)  | (phiu > 1)) {
+    l = -Inf
+  } else {
+    if (abs(xi) < 1e-6) {
+      l = - nu * log(sigmau) - sum(yu) + nu * log(phiu)
+    } else {
+      l = - nu * log(sigmau) - (1/xi + 1) * sum(log(syu)) + nu * log(phiu)
+    }
+  }
+  
+  if (!log) l = exp(l)
+  
+  l
+}
+
+#' @export
+#' @aliases fgpd lgpd nlgpd
+#' @rdname  fgpd
+
+# negative log-likelihood function for GPD
+# (wrapper for likelihood, inputs and checks designed for optimisation)
+nlgpd <- function(pvector, x, u = 0, phiu = 1, finitelik = FALSE) {
+
+  # Check properties of inputs
+  check.nparam(pvector, nparam = 2)
+  check.param(param = u)
+  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.prob(prob = phiu) # don't use check.phiu as TRUE only valid for mixture models
+  check.logic(logicarg = finitelik)
+  
+  sigmau = pvector[1]
+  xi = pvector[2]
+
+  nllh = -lgpd(x, u, sigmau, xi, phiu) 
+  
+  if (finitelik & is.infinite(nllh)) {
+    nllh = sign(nllh) * 1e6
+  }
+  
+  nllh
+}

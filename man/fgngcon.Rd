@@ -1,20 +1,57 @@
 \name{fgngcon}
 \alias{fgngcon}
-\title{MLE Fitting of Normal Bulk with GPD Upper and Lower Tails Extreme Value Mixture Model with Continuity Constraints}
+\alias{lgngcon}
+\alias{nlgngcon}
+\alias{nlugngcon}
+\alias{proflugngcon}
+\title{MLE Fitting of Normal Bulk and GPD for Both Tails with
+ Single Continuity Constraint at Both Thresholds Extreme Value Mixture Model}
 \usage{
-  fgngcon(x, phiul = TRUE, phiur = TRUE, pvector = NULL,
+  fgngcon(x, phiul = TRUE, phiur = TRUE, ulseq = NULL,
+    urseq = NULL, fixedu = FALSE, pvector = NULL,
     std.err = TRUE, method = "BFGS",
     control = list(maxit = 10000), finitelik = TRUE, ...)
+
+  lgngcon(x, nmean = 0, nsd = 1, ul = 0, xil = 0,
+    phiul = TRUE, ur = 0, xir = 0, phiur = TRUE,
+    log = TRUE)
+
+  nlgngcon(pvector, x, phiul = TRUE, phiur = TRUE,
+    finitelik = FALSE)
+
+  proflugngcon(ulr, pvector, x, phiul = TRUE, phiur = TRUE,
+    method = "BFGS", control = list(maxit = 10000),
+    finitelik = FALSE, ...)
+
+  nlugngcon(pvector, ul, ur, x, phiul = TRUE, phiur = TRUE,
+    finitelik = FALSE)
 }
 \arguments{
   \item{x}{vector of sample data}
 
-  \item{phiul}{logical}
+  \item{phiul}{probability of being below lower threshold
+  \eqn{(0, 1)} or logical, see Details in help for
+  \code{\link[evmix:fgng]{fgng}}}
 
-  \item{phiur}{logical}
+  \item{phiur}{probability of being above upper threshold
+  \eqn{(0, 1)} or logical, see Details in help for
+  \code{\link[evmix:fgng]{fgng}}}
 
-  \item{pvector}{vector of initial values of mixture model
-  parameters or \code{NULL}}
+  \item{ulseq}{vector of lower thresholds (or scalar) to be
+  considered in profile likelihood or \code{NULL} for no
+  profile likelihood}
+
+  \item{urseq}{vector of upper thresholds (or scalar) to be
+  considered in profile likelihood or \code{NULL} for no
+  profile likelihood}
+
+  \item{fixedu}{logical, should threshold be fixed (at
+  either scalar value in \code{useq}, or estimated from
+  maximum of profile likelihood evaluated at sequence of
+  thresholds in \code{useq})}
+
+  \item{pvector}{vector of initial values of parameters or
+  \code{NULL} for default values, see below}
 
   \item{std.err}{logical, should standard errors be
   calculated}
@@ -30,190 +67,164 @@
 
   \item{...}{optional inputs passed to
   \code{\link[stats:optim]{optim}}}
+
+  \item{nmean}{scalar normal mean}
+
+  \item{nsd}{scalar normal standard deviation (positive)}
+
+  \item{ul}{scalar lower tail threshold}
+
+  \item{xil}{scalar lower tail GPD shape parameter}
+
+  \item{ur}{scalar upper tail threshold}
+
+  \item{xir}{scalar upper tail GPD shape parameter}
+
+  \item{log}{logical, if \code{TRUE} then log-likelihood
+  rather than likelihood is output}
+
+  \item{ulr}{vector of length 2 giving lower and upper tail
+  thresholds or \code{NULL} for default values}
 }
 \value{
-  Returns a simple list with the following elements
+  Log-likelihood is given by
+  \code{\link[evmix:fgngcon]{lgngcon}} and it's wrappers
+  for negative log-likelihood from
+  \code{\link[evmix:fgngcon]{nlgngcon}} and
+  \code{\link[evmix:fgngcon]{nlugngcon}}. Profile
+  likelihood for single threshold given by
+  \code{\link[evmix:fgngcon]{proflugngcon}}. Fitting
+  function \code{\link[evmix:fgngcon]{fgngcon}} returns a
+  simple list with the following elements
 
-  \tabular{ll}{ \code{x}: \tab data vector \code{x}\cr
-  \code{init}: \tab \code{pvector}\cr \code{optim}: \tab
-  complete \code{optim} output\cr \code{mle}: \tab vector
-  of MLE of model parameters\cr \code{cov}: \tab
-  variance-covariance matrix of MLE of model parameters\cr
-  \code{se}: \tab vector of standard errors of MLE of model
+  \tabular{ll}{ \code{call}: \tab \code{optim} call\cr
+  \code{x}: \tab data vector \code{x}\cr \code{init}: \tab
+  \code{pvector}\cr \code{fixedu}: \tab fixed threshold,
+  logical\cr \code{useq}: \tab threshold vector for profile
+  likelihood or scalar for fixed threshold\cr \code{optim}:
+  \tab complete \code{optim} output\cr \code{mle}: \tab
+  vector of MLE of parameters\cr \code{cov}: \tab
+  variance-covariance matrix of MLE of parameters\cr
+  \code{se}: \tab vector of standard errors of MLE of
   parameters\cr \code{rate}: \tab \code{phiu} to be
   consistent with \code{\link[evd:fpot]{evd}}\cr
   \code{nllh}: \tab minimum negative log-likelihood\cr
-  \code{allparams}: \tab vector of MLE of model parameters,
-  including \code{sigmaul}, \code{sigmaur} and tail
-  fractions \code{phiul} and \code{phiur}\cr \code{allse}:
-  \tab vector of standard error of model parameters,
-  including \code{sigmaul}, \code{sigmaur}and tail
-  fractions \code{phiul} and \code{phiur}\cr \code{n}: \tab
-  total sample size\cr \code{nmean}: \tab MLE of normal
-  mean\cr \code{nsd}: \tab MLE of normal standard
-  deviation\cr \code{ul}: \tab lower threshold\cr
-  \code{sigmaul}: \tab MLE of lower tail GPD scale\cr
+  \code{n}: \tab total sample size\cr \code{nmean}: \tab
+  MLE of normal mean\cr \code{nsd}: \tab MLE of normal
+  standard deviation\cr \code{ul}: \tab lower threshold
+  (fixed or MLE)\cr \code{sigmaul}: \tab MLE of lower tail
+  GPD scale (estimated from other parameters)\cr
   \code{xil}: \tab MLE of lower tail GPD shape\cr
-  \code{phiul}: \tab MLE of lower tail fraction\cr
-  \code{ur}: \tab upper threshold\cr \code{sigmaur}: \tab
-  MLE of upper tail GPD scale\cr \code{xir}: \tab MLE of
-  upper tail GPD shape\cr \code{phiur}: \tab MLE of upper
-  tail fraction\cr }
-
-  The output list has some duplicate entries and repeats
-  some of the inputs to both provide similar items to those
-  from \code{\link[evd:fpot]{fpot}} and to make it as
-  useable as possible.
+  \code{phiul}: \tab MLE of lower tail fraction (bulk model
+  or parameterised approach)\cr \code{se.phiul}: \tab
+  standard error of MLE of lower tail fraction\cr
+  \code{ur}: \tab upper threshold (fixed or MLE)\cr
+  \code{sigmaur}: \tab MLE of upper tail GPD scale
+  (estimated from other parameters)\cr \code{xir}: \tab MLE
+  of upper tail GPD shape\cr \code{phiur}: \tab MLE of
+  upper tail fraction (bulk model or parameterised
+  approach)\cr \code{se.phiur}: \tab standard error of MLE
+  of upper tail fraction\cr }
 }
 \description{
-  Maximum likelihood estimation for the extreme value
-  mixture model with normal for bulk distribution between
-  the lower and upper thresholds with conditional GPD for
-  the two tails with continuity constraints
+  Maximum likelihood estimation for fitting the extreme
+  value mixture model with normal for bulk distribution
+  between thresholds and conditional GPDs for both tails
+  with continuity at thresholds. With options for profile
+  likelihood estimation for both thresholds and fixed
+  threshold approach.
 }
 \details{
   The extreme value mixture model with normal bulk and GPD
-  for both tails with continuity constraints is fitted to
+  for both tails with continuity at thresholds is fitted to
   the entire dataset using maximum likelihood estimation.
   The estimated parameters, variance-covariance matrix and
   their standard errors are automatically output.
 
-  \code{pvector} is (\code{nmean}, \code{nsd}, \code{ul},
-  \code{sigmaul}, \code{xil}, \code{ur}, \code{sigmaur},
-  \code{xir})
+  See help for \code{\link[evmix:fnormgpd]{fnormgpd}} and
+  \code{\link[evmix:fgng]{fgng}}for details, type
+  \code{help fnormgpd} and \code{help fgng}. Only the
+  different features are outlined below for brevity.
 
-  The default values for \code{phiul=TRUE} and
-  \code{phiur=TRUE} so that the corresponding tail
-  fractions are specified by normal distribution
-  \eqn{\phi_{ul} = H(u_l)} and \eqn{\phi_{ur} = 1 -
-  H(u_r)}. When \code{phiul=FALSE} and \code{phiur=FALSE}
-  then the corresponding tail fractions are treated as an
-  extra parameter estimated using the MLE which is the
-  sample proportion beyond the corresponding threshold. In
-  this case the standard error for \code{phiul} and
-  \code{phiur} are estimated and output as \code{sephiul}
-  and \code{sephiur}.
-
-  Missing values (\code{NA} and \code{NaN}) are assumed to
-  be invalid data so are ignored, which is inconsistent
-  with the \code{\link[evd:fpot]{evd}} library which
-  assumes the missing values are below the threshold.
-
-  The default optimisation algorithm is "BFGS", which
-  requires a finite negative log-likelihood function
-  evaluation \code{finitelik=TRUE}. For invalid parameters,
-  a zero likelihood is replaced with \code{exp(-1e6)}. The
-  "BFGS" optimisation algorithms require finite values for
-  likelihood, so any user input for \code{finitelik} will
-  be overridden and set to \code{finitelik=TRUE} if either
-  of these optimisation methods is chosen.
-
-  It will display a warning for non-zero convergence result
-  comes from \code{\link[stats:optim]{optim}} function
-  call.
-
-  If the hessian is of reduced rank then the variance
-  covariance (from inverse hessian) and standard error of
-  parameters cannot be calculated, then by default
-  \code{std.err=TRUE} and the function will stop. If you
-  want the parameter estimates even if the hessian is of
-  reduced rank (e.g. in a simulation study) then set
-  \code{std.err=FALSE}.
+  The GPD \code{sigmaul} and \code{sigmaur} parameters are
+  now specified as function of other parameters, see help
+  for \code{\link[evmix:gngcon]{dgngcon}} for details, type
+  \code{help gngcon}. Therefore, \code{sigmaul} and
+  \code{sigmaur} should not be included in the parameter
+  vector if initial values are provided, making the full
+  parameter vector The full parameter vector is
+  (\code{nmean}, \code{nsd}, \code{ul}, \code{xil},
+  \code{ur}, \code{xir}) if threshold is also estimated and
+  (\code{nmean}, \code{nsd}, \code{xil}, \code{xir}) for
+  profile likelihood or fixed threshold approach.
 }
 \note{
-  Unlike all the distribution functions for the extreme
-  value mixture models, the MLE fitting only permits single
-  scalar values for each parameter and tail fractions
-  \code{phiul} and \code{phiur}. Only the data is a vector.
-
-  When \code{pvector=NULL} then the initial values are
-  calculated, type \code{fgngcon} to see the default
-  formulae used. The mixture model fitting can be
-  ***extremely*** sensitive to the initial values, so you
-  if you get a poor fit then try some alternatives. Avoid
-  setting the starting value for the shape parameters to
-  \code{xil=0} or \code{xir=0} as depending on the
-  optimisation method it may be get stuck.
-
-  If the hessian is of reduced rank then the variance
-  covariance (from inverse hessian) and standard error of
-  parameters cannot be calculated, then by default
-  \code{std.err=TRUE} and the function will stop. If you
-  want the parameter estimates even if the hessian is of
-  reduced rank (e.g. in a simulation study) then set
-  \code{std.err=FALSE}.
-
-  The fitting function will stop if infinite sample values
-  are given.
-
-  Error checking of the inputs is carried out and will
-  either stop or give warning message as appropriate.
+  When \code{pvector=NULL} then the initial values are:
+  \itemize{ \item MLE of normal parameters assuming entire
+  population is normal; and \item lower threshold 10\%
+  quantile (not relevant for profile likelihood for
+  threshold or fixed threshold approaches); \item upper
+  threshold 90\% quantile (not relevant for profile
+  likelihood for threshold or fixed threshold approaches);
+  \item MLE of GPD shape parameters beyond threshold. }
+}
+\section{Acknowledgments}{
+  See Acknowledgments in
+  \code{\link[evmix:fnormgpd]{fnormgpd}}, type \code{help
+  fnormgpd}. Based on MATLAB code written by Xin Zhao.
 }
 \examples{
 \dontrun{
-par(mfrow=c(2,2))
+par(mfrow=c(2,1))
 x = rnorm(1000)
-xx = seq(-6, 6, 0.01)
+xx = seq(-4, 4, 0.01)
 y = dnorm(xx)
 
-# Bulk model base tail fraction
-fit = fgngcon(x, phiul = TRUE, phiur = TRUE, std.err = FALSE)
-hist(x, breaks = 100, freq = FALSE, xlim = c(-6, 6), main = "N(0, 1)")
+# Continuity constraint
+fit = fgngcon(x)
+hist(x, breaks = 100, freq = FALSE, xlim = c(-4, 4))
 lines(xx, y)
-lines(xx, dgngcon(xx, nmean = fit$nmean, nsd = fit$nsd,
-  ul = fit$ul, xil = fit$xil, phiul = TRUE,
-  ur = fit$ur, xir = fit$xir, phiur = TRUE), col="red")
-abline(v = c(fit$ul, fit$ur))
-
-# Parameterised tail fraction
-fit2 = fgngcon(x, phiul = TRUE, phiur = TRUE, std.err = FALSE)
-plot(xx, y, type = "l")
-lines(xx, dgngcon(xx, nmean = fit$nmean, nsd = fit$nsd,
-  ul = fit$ul, xil = fit$xil, phiul = TRUE,
-  ur = fit$ur, xir = fit$xir, phiur = TRUE), col="red")
-lines(xx, dgngcon(xx, nmean = fit2$nmean, nsd = fit2$nsd,
-  ul = fit2$ul, xil = fit2$xil, phiul = fit2$phiul,
-  ur = fit2$ur, xir = fit2$xir, phiur = fit2$phiur), col="blue")
+with(fit, lines(xx, dgngcon(xx, nmean, nsd, ul, xil, phiul,
+   ur, xir, phiur), col="red"))
 abline(v = c(fit$ul, fit$ur), col = "red")
+
+# No continuity constraint
+fit2 = fgng(x)
+with(fit2, lines(xx, dgng(xx, nmean, nsd, ul, sigmaul, xil, phiul,
+   ur, sigmaur, xir, phiur), col="blue"))
 abline(v = c(fit2$ul, fit2$ur), col = "blue")
-legend("topright", c("True Density","Bulk Tail Fraction","Parameterised Tail Fraction"),
-  col=c("black", "red", "blue"), lty = 1)
-x = rnorm(1000)
-xx = seq(-6, 6, 0.01)
-y = dnorm(xx)
+legend("topleft", c("True Density","No continuity constraint","With continuty constraint"),
+  col=c("black", "blue", "red"), lty = 1)
 
-# Two tail is safest if bulk has lower tail which is not normal tail
-x = rt(1000, df = 3)
-xx = seq(-10, 10, 0.01)
-y = dt(xx, df = 3)
+# Profile likelihood for initial value of threshold and fixed threshold approach
+fitu = fgngcon(x, ulseq = rep(seq(-2, -0.2, length = 10), times = 10),
+ urseq = rep(seq(0.2, 2, length = 10), each = 10))
+fitfix = fgngcon(x, ulseq = rep(seq(-2, -0.2, length = 10), times = 10),
+ urseq = rep(seq(0.2, 2, length = 10), each = 10), fixedu = TRUE)
 
-# Bulk model base tail fraction
-fit = fnormgpd(x, phiu = FALSE, std.err = FALSE)
-fit2 = fgngcon(x, phiul = FALSE, phiur = FALSE, std.err = FALSE)
-hist(x, breaks = 100, freq = FALSE, xlim = c(-10, 10), main = "t (df=3)")
+hist(x, breaks = 100, freq = FALSE, xlim = c(-4, 4))
 lines(xx, y)
-lines(xx, dnormgpd(xx, nmean = fit$nmean, nsd = fit$nsd,
-  u = fit$u, sigmau = fit$sigmau, xi = fit$xi, phiu = fit$phiu), col="red")
-abline(v = fit$u)
-
-# Bulk model base tail fraction
-plot(xx, y, type = "l")
-lines(xx, dnormgpd(xx, nmean = fit$nmean, nsd = fit$nsd,
-  u = fit$u, sigmau = fit$sigmau, xi = fit$xi, phiu = fit$phiu), col="red")
-lines(xx, dgngcon(xx, nmean = fit2$nmean, nsd = fit2$nsd,
-  ul = fit2$ul, xil = fit2$xil, phiul = fit2$phiul,
-  ur = fit2$ur, xir = fit2$xir, phiur = fit2$phiur), col="blue")
+with(fit, lines(xx, dgngcon(xx, nmean, nsd, ul, xil, phiul,
+   ur, xir, phiur), col="red"))
 abline(v = c(fit$ul, fit$ur), col = "red")
-abline(v = c(fit2$ul, fit2$ur), col = "blue")
-legend("topright", c("True Density","GPD Upper Tail Only","GPD Both Tails"),
-  col=c("black", "red", "blue"), lty = 1)
-  }
+with(fitu, lines(xx, dgngcon(xx, nmean, nsd, ul, xil, phiul,
+   ur, xir, phiur), col="purple"))
+abline(v = c(fitu$ul, fitu$ur), col = "purple")
+with(fitfix, lines(xx, dgngcon(xx, nmean, nsd, ul, xil, phiul,
+   ur, xir, phiur), col="darkgreen"))
+abline(v = c(fitfix$ul, fitfix$ur), col = "darkgreen")
+legend("topright", c("True Density","Default initial value (90\% quantile)",
+ "Prof. lik. for initial value", "Prof. lik. for fixed threshold"),
+ col=c("black", "red", "purple", "darkgreen"), lty = 1)
+}
 }
 \author{
   Yang Hu and Carl Scarrott
   \email{carl.scarrott@canterbury.ac.nz}
 }
 \references{
+  \url{http://www.math.canterbury.ac.nz/~c.scarrott/evmix}
+
   \url{http://en.wikipedia.org/wiki/Normal_distribution}
 
   \url{http://en.wikipedia.org/wiki/Generalized_Pareto_distribution}
@@ -224,19 +235,42 @@ legend("topright", c("True Density","GPD Upper Tail Only","GPD Both Tails"),
   33-59. Available from
   \url{http://www.ine.pt/revstat/pdf/rs120102.pdf}
 
+  Hu, Y. (2013). Extreme value mixture modelling: An R
+  package and simulation study. MSc (Hons) thesis,
+  University of Canterbury, New Zealand.
+  \url{http://ir.canterbury.ac.nz/simple-search?query=extreme&submit=Go}
+
   Zhao, X., Scarrott, C.J. Reale, M. and Oxley, L. (2010).
   Extreme value modelling for forecasting the market
   crisis. Applied Financial Econometrics 20(1), 63-72.
+
+  Mendes, B. and H. F. Lopes (2004). Data driven estimates
+  for mixtures. Computational Statistics and Data Analysis
+  47(3), 583-598.
 }
 \seealso{
-  \code{\link[evmix:fgng]{fgng}},
-  \code{\link[evmix:fnormgpd]{fnormgpd}},
-  \code{\link[evmix:lgpd]{lgpd}} and
+  \code{\link[stats:Normal]{dnorm}},
+  \code{\link[evmix:fgpd]{fgpd}} and
   \code{\link[evmix:gpd]{gpd}}
 
-  Other gngcon: \code{\link{dgngcon}},
-  \code{\link{gngcon}}, \code{\link{lgngcon}},
-  \code{\link{nlgngcon}}, \code{\link{pgngcon}},
-  \code{\link{qgngcon}}, \code{\link{rgngcon}}
+  Other normgpd normgpdcon gng gngcon fnormgpd fnormgpdcon
+  fgng fgngcon: \code{\link{dgng}}, \code{\link{dgngcon}},
+  \code{\link{dnormgpd}}, \code{\link{dnormgpdcon}},
+  \code{\link{fgng}}, \code{\link{fnormgpd}},
+  \code{\link{fnormgpdcon}}, \code{\link{gng}},
+  \code{\link{gngcon}}, \code{\link{lgng}},
+  \code{\link{lnormgpd}}, \code{\link{lnormgpdcon}},
+  \code{\link{nlgng}}, \code{\link{nlnormgpd}},
+  \code{\link{nlnormgpdcon}}, \code{\link{nlugng}},
+  \code{\link{nlunormgpd}}, \code{\link{nlunormgpdcon}},
+  \code{\link{normgpd}}, \code{\link{normgpdcon}},
+  \code{\link{pgng}}, \code{\link{pgngcon}},
+  \code{\link{pnormgpd}}, \code{\link{pnormgpdcon}},
+  \code{\link{proflugng}}, \code{\link{proflunormgpd}},
+  \code{\link{proflunormgpdcon}}, \code{\link{qgng}},
+  \code{\link{qgngcon}}, \code{\link{qnormgpd}},
+  \code{\link{qnormgpdcon}}, \code{\link{rgng}},
+  \code{\link{rgngcon}}, \code{\link{rnormgpd}},
+  \code{\link{rnormgpdcon}}
 }
 

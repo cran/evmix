@@ -4,7 +4,8 @@
 \alias{pgngcon}
 \alias{qgngcon}
 \alias{rgngcon}
-\title{Normal Bulk with GPD Upper and Lower Tails Extreme Value Mixture Model with Continuity Constraints}
+\title{Normal Bulk with GPD Upper and Lower Tails Extreme Value Mixture Model
+ with Single Continuity Constraint at Thresholds}
 \usage{
   dgngcon(x, nmean = 0, nsd = 1,
     ul = qnorm(0.1, nmean, nsd), xil = 0, phiul = TRUE,
@@ -26,36 +27,36 @@
     ur = qnorm(0.9, nmean, nsd), xir = 0, phiur = TRUE)
 }
 \arguments{
-  \item{x}{quantile}
+  \item{x}{quantiles}
 
   \item{nmean}{normal mean}
 
-  \item{nsd}{normal standard deviation (non-negative)}
+  \item{nsd}{normal standard deviation (positive)}
 
   \item{ul}{lower tail threshold}
 
   \item{xil}{lower tail GPD shape parameter}
 
   \item{phiul}{probability of being below lower threshold
-  (0,1)}
+  \eqn{[0, 1]} or \code{TRUE}}
 
   \item{ur}{upper tail threshold}
 
   \item{xir}{upper tail GPD shape parameter}
 
   \item{phiur}{probability of being above upper threshold
-  (0,1)}
+  \eqn{[0, 1]} or \code{TRUE}}
 
   \item{log}{logical, if TRUE then log density}
 
-  \item{q}{quantile}
+  \item{q}{quantiles}
 
   \item{lower.tail}{logical, if FALSE then upper tail
   probabilities}
 
-  \item{p}{cumulative probability}
+  \item{p}{cumulative probabilities}
 
-  \item{n}{sample size (non-negative integer)}
+  \item{n}{sample size (positive integer)}
 }
 \value{
   \code{\link[evmix:gngcon]{dgngcon}} gives the density,
@@ -70,13 +71,13 @@
   function and random number generation for the extreme
   value mixture model with normal for bulk distribution
   between the upper and lower thresholds with conditional
-  GPD's for the two tails with Continuity Constraints at
-  the lower and upper threshold. The parameters are the
-  normal mean \code{nmean} and standard deviation
-  \code{nsd}, lower tail (threshold \code{ul}, GPD shape
-  \code{xil} and tail fraction \code{phiul}) and upper tail
-  (threshold \code{ur}, GPD shape \code{xiR} and tail
-  fraction \code{phiuR}).
+  GPD's for the two tails with continuity at the lower and
+  upper thresholds.  The parameters are the normal mean
+  \code{nmean} and standard deviation \code{nsd}, lower
+  tail (threshold \code{ul}, GPD shape \code{xil} and tail
+  fraction \code{phiul}) and upper tail (threshold
+  \code{ur}, GPD shape \code{xiR} and tail fraction
+  \code{phiuR}).
 }
 \details{
   Extreme value mixture model combining normal distribution
@@ -122,7 +123,19 @@
   equivalent when \eqn{\phi_{ul} = H(u_l)} and
   \eqn{\phi_{ur} = 1 - H(u_r)}.
 
-  The continuity constraint at the \code{ul} means that:
+  The continuity constraint at \code{ur} means that:
+  \deqn{\phi_{ur} g_r(x) = (1-\phi_{ul}-\phi_{ur}) h(u_l)/
+  (H(u_r) - H(u_l)).} By rearrangement, the GPD scale
+  parameter \code{sigmaur} is then: \deqn{\sigma_ur =
+  \phi_{ur} (H(u_r) - H(u_l))/ h(u_l)
+  (1-\phi_{ul}-\phi_{ur}).} where \eqn{h(x)}, \eqn{g_l(x)}
+  and \eqn{g_r(x)} are the normal and conditional GPD
+  density functions for lower and upper tail respectively.
+  In the special case of where the tail fraction is defined
+  by the bulk model this reduces to \deqn{\sigma_ur =
+  [1-H(u_r)] / h(u_r)}.
+
+  The continuity constraint at \code{ul} means that:
   \deqn{\phi_{ul} g_l(x) = (1-\phi_{ul}-\phi_{ur}) h(u_l)/
   (H(u_r) - H(u_l)).} The GPD scale parameter
   \code{sigmaul} is replaced by: \deqn{\sigma_ul =
@@ -130,20 +143,6 @@
   (1-\phi_{ul}-\phi_{ur}).} In the special case of where
   the tail fraction is defined by the bulk model this
   reduces to \deqn{\sigma_ul = H(u_l)/ h(u_l)}.
-
-  The continuity Constraint at the \code{ur} means that:
-  \deqn{\phi_{ur} g_r(x) = (1-\phi_{ul}-\phi_{ur}) h(u_l)/
-  (H(u_r) - H(u_l)).} By rearrangement, the GPD scale
-  parameter \code{sigmaur} is then: \deqn{\sigma_ur =
-  \phi_{ur} (H(u_r) - H(u_l))/ h(u_l)
-  (1-\phi_{ul}-\phi_{ur}).} where \eqn{h(x)}, \eqn{g_l(x)}
-  and \eqn{g_r(x)} are the normal and conditional GPD
-  density functions for lower and upper tail (i.e.
-  \code{dnorm(x, nmean, nsd)}, \code{dgpd(-x, -ul, sigmaul,
-  xil, phiul)}, and \code{dgpd(x, ur, sigmaur, xir,
-  phiur)}) In the special case of where the tail fraction
-  is defined by the bulk model this reduces to
-  \deqn{\sigma_ur = [1-H(u_r)] / h(u_r)}.
 
   See \code{\link[evmix:gpd]{gpd}} for details of GPD upper
   tail component, \code{\link[stats:Normal]{dnorm}} for
@@ -159,8 +158,9 @@
   \code{q}) and parameters must be either a scalar or a
   vector. If vectors are provided they must all be of the
   same length, and the function will be evaluated for each
-  element of vector. In the case of \code{rgngcon} any
-  input vector must be of length \code{n}.
+  element of vector. In the case of
+  \code{\link[evmix:gngcon]{rgngcon}} any input vector must
+  be of length \code{n}.
 
   Default values are provided for all inputs, except for
   the fundamentals \code{x}, \code{q} and \code{p}. The
@@ -168,8 +168,9 @@
   \code{\link[evmix:gngcon]{rgngcon}} is 1.
 
   Missing (\code{NA}) and Not-a-Number (\code{NaN}) values
-  in \code{x} and \code{q} are passed through as is and
-  infinite values are set to \code{NA}.
+  in \code{x}, \code{p} and \code{q} are passed through as
+  is and infinite values are set to \code{NA}. None of
+  these are not permitted for the parameters.
 
   Error checking of the inputs (e.g. invalid probabilities)
   is carried out and will either stop or give warning
@@ -200,7 +201,7 @@ lines(xx, dgngcon(xx, xil = -0.3, phiul = 0.3, xir = 0.3, phiur = 0.3), col = "r
 lines(xx, dgngcon(xx, xil = -0.3, phiul = TRUE, xir = 0.3, phiur = TRUE), col = "blue")
 legend("topleft", c("phiul = phiur = 0.2", "phiul = phiur = 0.3", "Bulk Tail Fraction"),
   col=c("black", "red", "blue"), lty = 1)
-  }
+}
 }
 \author{
   Yang Hu and Carl Scarrott
@@ -222,12 +223,27 @@ legend("topleft", c("phiul = phiur = 0.2", "phiul = phiur = 0.3", "Bulk Tail Fra
   crisis. Applied Financial Econometrics 20(1), 63-72.
 }
 \seealso{
-  \code{\link[evmix:gng]{gng}},
-  \code{\link[evmix:normgpd]{normgpd}},
   \code{\link[evmix:gpd]{gpd}} and
   \code{\link[stats:Normal]{dnorm}}
 
-  Other gngcon: \code{\link{fgngcon}},
-  \code{\link{lgngcon}}, \code{\link{nlgngcon}}
+  Other normgpd normgpdcon gng gngcon fnormgpd fnormgpdcon
+  fgng fgngcon: \code{\link{dgng}}, \code{\link{dnormgpd}},
+  \code{\link{dnormgpdcon}}, \code{\link{fgng}},
+  \code{\link{fgngcon}}, \code{\link{fnormgpd}},
+  \code{\link{fnormgpdcon}}, \code{\link{gng}},
+  \code{\link{lgng}}, \code{\link{lgngcon}},
+  \code{\link{lnormgpd}}, \code{\link{lnormgpdcon}},
+  \code{\link{nlgng}}, \code{\link{nlgngcon}},
+  \code{\link{nlnormgpd}}, \code{\link{nlnormgpdcon}},
+  \code{\link{nlugng}}, \code{\link{nlugngcon}},
+  \code{\link{nlunormgpd}}, \code{\link{nlunormgpdcon}},
+  \code{\link{normgpd}}, \code{\link{normgpdcon}},
+  \code{\link{pgng}}, \code{\link{pnormgpd}},
+  \code{\link{pnormgpdcon}}, \code{\link{proflugng}},
+  \code{\link{proflugngcon}}, \code{\link{proflunormgpd}},
+  \code{\link{proflunormgpdcon}}, \code{\link{qgng}},
+  \code{\link{qnormgpd}}, \code{\link{qnormgpdcon}},
+  \code{\link{rgng}}, \code{\link{rnormgpd}},
+  \code{\link{rnormgpdcon}}
 }
 

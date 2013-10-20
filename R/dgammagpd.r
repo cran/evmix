@@ -8,14 +8,15 @@
 #'   are the gamma shape \code{gshape} and scale \code{gscale}, threshold \code{u}
 #'   GPD scale \code{sigmau} and shape \code{xi} and tail fraction \code{phiu}.
 #'
-#' @inheritParams weibullgpd
+#' @param gshape  gamma shape (positive)
+#' @param gscale  gamma scale (positive)
 #' @inheritParams normgpd
 #' @inheritParams gpd
-#' @param gshape     gamma shape (non-negative)
-#' @param gscale     gamma scale (non-negative)
 #' 
 #' @details Extreme value mixture model combining gamma distribution for the bulk
-#' below the threshold and GPD for upper tail. The user can pre-specify \code{phiu} 
+#' below the threshold and GPD for upper tail.
+#' 
+#' The user can pre-specify \code{phiu} 
 #' permitting a parameterised value for the tail fraction \eqn{\phi_u}. Alternatively, when
 #' \code{phiu=TRUE} the tail fraction is estimated as the tail fraction from the
 #' gamma bulk model.
@@ -27,8 +28,8 @@
 #' and above the threshold \eqn{x > u}:
 #' \deqn{F(x) = H(u) + [1 - H(u)] G(x)}
 #' where \eqn{H(x)} and \eqn{G(X)} are the gamma and conditional GPD
-#' cumulative distribution functions (i.e. \code{pgamma(x, gshape, scale = gscale)} and
-#' \code{pgpd(x, u, sigmau, xi)}).
+#' cumulative distribution functions (i.e. \code{pgamma(x, gshape, 1/gscale)} and
+#' \code{pgpd(x, u, sigmau, xi)}) respectively.
 #' 
 #' The cumulative distribution function for pre-specified \eqn{\phi_u}, upto the
 #' threshold \eqn{0 < x \le u}, is given by:
@@ -37,7 +38,14 @@
 #' \deqn{F(x) = \phi_u + [1 - \phi_u] G(x)}
 #' Notice that these definitions are equivalent when \eqn{\phi_u = 1 - H(u)}.
 #' 
-#' The gamma is defined on the non-negative reals, so the threshold must be non-negative.
+#' The gamma is defined on the non-negative reals, so the threshold must be positive. 
+#' Though behaviour at zero depends on the shape (\eqn{\alpha}):
+#' \itemize{
+#'  \item \eqn{f(0+)=\infty} for \eqn{0<\alpha<1};
+#'  \item \eqn{f(0+)=1/\beta} for \eqn{\alpha=1} (exponential);
+#'  \item \eqn{f(0+)=0} for \eqn{\alpha>1};
+#' }
+#' where \eqn{\beta} is the scale parameter.
 #' 
 #' See \code{\link[evmix:gpd]{gpd}} for details of GPD upper tail component and 
 #'\code{\link[stats:GammaDist]{dgamma}} for details of gamma bulk component.
@@ -51,14 +59,15 @@
 #' The main inputs (\code{x}, \code{p} or \code{q}) and parameters must be either
 #' a scalar or a vector. If vectors are provided they must all be of the same length,
 #' and the function will be evaluated for each element of vector. In the case of 
-#' \code{rgammagpd} any input vector must be of length \code{n}.
+#' \code{\link[evmix:gammagpd]{rgammagpd}} any input vector must be of length \code{n}.
 #' 
 #' Default values are provided for all inputs, except for the fundamentals 
 #' \code{x}, \code{q} and \code{p}. The default sample size for 
 #' \code{\link[evmix:gammagpd]{rgammagpd}} is 1.
 #' 
-#' Missing (\code{NA}) and Not-a-Number (\code{NaN}) values in \code{x} and \code{q}
-#' are passed through as is and infinite values are set to \code{NA}.
+#' Missing (\code{NA}) and Not-a-Number (\code{NaN}) values in \code{x},
+#' \code{p} and \code{q} are passed through as is and infinite values are set to
+#' \code{NA}. None of these are not permitted for the parameters.
 #' 
 #' Error checking of the inputs (e.g. invalid probabilities) is carried out and
 #' will either stop or give warning message as appropriate.
@@ -78,8 +87,10 @@
 #' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'
 #' @seealso \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:GammaDist]{dgamma}}
-#' @aliases  gammagpd dgammagpd pgammagpd qgammagpd rgammagpd
-#' @family   gammagpd
+#' @aliases gammagpd dgammagpd pgammagpd qgammagpd rgammagpd
+#' @family  mgamma fmgamma
+#'          gammagpd gammagpdcon fgammagpd fgammagpdcon normgpd fnormgpd
+#'          mgammagpd mgammagpdcon fmgammagpd fmgammagpdcon 
 #' 
 #' @examples
 #' \dontrun{
@@ -93,7 +104,7 @@
 #' plot(xx, pgammagpd(xx, gshape = 2), type = "l")
 #' lines(xx, pgammagpd(xx, gshape = 2, xi = 0.3), col = "red")
 #' lines(xx, pgammagpd(xx, gshape = 2, xi = -0.3), col = "blue")
-#' legend("topleft", paste("xi =",c(0, 0.3, -0.3)),
+#' legend("bottomright", paste("xi =",c(0, 0.3, -0.3)),
 #'   col=c("black", "red", "blue"), lty = 1)
 #' 
 #' x = rgammagpd(1000, gshape = 2, u = 3, phiu = 0.2)
@@ -105,70 +116,34 @@
 #' lines(xx, dgammagpd(xx, gshape = 2, u = 3, xi=0.2, phiu = 0.2), col = "blue")
 #' legend("topright", c("xi = 0", "xi = 0.2", "xi = -0.2"),
 #'   col=c("black", "red", "blue"), lty = 1)
-#'   }
+#' }
+#' 
 NULL
 
 #' @export
-#' @aliases  gammagpd dgammagpd pgammagpd qgammagpd rgammagpd
-#' @rdname gammagpd
+#' @aliases gammagpd dgammagpd pgammagpd qgammagpd rgammagpd
+#' @rdname  gammagpd
 
 # probability density function for gamma bulk with GPD for upper tail
 dgammagpd <- function(x, gshape = 1, gscale = 1, u = qgamma(0.9, gshape, 1/gscale), 
   sigmau = sqrt(gshape) * gscale, xi = 0, phiu = TRUE, log = FALSE) {
 
   # Check properties of inputs
-  if (missing(x))
-    stop("x must be a non-empty numeric vector")
-    
-  if (length(x) == 0 | mode(x) != "numeric") 
-    stop("x must be a non-empty numeric vector")
-  
-  if (any(is.infinite(x)))
-    warning("infinite cases are set to NaN")
+  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.posparam(param = gshape, allowvec = TRUE)
+  check.posparam(param = gscale, allowvec = TRUE)
+  check.posparam(param = u, allowvec = TRUE) # threshold also positive for gamma
+  check.posparam(param = sigmau, allowvec = TRUE)
+  check.param(param = xi, allowvec = TRUE)
+  check.phiu(phiu, allowvec = TRUE)
+  check.logic(logicarg = log)
 
-  x[is.infinite(x)]=NA # user will have to deal with infinite cases
+  n = check.inputn(c(length(x), length(gshape), length(gscale),
+    length(u), length(sigmau), length(xi), length(phiu)))
 
-  # parameter inputs could be single values or vectors to allow for nonstationary modelling
-  # all input vectors must be same length or scalar
-  linputs = c(length(x), length(gshape), length(gscale), 
-    length(u), length(sigmau), length(xi), length(phiu))
-  n = max(linputs)
+  if (any(is.infinite(x))) warning("infinite quantiles set to NA")
 
-  if (sum(linputs[linputs != 1] != n) > 0)
-    stop("Data and parameters must be either scalar or vector, with vectors all same length")
-
-  if (mode(gshape) != "numeric" | mode(gscale) != "numeric" | mode(u) != "numeric" |
-    mode(sigmau) != "numeric" | mode(xi) != "numeric")
-    stop("parameters must be numeric")
-  
-  if (any(!is.finite(c(gshape, gscale, u, sigmau, xi, phiu))))
-    stop("parameters must be numeric")
-
-  if (min(gshape) < 0)
-    stop("gamma shape must be non-negative")
-
-  if (min(gscale) < 0)
-    stop("gamma scale must be non-negative")
-  
-  if (min(u) <= 0)
-    stop("threshold must be non-negative")
-
-  if (min(sigmau) <= 0)
-    stop("scale must be non-negative")
-
-  if (is.logical(phiu) & any(!phiu)) {
-    stop("phiu must be either TRUE for bulk parameterised threshold probability approach, 
-      or between 0 and 1 (exclusive) when using parameterised threshold probability approach")
-  } else {
-    if (any(phiu < 0) | any(phiu > 1))
-      stop("phiu must between 0 and 1 (inclusive)")
-  }
-
-  if (!is.logical(log))
-    stop("log must be logical")
-  
-  if (length(log) != 1)
-    stop("log must be of length 1")
+  x[is.infinite(x)] = NA # user will have to deal with infinite cases
 
   x = rep(x, length.out = n)
   gshape = rep(gshape, length.out = n)
@@ -177,24 +152,156 @@ dgammagpd <- function(x, gshape = 1, gscale = 1, u = qgamma(0.9, gshape, 1/gscal
   sigmau = rep(sigmau, length.out = n)
   xi = rep(xi, length.out = n)
   
+  pu = pgamma(u, gshape, scale = gscale)
   if (is.logical(phiu)) {
-    phiu = 1 - pgamma(u, shape = gshape, scale = gscale)
+    phiu = 1 - pu
   } else {
     phiu = rep(phiu, length.out = n)
   }
-  phib = (1 - phiu) / pgamma(u, shape = gshape, scale = gscale)
+  phib = (1 - phiu) / pu
 
-  d = x # this will pass through NA/NaN in x just as they are entered
+  d = x # will pass through NA/NaN as entered
   
   whichb = which(x <= u)
   nb = length(whichb)
   whichu = which(x > u)
   nu = length(whichu)
   
-  if (nb > 0) d[whichb] = log(phib[whichb]) + dgamma(x[whichb], shape = gshape[whichb], scale = gscale[whichb], log = TRUE)
+  if (nb > 0) d[whichb] = log(phib[whichb]) + dgamma(x[whichb], gshape[whichb], scale = gscale[whichb], log = TRUE)
   if (nu > 0) d[whichu] = log(phiu[whichu]) + dgpd(x[whichu], u[whichu], sigmau[whichu], xi[whichu], log = TRUE)
 
   if (!log) d = exp(d)
 
   d
 }
+
+#' @export
+#' @aliases gammagpd dgammagpd pgammagpd qgammagpd rgammagpd
+#' @rdname  gammagpd
+
+# cumulative distribution function for gamma bulk with GPD for upper tail
+pgammagpd <- function(q, gshape = 1, gscale = 1, u = qgamma(0.9, gshape, 1/gscale),
+  sigmau = sqrt(gshape) * gscale, xi = 0, phiu = TRUE, lower.tail = TRUE) {
+
+  # Check properties of inputs
+  check.quant(q, allowmiss = TRUE, allowinf = TRUE)
+  check.posparam(param = gshape, allowvec = TRUE)
+  check.posparam(param = gscale, allowvec = TRUE)
+  check.posparam(param = u, allowvec = TRUE)
+  check.posparam(param = sigmau, allowvec = TRUE)
+  check.param(param = xi, allowvec = TRUE)
+  check.phiu(phiu, allowvec = TRUE)
+  check.logic(logicarg = lower.tail)
+
+  n = check.inputn(c(length(q), length(gshape), length(gscale),
+    length(u), length(sigmau), length(xi), length(phiu)))
+
+  if (any(is.infinite(q))) warning("infinite quantiles set to NA")
+
+  q[is.infinite(q)] = NA # user will have to deal with infinite cases
+
+  q = rep(q, length.out = n)
+  gshape = rep(gshape, length.out = n)
+  gscale = rep(gscale, length.out = n)
+  u = rep(u, length.out = n)
+  sigmau = rep(sigmau, length.out = n)
+  xi = rep(xi, length.out = n)
+  
+  pu = pgamma(u, gshape, scale = gscale)
+  if (is.logical(phiu)) {
+    phiu = 1 - pu
+  } else {
+    phiu = rep(phiu, length.out = n)
+  }
+  phib = (1 - phiu) / pu
+    
+  p = q # will pass through NA/NaN as entered
+  
+  whichb = which(q <= u)
+  nb = length(whichb)
+  whichu = which(q > u)
+  nu = length(whichu)
+  
+  if (nb > 0) p[whichb] = phib[whichb] * pgamma(q[whichb], gshape[whichb], scale = gscale[whichb])
+  if (nu > 0) p[whichu] = 1 - phiu[whichu] + phiu[whichu] * pgpd(q[whichu], u[whichu], sigmau[whichu], xi[whichu])
+
+  if (!lower.tail) p = 1 - p
+
+  p
+}
+
+#' @export
+#' @aliases gammagpd dgammagpd pgammagpd qgammagpd rgammagpd
+#' @rdname  gammagpd
+
+# inverse cumulative distribution function for gamma bulk with GPD for upper tail
+qgammagpd <- function(p, gshape = 1, gscale = 1, u = qgamma(0.9, gshape, 1/gscale),
+  sigmau = sqrt(gshape) * gscale, xi = 0, phiu = TRUE, lower.tail = TRUE) {
+
+  # Check properties of inputs
+  check.prob(p, allowmiss = TRUE)
+  check.param(param = gshape, allowvec = TRUE)
+  check.posparam(param = gscale, allowvec = TRUE)
+  check.posparam(param = u, allowvec = TRUE)
+  check.posparam(param = sigmau, allowvec = TRUE)
+  check.param(param = xi, allowvec = TRUE)
+  check.phiu(phiu, allowvec = TRUE)
+  check.logic(logicarg = lower.tail)
+
+  n = check.inputn(c(length(p), length(gshape), length(gscale),
+    length(u), length(sigmau), length(xi), length(phiu)))
+  
+  if (!lower.tail) p = 1 - p
+
+  p = rep(p, length.out = n)
+  gshape = rep(gshape, length.out = n)
+  gscale = rep(gscale, length.out = n)
+  u = rep(u, length.out = n)
+  sigmau = rep(sigmau, length.out = n)
+  xi = rep(xi, length.out = n)
+  
+  pu = pgamma(u, gshape, scale = gscale)
+  if (is.logical(phiu)) {
+    phiu = 1 - pu
+  } else {
+    phiu = rep(phiu, length.out = n)
+  }
+  phib = (1 - phiu) / pu
+    
+  q = p # will pass through NA/NaN as entered
+  
+  whichb = which(p <= (1 - phiu))
+  nb = length(whichb)
+  whichu = which(p > (1 - phiu))
+  nu = length(whichu)
+
+  if (nb > 0) q[whichb] = qgamma(p[whichb] / phib[whichb], gshape[whichb], scale = gscale[whichb])
+  if (nu > 0) q[whichu] = qgpd(p[whichu], u[whichu], sigmau[whichu], xi[whichu], phiu[whichu])
+
+  q
+}
+
+#' @export
+#' @aliases gammagpd dgammagpd pgammagpd qgammagpd rgammagpd
+#' @rdname  gammagpd
+
+# random number generation for gamma bulk with GPD for upper tail
+rgammagpd <- function(n = 1, gshape = 1, gscale = 1, u = qgamma(0.9, gshape, 1/gscale),
+  sigmau = sqrt(gshape) * gscale, xi = 0, phiu = TRUE) {
+
+  # Check properties of inputs
+  check.n(n)
+  check.posparam(param = gshape, allowvec = TRUE)
+  check.posparam(param = gscale, allowvec = TRUE)
+  check.posparam(param = u, allowvec = TRUE)
+  check.posparam(param = sigmau, allowvec = TRUE)
+  check.param(param = xi, allowvec = TRUE)
+  check.phiu(phiu, allowvec = TRUE)
+
+  n = check.inputn(c(n, length(gshape), length(gscale), length(u), length(sigmau), length(xi), length(phiu)))
+
+  if (any(xi == 1)) stop("shape cannot be 1")
+
+  qgammagpd(runif(n), gshape, gscale, u, sigmau, xi, phiu)
+}
+

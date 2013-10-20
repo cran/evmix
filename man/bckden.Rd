@@ -4,57 +4,66 @@
 \alias{pbckden}
 \alias{qbckden}
 \alias{rbckden}
-\title{Boundary Corrected Kernel Density Estimation}
+\title{Boundary Corrected Kernel Density Estimation Using a Variety of Approaches}
 \usage{
-  dbckden(x, kerncentres, lambda = NULL,
-    bcmethod = "simple", proper = TRUE, nn = "jf96",
-    offset = 0, xmax = Inf, log = FALSE)
+  dbckden(x, kerncentres, lambda = NULL, bw = NULL,
+    kernel = "gaussian", bcmethod = "simple",
+    proper = TRUE, nn = "jf96", offset = NULL, xmax = NULL,
+    log = FALSE)
 
-  pbckden(q, kerncentres, lambda = NULL,
-    bcmethod = "simple", proper = TRUE, nn = "jf96",
-    offset = 0, xmax = Inf, lower.tail = TRUE)
+  pbckden(q, kerncentres, lambda = NULL, bw = NULL,
+    kernel = "gaussian", bcmethod = "simple",
+    proper = TRUE, nn = "jf96", offset = NULL, xmax = NULL,
+    lower.tail = TRUE)
 
-  qbckden(p, kerncentres, lambda = NULL,
-    bcmethod = "simple", proper = TRUE, nn = "jf96",
-    offset = 0, xmax = Inf, lower.tail = TRUE)
+  qbckden(p, kerncentres, lambda = NULL, bw = NULL,
+    kernel = "gaussian", bcmethod = "simple",
+    proper = TRUE, nn = "jf96", offset = NULL, xmax = NULL,
+    lower.tail = TRUE)
 
-  rbckden(n, kerncentres, lambda = NULL,
-    bcmethod = "simple", proper = TRUE, nn = "jf96",
-    offset = 0, xmax = Inf)
+  rbckden(n = 1, kerncentres, lambda = NULL, bw = NULL,
+    kernel = "gaussian", bcmethod = "simple",
+    proper = TRUE, nn = "jf96", offset = NULL, xmax = NULL)
 }
 \arguments{
-  \item{lambda}{scalar value of fixed bandwidth, or
-  \code{NULL} (default)}
+  \item{bcmethod}{boundary correction method}
 
-  \item{bcmethod}{boundary correction approach}
+  \item{proper}{logical, whether density is renormalised to
+  integrate to unity (where needed)}
 
-  \item{proper}{logical, should density be renormalised to
-  integrate to unity, simple boundary correction only}
+  \item{nn}{non-negativity correction method (simple
+  boundary correction only)}
 
-  \item{nn}{non-negativity correction, so simple boundary
-  correction only}
+  \item{xmax}{upper bound on support (copula and beta
+  kernels only) or \code{NULL}}
 
-  \item{xmax}{upper bound on support, for copula and beta
-  kernels only}
+  \item{offset}{offset added to kernel centres (logtrans
+  only) or \code{NULL}}
 
-  \item{offset}{offset added to kernel centres, for
-  logtrans}
+  \item{x}{location to evaluate KDE (single scalar or
+  vector)}
 
-  \item{x}{quantile}
+  \item{kerncentres}{kernel centres (typically sample data
+  vector or scalar)}
 
-  \item{kerncentres}{kernel centres (typically sample
-  data)}
+  \item{lambda}{bandwidth for kernel (as half-width of
+  kernel) or \code{NULL}}
+
+  \item{bw}{bandwidth for kernel (as standard deviations of
+  kernel) or \code{NULL}}
+
+  \item{kernel}{kernel name (\code{default = "gaussian"})}
 
   \item{log}{logical, if TRUE then log density}
 
-  \item{q}{quantile}
+  \item{q}{quantiles}
 
   \item{lower.tail}{logical, if FALSE then upper tail
   probabilities}
 
-  \item{p}{cumulative probability}
+  \item{p}{cumulative probabilities}
 
-  \item{n}{sample size (non-negative integer)}
+  \item{n}{sample size (positive integer)}
 }
 \value{
   \code{\link[evmix:bckden]{dbckden}} gives the density,
@@ -66,118 +75,55 @@
 }
 \description{
   Density, cumulative distribution function, quantile
-  function and random number generation for the boundary
-  corrected kernel density estimators with a constant
-  bandwidth \code{lambda}. The kernel centres (typically
-  the data) are given by \code{kerncentres}.
+  function and random number generation for boundary
+  corrected kernel density estimators using a variety of
+  approaches (and different kernels) with a constant
+  bandwidth \code{lambda}.
 }
 \details{
-  Boundary corrected kernel density estimation (KDE) to
-  improve the bias properties near the boundary. A fairly
-  wide range of methods are implemented for the user to
-  choose from to cope with a lower boundary at zero and
-  potentially also both upper and lower boundaries. Some
-  boundary correction methods require a secondary
-  correction for negative density estimates, so an option
-  is available. Further, some methods also need to be
-  normalised to ensure the density estimate is proper (i.e.
-  integrates to one), so an option is provided to
-  renormalise.
+  Boundary corrected kernel density estimation (BCKDE) with
+  improved bias properties near the boundary compared to
+  standard KDE available in \code{\link[evmix:kden]{kden}}
+  functions. The user chooses from a wide range of boundary
+  correction methods designed to cope with a lower bound at
+  zero and potentially also both upper and lower bounds.
 
-  It assumes there is a lower boundary at zero, so prior
-  transformation of the data would be required for
-  alternative boundaries (including negation to use it for
-  only an upper boundary).
+  Some boundary correction methods require a secondary
+  correction for negative density estimates of which two
+  methods are implemented. Further, some methods don't
+  necessarily give a density which integrates to one, so an
+  option is provided to renormalise to be proper.
 
-  Renormalisation of the kernel to integrate to unity is
-  assumed by default (\code{proper=TRUE}), but the user can
-  specify if the raw density estimate is provided instead
-  (\code{proper=FALSE}). For the methods implemented thus
-  far, this is needed for \code{bcmethod="simple"} which
-  can be evaluated in closed form, and
-  \code{bcmethod="beta1"} or \code{bcmethod="beta2"} which
-  require numerical integration.
+  It assumes there is a lower bound at zero, so prior
+  transformation of data is required for a alternative
+  lower bound (possibly including negation to allow for an
+  upper bound).
 
-  Correction of the density estimate to ensure
-  non-negativity can be applied, which is only relevant for
-  the \code{bcmethod="simple"} approach. The Jones and
-  Foster (1996) method will be applied (\code{nn="jf96"})
-  by default. The non-negative value can simply be zeroed
-  (\code{nn="zero"}).  By default, correction is applied
-  (\code{nn="none"}). This method can occassionally give an
-  extra boundary bias for certain populations (e.g.
-  Gamma(2, 1)), see their paper for details. Renormlisation
-  should be used after these non-negativity corrections.
+  The alternate bandwidth definitions are discussed in the
+  \code{\link[evmix:kernels]{kernels}}, with the
+  \code{lambda} as the default. The \code{bw} specification
+  is the same as used in the
+  \code{\link[stats:density]{density}} function.
 
-  The non-negative correction is applied before
-  renormalisation (when either is requested).
-
-  The boundary correction methods implemented are:
-
-  \code{bcmethod="simple"} is the default and applies the
-  simple boundary correction method in equation (3.4) of
-  Jones (1993) and is equivalent to the kernel weighted
-  local linear fitting at the boundary. Normal kernels are
-  used.
-
-  \code{bcmethod="renorm"} applies the renormalisation
-  method discussed in Diggle (1985), where the kernels are
-  simply truncated at the boundary and renormalised to
-  unity. But this still exhibits a o(h) boundary bias.
-  Normal kernels are used.
-
-  \code{bcmethod="reflect"} applies the reflection method
-  of Boneva, Kendall and Stefanov (1971) which is
-  equivalent to the dataset being supplemented by the same
-  dataset negated. This method implicitly assumes f'(0)=0,
-  so can causes extra artefacts at the boundary. Normal
-  kernels are used.
-
-  \code{bcmethod="logtrans"} applies KDE on the log-scale
-  and then transforms back (with explicit normalisation),
-  following Marron and Ruppert (1992). This is the approach
-  implmented in the \code{\link[ks:kde.1d]{ks}} package. As
-  the KDE is applied on the log scale, the effective
-  bandwidth on the original scale is not constant. Normal
-  kernels are used on the log-scale. The \code{offset}
-  option is only used for this method, to offset zero
-  values, to prevent \code{log(0)}.
-
-  \code{bcmethod="beta1"} and \code{"beta2"} due to Chen
-  (1999) which uses beta kernels and modified beta kernels
-  respectively in the KDE. The \code{xmax} argument has
-  been provided so that the user can have the beta kernels
-  rescaled to be appropriate for a support of [0, xmax]
-  rather than [0, 1].
-
-  \code{bcmethod="gamma1"} and \code{"gamma2"} due to Chen
-  (2000) which uses gamma kernels and modified gamma
-  kernels respectively in the KDE.
-
-  \code{bcmethod="copula"} due to Jones and Henderson
-  (2007) uses bivariate normal copula based kernels in the
-  KDE, essentially by taking condition slices thorugh the
-  bivariate copula at each kernel centre. As with the
-  \code{bcmethod="beta"} option the \code{xmax} argument
-  has been provided to rescale the kernels over [0, xmax]
-  rather than [0, 1]. In this case the bandwidth is defined
-  as \eqn{lambda=1-\rho^2}, so is limited to (0, 1).
-
-  The examples below show a trick you can use to see the
-  actual kernels used in the chosen boundary correction
-  method.
+  Certain boundary correction methods use the standard
+  kernels which are defined in the
+  \code{\link[evmix:kernels]{kernels}} help documentation
+  with the \code{"gaussian"} as the default choice.
 
   The quantile function is rather complicated as there is
-  typically no closed form solution, so in these cases it
-  is obtained by approximation or numerical solution to
-  \eqn{P(X \le x_p) = p} to find \eqn{x_p}. The quantile
-  function \code{\link[evmix:bckden]{qbckden}} evaluates
-  the KDE cumulative distribution function over the range
-  from \code{c(0, max(kerncentre) - 5*lambda)}. Outside of
-  this range the quantiles are set to \code{0} for lower
-  tail and \code{Inf} for upper tail. A sequence of values
-  of length fifty times the number of kernels is first
-  calculated. Spline based interpolation using
+  no closed form solution, so is obtained by numerical
+  approximation of the inverse cumulative distribution
+  function \eqn{P(X \le q) = p} to find \eqn{q}. The
+  quantile function \code{\link[evmix:bckden]{qbckden}}
+  evaluates the KDE cumulative distribution function over
+  the range from \code{c(0, max(kerncentre) + lambda)}, or
+  \code{c(0, max(kerncentre) + 5*lambda)} for normal
+  kernel. Outside of this range the quantiles are set to
+  \code{0} for lower tail and \code{Inf} (or \code{xmax}
+  where appropriate) for upper tail. A sequence of values
+  of length fifty times the number of kernels (upto a
+  maximum of 1000) is first calculated. Spline based
+  interpolation using
   \code{\link[stats:splinefun]{splinefun}}, with default
   \code{monoH.FC} method, is then used to approximate the
   quantile function. This is a similar approach to that
@@ -187,10 +133,10 @@
   Unlike the standard KDE, there is no general
   rule-of-thumb bandwidth for all these estimators, with
   only certain methods having a guideline in the
-  literature, so none have been implmented. Hence, the user
-  has to specify a bandwidth, but should consider using
-  \code{\link[evmix:fbckden]{fbckden}} function for
-  cross-validation likelihood fitting.
+  literature, so none have been implemented. Hence, a
+  bandwidth must always be specified and you should
+  consider using \code{\link[evmix:fbckden]{fbckden}}
+  function for cross-validation MLE for bandwidth.
 
   Random number generation is slow as inversion sampling
   using the (numerically evaluated) quantile function is
@@ -199,10 +145,11 @@
 }
 \note{
   Unlike all the other extreme value mixture model
-  functions the \code{bckden} functions have not been
-  vectorised as this is not appropriate. The main inputs
-  (\code{x}, \code{p} or \code{q}) must be either a scalar
-  or a vector, which also define the output length.
+  functions the \code{\link[evmix:bckden]{bckden}}
+  functions have not been vectorised as this is not
+  appropriate. The main inputs (\code{x}, \code{p} or
+  \code{q}) must be either a scalar or a vector, which also
+  define the output length.
 
   The kernel centres \code{kerncentres} can either be a
   single datapoint or a vector of data. The kernel centres
@@ -216,27 +163,113 @@
   for \code{\link[evmix:bckden]{rbckden}} is 1.
 
   The \code{xmax} option is only relevant for the beta and
-  copula methods, so a warning is produced if this is
-  changed from the default in other methods.
-
-  The renormalisation is only relevant for the
-  \code{bcmethod="simple"}, \code{"beta1"} and
-  \code{"beta2"} approaches, so will not be applied in any
-  other case (even if the user specifies
-  \code{proper=TRUE}).
-
-  Non-negative correction will be applied by default, but
-  this is only relevant for the \code{bcmethod="simple"}
-  approach. It will not be applied in any other cases (even
-  if the user specifies a method for \code{nn}).
+  copula methods, so a warning is produced if this is not
+  \code{NULL} for in other methods. The \code{offset}
+  option is only relevant for the \code{"logtrans"} method,
+  so a warning is produced if this is not \code{NULL} for
+  in other methods.
 
   Missing (\code{NA}) and Not-a-Number (\code{NaN}) values
-  in \code{x} and \code{q} are passed through as is and
-  infinite values are set to \code{NA}.
+  in \code{x}, \code{p} and \code{q} are passed through as
+  is and infinite values are set to \code{NA}. None of
+  these are not permitted for the parameters.
 
   Error checking of the inputs (e.g. invalid probabilities)
   is carried out and will either stop or give warning
   message as appropriate.
+}
+\section{Boundary Correction Methods}{
+  Renormalisation to a proper density is assumed by default
+  \code{proper=TRUE}. This correction is needed for
+  \code{bcmethod="renorm"}, \code{"simple"},
+  \code{"beta1"}, \code{"beta2"}, \code{"gamma1"} and
+  \code{"gamma2"} which all require numerical integration.
+  Renormalisation will not be carried out for other
+  methods, even when \code{proper=TRUE}.
+
+  Non-negativity correction is only relevant for the
+  \code{bcmethod="simple"} approach. The Jones and Foster
+  (1996) method is applied \code{nn="jf96"} by default.
+  This method can occassionally give an extra boundary bias
+  for certain populations (e.g. Gamma(2, 1)), see paper for
+  details. Non-negative values can simply be zeroed
+  (\code{nn="zero"}). Renormalisation should always be
+  applied after non-negativity correction. Non-negativity
+  correction will not be carried out for other methods,
+  even when requested by user.
+
+  The non-negative correction is applied before
+  renormalisation, when both requested.
+
+  The boundary correction methods implemented are listed
+  below. The first set can use any type of kernel (see
+  \code{\link[evmix:kernels]{kernels}} help documentation):
+
+  \code{bcmethod="simple"} is the default and applies the
+  simple boundary correction method in equation (3.4) of
+  Jones (1993) and is equivalent to the kernel weighted
+  local linear fitting at the boundary. Renormalisation and
+  non-negativity correction may be required.
+
+  \code{bcmethod="cutnorm"} applies cut and normalisation
+  method of Gasser and Muller (1979), where the kernels
+  themselves are individually truncated at the boundary and
+  renormalised to unity.
+
+  \code{bcmethod="renorm"} applies first order correction
+  method discussed in Diggle (1985), where the kernel
+  density estimate is locally renormalised near boundary.
+  Renormalisation may be required.
+
+  \code{bcmethod="reflect"} applies reflection method of
+  Boneva, Kendall and Stefanov (1971) which is equivalent
+  to the dataset being supplemented by the same dataset
+  negated. This method implicitly assumes f'(0)=0, so can
+  cause extra artefacts at the boundary.
+
+  \code{bcmethod="logtrans"} applies KDE on the log-scale
+  and then back-transforms (with explicit normalisation)
+  following Marron and Ruppert (1992). This is the approach
+  implemented in the \code{\link[ks:kde.1d]{ks}} package.
+  As the KDE is applied on the log scale, the effective
+  bandwidth on the original scale is non-constant. The
+  \code{offset} option is only used for this method and is
+  commonly used to offset zero kernel centres in log
+  transform to prevent \code{log(0)}.
+
+  All the following boundary correction methods do not use
+  kernels in their usual sense, so ignore the \code{kernel}
+  input:
+
+  \code{bcmethod="beta1"} and \code{"beta2"} uses the beta
+  and modified beta kernels of Chen (1999) respectively.
+  The \code{xmax} rescales the beta kernels to be defined
+  on the support [0, xmax] rather than unscaled [0, 1].
+  Renormalisation will be required.
+
+  \code{bcmethod="gamma1"} and \code{"gamma2"} uses the
+  gamma and modified gamma kernels of Chen (2000)
+  respectively. Renormalisation will be required.
+
+  \code{bcmethod="copula"} uses the bivariate normal copula
+  based kernesl of Jones and Henderson (2007). As with the
+  \code{bcmethod="beta1"} and \code{"beta2"} methods the
+  \code{xmax} rescales the copula kernels to be defined on
+  the support [0, xmax] rather than [0, 1]. In this case
+  the bandwidth is defined as \eqn{lambda=1-\rho^2}, so the
+  bandwidth is limited to \eqn{(0, 1)}.
+}
+
+\section{Warning}{
+  The \code{"simple"}, \code{"renorm"}, \code{"beta1"},
+  \code{"beta2"}, \code{"gamma1"} and \code{"gamma2"}
+  boundary correction methods may require renormalisation
+  using numerical integration which can be very slow. In
+  particular, the numerical integration is extremely slow
+  for the \code{kernel="uniform"}, due to the adaptive
+  quadrature in the
+  \code{\link[stats:integrate]{integrate}} function being
+  particularly slow for functions with step-like behaviour.
 }
 \examples{
 \dontrun{
@@ -245,25 +278,18 @@ x = rgamma(n, shape = 1, scale = 2)
 xx = seq(-0.5, 12, 0.01)
 plot(xx, dgamma(xx, shape = 1, scale = 2), type = "l")
 rug(x)
-lines(xx, dbckden(xx, x, lambda = 0.3), lwd = 2, col = "red")
+lines(xx, dbckden(xx, x, lambda = 1), lwd = 2, col = "red")
 lines(density(x), lty = 2, lwd = 2, col = "green")
-
-#  # Trick to show actual kernels on the plot - just add one kernel centre at a time:
-for (i in 1:min(n,20)){
-  lines(xx, dbckden(xx, x[i], lambda = 0.3, proper = FALSE)*0.05, col = "blue")
-}
-# Notice the negative weights in the kernels for this approach
-
-legend("topright", c("True Density", "Simple boundary correction", "KDE using density function",
-"Boundary Corrected Kernels"),
+legend("topright", c("True Density", "Simple boundary correction",
+"KDE using density function", "Boundary Corrected Kernels"),
 lty = c(1, 1, 2, 1), lwd = c(1, 2, 2, 1), col = c("black", "red", "green", "blue"))
 
 n=100
 x = rbeta(n, shape1 = 3, shape2 = 2)*5
 xx = seq(-0.5, 5.5, 0.01)
-plot(xx, dbeta(xx/5, shape1 = 3, shape2 = 2)/5, type = "l")
+plot(xx, dbeta(xx/5, shape1 = 3, shape2 = 2)/5, type = "l", ylim = c(0, 0.8))
 rug(x)
-lines(xx, dbckden(xx, x, lambda = 0.01, bcmethod = "beta2", xmax = 5),
+lines(xx, dbckden(xx, x, lambda = 0.1, bcmethod = "beta2", proper = TRUE, xmax = 5),
   lwd = 2, col = "red")
 lines(density(x), lty = 2, lwd = 2, col = "green")
 legend("topright", c("True Density", "Modified Beta KDE Using evmix",
@@ -271,18 +297,18 @@ legend("topright", c("True Density", "Modified Beta KDE Using evmix",
 lty = c(1, 1, 2), lwd = c(1, 2, 2), col = c("black", "red", "green"))
 
 # Demonstrate renormalisation (usually small difference)
-n=100
-x = rgamma(n, shape = 2, scale = 2)
+n=1000
+x = rgamma(n, shape = 1, scale = 2)
 xx = seq(-0.5, 15, 0.01)
-plot(xx, dgamma(xx, shape = 2, scale = 2), type = "l")
+plot(xx, dgamma(xx, shape = 1, scale = 2), type = "l")
 rug(x)
 lines(xx, dbckden(xx, x, lambda = 0.5, bcmethod = "simple", proper = TRUE),
-  lwd = 2, col = "red")
-lines(xx, dbckden(xx, x, lambda = 0.5, bcmethod = "simple", proper = FALSE),
   lwd = 2, col = "purple")
+lines(xx, dbckden(xx, x, lambda = 0.5, bcmethod = "simple", proper = FALSE),
+  lwd = 2, col = "red", lty = 2)
 legend("topright", c("True Density", "Simple BC with renomalisation",
 "Simple BC without renomalisation"),
-lty = 1, lwd = c(1, 2, 2), col = c("black", "red", "purple"))
+lty = 1, lwd = c(1, 2, 2), col = c("black", "purple", "red"))
 }
 }
 \author{
@@ -319,6 +345,10 @@ lty = 1, lwd = c(1, 2, 2), col = c("black", "red", "purple"))
   functions. Computational Statistics and Data Analysis 31,
   1310-45.
 
+  Gasser, T. and Muller, H. (1979). Kernel estimation of
+  regression functions. In "Lecture Notes in Mathematics
+  757, edited by Gasser and Rosenblatt, Springer.
+
   Chen, S.X. (2000). Probability density function
   estimation using gamma kernels. Annals of the Institute
   of Statisical Mathematics 52(3), 471-480.
@@ -341,13 +371,30 @@ lty = 1, lwd = c(1, 2, 2), col = c("black", "red", "purple"))
   94(4), 977-984.
 }
 \seealso{
-  \code{\link[evmix:kden]{kden}},
+  \code{\link[evmix:kernels]{kernels}},
+  \code{\link[evmix:kfun]{kfun}},
   \code{\link[stats:density]{density}},
-  \code{\link[logspline:logspline]{logspline}} and
-  \code{\link[ks:kde.1d]{dkde}}.
+  \code{\link[stats:bandwidth]{bw.nrd0}} and
+  \code{\link[ks:kde.1d]{dkde}} in
+  \code{\link[ks:kde.1d]{ks}} package.
 
-  Other bckdengpd bckden kden: \code{\link{bckdengpd}},
-  \code{\link{dbckdengpd}}, \code{\link{pbckdengpd}},
-  \code{\link{qbckdengpd}}, \code{\link{rbckdengpd}}
+  Other kden kdengpd kdengpdcon bckden bckdengpd
+  bckdengpdcon fkden fkdengpd fkdengpdcon fbckden
+  fbckdengpd fbckdengpdcon: \code{\link{bckdengpd}},
+  \code{\link{bckdengpdcon}}, \code{\link{dbckdengpd}},
+  \code{\link{dbckdengpdcon}}, \code{\link{dkden}},
+  \code{\link{dkdengpd}}, \code{\link{dkdengpdcon}},
+  \code{\link{fbckden}}, \code{\link{fkden}},
+  \code{\link{kden}}, \code{\link{kdengpd}},
+  \code{\link{kdengpdcon}}, \code{\link{lbckden}},
+  \code{\link{lkden}}, \code{\link{nlbckden}},
+  \code{\link{nlkden}}, \code{\link{pbckdengpd}},
+  \code{\link{pbckdengpdcon}}, \code{\link{pkden}},
+  \code{\link{pkdengpd}}, \code{\link{pkdengpdcon}},
+  \code{\link{qbckdengpd}}, \code{\link{qbckdengpdcon}},
+  \code{\link{qkden}}, \code{\link{qkdengpd}},
+  \code{\link{qkdengpdcon}}, \code{\link{rbckdengpd}},
+  \code{\link{rbckdengpdcon}}, \code{\link{rkden}},
+  \code{\link{rkdengpd}}, \code{\link{rkdengpdcon}}
 }
 

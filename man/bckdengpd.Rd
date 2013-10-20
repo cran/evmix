@@ -4,73 +4,84 @@
 \alias{pbckdengpd}
 \alias{qbckdengpd}
 \alias{rbckdengpd}
-\title{Boundary Corrected Kernel Density Estimators for Bulk and GPD Tail Extreme Value Mixture Model}
+\title{Boundary Corrected Kernel Density Estimate and GPD Tail Extreme Value Mixture Model}
 \usage{
   dbckdengpd(x, kerncentres, lambda = NULL,
     u = as.vector(quantile(kerncentres, 0.9)),
     sigmau = sqrt(6 * var(kerncentres))/pi, xi = 0,
-    phiu = TRUE, bcmethod = "simple", proper = TRUE,
-    nn = "jf96", offset = 0, xmax = Inf, log = FALSE)
+    phiu = TRUE, bw = NULL, kernel = "gaussian",
+    bcmethod = "simple", proper = TRUE, nn = "jf96",
+    offset = NULL, xmax = NULL, log = FALSE)
 
   pbckdengpd(q, kerncentres, lambda = NULL,
     u = as.vector(quantile(kerncentres, 0.9)),
     sigmau = sqrt(6 * var(kerncentres))/pi, xi = 0,
-    phiu = TRUE, bcmethod = "simple", proper = TRUE,
-    nn = "jf96", offset = 0, xmax = Inf, lower.tail = TRUE)
+    phiu = TRUE, bw = NULL, kernel = "gaussian",
+    bcmethod = "simple", proper = TRUE, nn = "jf96",
+    offset = NULL, xmax = NULL, lower.tail = TRUE)
 
   qbckdengpd(p, kerncentres, lambda = NULL,
     u = as.vector(quantile(kerncentres, 0.9)),
     sigmau = sqrt(6 * var(kerncentres))/pi, xi = 0,
-    phiu = TRUE, bcmethod = "simple", proper = TRUE,
-    nn = "jf96", offset = 0, xmax = Inf, lower.tail = TRUE)
+    phiu = TRUE, bw = NULL, kernel = "gaussian",
+    bcmethod = "simple", proper = TRUE, nn = "jf96",
+    offset = NULL, xmax = NULL, lower.tail = TRUE)
 
   rbckdengpd(n = 1, kerncentres, lambda = NULL,
     u = as.vector(quantile(kerncentres, 0.9)),
     sigmau = sqrt(6 * var(kerncentres))/pi, xi = 0,
-    phiu = TRUE, bcmethod = "simple", proper = TRUE,
-    nn = "jf96", offset = 0, xmax = Inf)
+    phiu = TRUE, bw = NULL, kernel = "gaussian",
+    bcmethod = "simple", proper = TRUE, nn = "jf96",
+    offset = NULL, xmax = NULL)
 }
 \arguments{
-  \item{x}{quantile}
+  \item{x}{location to evaluate KDE (single scalar or
+  vector)}
 
-  \item{kerncentres}{kernel centres (typically sample
-  data)}
+  \item{kerncentres}{kernel centres (typically sample data
+  vector or scalar)}
 
-  \item{lambda}{scalar value of fixed bandwidth, or
-  \code{NULL} (default)}
+  \item{lambda}{bandwidth for kernel (as half-width of
+  kernel) or \code{NULL}}
 
-  \item{bcmethod}{boundary correction approach}
+  \item{bw}{bandwidth for kernel (as standard deviations of
+  kernel) or \code{NULL}}
 
-  \item{proper}{logical, should density be renormalised to
-  integrate to unity, simple boundary correction only}
+  \item{kernel}{kernel name (\code{default = "gaussian"})}
 
-  \item{nn}{non-negativity correction, so simple boundary
-  correction only}
+  \item{bcmethod}{boundary correction method}
 
-  \item{offset}{offset added to kernel centres, for
-  logtrans}
+  \item{proper}{logical, whether density is renormalised to
+  integrate to unity (where needed)}
 
-  \item{xmax}{upper bound on support, for copula and beta
-  kernels only}
+  \item{nn}{non-negativity correction method (simple
+  boundary correction only)}
+
+  \item{offset}{offset added to kernel centres (logtrans
+  only) or \code{NULL}}
+
+  \item{xmax}{upper bound on support (copula and beta
+  kernels only) or \code{NULL}}
 
   \item{log}{logical, if TRUE then log density}
 
-  \item{q}{quantile}
+  \item{q}{quantiles}
 
   \item{lower.tail}{logical, if FALSE then upper tail
   probabilities}
 
-  \item{p}{cumulative probability}
+  \item{p}{cumulative probabilities}
 
-  \item{n}{sample size (non-negative integer)}
+  \item{n}{sample size (positive integer)}
 
   \item{u}{threshold}
 
-  \item{sigmau}{scale parameter (non-negative)}
+  \item{sigmau}{scale parameter (positive)}
 
   \item{xi}{shape parameter}
 
-  \item{phiu}{probability of being above threshold [0,1]}
+  \item{phiu}{probability of being above threshold \eqn{[0,
+  1]}}
 }
 \value{
   \code{\link[evmix:bckdengpd]{dbckdengpd}} gives the
@@ -83,45 +94,75 @@
 }
 \description{
   Density, cumulative distribution function, quantile
-  function and random number generation for the boundary
-  corrected kernel density estimators for the bulk
-  distribution upto the threshold and conditional GPD above
-  threshold. The parameters are the bandwidth
-  \code{lambda}, threshold \code{u} GPD scale \code{sigmau}
-  and shape \code{xi} and tail fraction \code{phiu}.
+  function and random number generation for the extreme
+  value mixture model with boundary corrected kernel
+  density estimate for bulk distribution upto the threshold
+  and conditional GPD above threshold. The parameters are
+  the bandwidth \code{lambda}, threshold \code{u} GPD scale
+  \code{sigmau} and shape \code{xi} and tail fraction
+  \code{phiu}.
 }
 \details{
   Extreme value mixture model combining boundary corrected
-  kernel density estimators for the bulk below the
-  threshold and GPD for upper tail.
+  kernel density (BCKDE) estimate for the bulk below the
+  threshold and GPD for upper tail. The user chooses from a
+  wide range of boundary correction methods designed to
+  cope with a lower bound at zero and potentially also both
+  upper and lower bounds.
 
-  See \code{\link[evmix:bckden]{gpd}} for details of
-  boundary corrected kernel density estimators.
+  Some boundary correction methods require a secondary
+  correction for negative density estimates of which two
+  methods are implemented. Further, some methods don't
+  necessarily give a density which integrates to one, so an
+  option is provided to renormalise to be proper.
+
+  It assumes there is a lower bound at zero, so prior
+  transformation of data is required for a alternative
+  lower bound (possibly including negation to allow for an
+  upper bound).
 
   The user can pre-specify \code{phiu} permitting a
   parameterised value for the tail fraction \eqn{\phi_u}.
   Alternatively, when \code{phiu=TRUE} the tail fraction is
-  estimated as the tail fraction from the normal bulk
-  model.
+  estimated as the tail fraction from the BCKDE bulk model.
+
+  The alternate bandwidth definitions are discussed in the
+  \code{\link[evmix:kernels]{kernels}}, with the
+  \code{lambda} as the default. The \code{bw} specification
+  is the same as used in the
+  \code{\link[stats:density]{density}} function.
+
+  The possible kernels are also defined in
+  \code{\link[evmix:kernels]{kernels}} with the
+  \code{"gaussian"} as the default choice.
 
   The cumulative distribution function with tail fraction
   \eqn{\phi_u} defined by the upper tail fraction of the
-  kernel density estimation Using normal kernel
-  (\code{phiu=TRUE}), upto the threshold \eqn{x \le u},
-  given by: \deqn{F(x) = H(x)} and above the threshold
-  \eqn{x > u}: \deqn{F(x) = (H(u)) + [1 - (H(u))] G(x)}
-  where \eqn{H(x)} and \eqn{G(X)} are the boundary
-  correction kernel density estimator and conditional GPD
-  cumulative distribution functions (i.e. \code{pbckden(x,
-  kerncentres, lambda, bcmethod, proper, nn, offset, xmax,
-  lower.tail)} and \code{pgpd(x, u, sigmau, xi)}).
+  BCKDE (\code{phiu=TRUE}), upto the threshold \eqn{x \le
+  u}, given by: \deqn{F(x) = H(x)} and above the threshold
+  \eqn{x > u}: \deqn{F(x) = H(u) + [1 - H(u)] G(x)} where
+  \eqn{H(x)} and \eqn{G(X)} are the BCKDE and conditional
+  GPD cumulative distribution functions respectively.
 
   The cumulative distribution function for pre-specified
   \eqn{\phi_u}, upto the threshold \eqn{x \le u}, is given
   by: \deqn{F(x) = (1 - \phi_u) H(x)/H(u)} and above the
   threshold \eqn{x > u}: \deqn{F(x) = \phi_u + [1 - \phi_u]
   G(x)} Notice that these definitions are equivalent when
-  \eqn{\phi_u = 1 - (H(u))}.
+  \eqn{\phi_u = 1 - H(u)}.
+
+  Unlike the standard KDE, there is no general
+  rule-of-thumb bandwidth for all the BCKDE, with only
+  certain methods having a guideline in the literature, so
+  none have been implemented. Hence, a bandwidth must
+  always be specified and you should consider using
+  \code{\link[evmix:fbckdengpd]{fbckdengpd}} of
+  \code{\link[evmix:fbckden]{fbckden}} function for
+  cross-validation MLE for bandwidth.
+
+  See \code{\link[evmix:gpd]{gpd}} for details of GPD upper
+  tail component and \code{\link[evmix:bckden]{dbckden}}
+  for details of BCKDE bulk component.
 }
 \note{
   Unlike all the other extreme value mixture model
@@ -129,8 +170,8 @@
   functions have not been vectorised as this is not
   appropriate. The main inputs (\code{x}, \code{p} or
   \code{q}) must be either a scalar or a vector, which also
-  define the output length.  The \code{kerncentres} can
-  also be a scalar or vector.
+  define the output length. The \code{kerncentres} can also
+  be a scalar or vector.
 
   The kernel centres \code{kerncentres} can either be a
   single datapoint or a vector of data. The kernel centres
@@ -143,48 +184,77 @@
   and \code{p}. The default sample size for
   \code{\link[evmix:bckdengpd]{rbckdengpd}} is 1.
 
-  Missing (\code{NA}) and Not-a-Number (\code{NaN}) values
-  in \code{x} and \code{q} are passed through as is and
-  infinite values are set to \code{NA}.
+  The \code{xmax} option is only relevant for the beta and
+  copula methods, so a warning is produced if this is not
+  \code{NULL} for in other methods. The \code{offset}
+  option is only relevant for the \code{"logtrans"} method,
+  so a warning is produced if this is not \code{NULL} for
+  in other methods.
 
-  Due to symmetry, the lower tail can be described by GPD
-  by negating the quantiles. The normal mean \code{nmean}
-  and GPD threshold \code{u} will also require negation.
+  Missing (\code{NA}) and Not-a-Number (\code{NaN}) values
+  in \code{x}, \code{p} and \code{q} are passed through as
+  is and infinite values are set to \code{NA}. None of
+  these are not permitted for the parameters or kernel
+  centres.
 
   Error checking of the inputs (e.g. invalid probabilities)
   is carried out and will either stop or give warning
   message as appropriate.
 }
+\section{Boundary Correction Methods}{
+  See \code{\link[evmix:bckden]{dbckden}} for details of
+  BCKDE methods.
+}
+
+\section{Warning}{
+  The \code{"simple"}, \code{"renorm"}, \code{"beta1"},
+  \code{"beta2"}, \code{"gamma1"} and \code{"gamma2"}
+  boundary correction methods may require renormalisation
+  using numerical integration which can be very slow. In
+  particular, the numerical integration is extremely slow
+  for the \code{kernel="uniform"}, due to the adaptive
+  quadrature in the
+  \code{\link[stats:integrate]{integrate}} function being
+  particularly slow for functions with step-like behaviour.
+}
 \examples{
 \dontrun{
 par(mfrow=c(2,2))
-kerncentres=rgamma(500, 2, 1)
-xx = seq(0.1, 10, 0.01)
+kerncentres=rgamma(500, shape = 1, scale = 2)
+xx = seq(-0.1, 10, 0.01)
 hist(kerncentres, breaks = 100, freq = FALSE)
-lines(xx, dbckdengpd(xx, kerncentres, lambda = 0.1))
+lines(xx, dbckdengpd(xx, kerncentres, lambda = 0.5, bcmethod = "reflect"),
+xlab = "x", ylab = "f(x)")
+abline(v = quantile(kerncentres, 0.9))
 
-plot(xx, pbckdengpd(xx, kerncentres, lambda = 0.1), type = "l")
-lines(xx, pbckdengpd(xx, kerncentres, lambda = 0.1, xi = 0.3), col = "red")
-lines(xx, pbckdengpd(xx, kerncentres, lambda = 0.1, xi = -0.3), col = "blue")
+plot(xx, pbckdengpd(xx, kerncentres, lambda = 0.5, bcmethod = "reflect"),
+xlab = "x", ylab = "F(x)", type = "l")
+lines(xx, pbckdengpd(xx, kerncentres, lambda = 0.5, xi = 0.3, bcmethod = "reflect"),
+xlab = "x", ylab = "F(x)", col = "red")
+lines(xx, pbckdengpd(xx, kerncentres, lambda = 0.5, xi = -0.3, bcmethod = "reflect"),
+xlab = "x", ylab = "F(x)", col = "blue")
 legend("topleft", paste("xi =",c(0, 0.3, -0.3)),
       col=c("black", "red", "blue"), lty = 1, cex = 0.5)
 
-kerncentres=rweibull(1000, 2, 1)
-x = rbckdengpd(1000, kerncentres, lambda = 0.1, phiu = TRUE)
+kerncentres = rweibull(1000, 2, 1)
+x = rbckdengpd(1000, kerncentres, lambda = 0.1, phiu = TRUE, bcmethod = "reflect")
 xx = seq(0.01, 3.5, 0.01)
 hist(x, breaks = 100, freq = FALSE)
-lines(xx, dbckdengpd(xx, kerncentres, lambda = 0.1, phiu = TRUE))
+lines(xx, dbckdengpd(xx, kerncentres, lambda = 0.1, phiu = TRUE, bcmethod = "reflect"),
+xlab = "x", ylab = "f(x)")
 
-plot(xx, dbckdengpd(xx, kerncentres, lambda = 0.1, xi=0, phiu = 0.1), type = "l")
-lines(xx, dbckdengpd(xx, kerncentres, lambda = 0.1, xi=-0.2, phiu = 0.1), col = "red")
-lines(xx, dbckdengpd(xx, kerncentres, lambda = 0.1, xi=0.2, phiu = 0.1), col = "blue")
+lines(xx, dbckdengpd(xx, kerncentres, lambda = 0.1, xi=-0.2, phiu = 0.1, bcmethod = "reflect"),
+xlab = "x", ylab = "f(x)", col = "red")
+lines(xx, dbckdengpd(xx, kerncentres, lambda = 0.1, xi=0.2, phiu = 0.1, bcmethod = "reflect"),
+xlab = "x", ylab = "f(x)", col = "blue")
 legend("topleft", c("xi = 0", "xi = 0.2", "xi = -0.2"),
       col=c("black", "red", "blue"), lty = 1)
 }
 }
 \author{
   Yang Hu and Carl Scarrott
-  \email{carl.scarrott@canterbury.ac.nz}
+  \email{carl.scarrott@canterbury.ac.nz}. Based on code by
+  Anna MacDonald produced for MATLAB.
 }
 \references{
   \url{http://en.wikipedia.org/wiki/Kernel_density_estimation}
@@ -210,13 +280,42 @@ legend("topleft", c("xi = 0", "xi = 0.2", "xi = -0.2"),
   Reale, M. and Russell, G. (2011). A flexible extreme
   value mixture model. Computational Statistics and Data
   Analysis 55(6), 2137-2157.
+
+  MacDonald, A., C. J. Scarrott, and D. S. Lee (2011).
+  Boundary correction, consistency and robustness of kernel
+  densities using extreme value theory. Submitted.
+  Available from:
+  \url{http://www.math.canterbury.ac.nz/~c.scarrott}.
+
+  Wand, M. and Jones, M.C. (1995). Kernel Smoothing.
+  Chapman && Hall.
 }
 \seealso{
-  \code{\link[evmix:gpd]{gpd}} and
-  \code{\link[stats:Normal]{dnorm}}
+  \code{\link[evmix:gpd]{gpd}},
+  \code{\link[evmix:kernels]{kernels}},
+  \code{\link[evmix:kfun]{kfun}},
+  \code{\link[stats:density]{density}},
+  \code{\link[stats:bandwidth]{bw.nrd0}} and
+  \code{\link[ks:kde.1d]{dkde}} in
+  \code{\link[ks:kde.1d]{ks}} package.
 
-  Other bckdengpd bckden kden: \code{\link{bckden}},
-  \code{\link{dbckden}}, \code{\link{pbckden}},
-  \code{\link{qbckden}}, \code{\link{rbckden}}
+  Other kden kdengpd kdengpdcon bckden bckdengpd
+  bckdengpdcon fkden fkdengpd fkdengpdcon fbckden
+  fbckdengpd fbckdengpdcon: \code{\link{bckden}},
+  \code{\link{bckdengpdcon}}, \code{\link{dbckden}},
+  \code{\link{dbckdengpdcon}}, \code{\link{dkden}},
+  \code{\link{dkdengpd}}, \code{\link{dkdengpdcon}},
+  \code{\link{fbckden}}, \code{\link{fkden}},
+  \code{\link{kden}}, \code{\link{kdengpd}},
+  \code{\link{kdengpdcon}}, \code{\link{lbckden}},
+  \code{\link{lkden}}, \code{\link{nlbckden}},
+  \code{\link{nlkden}}, \code{\link{pbckden}},
+  \code{\link{pbckdengpdcon}}, \code{\link{pkden}},
+  \code{\link{pkdengpd}}, \code{\link{pkdengpdcon}},
+  \code{\link{qbckden}}, \code{\link{qbckdengpdcon}},
+  \code{\link{qkden}}, \code{\link{qkdengpd}},
+  \code{\link{qkdengpdcon}}, \code{\link{rbckden}},
+  \code{\link{rbckdengpdcon}}, \code{\link{rkden}},
+  \code{\link{rkdengpd}}, \code{\link{rkdengpdcon}}
 }
 

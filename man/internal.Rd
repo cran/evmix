@@ -1,86 +1,105 @@
 \name{internal}
-\alias{beta1bckdenx}
-\alias{beta1pbckdenx}
-\alias{beta2bckdenx}
-\alias{beta2pbckdenx}
-\alias{copulabckdenx}
-\alias{copulapbckdenx}
-\alias{gamma1bckdenx}
-\alias{gamma1pbckdenx}
-\alias{gamma2bckdenx}
-\alias{gamma2pbckdenx}
+\alias{bckdenxbeta1}
+\alias{bckdenxbeta2}
+\alias{bckdenxcopula}
+\alias{bckdenxcutnorm}
+\alias{bckdenxgamma1}
+\alias{bckdenxgamma2}
+\alias{bckdenxreflect}
+\alias{bckdenxrenorm}
+\alias{bckdenxsimple}
 \alias{internal}
 \alias{kdenx}
-\alias{logpbckdenx}
-\alias{nnbckdenx}
-\alias{nnpbckdenx}
+\alias{pbckdenxbeta1}
+\alias{pbckdenxbeta2}
+\alias{pbckdenxcopula}
+\alias{pbckdenxcutnorm}
+\alias{pbckdenxgamma1}
+\alias{pbckdenxgamma2}
+\alias{pbckdenxlog}
+\alias{pbckdenxnn}
+\alias{pbckdenxreflect}
+\alias{pbckdenxrenorm}
+\alias{pbckdenxsimple}
 \alias{pkdenx}
 \alias{pxb}
-\alias{reflectbckdenx}
-\alias{reflectpbckdenx}
-\alias{renormbckdenx}
-\alias{renormpbckdenx}
-\alias{simplebckdenx}
-\alias{simplepbckdenx}
 \title{Internal Functions}
 \usage{
-  kdenx(x, kerncentres, lambda)
+  kdenx(x, kerncentres, lambda, kernel = "gaussian")
 
-  pkdenx(x, kerncentres, lambda)
+  pkdenx(x, kerncentres, lambda, kernel = "gaussian")
 
-  simplebckdenx(x, kerncentres, lambda)
+  bckdenxsimple(x, kerncentres, lambda,
+    kernel = "gaussian")
 
-  simplepbckdenx(x, kerncentres, lambda)
+  pbckdenxsimple(x, kerncentres, lambda,
+    kernel = "gaussian")
 
-  renormbckdenx(x, kerncentres, lambda)
+  bckdenxcutnorm(x, kerncentres, lambda,
+    kernel = "gaussian")
 
-  renormpbckdenx(x, kerncentres, lambda)
+  pbckdenxcutnorm(x, kerncentres, lambda,
+    kernel = "gaussian")
 
-  reflectbckdenx(x, kerncentres, lambda)
+  bckdenxrenorm(x, kerncentres, lambda,
+    kernel = "gaussian")
 
-  reflectpbckdenx(x, kerncentres, lambda)
+  pbckdenxrenorm(x, kerncentres, lambda,
+    kernel = "gaussian")
+
+  bckdenxreflect(x, kerncentres, lambda,
+    kernel = "gaussian")
+
+  pbckdenxreflect(x, kerncentres, lambda,
+    kernel = "gaussian")
 
   pxb(x, lambda)
 
-  beta1bckdenx(x, kerncentres, lambda, xmax)
+  bckdenxbeta1(x, kerncentres, lambda, xmax)
 
-  beta1pbckdenx(x, kerncentres, lambda, xmax)
+  pbckdenxbeta1(x, kerncentres, lambda, xmax)
 
-  beta2bckdenx(x, kerncentres, lambda, xmax)
+  bckdenxbeta2(x, kerncentres, lambda, xmax)
 
-  beta2pbckdenx(x, kerncentres, lambda, xmax)
+  pbckdenxbeta2(x, kerncentres, lambda, xmax)
 
-  gamma1bckdenx(x, kerncentres, lambda)
+  bckdenxgamma1(x, kerncentres, lambda)
 
-  gamma1pbckdenx(x, kerncentres, lambda)
+  pbckdenxgamma1(x, kerncentres, lambda)
 
-  gamma2bckdenx(x, kerncentres, lambda)
+  bckdenxgamma2(x, kerncentres, lambda)
 
-  gamma2pbckdenx(x, kerncentres, lambda)
+  pbckdenxgamma2(x, kerncentres, lambda)
 
-  copulabckdenx(x, kerncentres, lambda, xmax)
+  bckdenxcopula(x, kerncentres, lambda, xmax)
 
-  copulapbckdenx(x, kerncentres, lambda, xmax)
+  pbckdenxcopula(x, kerncentres, lambda, xmax)
 
-  logpbckdenx(x, kerncentres, lambda, offset)
+  pbckdenxlog(x, kerncentres, lambda, offset,
+    kernel = "gaussian")
 
-  nnbckdenx(x, kerncentres, lambda)
-
-  nnpbckdenx(x, kerncentres, lambda)
+  pbckdenxnn(x, kerncentres, lambda, kernel = "gaussian",
+    nn)
 }
 \arguments{
-  \item{x}{quantile}
+  \item{x}{quantiles}
 
-  \item{kerncentres}{kernel centres (typically sample
-  data)}
+  \item{kerncentres}{kernel centres (typically sample data
+  vector or scalar)}
 
-  \item{lambda}{bandwidth for KDE}
+  \item{lambda}{bandwidth for kernel (as half-width of
+  kernel) or \code{NULL}}
 
-  \item{xmax}{upper bound on support, for copula and beta
-  based KDE's only}
+  \item{kernel}{kernel name (\code{default = "gaussian"})}
 
-  \item{offset}{offset added to kernel centres, log
-  transform based KDE}
+  \item{xmax}{upper bound on support (copula and beta
+  kernels only) or \code{NULL}}
+
+  \item{offset}{offset added to kernel centres (logtrans
+  only) or \code{NULL}}
+
+  \item{nn}{non-negativity correction method (simple
+  boundary correction only)}
 }
 \description{
   Internal functions not designed to be used directly, but
@@ -101,6 +120,7 @@
   Anna MacDonald produced for MATLAB.
 }
 \seealso{
+  \code{\link[stats:density]{density}},
   \code{\link[evmix:kden]{kden}} and
   \code{\link[evmix:bckden]{bckden}}.
 }

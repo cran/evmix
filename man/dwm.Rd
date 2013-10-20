@@ -27,29 +27,29 @@
 
   \item{ctau}{Cauchy scale}
 
-  \item{qinit}{vector of initial values for the quantile
-  estimate}
+  \item{qinit}{scalar or vector of initial values for the
+  quantile estimate}
 
-  \item{x}{quantile}
+  \item{wshape}{Weibull shape (positive)}
 
-  \item{wshape}{Weibull shape (non-negative)}
+  \item{wscale}{Weibull scale (positive)}
 
-  \item{wscale}{Weibull scale (non-negative)}
+  \item{x}{quantiles}
 
-  \item{sigmau}{scale parameter (non-negative)}
+  \item{sigmau}{scale parameter (positive)}
 
   \item{xi}{shape parameter}
 
   \item{log}{logical, if TRUE then log density}
 
-  \item{q}{quantile}
+  \item{q}{quantiles}
 
   \item{lower.tail}{logical, if FALSE then upper tail
   probabilities}
 
-  \item{p}{cumulative probability}
+  \item{p}{cumulative probabilities}
 
-  \item{n}{sample size (non-negative integer)}
+  \item{n}{sample size (positive integer)}
 }
 \value{
   \code{\link[evmix:dwm]{ddwm}} gives the density,
@@ -83,7 +83,7 @@
   mixture given by: \deqn{f(x) = {[1 - p(x)] h(x) + p(x)
   g(x)}/r} where \eqn{h(x)} and \eqn{g(x)} are the Weibull
   and unscaled GPD density functions respectively (i.e.
-  \code{pweibull(x, wshape, wscale)} and \code{pgpd(x, u,
+  \code{dweibull(x, wshape, wscale)} and \code{dgpd(x, u,
   sigmau, xi)}). The Cauchy cumulative distribution
   function used to provide the transition is defined by
   \eqn{p(x)} (i.e. \code{pcauchy(x, cmu, ctau}. The
@@ -115,8 +115,9 @@
   1.
 
   Missing (\code{NA}) and Not-a-Number (\code{NaN}) values
-  in \code{x} and \code{q} are passed through as is and
-  infinite values are set to \code{NA}.
+  in \code{x}, \code{p} and \code{q} are passed through as
+  is and infinite values are set to \code{NA}. None of
+  these are not permitted for the parameters.
 
   Error checking of the inputs (e.g. invalid probabilities)
   is carried out and will either stop or give warning
@@ -162,6 +163,8 @@ legend('bottomright', c('DWM', 'Weibull', 'GPD'),
 \references{
   \url{http://en.wikipedia.org/wiki/Weibull_distribution}
 
+  \url{http://en.wikipedia.org/wiki/Cauchy_distribution}
+
   \url{http://en.wikipedia.org/wiki/Generalized_Pareto_distribution}
 
   Scarrott, C.J. and MacDonald, A. (2012). A review of
@@ -175,8 +178,8 @@ legend('bottomright', c('DWM', 'Weibull', 'GPD'),
   threshold selection. Extremes 5 (3), 219-235
 }
 \seealso{
-  \code{\link[evmix:weibullgpd]{weibullgpd}},
-  \code{\link[evmix:gpd]{gpd}} and
+  \code{\link[evmix:gpd]{gpd}},
+  \code{\link[stats:Cauchy]{dcauchy}} and
   \code{\link[stats:Weibull]{dweibull}}
 }
 

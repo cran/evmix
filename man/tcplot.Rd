@@ -6,7 +6,7 @@
 \usage{
   tcplot(data, tlim = NULL, nt = min(100, length(data)),
     p.or.n = FALSE, alpha = 0.05, ylim.xi = NULL,
-    ylim.sigmau = NULL, legend.loc = "bottomleft",
+    ylim.sigmau = NULL, legend.loc = NULL,
     try.thresh = quantile(data, 0.9, na.rm = TRUE), ...)
 
   tshapeplot(data, tlim = NULL,
@@ -46,7 +46,8 @@
   \item{alpha}{logical, significance level (0, 1)}
 
   \item{legend.loc}{location of legend (see
-  \code{\link[graphics:legend]{legend}})}
+  \code{\link[graphics:legend]{legend}}) or \code{NULL} for
+  no legend}
 
   \item{try.thresh}{vector of threshold to fit GPD using
   MLE and show theoretical MRL}
@@ -148,6 +149,10 @@
   which case the maximum likelihood estimation is
   unreliable. If there are less than 10 exceedances of the
   minimum threshold then the function will stop.
+
+  By default, no legend is included when using
+  \code{\link[evmix:tcplot]{tcplot}} to get both threshold
+  stability plots.
 
   Error checking of the inputs (e.g. invalid probabilities)
   is carried out and will either stop or give warning

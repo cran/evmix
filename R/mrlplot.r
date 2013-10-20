@@ -12,7 +12,7 @@
 #' @param p.or.n     logical, should tail fraction (\code{FALSE}) or number of
 #'                   exceedances (\code{TRUE}) be given on upper x-axis
 #' @param ylim       y-axis limits or \code{NULL}
-#' @param legend.loc location of legend (see \code{\link[graphics:legend]{legend}})
+#' @param legend.loc location of legend (see \code{\link[graphics:legend]{legend}}) or \code{NULL} for no legend
 #' @param try.thresh vector of threshold to fit GPD using MLE and show theoretical MRL
 #' @param main       title of plot
 #' @param xlab       x-axis label
@@ -22,11 +22,14 @@
 #' @details Plots the sample mean residual life plot, which is also known as the mean
 #' excess plot. 
 #' 
-#' The mean residual life above a threshold \eqn{u} is given by \code{mean(x[x > u]) - u},
-#' i.e. the sample mean of the exceedances less the threshold. If the generalised Pareto
-#' distribution (GPD)is an appropriate model for the excesses above \eqn{u}, then for any higher
-#' thresholds \eqn{v > u} the MRL will be linear with intercept \eqn{(\sigma_u - \xi *u)/(1 - \xi)}
-#' and gradient \eqn{\xi/(1 - \xi)}.
+#' If the generalised Pareto distribution (GPD) is an appropriate model for the excesses \eqn{X-u}
+#' above \eqn{u} then their expected value is:
+#' \deqn{E(X - u | X > u) = \sigma_u / (1 - \xi).}
+#' For any higher threshold \eqn{v > u} the expected value is 
+#' \deqn{E(X - v | X > v) = [\sigma_u + \xi * (v - u)] / (1 - \xi)}
+#' which is linear in higher thresholds \eqn{v} with intercept given by \eqn{[\sigma_u - \xi *u]/(1 - \xi)}
+#' and gradient \eqn{\xi/(1 - \xi)}. The estimated mean residual life above a threshold
+#' \eqn{v} is given by the sample mean excess \code{mean(x[x > v]) - v}. 
 #' 
 #' Symmetric central limit theorem based confidence intervals are provided for all mean
 #' excesses, provided there are at least 5 exceedances. The sampling density for the MRL
@@ -144,10 +147,12 @@ mrlplot <- function(data, tlim = NULL, nt = min(100, length(data)), p.or.n = FAL
       stop("a range of y axis limits must be specified by ylim")
   }
   
-  if (!(legend.loc %in% c("bottomright", "bottom", "bottomleft", "left",
-    "topleft", "top", "topright", "right", "center")))
-    stop("legend location not correct, see help(legend)")
-
+  if (!is.null(legend.loc)) {
+    if (!(legend.loc %in% c("bottomright", "bottom", "bottomleft", "left",
+      "topleft", "top", "topright", "right", "center")))
+      stop("legend location not correct, see help(legend)")
+  }
+  
   if (any(is.na(data)))
     warning("missing values have been removed")
 
@@ -195,7 +200,7 @@ mrlplot <- function(data, tlim = NULL, nt = min(100, length(data)), p.or.n = FAL
       stop("threshold to fit GPD to must be numeric scalar or vector")
 
     if (any((try.thresh < min(thresholds)) | (try.thresh >= max(thresholds))))
-      stop("a range of thresholds must be specified by tlim")
+      stop("potential thresholds must be within range specifed by tlim")
   }
     
   me.calc <- function(u, x, alpha) {
@@ -272,16 +277,20 @@ mrlplot <- function(data, tlim = NULL, nt = min(100, length(data)), p.or.n = FAL
         mrlint + mrlgrad * c(min(thresholds), try.thresh[i]), lwd = 2, lty = 2, col = linecols[i])
       abline(v = try.thresh[i], lty = 3, col = linecols[i])
     }
-    legend(legend.loc, c("Sample Mean Excess", paste(100*(1 - alpha), "% CI"),
-      paste("u =", formatC(try.thresh[1:min(c(3, ntry))], digits = 2, format = "g"),
-        "sigmau =", formatC(mleparams[1, 1:min(c(3, ntry))], digits = 2, format = "g"),
-        "xi =", formatC(mleparams[2, 1:min(c(3, ntry))], digits = 2, format = "g"))),
-      lty = c(1, 2, rep(1, min(c(3, ntry)))),
-      lwd = c(2, 1, rep(1, min(c(3, ntry)))),
-      col = c("black", "black", linecols), bg = "white")
+    if (!is.null(legend.loc)) {
+      legend(legend.loc, c("Sample Mean Excess", paste(100*(1 - alpha), "% CI"),
+        paste("u =", formatC(try.thresh[1:min(c(3, ntry))], digits = 2, format = "g"),
+          "sigmau =", formatC(mleparams[1, 1:min(c(3, ntry))], digits = 2, format = "g"),
+          "xi =", formatC(mleparams[2, 1:min(c(3, ntry))], digits = 2, format = "g"))),
+        lty = c(1, 2, rep(1, min(c(3, ntry)))),
+        lwd = c(2, 1, rep(1, min(c(3, ntry)))),
+        col = c("black", "black", linecols), bg = "white")
+    }
   } else {
-    legend(legend.loc, c("Sample Mean Excess", paste(100*(1 - alpha), "% CI")),
-      lty = c(1, 2), lwd = c(2, 1), bg = "white")
+    if (!is.null(legend.loc)) {
+      legend(legend.loc, c("Sample Mean Excess", paste(100*(1 - alpha), "% CI")),
+        lty = c(1, 2), lwd = c(2, 1), bg = "white")
+    }
   }
   
   invisible(me)

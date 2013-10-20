@@ -9,12 +9,14 @@
 #'   GPD scale \code{sigmau} and shape \code{xi} and tail fraction \code{phiu}.
 #'
 #' @inheritParams gpd
-#' @param nmean      normal mean
-#' @param nsd        normal standard deviation (non-negative)
-#' @param phiu       probability of being above threshold [0,1] or TRUE
+#' @param nmean   normal mean
+#' @param nsd     normal standard deviation (positive)
+#' @param phiu    probability of being above threshold \eqn{[0, 1]} or \code{TRUE}
 #' 
 #' @details Extreme value mixture model combining normal distribution for the bulk
-#' below the threshold and GPD for upper tail. The user can pre-specify \code{phiu} 
+#' below the threshold and GPD for upper tail.
+#' 
+#' The user can pre-specify \code{phiu} 
 #' permitting a parameterised value for the tail fraction \eqn{\phi_u}. Alternatively, when
 #' \code{phiu=TRUE} the tail fraction is estimated as the tail fraction from the
 #' normal bulk model.
@@ -27,7 +29,7 @@
 #' \deqn{F(x) = H(u) + [1 - H(u)] G(x)}
 #' where \eqn{H(x)} and \eqn{G(X)} are the normal and conditional GPD
 #' cumulative distribution functions (i.e. \code{pnorm(x, nmean, nsd)} and
-#' \code{pgpd(x, u, sigmau, xi)}).
+#' \code{pgpd(x, u, sigmau, xi)}) respectively.
 #' 
 #' The cumulative distribution function for pre-specified \eqn{\phi_u}, upto the
 #' threshold \eqn{x \le u}, is given by:
@@ -48,14 +50,15 @@
 #' The main inputs (\code{x}, \code{p} or \code{q}) and parameters must be either
 #' a scalar or a vector. If vectors are provided they must all be of the same length,
 #' and the function will be evaluated for each element of vector. In the case of 
-#' \code{rnormgpd} any input vector must be of length \code{n}.
+#' \code{\link[evmix:normgpd]{rnormgpd}} any input vector must be of length \code{n}.
 #' 
 #' Default values are provided for all inputs, except for the fundamentals 
 #' \code{x}, \code{q} and \code{p}. The default sample size for 
 #' \code{\link[evmix:normgpd]{rnormgpd}} is 1.
 #' 
-#' Missing (\code{NA}) and Not-a-Number (\code{NaN}) values in \code{x} and \code{q}
-#' are passed through as is and infinite values are set to \code{NA}.
+#' Missing (\code{NA}) and Not-a-Number (\code{NaN}) values in \code{x},
+#' \code{p} and \code{q} are passed through as is and infinite values are set to
+#' \code{NA}. None of these are not permitted for the parameters.
 #' 
 #' Due to symmetry, the lower tail can be described by GPD by negating the quantiles. 
 #' The normal mean \code{nmean} and GPD threshold \code{u} will also require negation.
@@ -78,8 +81,8 @@
 #' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'
 #' @seealso \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:Normal]{dnorm}}
-#' @aliases  normgpd dnormgpd pnormgpd qnormgpd rnormgpd
-#' @family   normgpd
+#' @aliases normgpd dnormgpd pnormgpd qnormgpd rnormgpd
+#' @family  normgpd normgpdcon gng gngcon fnormgpd fnormgpdcon fgng fgngcon
 #' 
 #' @examples
 #' \dontrun{
@@ -106,64 +109,34 @@
 #' lines(xx, dnormgpd(xx, xi=0.2, phiu = 0.2), col = "blue")
 #' legend("topleft", c("xi = 0", "xi = 0.2", "xi = -0.2"),
 #'   col=c("black", "red", "blue"), lty = 1)
-#'   }
+#' }
+#' 
 NULL
 
 #' @export
-#' @aliases  normgpd dnormgpd pnormgpd qnormgpd rnormgpd
-#' @rdname normgpd
+#' @aliases normgpd dnormgpd pnormgpd qnormgpd rnormgpd
+#' @rdname  normgpd
 
 # probability density function for normal bulk with GPD for upper tail
 dnormgpd <- function(x, nmean = 0, nsd = 1, u = qnorm(0.9, nmean, nsd),
   sigmau = nsd, xi = 0, phiu = TRUE, log = FALSE) {
 
   # Check properties of inputs
-  if (missing(x))
-    stop("x must be a non-empty numeric vector")
-    
-  if (length(x) == 0 | mode(x) != "numeric") 
-    stop("x must be a non-empty numeric vector")
-  
-  if (any(is.infinite(x)))
-    warning("infinite cases are set to NaN")
+  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.param(param = nmean, allowvec = TRUE)
+  check.posparam(param = nsd, allowvec = TRUE)
+  check.param(param = u, allowvec = TRUE)
+  check.posparam(param = sigmau, allowvec = TRUE)
+  check.param(param = xi, allowvec = TRUE)
+  check.phiu(phiu, allowvec = TRUE)
+  check.logic(logicarg = log)
 
-  x[is.infinite(x)]=NA # user will have to deal with infinite cases
+  n = check.inputn(c(length(x), length(nmean), length(nsd),
+    length(u), length(sigmau), length(xi), length(phiu)))
 
-  # parameter inputs could be single values or vectors to allow for nonstationary modelling
-  # all input vectors must be same length or scalar
-  linputs = c(length(x), length(nmean), length(nsd), 
-    length(u), length(sigmau), length(xi), length(phiu))
-  n = max(linputs)
+  if (any(is.infinite(x))) warning("infinite quantiles set to NA")
 
-  if (sum(linputs[linputs != 1] != n) > 0)
-    stop("Data and parameters must be either scalar or vector, with vectors all same length")
-
-  if (mode(nmean) != "numeric" | mode(nsd) != "numeric" | mode(u) != "numeric" |
-    mode(sigmau) != "numeric" | mode(xi) != "numeric")
-    stop("parameters must be numeric")
-  
-  if (any(!is.finite(c(nmean, nsd, u, sigmau, xi, phiu))))
-    stop("parameters must be numeric")
-
-  if (min(nsd) <= 0)
-    stop("normal standard deviation must be non-negative")
-
-  if (min(sigmau) <= 0)
-    stop("scale must be non-negative")
-
-  if (is.logical(phiu) & any(!phiu)) {
-    stop("phiu must be either TRUE for bulk parameterised threshold probability approach, 
-      or between 0 and 1 (exclusive) when using parameterised threshold probability approach")
-  } else {
-    if (any(phiu < 0) | any(phiu > 1))
-      stop("phiu must between 0 and 1 (inclusive)")
-  }
-
-  if (!is.logical(log))
-    stop("log must be logical")
-  
-  if (length(log) != 1)
-    stop("log must be of length 1")
+  x[is.infinite(x)] = NA # user will have to deal with infinite cases
  
   x = rep(x, length.out = n)
   nmean = rep(nmean, length.out = n)
@@ -172,24 +145,155 @@ dnormgpd <- function(x, nmean = 0, nsd = 1, u = qnorm(0.9, nmean, nsd),
   sigmau = rep(sigmau, length.out = n)
   xi = rep(xi, length.out = n)
   
+  pu = pnorm(u, nmean, nsd)
   if (is.logical(phiu)) {
-    phiu = 1 - pnorm(u, mean = nmean, sd = nsd)
+    phiu = 1 - pu
   } else {
     phiu = rep(phiu, length.out = n)
   }
-  phib = (1 - phiu) / pnorm(u, mean = nmean, sd = nsd)
+  phib = (1 - phiu) / pu
 
-  d = x # this will pass through NA/NaN in x just as they are entered
+  d = x # pass through NA/NaN as entered
   
   whichb = which(x <= u)
   nb = length(whichb)
   whichu = which(x > u)
   nu = length(whichu)
   
-  if (nb > 0) d[whichb] = log(phib[whichb]) + dnorm(x[whichb], mean = nmean[whichb], sd = nsd[whichb], log = TRUE)
+  if (nb > 0) d[whichb] = log(phib[whichb]) + dnorm(x[whichb], nmean[whichb], nsd[whichb], log = TRUE)
   if (nu > 0) d[whichu] = log(phiu[whichu]) + dgpd(x[whichu], u[whichu], sigmau[whichu], xi[whichu], log = TRUE)
 
   if (!log) d = exp(d)
 
   d
+}
+
+#' @export
+#' @aliases normgpd dnormgpd pnormgpd qnormgpd rnormgpd
+#' @rdname  normgpd
+
+# cumulative distribution function for normal bulk with GPD for upper tail
+pnormgpd <- function(q, nmean = 0, nsd = 1, u = qnorm(0.9, nmean, nsd), 
+  sigmau = nsd, xi = 0, phiu = TRUE, lower.tail = TRUE) {
+
+  # Check properties of inputs
+  check.quant(q, allowmiss = TRUE, allowinf = TRUE)
+  check.param(param = nmean, allowvec = TRUE)
+  check.posparam(param = nsd, allowvec = TRUE)
+  check.param(param = u, allowvec = TRUE)
+  check.posparam(param = sigmau, allowvec = TRUE)
+  check.param(param = xi, allowvec = TRUE)
+  check.phiu(phiu, allowvec = TRUE)
+  check.logic(logicarg = lower.tail)
+
+  n = check.inputn(c(length(q), length(nmean), length(nsd),
+    length(u), length(sigmau), length(xi), length(phiu)))
+
+  if (any(is.infinite(q))) warning("infinite quantiles set to NA")
+
+  q[is.infinite(q)] = NA # user will have to deal with infinite cases
+
+  q = rep(q, length.out = n)
+  nmean = rep(nmean, length.out = n)
+  nsd = rep(nsd, length.out = n)
+  u = rep(u, length.out = n)
+  sigmau = rep(sigmau, length.out = n)
+  xi = rep(xi, length.out = n)
+  
+  pu = pnorm(u, nmean, nsd)
+  if (is.logical(phiu)) {
+    phiu = 1 - pu
+  } else {
+    phiu = rep(phiu, length.out = n)
+  }
+  phib = (1 - phiu) / pu
+    
+  p = q # pass through NA/NaN as entered
+  
+  whichb = which(q <= u)
+  nb = length(whichb)
+  whichu = which(q > u)
+  nu = length(whichu)
+  
+  if (nb > 0) p[whichb] = phib[whichb] * pnorm(q[whichb], nmean[whichb], nsd[whichb])
+  if (nu > 0) p[whichu] = 1 - phiu[whichu] + phiu[whichu] * pgpd(q[whichu], u[whichu], sigmau[whichu], xi[whichu])
+
+  if (!lower.tail) p = 1 - p
+
+  p
+}
+
+#' @export
+#' @aliases normgpd dnormgpd pnormgpd qnormgpd rnormgpd
+#' @rdname  normgpd
+
+# inverse cumulative distribution function for normal bulk with GPD for upper tail
+qnormgpd <- function(p, nmean = 0, nsd = 1, u = qnorm(0.9, nmean, nsd),
+  sigmau = nsd, xi = 0, phiu = TRUE, lower.tail = TRUE) {
+
+  # Check properties of inputs
+  check.prob(p, allowmiss = TRUE)
+  check.param(param = nmean, allowvec = TRUE)
+  check.posparam(param = nsd, allowvec = TRUE)
+  check.param(param = u, allowvec = TRUE)
+  check.posparam(param = sigmau, allowvec = TRUE)
+  check.param(param = xi, allowvec = TRUE)
+  check.phiu(phiu, allowvec = TRUE)
+  check.logic(logicarg = lower.tail)
+
+  n = check.inputn(c(length(p), length(nmean), length(nsd),
+    length(u), length(sigmau), length(xi), length(phiu)))
+
+  if (!lower.tail) p = 1 - p
+
+  p = rep(p, length.out = n)
+  nmean = rep(nmean, length.out = n)
+  nsd = rep(nsd, length.out = n)
+  u = rep(u, length.out = n)
+  sigmau = rep(sigmau, length.out = n)
+  xi = rep(xi, length.out = n)
+  
+  pu = pnorm(u, nmean, nsd)
+  if (is.logical(phiu)) {
+    phiu = 1 - pu
+  } else {
+    phiu = rep(phiu, length.out = n)
+  }
+  phib = (1 - phiu) / pu
+    
+  q = p # pass through NA/NaN as entered
+  
+  whichb = which(p <= (1 - phiu))
+  nb = length(whichb)
+  whichu = which(p > (1 - phiu))
+  nu = length(whichu)
+
+  if (nb > 0) q[whichb] = qnorm(p[whichb] / phib[whichb], nmean[whichb], nsd[whichb])
+  if (nu > 0) q[whichu] = qgpd(p[whichu], u[whichu], sigmau[whichu], xi[whichu], phiu[whichu])
+
+  q
+}
+
+#' @export
+#' @aliases normgpd dnormgpd pnormgpd qnormgpd rnormgpd
+#' @rdname  normgpd
+
+# random number generation for normal bulk with GPD for upper tail
+rnormgpd <- function(n = 1, nmean = 0, nsd = 1, u = qnorm(0.9, nmean, nsd),
+  sigmau = nsd, xi = 0, phiu = TRUE) {
+
+  # Check properties of inputs
+  check.n(n)
+  check.param(param = nmean, allowvec = TRUE)
+  check.posparam(param = nsd, allowvec = TRUE)
+  check.param(param = u, allowvec = TRUE)
+  check.posparam(param = sigmau, allowvec = TRUE)
+  check.param(param = xi, allowvec = TRUE)
+  check.phiu(phiu, allowvec = TRUE)
+
+  n = check.inputn(c(n, length(nmean), length(nsd), length(u), length(sigmau), length(xi), length(phiu)))
+
+  if (any(xi == 1)) stop("shape cannot be 1")
+  
+  qnormgpd(runif(n), nmean, nsd, u, sigmau, xi, phiu)
 }

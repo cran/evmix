@@ -1,20 +1,49 @@
 \name{fnormgpd}
 \alias{fnormgpd}
+\alias{lnormgpd}
+\alias{nlnormgpd}
+\alias{nlunormgpd}
+\alias{proflunormgpd}
 \title{MLE Fitting of Normal Bulk and GPD Tail Extreme Value Mixture Model}
 \usage{
-  fnormgpd(x, phiu = TRUE, pvector = NULL, std.err = TRUE,
+  fnormgpd(x, phiu = TRUE, useq = NULL, fixedu = FALSE,
+    pvector = NULL, std.err = TRUE, method = "BFGS",
+    control = list(maxit = 10000), finitelik = TRUE, ...)
+
+  lnormgpd(x, nmean = 0, nsd = 1,
+    u = qnorm(0.9, nmean, nsd), sigmau = nsd, xi = 0,
+    phiu = TRUE, log = TRUE)
+
+  nlnormgpd(pvector, x, phiu = TRUE, finitelik = FALSE)
+
+  proflunormgpd(u, pvector, x, phiu = TRUE,
     method = "BFGS", control = list(maxit = 10000),
-    finitelik = TRUE, ...)
+    finitelik = FALSE, ...)
+
+  nlunormgpd(pvector, u, x, phiu = TRUE, finitelik = FALSE)
 }
 \arguments{
-  \item{pvector}{vector of initial values of mixture model
-  parameters (\code{nmean}, \code{nsd}, \code{u},
-  \code{sigmau}, \code{xi}) or \code{NULL}}
+  \item{nmean}{scalar normal mean}
 
-  \item{phiu}{logical}
+  \item{nsd}{scalar normal standard deviation (positive)}
 
-  \item{control}{optimisation control list (see
-  \code{\link[stats:optim]{optim}})}
+  \item{u}{scalar threshold value}
+
+  \item{pvector}{vector of initial values of parameters or
+  \code{NULL} for default values, see below}
+
+  \item{phiu}{probability of being above threshold \eqn{(0,
+  1)} or logical, see Details in help for
+  \code{\link[evmix:fnormgpd]{fnormgpd}}}
+
+  \item{useq}{vector of thresholds (or scalar) to be
+  considered in profile likelihood or \code{NULL} for no
+  profile likelihood}
+
+  \item{fixedu}{logical, should threshold be fixed (at
+  either scalar value in \code{useq}, or estimated from
+  maximum of profile likelihood evaluated at sequence of
+  thresholds in \code{useq})}
 
   \item{x}{vector of sample data}
 
@@ -24,43 +53,64 @@
   \item{method}{optimisation method (see
   \code{\link[stats:optim]{optim}})}
 
+  \item{control}{optimisation control list (see
+  \code{\link[stats:optim]{optim}})}
+
   \item{finitelik}{logical, should log-likelihood return
   finite value for invalid parameters}
 
   \item{...}{optional inputs passed to
   \code{\link[stats:optim]{optim}}}
+
+  \item{sigmau}{scalar scale parameter (positive)}
+
+  \item{xi}{scalar shape parameter}
+
+  \item{log}{logical, if \code{TRUE} then log-likelihood
+  rather than likelihood is output}
 }
 \value{
-  Returns a simple list with the following elements
+  Log-likelihood is given by
+  \code{\link[evmix:fnormgpd]{lnormgpd}} and it's wrappers
+  for negative log-likelihood from
+  \code{\link[evmix:fnormgpd]{nlnormgpd}} and
+  \code{\link[evmix:fnormgpd]{nlunormgpd}}. Profile
+  likelihood for single threshold given by
+  \code{\link[evmix:fnormgpd]{proflunormgpd}}. Fitting
+  function \code{\link[evmix:fnormgpd]{fnormgpd}} returns a
+  simple list with the following elements
 
   \tabular{ll}{ \code{call}: \tab \code{optim} call\cr
   \code{x}: \tab data vector \code{x}\cr \code{init}: \tab
-  \code{pvector}\cr \code{optim}: \tab complete
-  \code{optim} output\cr \code{mle}: \tab vector of MLE of
-  model parameters\cr \code{cov}: \tab variance-covariance
-  matrix of MLE of model parameters\cr \code{se}: \tab
-  vector of standard errors of MLE of model parameters\cr
-  \code{rate}: \tab \code{phiu} to be consistent with
-  \code{\link[evd:fpot]{evd}}\cr \code{nllh}: \tab minimum
-  negative log-likelihood\cr \code{allparams}: \tab vector
-  of MLE of model parameters and \code{phiu}\cr
-  \code{allse}: \tab vector of standard error of all
-  parameters and \code{phiu}\cr \code{n}: \tab total sample
-  size\cr \code{nmean}: \tab MLE of normal mean\cr
-  \code{nsd}: \tab MLE of normal standard deviation\cr
-  \code{u}: \tab threshold\cr \code{sigmau}: \tab MLE of
-  GPD scale\cr \code{xi}: \tab MLE of GPD shape\cr
-  \code{phiu}: \tab MLE of tail fraction\cr }
+  \code{pvector}\cr \code{fixedu}: \tab fixed threshold,
+  logical\cr \code{useq}: \tab threshold vector for profile
+  likelihood or scalar for fixed threshold\cr \code{optim}:
+  \tab complete \code{optim} output\cr \code{mle}: \tab
+  vector of MLE of parameters\cr \code{cov}: \tab
+  variance-covariance matrix of MLE of parameters\cr
+  \code{se}: \tab vector of standard errors of MLE of
+  parameters\cr \code{rate}: \tab \code{phiu} to be
+  consistent with \code{\link[evd:fpot]{evd}}\cr
+  \code{nllh}: \tab minimum negative log-likelihood\cr
+  \code{n}: \tab total sample size\cr \code{nmean}: \tab
+  MLE of normal mean\cr \code{nsd}: \tab MLE of normal
+  standard deviation\cr \code{u}: \tab threshold (fixed or
+  MLE)\cr \code{sigmau}: \tab MLE of GPD scale\cr
+  \code{xi}: \tab MLE of GPD shape\cr \code{phiu}: \tab MLE
+  of tail fraction (bulk model or parameterised
+  approach)\cr \code{se.phiu}: \tab standard error of MLE
+  of tail fraction\cr }
 
   The output list has some duplicate entries and repeats
   some of the inputs to both provide similar items to those
-  from \code{\link[evd:fpot]{fpot}} and to make it as
-  useable as possible.
+  from \code{\link[evd:fpot]{fpot}} and increase usability.
 }
 \description{
   Maximum likelihood estimation for fitting the extreme
   value mixture model with normal for bulk distribution
-  upto the threshold and conditional GPD above threshold
+  upto the threshold and conditional GPD above threshold.
+  With options for profile likelihood estimation for
+  threshold and fixed threshold approach.
 }
 \details{
   The extreme value mixture model with normal bulk and GPD
@@ -69,18 +119,125 @@
   variance-covariance matrix and their standard errors are
   automatically output.
 
-  The default value for \code{phiu=TRUE} so that the tail
-  fraction is specified by normal distribution \eqn{\phi_u
-  = 1 - H(u)}. When \code{phiu=FALSE} then the tail
-  fraction is treated as an extra parameter estimated using
-  the MLE which is the sample proportion above the
-  threshold. In this case the standard error for
-  \code{phiu} is estimated and output as \code{sephiu}.
+  The optimisation of the likelihood for these mixture
+  models can be very sensitive to the initial parameter
+  vector (particularly the threshold), as often there are
+  numerous local modes where multiple thresholds give
+  similar fits. This is an inherent feature of such models.
+  Options are provided by the arguments \code{pvector},
+  \code{useq} and \code{fixedu} to implement various
+  commonly used likelihood inference approaches for such
+  models: \enumerate{ \item (default) \code{pvector=NULL},
+  \code{useq=NULL} and \code{fixedu=FALSE} - to set initial
+  value for threshold at 90\% quantile along with usual
+  defaults for other parameters as defined in Notes below.
+  Standard likelihood optimisation is used; \item
+  \code{pvector=c(nmean, nsd, u, sigmau, xi)} - where
+  initial values of all 5 parameters are manually set.
+  Standard likelihood optimisation is used; \item
+  \code{useq} as vector - to specify a sequence of
+  thresholds at which to evaluate profile likelihood and
+  extract threshold which gives maximum profile likelihood;
+  or \item \code{useq} as scalar - to specify a single
+  value for threshold to be considered. } In options (3)
+  and (4) the threshold can be treated as: \itemize{ \item
+  initial value for maximum likelihood estimation when
+  \code{fixedu=FALSE}, using either profile likelihood
+  estimate (3) or pre-chosen threshold (4); or \item a
+  fixed threshold with MLE for other parameters when
+  \code{fixedu=TRUE}, using either profile likelihood
+  estimate (3) or pre-chosen threshold (4). } The latter
+  approach can be used to implement the traditional fixed
+  threshold modelling approach with threshold pre-chosen
+  using, for example, graphical diagnostics. Further, in
+  either such case (3) or (4) the \code{pvector} could be:
+  \itemize{ \item \code{NULL} for usual defaults for other
+  four parameters, defined in Notes below; or \item vector
+  of initial values for remaining 4 parameters
+  (\code{nmean}, \code{nsd}, \code{sigmau}, \code{xi}). }
+  If the threshold is treated as fixed, then the likelihood
+  is separable between the bulk and tail components.
+  However, in practice we have found black-box optimisation
+  of the combined likelihood works sufficiently well, so is
+  used herein.
+
+  The following functions are provided: \itemize{ \item
+  \code{\link[evmix:fnormgpd]{fnormgpd}} - maximum
+  likelihood fitting with all the above options; \item
+  \code{\link[evmix:fnormgpd]{lnormgpd}} - log-likelihood;
+  \item \code{\link[evmix:fnormgpd]{nlnormgpd}} - negative
+  log-likelihood; \item
+  \code{\link[evmix:fnormgpd]{proflunormgpd}} - profile
+  likelihood for given threshold; and \item
+  \code{\link[evmix:fnormgpd]{nlunormgpd}} - negative
+  log-likelihood (threshold specified separately). } The
+  log-likelihood functions are provided for wider usage,
+  e.g. constructing profile likelihood functions.
+
+  Defaults values for the parameter vector \code{pvector}
+  are given in the fitting
+  \code{\link[evmix:fnormgpd]{fnormgpd}} and profile
+  likelihood functions
+  \code{\link[evmix:fnormgpd]{proflunormgpd}}. The
+  parameter vector \code{pvector} must be specified in the
+  negative log-likelihood functions
+  \code{\link[evmix:fnormgpd]{nlnormgpd}} and
+  \code{\link[evmix:fnormgpd]{nlunormgpd}}. The threshold
+  \code{u} must also be specified in the profile likelihood
+  function \code{\link[evmix:fnormgpd]{proflunormgpd}} and
+  \code{\link[evmix:fnormgpd]{nlunormgpd}}.
+
+  Log-likelihood calculations are carried out in
+  \code{\link[evmix:fnormgpd]{lnormgpd}}, which takes
+  parameters as inputs in the same form as distribution
+  functions. The negative log-likelihood functions
+  \code{\link[evmix:fnormgpd]{nlnormgpd}} and
+  \code{\link[evmix:fnormgpd]{nlunormgpd}} are wrappers for
+  likelihood function
+  \code{\link[evmix:fnormgpd]{lnormgpd}} designed towards
+  optimisation, i.e.
+  \code{\link[evmix:fnormgpd]{nlnormgpd}} has vector of all
+  5 parameters as first input and
+  \code{\link[evmix:fnormgpd]{nlunormgpd}} has threshold as
+  second input and vector of remaining 4 parameters as
+  first input. The profile likelihood function
+  \code{\link[evmix:fnormgpd]{proflunormgpd}} has threshold
+  \code{u} as the first input, to permit use of
+  \code{\link[base:lapply]{sapply}} function to evaluate
+  profile likelihood over vector of potential thresholds.
+
+  The tail fraction \code{phiu} is treated separately to
+  the other parameters, to allow for all it's
+  representations. In the fitting
+  \code{\link[evmix:fnormgpd]{fnormgpd}} and profile
+  likelihood function
+  \code{\link[evmix:fnormgpd]{proflunormgpd}} it is
+  logical: \itemize{ \item default value \code{phiu=TRUE} -
+  tail fraction specified by normal survivor function
+  \code{phiu = 1 - pnorm(u, nmean, nsd)} and standard error
+  is output as \code{NA}; and \item \code{phiu=FALSE} -
+  treated as extra parameter estimated using the MLE which
+  is the sample proportion above the threshold and standard
+  error is output. } In the likelihood functions
+  \code{\link[evmix:fnormgpd]{lnormgpd}},
+  \code{\link[evmix:fnormgpd]{nlnormgpd}} and
+  \code{\link[evmix:fnormgpd]{nlunormgpd}} it can be
+  logical or numeric: \itemize{ \item logical - same as for
+  fitting functions with default value \code{phiu=TRUE}.
+  \item numeric - any value over range \eqn{(0, 1)}. Notice
+  that the tail fraction probability cannot be 0 or 1
+  otherwise there would be no contribution from either tail
+  or bulk components respectively. }
 
   Missing values (\code{NA} and \code{NaN}) are assumed to
   be invalid data so are ignored, which is inconsistent
   with the \code{\link[evd:fpot]{evd}} library which
   assumes the missing values are below the threshold.
+
+  The function \code{\link[evmix:fnormgpd]{lnormgpd}}
+  carries out the calculations for the log-likelihood
+  directly, which can be exponentiated to give actual
+  likelihood using (\code{log=FALSE}).
 
   The default optimisation algorithm is "BFGS", which
   requires a finite negative log-likelihood function
@@ -92,8 +249,9 @@
   of these optimisation methods is chosen.
 
   It will display a warning for non-zero convergence result
-  comes from \code{\link[stats:optim]{optim}} function
-  call.
+  comes from \code{\link[stats:optim]{optim}} function call
+  or for common indicators of lack of convergence (e.g. any
+  estimated parameters same as initial values).
 
   If the hessian is of reduced rank then the variance
   covariance (from inverse hessian) and standard error of
@@ -106,23 +264,53 @@
 \note{
   Unlike all the distribution functions for the extreme
   value mixture models, the MLE fitting only permits single
-  scalar values for each parameter and \code{phiu}. Only
-  the data is a vector.
+  scalar values for each parameter and \code{phiu}.
 
-  When \code{pvector=NULL} then the initial values are
-  calculated, type \code{fnormgpd} to see the default
-  formulae used. The mixture model fitting can be
-  ***extremely*** sensitive to the initial values, so you
-  if you get a poor fit then try some alternatives. Avoid
-  setting the starting value for the shape parameter to
-  \code{xi=0} as depending on the optimisation method it
-  may be get stuck.
+  When \code{pvector=NULL} then the initial values are:
+  \itemize{ \item MLE of normal parameters assuming entire
+  population is normal; and \item threshold 90\% quantile
+  (not relevant for profile likelihood or fixed threshold
+  approaches); \item MLE of GPD parameters above threshold.
+  } Avoid setting the starting value for the shape
+  parameter to \code{xi=0} as depending on the optimisation
+  method it may be get stuck.
 
-  The fitting function will stop if infinite sample values
-  are given.
+  A default value for the tail fraction \code{phiu=TRUE} is
+  given. The \code{\link[evmix:fnormgpd]{lnormgpd}} also
+  has the usual defaults for the other parameters, but
+  \code{\link[evmix:fnormgpd]{nlnormgpd}} and
+  \code{\link[evmix:fnormgpd]{nlunormgpd}} has no defaults.
+
+  If the hessian is of reduced rank then the variance
+  covariance (from inverse hessian) and standard error of
+  parameters cannot be calculated, then by default
+  \code{std.err=TRUE} and the function will stop. If you
+  want the parameter estimates even if the hessian is of
+  reduced rank (e.g. in a simulation study) then set
+  \code{std.err=FALSE}.
+
+  Invalid parameter ranges will give \code{0} for
+  likelihood, \code{log(0)=-Inf} for log-likelihood and
+  \code{-log(0)=Inf} for negative log-likelihood.
+
+  Due to symmetry, the lower tail can be described by GPD
+  by negating the data/quantiles.
+
+  Infinite and missing sample values are dropped.
 
   Error checking of the inputs is carried out and will
   either stop or give warning message as appropriate.
+}
+\section{Acknowledgments}{
+  Apects of these functions are deliberately similar in
+  syntax and function with the commonly used functions in
+  the \code{\link[ismev:gpd.fit]{ismev}} and
+  \code{\link[evd:fpot]{evd}} packages for which their
+  author's contributions are gratefully acknowledged. Anna
+  MacDonald and Xin Zhao laid some of the groundwork with
+  programs they wrote for MATLAB. Clement Lee and Emma
+  Eastoe suggested providing inbuilt profile likelihood
+  estimation for threshold and fixed threshold approach.
 }
 \examples{
 \dontrun{
@@ -131,32 +319,44 @@ x = rnorm(1000)
 xx = seq(-4, 4, 0.01)
 y = dnorm(xx)
 
-# Bulk model base tail fraction
-fit = fnormgpd(x, phiu = TRUE, std.err = FALSE)
+# Bulk model based tail fraction
+fit = fnormgpd(x)
 hist(x, breaks = 100, freq = FALSE, xlim = c(-4, 4))
 lines(xx, y)
-lines(xx, dnormgpd(xx, nmean = fit$nmean, nsd = fit$nsd, u = fit$u,
-  sigmau = fit$sigmau, xi = fit$xi, phiu = TRUE), col="red")
-abline(v = fit$u)
+with(fit, lines(xx, dnormgpd(xx, nmean, nsd, u, sigmau, xi), col="red"))
+abline(v = fit$u, col = "red")
 
 # Parameterised tail fraction
-fit2 = fnormgpd(x, phiu = FALSE, std.err = FALSE)
-plot(xx, y, type = "l")
-lines(xx, dnormgpd(xx, nmean = fit$nmean, nsd = fit$nsd, u = fit$u,
-  sigmau = fit$sigmau, xi = fit$xi, phiu = TRUE), col="red")
-lines(xx, dnormgpd(xx, nmean = fit2$nmean, nsd = fit2$nsd, u = fit2$u,
-  sigmau = fit2$sigmau, xi = fit2$xi, phiu = fit2$phiu), col="blue")
-abline(v = fit$u, col = "red")
+fit2 = fnormgpd(x, phiu = FALSE)
+with(fit2, lines(xx, dnormgpd(xx, nmean, nsd, u, sigmau, xi, phiu), col="blue"))
 abline(v = fit2$u, col = "blue")
-legend("topright", c("True Density","Bulk Tail Fraction","Parameterised Tail Fraction"),
+legend("topleft", c("True Density","Bulk Tail Fraction","Parameterised Tail Fraction"),
   col=c("black", "red", "blue"), lty = 1)
-  }
+
+# Profile likelihood for initial value of threshold and fixed threshold approach
+fitu = fnormgpd(x, useq = seq(0, 3, length = 20))
+fitfix = fnormgpd(x, useq = seq(0, 3, length = 20), fixedu = TRUE)
+
+hist(x, breaks = 100, freq = FALSE, xlim = c(-4, 4))
+lines(xx, y)
+with(fit, lines(xx, dnormgpd(xx, nmean, nsd, u, sigmau, xi), col="red"))
+abline(v = fit$u, col = "red")
+with(fitu, lines(xx, dnormgpd(xx, nmean, nsd, u, sigmau, xi), col="purple"))
+abline(v = fitu$u, col = "purple")
+with(fitfix, lines(xx, dnormgpd(xx, nmean, nsd, u, sigmau, xi), col="darkgreen"))
+abline(v = fitfix$u, col = "darkgreen")
+legend("topleft", c("True Density","Default initial value (90\% quantile)",
+ "Prof. lik. for initial value", "Prof. lik. for fixed threshold"),
+ col=c("black", "red", "purple", "darkgreen"), lty = 1)
+}
 }
 \author{
   Yang Hu and Carl Scarrott
   \email{carl.scarrott@canterbury.ac.nz}
 }
 \references{
+  \url{http://www.math.canterbury.ac.nz/~c.scarrott/evmix}
+
   \url{http://en.wikipedia.org/wiki/Normal_distribution}
 
   \url{http://en.wikipedia.org/wiki/Generalized_Pareto_distribution}
@@ -167,17 +367,38 @@ legend("topright", c("True Density","Bulk Tail Fraction","Parameterised Tail Fra
   33-59. Available from
   \url{http://www.ine.pt/revstat/pdf/rs120102.pdf}
 
+  Hu, Y. (2013). Extreme value mixture modelling: An R
+  package and simulation study. MSc (Hons) thesis,
+  University of Canterbury, New Zealand.
+  \url{http://ir.canterbury.ac.nz/simple-search?query=extreme&submit=Go}
+
   Behrens, C.N., Lopes, H.F. and Gamerman, D. (2004).
   Bayesian analysis of extreme events with threshold
   estimation. Statistical Modelling. 4(3), 227-244.
 }
 \seealso{
-  \code{\link[evmix:lgpd]{lgpd}} and
+  \code{\link[stats:Normal]{dnorm}},
+  \code{\link[evmix:fgpd]{fgpd}} and
   \code{\link[evmix:gpd]{gpd}}
 
-  Other normgpd: \code{\link{dnormgpd}},
-  \code{\link{lnormgpd}}, \code{\link{nlnormgpd}},
-  \code{\link{normgpd}}, \code{\link{pnormgpd}},
-  \code{\link{qnormgpd}}, \code{\link{rnormgpd}}
+  Other normgpd normgpdcon gng gngcon fnormgpd fnormgpdcon
+  fgng fgngcon: \code{\link{dgng}}, \code{\link{dgngcon}},
+  \code{\link{dnormgpd}}, \code{\link{dnormgpdcon}},
+  \code{\link{fgng}}, \code{\link{fgngcon}},
+  \code{\link{fnormgpdcon}}, \code{\link{gng}},
+  \code{\link{gngcon}}, \code{\link{lgng}},
+  \code{\link{lgngcon}}, \code{\link{lnormgpdcon}},
+  \code{\link{nlgng}}, \code{\link{nlgngcon}},
+  \code{\link{nlnormgpdcon}}, \code{\link{nlugng}},
+  \code{\link{nlugngcon}}, \code{\link{nlunormgpdcon}},
+  \code{\link{normgpd}}, \code{\link{normgpdcon}},
+  \code{\link{pgng}}, \code{\link{pgngcon}},
+  \code{\link{pnormgpd}}, \code{\link{pnormgpdcon}},
+  \code{\link{proflugng}}, \code{\link{proflugngcon}},
+  \code{\link{proflunormgpdcon}}, \code{\link{qgng}},
+  \code{\link{qgngcon}}, \code{\link{qnormgpd}},
+  \code{\link{qnormgpdcon}}, \code{\link{rgng}},
+  \code{\link{rgngcon}}, \code{\link{rnormgpd}},
+  \code{\link{rnormgpdcon}}
 }
 

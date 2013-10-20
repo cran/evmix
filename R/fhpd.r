@@ -5,17 +5,36 @@
 #' @description Maximum likelihood estimation for fitting the hybrid Pareto extreme
 #' value mixture model
 #'
-#' @param pvector    vector of initial values of mixture model parameters (\code{nmean}, \code{nsd}, \code{xi}) or \code{NULL}
+#' @param pvector vector of initial values of parameters
+#'                (\code{nmean}, \code{nsd}, \code{xi}) or \code{NULL}
 #' @inheritParams fnormgpd
+#' @inheritParams dnormgpd
+#' @inheritParams fgpd
 #' 
 #' @details The hybrid Pareto model is fitted to the entire dataset using maximum likelihood
 #' estimation. The estimated parameters, variance-covariance matrix and their standard errors
 #' are automatically output.
 #' 
+#' The log-likelihood and negative log-likelihood are also provided for wider
+#' usage, e.g. constructing profile likelihood functions. The parameter vector
+#' \code{pvector} must be specified in the negative log-likelihood
+#' \code{\link[evmix:fhpd]{nlhpd}}.
+#' 
+#' Log-likelihood calculations are carried out in
+#' \code{\link[evmix:fhpd]{lhpd}}, which takes parameters as inputs in
+#' the same form as distribution functions. The negative log-likelihood is a
+#' wrapper for \code{\link[evmix:fhpd]{lhpd}}, designed towards making
+#' it useable for optimisation (e.g. parameters are given a vector as first
+#' input).
+#' 
 #' Missing values (\code{NA} and \code{NaN}) are assumed to be invalid data so are ignored,
 #' which is inconsistent with the \code{\link[evd:fpot]{evd}} library which assumes the 
 #' missing values are below the threshold.
 #'
+#' The function \code{\link[evmix:fhpd]{lhpd}} carries out the calculations
+#' for the log-likelihood directly, which can be exponentiated to give actual
+#' likelihood using (\code{log=FALSE}).
+#' 
 #' The default optimisation algorithm is "BFGS", which requires a finite negative 
 #' log-likelihood function evaluation \code{finitelik=TRUE}. For invalid 
 #' parameters, a zero likelihood is replaced with \code{exp(-1e6)}. The "BFGS" 
@@ -32,20 +51,20 @@
 #' even if the hessian is of reduced rank (e.g. in a simulation study) then
 #' set \code{std.err=FALSE}. 
 #' 
-#' @return Returns a simple list with the following elements
+#' @return \code{\link[evmix:fhpd]{lhpd}} gives (log-)likelihood and 
+#' \code{\link[evmix:fhpd]{nlhpd}} gives the negative log-likelihood. 
+#' \code{\link[evmix:fhpd]{fhpd}} returns a simple list with the following elements
 #'
 #' \tabular{ll}{
 #' \code{call}: \tab \code{optim} call\cr
 #' \code{x}: \tab data vector \code{x}\cr
 #' \code{init}: \tab \code{pvector}\cr
 #' \code{optim}: \tab complete \code{optim} output\cr
-#' \code{mle}: \tab vector of MLE of model parameters\cr
-#' \code{cov}: \tab variance-covariance matrix of MLE of model parameters\cr
-#' \code{se}: \tab vector of standard errors of MLE of model parameters\cr
+#' \code{mle}: \tab vector of MLE of parameters\cr
+#' \code{cov}: \tab variance-covariance matrix of MLE of parameters\cr
+#' \code{se}: \tab vector of standard errors of MLE of parameters\cr
 #' \code{rate}: \tab \code{phiu} to be consistent with \code{\link[evd:fpot]{evd}}\cr
 #' \code{nllh}: \tab minimum negative log-likelihood\cr
-#' \code{allparams}: \tab vector of MLE of model parameters, including \code{u}, \code{sigmau} and \code{phiu}\cr
-#' \code{allse}: \tab vector of standard error of all parameters, including \code{u}, \code{sigmau} and \code{phiu}\cr
 #' \code{n}: \tab total sample size\cr
 #' \code{nmean}: \tab MLE of normal mean\cr
 #' \code{nsd}: \tab MLE of normal standard deviation\cr
@@ -67,7 +86,14 @@
 #' try some alternatives. Avoid setting the starting value for the shape parameter to
 #' \code{xi=0} as depending on the optimisation method it may be get stuck.
 #' 
-#' The fitting function will stop if infinite sample values are given.
+#' A default value for the tail fraction \code{phiu=TRUE} is given. 
+#' The \code{\link[evmix:fhpd]{lhpd}} also has the usual defaults for
+#' the other parameters, but \code{\link[evmix:fhpd]{nlhpd}} has no defaults.
+#' 
+#' Invalid parameter ranges will give \code{0} for likelihood, \code{log(0)=-Inf} for
+#' log-likelihood and \code{-log(0)=Inf} for negative log-likelihood. 
+#' 
+#' Infinite and missing sample values are dropped.
 #' 
 #' Error checking of the inputs is carried out and will either stop or give warning message
 #' as appropriate.
@@ -86,39 +112,40 @@
 #' 
 #' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'
-#' @seealso \code{\link[evmix:lgpd]{lgpd}} and \code{\link[evmix:gpd]{gpd}}
+#' @seealso \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
+#' 
 #' The \code{\link[condmixt:condmixt-package]{condmixt}} package written by one of the
 #' original authors of the hybrid Pareto model (Carreau and Bengio, 2008) also has 
 #' similar functions for the likelihood of the hybrid Pareto 
 #' \code{\link[condmixt:hpareto.negloglike]{hpareto.negloglike}} and
 #' fitting \code{\link[condmixt:hpareto.negloglike]{hpareto.fit}}.
 #' 
-#' @family   hpd
+#' @aliases fhpd lhpd nlhpd
+#' @family  hpd hpdcon normgpd normgpdcon gng gngcon
+#'          fhpd fhpdcon fnormgpd fnormgpdcon fgng fgngcon
 #' 
 #' @examples
 #' \dontrun{
-#' par(mfrow=c(2,1))
 #' x = rnorm(1000)
 #' xx = seq(-4, 4, 0.01)
 #' y = dnorm(xx)
 #' 
-#' # Hybrid Pareto provides reasonable fit for asymmetric heavy tailed distribution
+#' # Hybrid Pareto provides reasonable fit for some asymmetric heavy upper tailed distributions
 #' # but not for cases such as the normal distribution
 #' fit = fhpd(x, std.err = FALSE)
 #' hist(x, breaks = 100, freq = FALSE, xlim = c(-4, 4))
 #' lines(xx, y)
-#' lines(xx, dhpd(xx, nmean = fit$nmean, nsd = fit$nsd, 
-#'   xi = fit$xi), col="red")
+#' lines(xx, dhpd(xx, nmean = fit$nmean, nsd = fit$nsd, xi = fit$xi), col="red")
 #' abline(v = fit$u)
 #' 
 #' # Notice that if tail fraction is included a better fit is obtained
 #' fit2 = fnormgpdcon(x, std.err = FALSE)
-#' hist(x, breaks = 100, freq = FALSE, xlim = c(-4, 4))
-#' lines(xx, y)
-#' lines(xx, dnormgpdcon(xx, nmean = fit2$nmean, nsd = fit2$nsd, u = fit2$u,
-#'   xi = fit2$xi), col="blue")
+#' lines(xx, dnormgpdcon(xx, nmean = fit2$nmean, nsd = fit2$nsd, u = fit2$u, xi = fit2$xi), col="blue")
 #' abline(v = fit2$u)
-#' } 
+#' legend("topright", c("Standard Normal", "Hybrid Pareto", "Normal+GPD Continuous"),
+#'   col=c("black", "red", "blue"), lty = 1)
+#' }
+#'  
 
 # maximum likelihood fitting for hybrid Pareto
 fhpd <- function(x, pvector = NULL, std.err = TRUE, method = "BFGS",
@@ -127,42 +154,31 @@ fhpd <- function(x, pvector = NULL, std.err = TRUE, method = "BFGS",
   call <- match.call()
   
   # Check properties of inputs
-  if (missing(x))
-    stop("x must be a non-empty numeric vector")
-  
-  if (length(x) == 0 | mode(x) != "numeric") 
-    stop("x must be a non-empty numeric vector")
-  
-  if (any(is.infinite(x)))
-    stop("infinite cases must be removed")
-  
-  if (any(is.na(x)))
-    warning("missing values have been removed")
-  
-  x = x[!is.na(x)]
-  
-  if (!is.logical(finitelik))
-    stop("finitelik must be logical")
-  
-  
-  if ((method == "L-BFGS-B") | (method == "BFGS"))
-    finitelik = TRUE
+  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.nparam(pvector, nparam = 3, allownull = TRUE)
+  check.logic(logicarg = std.err)
+  check.optim(method)
+  check.control(control)
+  check.logic(logicarg = finitelik)
+
+  if (any(!is.finite(x))) {
+    warning("non-finite cases have been removed")
+    x = x[is.finite(x)] # ignore missing and infinite cases
+  }
+
+  check.quant(x)
+
+  if ((method == "L-BFGS-B") | (method == "BFGS")) finitelik = TRUE
   
   if (is.null(pvector)) {
     pvector[1] = mean(x)
     pvector[2] = sd(x)
-    initfgpd = fgpd(x, as.vector(quantile(x, 0.9)), std.err = std.err)
+    initfgpd = fgpd(x, as.vector(quantile(x, 0.9)), std.err = FALSE)
     pvector[3] = initfgpd$xi
-  } else {
-    if (length(pvector) != 3)
-      stop("Initial values for three parameters must be specified")
-    if (any(!is.finite(pvector)) | is.logical(pvector))
-      stop("initial parameters must be numeric")
   }
   
-  nllh = nlhpd(pvector, x = x, finitelik = finitelik)
-  if (is.infinite(nllh))
-    stop("initial parameter values are invalid")
+  nllh = nlhpd(pvector, x)
+  if (is.infinite(nllh)) stop("initial parameter values are invalid")
 
   fit = optim(par = as.vector(pvector), fn = nlhpd, x = x, finitelik = finitelik,
               method = method, control = control, hessian = TRUE, ...)
@@ -179,13 +195,13 @@ fhpd <- function(x, pvector = NULL, std.err = TRUE, method = "BFGS",
   xi = fit$par[3]
   
   z = (1 + xi)^2/(2*pi)
-  wz = lambertW(z)
+  wz = lambert_W0(z)
   
-  u = nmean + nsd * sqrt(wz)
+  u = nmean + nsd * sqrt(wz) * sign(1 + xi)
   sigmau = nsd * abs(1 + xi) / sqrt(wz)
 
-  r = 1 + pnorm(sign(1 + xi) * sqrt(lambertW((1 + xi)^2/(2*pi))))
-  phiu = 1/r
+  r = 1 + pnorm(u, nmean, nsd)
+  phiu = 1/r # same normalisation for GPD and normal
 
   if (conv & std.err) {
     qrhess = qr(fit$hessian)
@@ -211,6 +227,98 @@ fhpd <- function(x, pvector = NULL, std.err = TRUE, method = "BFGS",
 
   list(call = call, x = as.vector(x), init = as.vector(pvector), optim = fit,
     conv = conv, cov = invhess, mle = fit$par, se = se, rate = phiu, nllh = fit$value,
-    allparam = c(fit$par, u, sigmau, phiu), allse = c(se, NA, NA, NA), n = n,
-    nmean = nmean, nsd = nsd, u = u, sigmau = sigmau, xi = xi, phiu = phiu)
+    n = n, nmean = nmean, nsd = nsd, u = u, sigmau = sigmau, xi = xi, phiu = phiu)
+}
+
+#' @export
+#' @aliases fhpd lhpd nlhpd
+#' @rdname  fhpd
+
+# log-likelihood function for hybrid Pareto
+# will not stop evaluation unless it has to
+lhpd <- function(x, nmean = 0, nsd = 1, xi = 0, log = TRUE) {
+  
+  # Check properties of inputs
+  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.param(param = nmean)
+  check.param(param = nsd) # do not check positivity in likelihood
+  check.param(param = xi)
+  check.logic(logicarg = log)
+
+  if (any(!is.finite(x))) {
+    warning("non-finite cases have been removed")
+    x = x[is.finite(x)] # ignore missing and infinite cases
+  }
+
+  check.inputn(c(length(nmean), length(nsd), length(xi)))
+  
+  z = (1 + xi)^2/(2*pi)
+  wz = lambert_W0(z)
+  
+  u = nmean + nsd * sqrt(wz) * sign(1 + xi)
+
+  # assume NA or NaN are irrelevant as entire lower tail is now modelled
+  # inconsistent with evd library definition
+  # hence use which() to ignore these
+      
+  n = length(x)
+  xu = x[which(x > u)]
+  nu = length(xu)
+  xb = x[which(x <= u)]
+  nb = length(xb)
+
+  if (n != nb + nu) {
+    stop("total non-finite sample size is not equal to those above threshold and those below or equal to it")    
+  }
+  
+  if ((nsd <= 0) | (u <= min(x)) | (u >= max(x))) {
+    l = -Inf
+  } else {
+    du = sqrt(wz)
+    sigmau = nsd * abs(1 + xi) / du
+    
+    syu = 1 + xi * (xu - u) / sigmau  
+    
+    yb = (xb - nmean) / nsd # used for normal
+    
+    r = 1 + pnorm(u, nmean, nsd)
+
+    if ((min(syu) <= 0) | (sigmau <= 0) | (du < .Machine$double.eps)) {
+      l = -Inf
+    } else {
+      l = lgpd(xu, u, sigmau, xi) # phiu disappears
+      l = l - nb * log(2 * pi * nsd ^ 2) / 2 - sum(yb ^ 2) / 2 # phib disappears
+      l = l - n * log(r) # divide by normalisation constant
+    }
+  }
+  
+  if (!log) l = exp(l)
+  
+  l
+}
+
+#' @export
+#' @aliases fhpd lhpd nlhpd
+#' @rdname  fhpd
+
+# negative log-likelihood function for hybrid Pareto extreme value mixture model
+# (wrapper for likelihood, inputs and checks designed for optimisation)
+nlhpd <- function(pvector, x, finitelik = FALSE) {
+  
+  # Check properties of inputs
+  check.nparam(pvector, nparam = 3)
+  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.logic(logicarg = finitelik)
+  
+  nmean = pvector[1]
+  nsd = pvector[2]
+  xi = pvector[3]
+    
+  nllh = -lhpd(x, nmean, nsd, xi) 
+  
+  if (finitelik & is.infinite(nllh)) {
+    nllh = sign(nllh) * 1e6
+  }
+  
+  nllh
 }

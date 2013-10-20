@@ -1,14 +1,31 @@
 #' @export
 #' 
-#' @title MLE Fitting of Normal Bulk with GPD Upper and Lower Tails Extreme Value Mixture Model
-#' 
-#' @description Maximum likelihood estimation for the extreme value 
-#' mixture model with normal for bulk distribution between the lower and upper
-#' thresholds with conditional GPD for the two tails.
+#' @title MLE Fitting of Normal Bulk and GPD for Both Tails Extreme Value Mixture Model
 #'
-#' @param pvector vector of initial values of mixture model parameters or \code{NULL}
-#' @param phiul    logical
-#' @param phiur    logical
+#' @description Maximum likelihood estimation for fitting the extreme value 
+#' mixture model with normal for bulk distribution between thresholds and conditional
+#' GPDs beyond thresholds. With options for profile likelihood estimation for both thresholds and
+#' fixed threshold approach.
+#'
+#' @param ul         scalar lower tail threshold
+#' @param sigmaul    scalar lower tail GPD scale parameter (positive)
+#' @param xil        scalar lower tail GPD shape parameter
+#' @param phiul      probability of being below lower threshold \eqn{(0, 1)} or logical, see Details in 
+#'                   help for \code{\link[evmix:fgng]{fgng}}
+#' @param ur         scalar upper tail threshold
+#' @param sigmaur    scalar upper tail GPD scale parameter (positive)
+#' @param xir        scalar upper tail GPD shape parameter
+#' @param phiur      probability of being above upper threshold \eqn{(0, 1)} or logical, see Details in 
+#'                   help for \code{\link[evmix:fgng]{fgng}}
+#' @param ulseq    vector of lower thresholds (or scalar) to be considered in profile likelihood or
+#'                \code{NULL} for no profile likelihood
+#' @param urseq    vector of upper thresholds (or scalar) to be considered in profile likelihood or
+#'                \code{NULL} for no profile likelihood
+#' @param fixedu  logical, should threshold be fixed (at either scalar value in \code{useq},
+#'                or estimated from maximum of profile likelihood evaluated at
+#'                sequence of thresholds in \code{useq})
+#' @param ulr     vector of length 2 giving lower and upper tail thresholds or
+#'                \code{NULL} for default values
 #' @inheritParams fnormgpd
 #' @inheritParams fgpd
 #' 
@@ -17,90 +34,83 @@
 #' parameters, variance-covariance matrix and their standard errors are automatically
 #' output.
 #' 
-#' \code{pvector} is (\code{nmean}, \code{nsd}, \code{ul}, \code{sigmaul}, \code{xil},
-#' \code{ur}, \code{sigmaur}, \code{xir})
+#' See help for \code{\link[evmix:fnormgpd]{fnormgpd}} for details, type \code{help fnormgpd}. 
+#' Only the different features are outlined below for brevity.
 #' 
-#' The default values for \code{phiul=TRUE} and \code{phiur=TRUE} so that the 
-#' corresponding tail fractions are specified by normal distribution 
-#' \eqn{\phi_{ul} = H(u_l)} and \eqn{\phi_{ur} = 1 - H(u_r)}. When \code{phiul=FALSE}
-#' and \code{phiur=FALSE} then the corresponding tail fractions are treated as an
-#' extra parameter estimated using the MLE which is the
-#' sample proportion beyond the corresponding threshold. In this case the standard error for 
-#' \code{phiul} and \code{phiur} are estimated and output as \code{sephiul} and 
-#' \code{sephiur}.
+#' The full parameter vector is
+#' (\code{nmean}, \code{nsd}, \code{ul}, \code{sigmaul}, \code{xil}, \code{ur}, \code{sigmaur}, \code{xir})
+#' if threshold is also estimated and
+#' (\code{nmean}, \code{nsd}, \code{sigmaul}, \code{xil}, \code{sigmaur}, \code{xir})
+#' for profile likelihood or fixed threshold approach.
 #' 
-#' Missing values (\code{NA} and \code{NaN}) are assumed to be invalid data so are ignored,
-#' which is inconsistent with the \code{\link[evd:fpot]{evd}} library which assumes the 
-#' missing values are below the threshold.
-#' 
-#' The default optimisation algorithm is "BFGS", which requires a finite negative 
-#' log-likelihood function evaluation \code{finitelik=TRUE}. For invalid 
-#' parameters, a zero likelihood is replaced with \code{exp(-1e6)}. The "BFGS" 
-#' optimisation algorithms require finite values for likelihood, so any user 
-#' input for \code{finitelik} will be overridden and set to \code{finitelik=TRUE} 
-#' if either of these optimisation methods is chosen.
-#' 
-#' It will display a warning for non-zero convergence result comes from 
-#' \code{\link[stats:optim]{optim}} function call.
-#' 
-#' If the hessian is of reduced rank then the variance covariance (from inverse hessian)
-#' and standard error of parameters cannot be calculated, then by default 
-#' \code{std.err=TRUE} and the function will stop. If you want the parameter estimates
-#' even if the hessian is of reduced rank (e.g. in a simulation study) then
-#' set \code{std.err=FALSE}. 
-#' 
-#' @return Returns a simple list with the following elements
-#'
-#' \tabular{ll}{
-#' \code{x}: \tab data vector \code{x}\cr
-#' \code{init}: \tab \code{pvector}\cr
-#' \code{optim}: \tab complete \code{optim} output\cr
-#' \code{mle}: \tab vector of MLE of model parameters\cr
-#' \code{cov}: \tab variance-covariance matrix of MLE of model parameters\cr
-#' \code{se}: \tab vector of standard errors of MLE of model parameters\cr
-#' \code{rate}: \tab \code{phiu} to be consistent with \code{\link[evd:fpot]{evd}}\cr
-#' \code{nllh}: \tab minimum negative log-likelihood\cr
-#' \code{allparams}: \tab vector of MLE of model parameters and tail fractions \code{phiul} and \code{phiur}\cr
-#' \code{allse}: \tab vector of standard error of model parameters and tail fractions \code{phiul} and \code{phiur}\cr
-#' \code{n}: \tab total sample size\cr
-#' \code{nmean}: \tab MLE of normal mean\cr
-#' \code{nsd}: \tab MLE of normal standard deviation\cr
-#' \code{ul}: \tab lower threshold\cr
-#' \code{sigmaul}: \tab MLE of lower tail GPD scale\cr
-#' \code{xil}: \tab MLE of lower tail GPD shape\cr
-#' \code{phiul}: \tab MLE of lower tail fraction\cr
-#' \code{ur}: \tab upper threshold\cr
-#' \code{sigmaur}: \tab MLE of upper tail GPD scale\cr
-#' \code{xir}: \tab MLE of upper tail GPD shape\cr
-#' \code{phiur}: \tab MLE of upper tail fraction\cr
+#' The tail fractions \code{phiul} and \code{phiur} are treated separately to the other parameters, 
+#' to allow for all their representations. In the fitting functions 
+#' \code{\link[evmix:fgng]{fgng}} and
+#' \code{\link[evmix:fgng]{proflugng}} they are logical:
+#' \itemize{
+#'  \item default values \code{phiul=TRUE} and \code{phiur=TRUE} - tail fractions specified by 
+#'    normal distribution \code{pnorm(ul, nmean, nsd)} and survivior functions 
+#'    \code{1-pnorm(ur, nmean, nsd)} respectively and standard error is output as \code{NA}.
+#'  \item \code{phiul=FALSE} and \code{phiur=FALSE} - treated as extra parameters estimated using
+#'    the MLE which is the sample proportion beyond the thresholds and 
+#'    standard error is output.
+#' }
+#' In the likelihood functions \code{\link[evmix:fgng]{lgng}},
+#' \code{\link[evmix:fgng]{nlgng}} and \code{\link[evmix:fgng]{nlugng}} 
+#' it can be logical or numeric:
+#' \itemize{
+#'  \item logical - same as for fitting functions with default values \code{phiul=TRUE} and \code{phiur=TRUE}.
+#'  \item numeric - any value over range \eqn{(0, 1)}. Notice that the tail
+#'    fraction probability cannot be 0 or 1 otherwise there would be no
+#'    contribution from either tail or bulk components respectively. Also,
+#'    \code{phiul+phiur<1} as bulk must contribute.
 #' }
 #' 
-#' The output list has some duplicate entries and repeats some of the inputs to both 
-#' provide similar items to those from \code{\link[evd:fpot]{fpot}} and to make it 
-#' as useable as possible.
-#'  
-#' @note Unlike all the distribution functions for the extreme value mixture models,
-#' the MLE fitting only permits single scalar values for each parameter and 
-#' tail fractions \code{phiul} and \code{phiur}. Only the data is a vector.
+#' @return Log-likelihood is given by \code{\link[evmix:fgng]{lgng}} and it's
+#'   wrappers for negative log-likelihood from \code{\link[evmix:fgng]{nlgng}}
+#'   and \code{\link[evmix:fgng]{nlugng}}. Profile likelihood for single
+#'   threshold given by \code{\link[evmix:fgng]{proflugng}}. Fitting function
+#'   \code{\link[evmix:fgng]{fgng}} returns a simple list with the
+#'   following elements
+#'
+#' \tabular{ll}{
+#'  \code{call}:      \tab \code{optim} call\cr
+#'  \code{x}:         \tab data vector \code{x}\cr
+#'  \code{init}:      \tab \code{pvector}\cr
+#'  \code{fixedu}:    \tab fixed threshold, logical\cr
+#'  \code{useq}:      \tab threshold vector for profile likelihood or scalar for fixed threshold\cr
+#'  \code{optim}:     \tab complete \code{optim} output\cr
+#'  \code{mle}:       \tab vector of MLE of parameters\cr
+#'  \code{cov}:       \tab variance-covariance matrix of MLE of parameters\cr
+#'  \code{se}:        \tab vector of standard errors of MLE of parameters\cr
+#'  \code{rate}:      \tab \code{phiu} to be consistent with \code{\link[evd:fpot]{evd}}\cr
+#'  \code{nllh}:      \tab minimum negative log-likelihood\cr
+#'  \code{n}:         \tab total sample size\cr
+#'  \code{nmean}:     \tab MLE of normal mean\cr
+#'  \code{nsd}:       \tab MLE of normal standard deviation\cr
+#'  \code{ul}:        \tab lower threshold (fixed or MLE)\cr
+#'  \code{sigmaul}:   \tab MLE of lower tail GPD scale\cr
+#'  \code{xil}:       \tab MLE of lower tail GPD shape\cr
+#'  \code{phiul}:     \tab MLE of lower tail fraction (bulk model or parameterised approach)\cr
+#'  \code{se.phiul}:  \tab standard error of MLE of lower tail fraction\cr
+#'  \code{ur}:        \tab upper threshold (fixed or MLE)\cr
+#'  \code{sigmaur}:   \tab MLE of upper tail GPD scale\cr
+#'  \code{xir}:       \tab MLE of upper tail GPD shape\cr
+#'  \code{phiur}:     \tab MLE of upper tail fraction (bulk model or parameterised approach)\cr
+#'  \code{se.phiur}:  \tab standard error of MLE of upper tail fraction\cr
+#' }
 #' 
-#' When \code{pvector=NULL} then the initial values are calculated, type 
-#' \code{fgng} to see the default formulae used. The mixture model fitting can be
-#' ***extremely*** sensitive to the initial values, so you if you get a poor fit then
-#' try some alternatives. Avoid setting the starting value for the shape parameters to
-#' \code{xil=0} or \code{xir=0} as depending on the optimisation method it may be get stuck.
-#' 
-#' If the hessian is of reduced rank then the variance covariance (from inverse hessian)
-#' and standard error of parameters cannot be calculated, then by default 
-#' \code{std.err=TRUE} and the function will stop. If you want the parameter estimates
-#' even if the hessian is of reduced rank (e.g. in a simulation study) then
-#' set \code{std.err=FALSE}. 
-#' 
-#' The fitting function will stop if infinite sample values are given.
-#' 
-#' Error checking of the inputs is carried out and will either stop or give warning message
-#' as appropriate.
+#' @note When \code{pvector=NULL} then the initial values are:
+#' \itemize{
+#'  \item MLE of normal parameters assuming entire population is normal; and
+#'  \item lower threshold 10\% quantile (not relevant for profile likelihood for threshold or fixed threshold approaches);
+#'  \item upper threshold 90\% quantile (not relevant for profile likelihood for threshold or fixed threshold approaches);
+#'  \item MLE of GPD parameters beyond threshold. 
+#' }
 #' 
 #' @references
+#' \url{http://www.math.canterbury.ac.nz/~c.scarrott/evmix}
+#' 
 #' \url{http://en.wikipedia.org/wiki/Normal_distribution}
 #' 
 #' \url{http://en.wikipedia.org/wiki/Generalized_Pareto_distribution}
@@ -109,130 +119,220 @@
 #' threshold estimation and uncertainty quantification. REVSTAT - Statistical
 #' Journal 10(1), 33-59. Available from \url{http://www.ine.pt/revstat/pdf/rs120102.pdf}
 #' 
+#' Hu, Y. (2013). Extreme value mixture modelling: An R package and simulation study.
+#' MSc (Hons) thesis, University of Canterbury, New Zealand.
+#' \url{http://ir.canterbury.ac.nz/simple-search?query=extreme&submit=Go}
+#' 
 #' Zhao, X., Scarrott, C.J. Reale, M. and Oxley, L. (2010). Extreme value modelling
 #' for forecasting the market crisis. Applied Financial Econometrics 20(1), 63-72.
 #' 
+#' Mendes, B. and H. F. Lopes (2004). Data driven estimates for mixtures. Computational
+#' Statistics and Data Analysis 47(3), 583-598.
+#' 
 #' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'
-#' @seealso \code{\link[evmix:fnormgpd]{fnormgpd}}, \code{\link[evmix:lgpd]{lgpd}}
-#' and \code{\link[evmix:gpd]{gpd}}
-#' @family gng
+#' @section Acknowledgments: See Acknowledgments in
+#'   \code{\link[evmix:fnormgpd]{fnormgpd}}, type \code{help fnormgpd}. Based on MATLAB
+#'   code written by Xin Zhao.
+#' 
+#' @seealso \code{\link[stats:Normal]{dnorm}},
+#'  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
+#'  
+#' @aliases fgng lgng nlgng proflugng nlugng
+#' @family  normgpd normgpdcon gng gngcon fnormgpd fnormgpdcon fgng fgngcon
 #' 
 #' @examples
 #' \dontrun{
-#' par(mfrow=c(2,2))
+#' par(mfrow=c(2,1))
 #' x = rnorm(1000)
-#' xx = seq(-6, 6, 0.01)
+#' xx = seq(-4, 4, 0.01)
 #' y = dnorm(xx)
 #' 
-#' # Bulk model base tail fraction
-#' fit = fgng(x, phiul = TRUE, phiur = TRUE, std.err = FALSE)
-#' hist(x, breaks = 100, freq = FALSE, xlim = c(-6, 6), main = "N(0, 1)")
+#' # Bulk model based tail fraction
+#' fit = fgng(x)
+#' hist(x, breaks = 100, freq = FALSE, xlim = c(-4, 4))
 #' lines(xx, y)
-#' lines(xx, dgng(xx, nmean = fit$nmean, nsd = fit$nsd,
-#'   ul = fit$ul, sigmaul = fit$sigmaul, xil = fit$xil, phiul = TRUE,
-#'   ur = fit$ur, sigmaur = fit$sigmaur, xir = fit$xir, phiur = TRUE), col="red")
-#' abline(v = c(fit$ul, fit$ur))
+#' with(fit, lines(xx, dgng(xx, nmean, nsd, ul, sigmaul, xil, phiul, 
+#'    ur, sigmaur, xir, phiur), col="red"))
+#' abline(v = c(fit$ul, fit$ur), col = "red")
 #'   
 #' # Parameterised tail fraction
-#' fit2 = fgng(x, phiul = TRUE, phiur = TRUE, std.err = FALSE)
-#' plot(xx, y, type = "l")
-#' lines(xx, dgng(xx, nmean = fit$nmean, nsd = fit$nsd,
-#'   ul = fit$ul, sigmaul = fit$sigmaul, xil = fit$xil, phiul = TRUE,
-#'   ur = fit$ur, sigmaur = fit$sigmaur, xir = fit$xir, phiur = TRUE), col="red")
-#' lines(xx, dgng(xx, nmean = fit2$nmean, nsd = fit2$nsd,
-#'   ul = fit2$ul, sigmaul = fit2$sigmaul, xil = fit2$xil, phiul = fit2$phiul,
-#'   ur = fit2$ur, sigmaur = fit2$sigmaur, xir = fit2$xir, phiur = fit2$phiur), col="blue")
-#' abline(v = c(fit$ul, fit$ur), col = "red")
+#' fit2 = fgng(x, phiul = FALSE, phiur = FALSE)
+#' with(fit2, lines(xx, dgng(xx, nmean, nsd, ul, sigmaul, xil, phiul,
+#'    ur, sigmaur, xir, phiur), col="blue"))
 #' abline(v = c(fit2$ul, fit2$ur), col = "blue")
 #' legend("topright", c("True Density","Bulk Tail Fraction","Parameterised Tail Fraction"),
 #'   col=c("black", "red", "blue"), lty = 1)
-#' x = rnorm(1000)
-#' xx = seq(-6, 6, 0.01)
-#' y = dnorm(xx)
-#' 
-#' # Two tail is safest if bulk has lower tail which is not normal tail
-#' x = rt(1000, df = 3)
-#' xx = seq(-10, 10, 0.01)
-#' y = dt(xx, df = 3)
-#' 
-#' # Bulk model base tail fraction
-#' fit = fnormgpd(x, phiu = FALSE, std.err = FALSE)
-#' fit2 = fgng(x, phiul = FALSE, phiur = FALSE, std.err = FALSE)
-#' hist(x, breaks = 100, freq = FALSE, xlim = c(-10, 10), main = "t (df=3)")
-#' lines(xx, y)
-#' lines(xx, dnormgpd(xx, nmean = fit$nmean, nsd = fit$nsd,
-#'   u = fit$u, sigmau = fit$sigmau, xi = fit$xi, phiu = fit$phiu), col="red")
-#' abline(v = fit$u)
 #'   
-#' # Bulk model base tail fraction
-#' plot(xx, y, type = "l")
-#' lines(xx, dnormgpd(xx, nmean = fit$nmean, nsd = fit$nsd,
-#'   u = fit$u, sigmau = fit$sigmau, xi = fit$xi, phiu = fit$phiu), col="red")
-#' lines(xx, dgng(xx, nmean = fit2$nmean, nsd = fit2$nsd,
-#'   ul = fit2$ul, sigmaul = fit2$sigmaul, xil = fit2$xil, phiul = fit2$phiul,
-#'   ur = fit2$ur, sigmaur = fit2$sigmaur, xir = fit2$xir, phiur = fit2$phiur), col="blue")
+#' # Profile likelihood for initial value of threshold and fixed threshold approach
+#' fitu = fgng(x, ulseq = rep(seq(-2, -0.2, length = 10), times = 10), 
+#'  urseq = rep(seq(0.2, 2, length = 10), each = 10))
+#' fitfix = fgng(x, ulseq = rep(seq(-2, -0.2, length = 10), times = 10), 
+#'  urseq = rep(seq(0.2, 2, length = 10), each = 10), fixedu = TRUE)
+#' 
+#' hist(x, breaks = 100, freq = FALSE, xlim = c(-4, 4))
+#' lines(xx, y)
+#' with(fit, lines(xx, dgng(xx, nmean, nsd, ul, sigmaul, xil, phiul,
+#'    ur, sigmaur, xir, phiur), col="red"))
 #' abline(v = c(fit$ul, fit$ur), col = "red")
-#' abline(v = c(fit2$ul, fit2$ur), col = "blue")
-#' legend("topright", c("True Density","GPD Upper Tail Only","GPD Both Tails"),
-#'   col=c("black", "red", "blue"), lty = 1)
-#'   }
+#' with(fitu, lines(xx, dgng(xx, nmean, nsd, ul, sigmaul, xil, phiul,
+#'    ur, sigmaur, xir, phiur), col="purple"))
+#' abline(v = c(fitu$ul, fitu$ur), col = "purple")
+#' with(fitfix, lines(xx, dgng(xx, nmean, nsd, ul, sigmaul, xil, phiul,
+#'    ur, sigmaur, xir, phiur), col="darkgreen"))
+#' abline(v = c(fitfix$ul, fitfix$ur), col = "darkgreen")
+#' legend("topright", c("True Density","Default initial value (90% quantile)",
+#'  "Prof. lik. for initial value", "Prof. lik. for fixed threshold"),
+#'  col=c("black", "red", "purple", "darkgreen"), lty = 1)
+#' }
+#'   
 
-# maximum likelihood fitting for normal bulk with GPD's for upper and lower tails
-fgng <- function(x, phiul = TRUE, phiur = TRUE, pvector = NULL, std.err = TRUE,
-  method = "BFGS", control = list(maxit = 10000), finitelik = TRUE, ...) {
+# maximum likelihood fitting for normal bulk with GPD for both tails
+fgng <- function(x, phiul = TRUE, phiur = TRUE, ulseq = NULL, urseq = NULL, fixedu = FALSE, pvector = NULL,
+  std.err = TRUE, method = "BFGS", control = list(maxit = 10000), finitelik = TRUE, ...) {
 
   call <- match.call()
     
   # Check properties of inputs
-  if (missing(x))
-    stop("x must be a non-empty numeric vector")
-    
-  if (length(x) == 0 | mode(x) != "numeric") 
-    stop("x must be a non-empty numeric vector")
+  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.logic(logicarg = phiul) # only logical
+  check.logic(logicarg = phiur) # only logical
+  check.param(ulseq, allowvec = TRUE, allownull = TRUE)
+  check.param(urseq, allowvec = TRUE, allownull = TRUE)
+  check.logic(logicarg = fixedu)
+  check.logic(logicarg = std.err)
+  check.optim(method)
+  check.control(control)
+  check.logic(logicarg = finitelik)
 
-  if (any(is.infinite(x)))
-    stop("infinite cases must be removed")
-
-  if (any(is.na(x)))
-    warning("missing values have been removed")
-
-  x = x[!is.na(x)]
-  
-  if (!is.logical(finitelik))
-    stop("finitelik must be logical")
-
-  if (!is.logical(phiul) | !is.logical(phiur))
-    stop("phiu must be either TRUE for bulk parameterised threshold probability approach, 
-      or FALSE when using parameterised threshold probability approach")
-
-  if ((method == "L-BFGS-B") | (method == "BFGS"))
-    finitelik = TRUE
-
-  if (is.null(pvector)) {
-    pvector[1] = mean(x, trim = 0.2)
-    pvector[2] = sd(x)
-    pvector[3] = as.vector(quantile(x, 0.1))
-    initfgpd = fgpd(-x, -pvector[3], std.err = std.err)
-    pvector[4] = initfgpd$sigmau
-    pvector[5] = initfgpd$xi
-    pvector[6] = as.vector(quantile(x, 0.9))
-    initfgpd = fgpd(x, pvector[6], std.err = std.err)
-    pvector[7] = initfgpd$sigmau
-    pvector[8] = initfgpd$xi
-  } else {
-    if (length(pvector) != 8)
-      stop("Initial values for eight parameters must be specified")
-    if (any(!is.finite(pvector)) | is.logical(pvector))
-      stop("initial parameters must be numeric")
+  if (any(!is.finite(x))) {
+    warning("non-finite cases have been removed")
+    x = x[is.finite(x)] # ignore missing and infinite cases
   }
 
-  nllh = nlgng(pvector, x = x, phiul = phiul, phiur = phiur, finitelik = finitelik)
-  if (is.infinite(nllh))
-    stop("initial parameter values are invalid")
+  check.quant(x)
+  n = length(x)
 
-  fit = optim(par = as.vector(pvector), fn = nlgng, x = x, phiul = phiul, phiur = phiur, finitelik = finitelik,
-    method = method, control = control, hessian = TRUE, ...)
+  if ((method == "L-BFGS-B") | (method == "BFGS")) finitelik = TRUE
+  
+  # useq must be specified if threshold is fixed
+  if (fixedu & (is.null(ulseq) | is.null(urseq)))
+    stop("for fixed threshold approach, ulseq and urseq must be specified (as scalar or vector)")
+  
+  # Check if profile likelihood or fixed threshold is being used
+  # and determine initial values for parameters in each case
+  if (is.null(ulseq) | is.null(ulseq)) { # not profile or fixed
+    profu = FALSE
+    check.nparam(pvector, nparam = 8, allownull = TRUE)
+    
+    if (is.null(pvector)) {
+      pvector[1] = mean(x, trim = 0.2)
+      pvector[2] = sd(x)
+      pvector[3] = as.vector(quantile(x, 0.1))
+      initfgpd = fgpd(-x, -pvector[3], std.err = FALSE)
+      pvector[4] = initfgpd$sigmau
+      pvector[5] = initfgpd$xi
+      pvector[6] = as.vector(quantile(x, 0.9))
+      initfgpd = fgpd(x, pvector[6], std.err = FALSE)
+      pvector[7] = initfgpd$sigmau
+      pvector[8] = initfgpd$xi
+    }
+    
+  } else { # profile or fixed
+    profu = TRUE
+    
+    check.nparam(pvector, nparam = 6, allownull = TRUE)
+
+    # profile likelihood for threshold or scalar given
+    if ((length(ulseq) != 1) | (length(urseq) != 1)) {
+      
+      # remove thresholds with less than 5 excesses
+      ulseq = ulseq[sapply(ulseq, FUN = function(u, x) sum(x < u) > 5, x = x)]
+      check.param(ulseq, allowvec = TRUE)
+      urseq = urseq[sapply(urseq, FUN = function(u, x) sum(x > u) > 5, x = x)]
+      check.param(ulseq, allowvec = TRUE)
+
+      nuseq = max(length(ulseq), length(urseq))
+      ulseq = rep(ulseq, length.out = nuseq)
+      urseq = rep(urseq, length.out = nuseq)
+      
+      nllhu = apply(cbind(ulseq, urseq), 1, proflugng, pvector = pvector, x = x,
+        phiul = phiul, phiur = phiur, method = method, control = control, finitelik = finitelik, ...)
+      
+      if (all(!is.finite(nllhu))) stop("thresholds are all invalid")
+      ul = ulseq[which.min(nllhu)]
+      ur = urseq[which.min(nllhu)]
+
+    } else {
+      ul = ulseq
+      ur = urseq
+    }
+
+    if (fixedu) { # threshold fixed (4 parameters)
+      if (is.null(pvector)) {
+        pvector[1] = mean(x, trim = 0.2)
+        pvector[2] = sd(x)
+        initfgpd = fgpd(-x, -ul, std.err = FALSE)
+        pvector[3] = initfgpd$sigmau
+        pvector[4] = initfgpd$xi
+        initfgpd = fgpd(x, ur, std.err = FALSE)
+        pvector[5] = initfgpd$sigmau
+        pvector[6] = initfgpd$xi
+      }
+    } else { # threshold as initial value in usual MLE
+      if (is.null(pvector)) {
+        pvector[1] = mean(x, trim = 0.2)
+        pvector[2] = sd(x)
+        pvector[3] = ul
+        initfgpd = fgpd(-x, -pvector[3], std.err = FALSE)
+        pvector[4] = initfgpd$sigmau
+        pvector[5] = initfgpd$xi
+        pvector[6] = ur
+        initfgpd = fgpd(x, pvector[6], std.err = FALSE)
+        pvector[7] = initfgpd$sigmau
+        pvector[8] = initfgpd$xi
+      } else {
+        pvector[8] = pvector[6] # shift upper tail GPD scale and shape to add in ur
+        pvector[7] = pvector[5]
+        pvector[6] = ur
+        pvector[5] = pvector[4] # shift lower tail GPD scale and shape to add in ul
+        pvector[4] = pvector[3]
+        pvector[3] = ul
+      }
+    }
+  }
+
+  if (fixedu) { # fixed threshold (separable) likelihood
+    nllh = nlugng(pvector, ul, ur, x, phiul, phiur)
+    if (is.infinite(nllh)) stop("initial parameter values are invalid")
+  
+    fit = optim(par = as.vector(pvector), fn = nlugng, ul = ul, ur = ur, x = x,
+      phiul = phiul, phiur = phiur, finitelik = finitelik, method = method, control = control, hessian = TRUE, ...)    
+    
+    nmean = fit$par[1]
+    nsd = fit$par[2]
+    sigmaul = fit$par[3]
+    xil = fit$par[4]
+    sigmaur = fit$par[5]
+    xir = fit$par[6]
+    
+  } else { # complete (non-separable) likelihood
+    
+    nllh = nlgng(pvector, x, phiul, phiur)
+    if (is.infinite(nllh)) stop("initial parameter values are invalid")
+  
+    fit = optim(par = as.vector(pvector), fn = nlgng, x = x, phiul = phiul, phiur = phiur,
+      finitelik = finitelik, method = method, control = control, hessian = TRUE, ...)    
+    
+    nmean = fit$par[1]
+    nsd = fit$par[2]
+    ul = fit$par[3]
+    sigmaul = fit$par[4]
+    xil = fit$par[5]
+    ur = fit$par[6]
+    sigmaur = fit$par[7]
+    xir = fit$par[8]
+  }
 
   conv = TRUE
   if ((fit$convergence != 0) | any(fit$par == pvector) | (abs(fit$value) >= 1e6)) {
@@ -240,32 +340,24 @@ fgng <- function(x, phiul = TRUE, phiur = TRUE, pvector = NULL, std.err = TRUE,
     warning("check convergence")
   }
 
-  n = length(x)
-  nmean = fit$par[1]
-  nsd = fit$par[2]
-  ul = fit$par[3]
-  sigmaul = fit$par[4]
-  xil = fit$par[5]
-  ur = fit$par[6]
-  sigmaur = fit$par[7]
-  xir = fit$par[8]
-  
+  pul = pnorm(ul, nmean, nsd)
   if (phiul) {
-    phiul = pnorm(ul, mean = nmean, sd = nsd)
-    sephiul = NA
+    phiul = pul
+    se.phiul = NA
   } else {
     phiul = mean(x < ul, na.rm = TRUE)
-    sephiul = sqrt(phiul * (1 - phiul) / n)
+    se.phiul = sqrt(phiul * (1 - phiul) / n)
   }
+  pur = pnorm(ur, nmean, nsd)
   if (phiur) {
-    phiur = 1 - pnorm(ur, mean = nmean, sd = nsd)
-    sephiur = NA
+    phiur = 1 - pur
+    se.phiur = NA
   } else {
     phiur = mean(x > ur, na.rm = TRUE)
-    sephiur = sqrt(phiur * (1 - phiur) / n)
-  }  
-
-  if (conv & std.err) {
+    se.phiur = sqrt(phiur * (1 - phiur) / n)
+  }
+  
+  if (std.err) {
     qrhess = qr(fit$hessian)
     if (qrhess$rank != ncol(qrhess$qr)) {
       warning("observed information matrix is singular; use std.err = FALSE")
@@ -286,12 +378,232 @@ fgng <- function(x, phiul = TRUE, phiur = TRUE, pvector = NULL, std.err = TRUE,
     invhess = NULL
     se = NULL
   }
+  
+  list(call = call, x = as.vector(x),
+    init = as.vector(pvector), fixedu = fixedu, ulseq = ulseq, urseq = urseq,
+    optim = fit, conv = conv, cov = invhess, mle = fit$par, se = se, ratel = phiul, rater = phiur,
+    nllh = fit$value, n = n, nmean = nmean, nsd = nsd,
+    ul = ul, sigmaul = sigmaul, xil = xil, phiul = phiul, se.phiul = se.phiul, 
+    ur = ur, sigmaur = sigmaur, xir = xir, phiur = phiur, se.phiur = se.phiur)
+}
 
-  list(call = call, x = as.vector(x), init = as.vector(pvector), optim = fit,
-    conv = conv, cov = invhess, mle = fit$par, se = se,
-    ratel = phiul, rater = phiur, nllh = fit$value,
-    allparam = c(fit$par, phiul, phiur), allse = c(se, sephiul, sephiur),
-    n = n, nmean = nmean, nsd = nsd,
-    ul = ul, sigmaul = sigmaul, xil = xil, phiul = phiul,
-    ur = ur, sigmaur = sigmaur, xir = xir, phiur = phiur)
+#' @export
+#' @aliases fgng lgng nlgng proflugng nlugng
+#' @rdname  fgng
+
+# log-likelihood function for normal bulk with GPD for both tails
+lgng <- function(x, nmean = 0, nsd = 1,
+  ul = 0, sigmaul = 1, xil = 0, phiul = TRUE,
+  ur = 0, sigmaur = 1, xir = 0, phiur = TRUE, log = TRUE) {
+
+  # Check properties of inputs
+  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.param(param = nmean)
+  check.param(param = nsd)     # do not check positivity in likelihood
+  check.param(param = ul)                       
+  check.param(param = sigmaul) # do not check positivity in likelihood
+  check.param(param = xil)
+  check.param(param = ur)                       
+  check.param(param = sigmaur) # do not check positivity in likelihood
+  check.param(param = xir)
+  check.phiu(phiul, allowfalse = TRUE)
+  check.phiu(phiur, allowfalse = TRUE)
+  check.logic(logicarg = log)
+  
+  if (any(!is.finite(x))) {
+    warning("non-finite cases have been removed")
+    x = x[is.finite(x)] # ignore missing and infinite cases
+  }
+
+  check.quant(x)
+  n = length(x)
+  
+  check.inputn(c(length(nmean), length(nsd), 
+    length(ul), length(sigmaul), length(xil), length(phiul), 
+    length(ur), length(sigmaur), length(xir), length(phiur)))
+
+  # assume NA or NaN are irrelevant as entire lower tail is now modelled
+  # inconsistent with evd library definition
+  # hence use which() to ignore these
+
+  xur = x[which(x > ur)]
+  nur = length(xur)
+  xul = x[which(x < ul)]
+  nul = length(xul)
+  xb = x[which((x >= ul) & (x <= ur))]
+  nb = length(xb)
+
+  if ((nsd <= 0) | (sigmaul <= 0) | (ul <= min(x)) | (ul >= max(x))
+    | (sigmaur <= 0) | (ur <= min(x)) | (ur >= max(x))| (ur <= ul)) {
+    l = -Inf
+  } else {
+    if (is.logical(phiul)) {
+      pul = pnorm(ul, nmean, nsd)
+      if (phiul) {
+        phiul = pul
+      } else {
+        phiul = nul / n
+      }
+    }
+    if (is.logical(phiur)) {
+      pur = pnorm(ur, nmean, nsd)
+      if (phiur) {
+        phiur = 1 - pur
+      } else {
+        phiur = nur / n
+      }
+    }
+    phib = (1 - phiul - phiur) / (pur - pul)
+  
+    syul = 1 + xil * (ul - xul) / sigmaul  
+    syur = 1 + xir * (xur - ur) / sigmaur  
+    yb = (xb - nmean) / nsd    # used for normal
+  
+    if ((min(syul) <= 0) | (phiul <= 0) | (phiul >= 1) | 
+        (min(syur) <= 0) | (phiur <= 0) | (phiur >= 1) | ((phiul + phiur) > 1)) {
+      l = -Inf
+    } else { 
+      l = lgpd(-xul, -ul, sigmaul, xil, phiul)
+      l = l + lgpd(xur, ur, sigmaur, xir, phiur)
+      l = l - nb * log(2 * pi * nsd ^ 2) / 2 - sum(yb ^ 2) / 2 + nb * log(phib)
+    }
+  }
+  
+  if (!log) l = exp(l)
+  
+  l
+}
+
+#' @export
+#' @aliases fgng lgng nlgng proflugng nlugng
+#' @rdname  fgng
+
+# negative log-likelihood function for normal bulk with GPD for both tails
+# (wrapper for likelihood, inputs and checks designed for optimisation)
+nlgng <- function(pvector, x, phiul = TRUE, phiur = TRUE, finitelik = FALSE) {
+
+  # Check properties of inputs
+  check.nparam(pvector, nparam = 8)
+  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.phiu(phiul, allowfalse = TRUE)
+  check.phiu(phiur, allowfalse = TRUE)
+  check.logic(logicarg = finitelik)
+
+  nmean = pvector[1]
+  nsd = pvector[2]
+  ul = pvector[3]
+  sigmaul = pvector[4]
+  xil = pvector[5]
+  ur = pvector[6]
+  sigmaur = pvector[7]
+  xir = pvector[8]
+
+  nllh = -lgng(x, nmean, nsd, ul, sigmaul, xil, phiul, ur, sigmaur, xir, phiur) 
+  
+  if (finitelik & is.infinite(nllh)) {
+    nllh = sign(nllh) * 1e6
+  }
+
+  nllh
+}
+
+#' @export
+#' @aliases fgng lgng nlgng proflugng nlugng
+#' @rdname  fgng
+
+# profile negative log-likelihood function for given threshold for
+# normal bulk with GPD for both tails
+# designed for apply to loop over vector of thresholds (hence c(ul, ur) vector is first input)
+proflugng <- function(ulr, pvector, x, phiul = TRUE, phiur = TRUE,
+  method = "BFGS", control = list(maxit = 10000), finitelik = FALSE, ...) {
+
+  # Check properties of inputs
+  np = 6
+  check.nparam(pvector, nparam = np, allownull = TRUE)
+  check.param(ulr, allowvec = TRUE)
+  check.nparam(ulr, nparam = 2)
+  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.phiu(phiul, allowfalse = TRUE)
+  check.phiu(phiur, allowfalse = TRUE)
+  check.logic(logicarg = finitelik)
+
+  if (any(!is.finite(x))) {
+    warning("non-finite cases have been removed")
+    x = x[is.finite(x)] # ignore missing and infinite cases
+  }
+
+  check.quant(x)
+  n = length(x)
+  
+  ul = ulr[1]
+  ur = ulr[2]
+
+  # check initial values for other parameters, try usual alternative
+  if (!is.null(pvector)) {
+    nllh = nlugng(pvector, ul, ur, x, phiul, phiur)
+    
+    if (is.infinite(nllh)) pvector = NULL
+  }
+
+  if (is.null(pvector)) {
+    pvector[1] = mean(x, trim = 0.2)
+    pvector[2] = sd(x)
+    initfgpd = fgpd(-x, -ul, std.err = FALSE)
+    pvector[3] = initfgpd$sigmau
+    pvector[4] = initfgpd$xi
+    initfgpd = fgpd(x, ur, std.err = FALSE)
+    pvector[5] = initfgpd$sigmau
+    pvector[6] = initfgpd$xi
+    nllh = nlugng(pvector, ul, ur, x, phiul, phiur)
+  }
+
+  # if still invalid then output cleanly
+  if (is.infinite(nllh)) {
+    warning(paste("initial parameter values for thresholds ul =", ul, "and ur =", ur,"are invalid"))
+    fit = list(par = rep(NA, np), value = Inf, counts = 0, convergence = NA, 
+      message = "initial values invalid", hessian = rep(NA, np))
+  } else {
+
+    fit = optim(par = as.vector(pvector), fn = nlugng, ul = ul, ur = ur, x = x, 
+      phiul = phiul, phiur = phiur, finitelik = finitelik, method = method, control = control, hessian = TRUE, ...)
+  }
+    
+  if (finitelik & is.infinite(fit$value)) {
+    fit$value = sign(fit$value) * 1e6
+  }
+
+  fit$value
+}
+
+#' @export
+#' @aliases fgng lgng nlgng proflugng nlugng
+#' @rdname  fgng
+
+# negative log-likelihood function for normal bulk with GPD for both tails
+# (wrapper for likelihood, designed for threshold to be fixed and other parameters optimised)
+nlugng <- function(pvector, ul, ur, x, phiul = TRUE, phiur = TRUE, finitelik = FALSE) {
+
+  # Check properties of inputs
+  check.nparam(pvector, nparam = 6)
+  check.param(ul)
+  check.param(ur)
+  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.phiu(phiul, allowfalse = TRUE)
+  check.phiu(phiur, allowfalse = TRUE)
+  check.logic(logicarg = finitelik)
+    
+  nmean = pvector[1]
+  nsd = pvector[2]
+  sigmaul = pvector[3]
+  xil = pvector[4]
+  sigmaur = pvector[5]
+  xir = pvector[6]
+
+  nllh = -lgng(x, nmean, nsd, ul, sigmaul, xil, phiul, ur, sigmaur, xir, phiur)
+  
+  if (finitelik & is.infinite(nllh)) {
+    nllh = sign(nllh) * 1e6
+  }
+
+  nllh
 }

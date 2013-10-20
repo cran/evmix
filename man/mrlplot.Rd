@@ -27,7 +27,8 @@
   \item{ylim}{y-axis limits or \code{NULL}}
 
   \item{legend.loc}{location of legend (see
-  \code{\link[graphics:legend]{legend}})}
+  \code{\link[graphics:legend]{legend}}) or \code{NULL} for
+  no legend}
 
   \item{try.thresh}{vector of threshold to fit GPD using
   MLE and show theoretical MRL}
@@ -57,14 +58,17 @@
   Plots the sample mean residual life plot, which is also
   known as the mean excess plot.
 
-  The mean residual life above a threshold \eqn{u} is given
-  by \code{mean(x[x > u]) - u}, i.e. the sample mean of the
-  exceedances less the threshold. If the generalised Pareto
-  distribution (GPD)is an appropriate model for the
-  excesses above \eqn{u}, then for any higher thresholds
-  \eqn{v > u} the MRL will be linear with intercept
-  \eqn{(\sigma_u - \xi *u)/(1 - \xi)} and gradient
-  \eqn{\xi/(1 - \xi)}.
+  If the generalised Pareto distribution (GPD) is an
+  appropriate model for the excesses \eqn{X-u} above
+  \eqn{u} then their expected value is: \deqn{E(X - u | X >
+  u) = \sigma_u / (1 - \xi).} For any higher threshold
+  \eqn{v > u} the expected value is \deqn{E(X - v | X > v)
+  = [\sigma_u + \xi * (v - u)] / (1 - \xi)} which is linear
+  in higher thresholds \eqn{v} with intercept given by
+  \eqn{[\sigma_u - \xi *u]/(1 - \xi)} and gradient
+  \eqn{\xi/(1 - \xi)}. The estimated mean residual life
+  above a threshold \eqn{v} is given by the sample mean
+  excess \code{mean(x[x > v]) - v}.
 
   Symmetric central limit theorem based confidence
   intervals are provided for all mean excesses, provided

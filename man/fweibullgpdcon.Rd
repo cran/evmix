@@ -1,19 +1,48 @@
 \name{fweibullgpdcon}
 \alias{fweibullgpdcon}
-\title{MLE Fitting of Weibull Bulk and GPD Tail Extreme Value Mixture Model with Continuity Constraint}
+\alias{lweibullgpdcon}
+\alias{nluweibullgpdcon}
+\alias{nlweibullgpdcon}
+\alias{profluweibullgpdcon}
+\title{MLE Fitting of Weibull Bulk and GPD Tail Extreme Value Mixture Model with Single Continuity Constraint}
 \usage{
-  fweibullgpdcon(x, phiu = TRUE, pvector = NULL,
-    std.err = TRUE, method = "BFGS",
-    control = list(maxit = 10000), finitelik = TRUE, ...)
+  fweibullgpdcon(x, phiu = TRUE, useq = NULL,
+    fixedu = FALSE, pvector = NULL, std.err = TRUE,
+    method = "BFGS", control = list(maxit = 10000),
+    finitelik = TRUE, ...)
+
+  lweibullgpdcon(x, wshape = 1, wscale = 1,
+    u = qweibull(0.9, wshape, wscale), xi = 0, phiu = TRUE,
+    log = TRUE)
+
+  nlweibullgpdcon(pvector, x, phiu = TRUE,
+    finitelik = FALSE)
+
+  profluweibullgpdcon(u, pvector, x, phiu = TRUE,
+    method = "BFGS", control = list(maxit = 10000),
+    finitelik = FALSE, ...)
+
+  nluweibullgpdcon(pvector, u, x, phiu = TRUE,
+    finitelik = FALSE)
 }
 \arguments{
-  \item{pvector}{vector of initial values mixture model
-  parameters (\code{wshape}, \code{wscale}, \code{u},
-  \code{sigmau}, \code{xi}) or \code{NULL}}
-
   \item{x}{vector of sample data}
 
-  \item{phiu}{logical}
+  \item{phiu}{probability of being above threshold \eqn{(0,
+  1)} or logical, see Details in help for
+  \code{\link[evmix:fnormgpd]{fnormgpd}}}
+
+  \item{useq}{vector of thresholds (or scalar) to be
+  considered in profile likelihood or \code{NULL} for no
+  profile likelihood}
+
+  \item{fixedu}{logical, should threshold be fixed (at
+  either scalar value in \code{useq}, or estimated from
+  maximum of profile likelihood evaluated at sequence of
+  thresholds in \code{useq})}
+
+  \item{pvector}{vector of initial values of parameters or
+  \code{NULL} for default values, see below}
 
   \item{std.err}{logical, should standard errors be
   calculated}
@@ -29,138 +58,141 @@
 
   \item{...}{optional inputs passed to
   \code{\link[stats:optim]{optim}}}
+
+  \item{wshape}{scalar Weibull shape (positive)}
+
+  \item{wscale}{scalar Weibull scale (positive)}
+
+  \item{u}{scalar threshold value}
+
+  \item{xi}{scalar shape parameter}
+
+  \item{log}{logical, if \code{TRUE} then log-likelihood
+  rather than likelihood is output}
 }
 \value{
-  Returns a simple list with the following elements
+  Log-likelihood is given by
+  \code{\link[evmix:fweibullgpdcon]{lweibullgpdcon}} and
+  it's wrappers for negative log-likelihood from
+  \code{\link[evmix:fweibullgpdcon]{nlweibullgpdcon}} and
+  \code{\link[evmix:fweibullgpdcon]{nluweibullgpdcon}}.
+  Profile likelihood for single threshold given by
+  \code{\link[evmix:fweibullgpdcon]{profluweibullgpdcon}}.
+  Fitting function
+  \code{\link[evmix:fweibullgpdcon]{fweibullgpdcon}}
+  returns a simple list with the following elements
 
   \tabular{ll}{ \code{call}: \tab \code{optim} call\cr
   \code{x}: \tab data vector \code{x}\cr \code{init}: \tab
-  \code{pvector}\cr \code{optim}: \tab complete
-  \code{optim} output\cr \code{mle}: \tab vector of MLE of
-  model parameters\cr \code{cov}: \tab variance-covariance
-  matrix of MLE of model parameters\cr \code{se}: \tab
-  vector of standard errors of MLE of model parameters\cr
-  \code{rate}: \tab \code{phiu} to be consistent with
-  \code{\link[evd:fpot]{evd}}\cr \code{nllh}: \tab minimum
-  negative log-likelihood\cr \code{allparams}: \tab vector
-  of MLE of model parameters, including \code{sigmau} and
-  \code{phiu}\cr \code{allse}: \tab vector of standard
-  error of all parameters, including \code{sigmau} and
-  \code{phiu}\cr \code{n}: \tab total sample size\cr
-  \code{wshape}: \tab MLE of Weibull shape\cr
-  \code{wscale}: \tab MLE of Weibull scale\cr \code{u}:
-  \tab threshold\cr \code{sigmau}: \tab MLE of GPD scale\cr
-  \code{xi}: \tab MLE of GPD shape\cr \code{phiu}: \tab MLE
-  of tail fraction\cr }
-
-  The output list has some duplicate entries and repeats
-  some of the inputs to both provide similar items to those
-  from \code{\link[evd:fpot]{fpot}} and to make it as
-  useable as possible.
+  \code{pvector}\cr \code{fixedu}: \tab fixed threshold,
+  logical\cr \code{useq}: \tab threshold vector for profile
+  likelihood or scalar for fixed threshold\cr \code{optim}:
+  \tab complete \code{optim} output\cr \code{mle}: \tab
+  vector of MLE of parameters\cr \code{cov}: \tab
+  variance-covariance matrix of MLE of parameters\cr
+  \code{se}: \tab vector of standard errors of MLE of
+  parameters\cr \code{rate}: \tab \code{phiu} to be
+  consistent with \code{\link[evd:fpot]{evd}}\cr
+  \code{nllh}: \tab minimum negative log-likelihood\cr
+  \code{n}: \tab total sample size\cr \code{wshape}: \tab
+  MLE of Weibull shape\cr \code{wscale}: \tab MLE of
+  Weibull scale\cr \code{u}: \tab threshold (fixed or
+  MLE)\cr \code{sigmau}: \tab MLE of GPD scale (estimated
+  from other parameters)\cr \code{xi}: \tab MLE of GPD
+  shape\cr \code{phiu}: \tab MLE of tail fraction (bulk
+  model or parameterised approach)\cr \code{se.phiu}: \tab
+  standard error of MLE of tail fraction\cr }
 }
 \description{
   Maximum likelihood estimation for fitting the extreme
   value mixture model with Weibull for bulk distribution
   upto the threshold and conditional GPD above threshold
-  with a continuity constraint
+  with continuity at threshold. With options for profile
+  likelihood estimation for threshold and fixed threshold
+  approach.
 }
 \details{
   The extreme value mixture model with Weibull bulk and GPD
-  tail is fitted to the entire dataset using maximum
-  likelihood estimation. The estimated parameters,
-  variance-covariance matrix and their standard errors are
-  automatically output.
+  tail with continuity at threshold is fitted to the entire
+  dataset using maximum likelihood estimation. The
+  estimated parameters, variance-covariance matrix and
+  their standard errors are automatically output.
 
-  Non-positive data are ignored.
+  See help for \code{\link[evmix:fnormgpd]{fnormgpd}} for
+  details, type \code{help fnormgpd}. Only the different
+  features are outlined below for brevity.
 
-  The default value for \code{phiu=TRUE} so that the tail
-  fraction is specified by Weibull distribution \eqn{\phi_u
-  = 1 - H(u)}. When \code{phiu=FALSE} then the tail
-  fraction is treated as an extra parameter estimated using
-  the MLE which is the sample proportion above the
-  threshold. In this case the standard error for
-  \code{phiu} is estimated and output as \code{sephiu}.
+  The GPD \code{sigmau} parameter is now specified as
+  function of other parameters, see help for
+  \code{\link[evmix:weibullgpdcon]{dweibullgpdcon}} for
+  details, type \code{help weibullgpdcon}. Therefore,
+  \code{sigmau} should not be included in the parameter
+  vector if initial values are provided, making the full
+  parameter vector (\code{wshape}, \code{wscale}, \code{u},
+  \code{xi}) if threshold is also estimated and
+  (\code{wshape}, \code{wscale}, \code{xi}) for profile
+  likelihood or fixed threshold approach.
 
-  Missing values (\code{NA} and \code{NaN}) are assumed to
-  be invalid data so are ignored, which is inconsistent
-  with the \code{\link[evd:fpot]{evd}} library which
-  assumes the missing values are below the threshold.
-
-  The default optimisation algorithm is "BFGS", which
-  requires a finite negative log-likelihood function
-  evaluation \code{finitelik=TRUE}. For invalid parameters,
-  a zero likelihood is replaced with \code{exp(-1e6)}. The
-  "BFGS" optimisation algorithms require finite values for
-  likelihood, so any user input for \code{finitelik} will
-  be overridden and set to \code{finitelik=TRUE} if either
-  of these optimisation methods is chosen.
-
-  It will display a warning for non-zero convergence result
-  comes from \code{\link[stats:optim]{optim}} function
-  call.
-
-  If the hessian is of reduced rank then the variance
-  covariance (from inverse hessian) and standard error of
-  parameters cannot be calculated, then by default
-  \code{std.err=TRUE} and the function will stop. If you
-  want the parameter estimates even if the hessian is of
-  reduced rank (e.g. in a simulation study) then set
-  \code{std.err=FALSE}.
+  Negative data are ignored.
 }
 \note{
-  Unlike all the distribution functions for the extreme
-  value mixture models, the MLE fitting only permits single
-  scalar values for each parameter and \code{phiu}. Only
-  the data is a vector.
-
-  When \code{pvector=NULL} then the initial values are
-  calculated, type \code{fweibullgpdcon} to see the default
-  formulae used. The mixture model fitting can be
-  ***extremely*** sensitive to the initial values, so you
-  if you get a poor fit then try some alternatives. Avoid
-  setting the starting value for the shape parameter to
-  \code{xi=0} as depending on the optimisation method it
-  may be get stuck.
-
-  The fitting function will stop if infinite sample values
-  are given.
-
-  Error checking of the inputs is carried out and will
-  either stop or give warning message as appropriate.
+  When \code{pvector=NULL} then the initial values are:
+  \itemize{ \item MLE of Weibull parameters assuming entire
+  population is Weibull; and \item threshold 90\% quantile
+  (not relevant for profile likelihood for threshold or
+  fixed threshold approaches); \item MLE of GPD shape
+  parameter above threshold. }
+}
+\section{Acknowledgments}{
+  See Acknowledgments in
+  \code{\link[evmix:fnormgpd]{fnormgpd}}, type \code{help
+  fnormgpd}.
 }
 \examples{
 \dontrun{
 par(mfrow=c(2,1))
 x = rweibull(1000, shape = 2)
-xx = seq(-1, 4, 0.01)
+xx = seq(-0.1, 4, 0.01)
 y = dweibull(xx, shape = 2)
 
-# Bulk model base tail fraction
-fit = fweibullgpdcon(x, phiu = TRUE, std.err = FALSE)
-hist(x, breaks = 100, freq = FALSE, xlim = c(-1, 4))
+# Continuity constraint
+fit = fweibullgpdcon(x)
+hist(x, breaks = 100, freq = FALSE, xlim = c(-0.1, 4))
 lines(xx, y)
-lines(xx, dweibullgpdcon(xx, wshape = fit$wshape, wscale = fit$wscale, u = fit$u,
-  xi = fit$xi, phiu = TRUE), col="red")
-abline(v = fit$u)
-
-# Parameterised tail fraction
-fit2 = fweibullgpdcon(x, phiu = FALSE, std.err = FALSE)
-plot(xx, y, type = "l")
-lines(xx, dweibullgpdcon(xx, wshape = fit$wshape, wscale = fit$wscale, u = fit$u,
-  xi = fit$xi, phiu = TRUE), col="red")
-lines(xx, dweibullgpdcon(xx, wshape = fit2$wshape, wscale = fit2$wscale, u = fit2$u,
-  xi = fit2$xi, phiu = fit2$phiu), col="blue")
+with(fit, lines(xx, dweibullgpdcon(xx, wshape, wscale, u, xi), col="red"))
 abline(v = fit$u, col = "red")
+
+# No continuity constraint
+fit2 = fweibullgpd(x, phiu = FALSE)
+with(fit2, lines(xx, dweibullgpd(xx, wshape, wscale, u, sigmau, xi, phiu), col="blue"))
 abline(v = fit2$u, col = "blue")
-legend("topright", c("True Density","Bulk Tail Fraction","Parameterised Tail Fraction"),
-  col=c("black", "red", "blue"), lty = 1)
-  }
+legend("topright", c("True Density","No continuity constraint","With continuty constraint"),
+  col=c("black", "blue", "red"), lty = 1)
+
+# Profile likelihood for initial value of threshold and fixed threshold approach
+fitu = fweibullgpdcon(x, useq = seq(0.5, 2, length = 20))
+fitfix = fweibullgpdcon(x, useq = seq(0.5, 2, length = 20), fixedu = TRUE)
+
+hist(x, breaks = 100, freq = FALSE, xlim = c(-0.1, 4))
+lines(xx, y)
+with(fit, lines(xx, dweibullgpdcon(xx, wshape, wscale, u, xi), col="red"))
+abline(v = fit$u, col = "red")
+with(fitu, lines(xx, dweibullgpdcon(xx, wshape, wscale, u, xi), col="purple"))
+abline(v = fitu$u, col = "purple")
+with(fitfix, lines(xx, dweibullgpdcon(xx, wshape, wscale, u, xi), col="darkgreen"))
+abline(v = fitfix$u, col = "darkgreen")
+legend("topright", c("True Density","Default initial value (90\% quantile)",
+ "Prof. lik. for initial value", "Prof. lik. for fixed threshold"),
+ col=c("black", "red", "purple", "darkgreen"), lty = 1)
+}
 }
 \author{
   Yang Hu and Carl Scarrott
   \email{carl.scarrott@canterbury.ac.nz}
 }
 \references{
+  \url{http://www.math.canterbury.ac.nz/~c.scarrott/evmix}
+
   \url{http://en.wikipedia.org/wiki/Weibull_distribution}
 
   \url{http://en.wikipedia.org/wiki/Generalized_Pareto_distribution}
@@ -171,19 +203,24 @@ legend("topright", c("True Density","Bulk Tail Fraction","Parameterised Tail Fra
   33-59. Available from
   \url{http://www.ine.pt/revstat/pdf/rs120102.pdf}
 
+  Hu, Y. (2013). Extreme value mixture modelling: An R
+  package and simulation study. MSc (Hons) thesis,
+  University of Canterbury, New Zealand.
+  \url{http://ir.canterbury.ac.nz/simple-search?query=extreme&submit=Go}
+
   Behrens, C.N., Lopes, H.F. and Gamerman, D. (2004).
   Bayesian analysis of extreme events with threshold
   estimation. Statistical Modelling. 4(3), 227-244.
 }
 \seealso{
-  \code{\link[evmix:lgpd]{lgpd}} and
+  \code{\link[stats:Weibull]{dweibull}},
+  \code{\link[evmix:fgpd]{fgpd}} and
   \code{\link[evmix:gpd]{gpd}}
 
-  Other weibullgpdcon: \code{\link{dweibullgpdcon}},
-  \code{\link{lweibullgpdcon}},
-  \code{\link{nlweibullgpdcon}},
-  \code{\link{pweibullgpdcon}},
-  \code{\link{qweibullgpdcon}},
-  \code{\link{rweibullgpdcon}}, \code{\link{weibullgpdcon}}
+  Other weibullgpd weibullgpdcon fweibullgpd fweibullgpdcon
+  normgpd fnormgpd: \code{\link{fweibullgpd}},
+  \code{\link{lweibullgpd}}, \code{\link{nluweibullgpd}},
+  \code{\link{nlweibullgpd}},
+  \code{\link{profluweibullgpd}}
 }
 

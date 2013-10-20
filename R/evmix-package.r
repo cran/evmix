@@ -1,30 +1,30 @@
-#' Functions for univariate extreme value mixture modelling, threshold estimation and
-#' uncertainty quantification
+#' Functions for Extreme Value Mixture Modelling, Threshold Estimation and
+#' Boundary Corrected Kernel Density Estimation
 #'
 #' \tabular{ll}{
 #' Package: \tab evmix\cr
 #' Type: \tab Package\cr
-#' Version: \tab 0.1-0\cr
-#' Date: \tab 2013-05-06\cr
+#' Version: \tab 0.2-0\cr
+#' Date: \tab 2013-10-20\cr
 #' License: \tab GPL-3\cr
 #' LazyLoad: \tab yes\cr
 #' }
 #'
-#' The usual distribution functions, maximum likelihood inference and
-#'  model diagnostics for univariate stationary extreme value mixture models
-#'  are provided.
-#'  
-#'  Kernel density estimation including various boundary
-#'  corrected kernel density estimation methods, with cross-validation
-#'  likelihood based bandwidth estimators are included.
-#'  
-#'  Reasonable consistency with the base functions in the \code{evd} package
-#'  is provided, so that users can safely interchange most code.
+#' The usual distribution functions, maximum likelihood inference and model
+#' diagnostics for univariate stationary extreme value mixture models are
+#' provided.
+#' 
+#' Kernel density estimation including various boundary corrected kernel density
+#' estimation methods and a wide choice of kernels, with cross-validation
+#' likelihood based bandwidth estimators are included.
+#' 
+#' Reasonable consistency with the base functions in the \code{evd} package is
+#' provided, so that users can safely interchange most code.
 #'  
 #' @name evmix-package
 #' @aliases evmix
 #' @docType package
-#' @title Extreme Value Mixture Modelling and Threshold Estimation
+#' @title Extreme Value Mixture Modelling, Threshold Estimation and Boundary Corrected Kernel Density Estimation
 #' @author Yang Hu and Carl Scarrott, University of Canterbury, New Zealand \email{carl.scarrott@@canterbury.ac.nz}
 #' @references
 #' \url{http://www.math.canterbury.ac.nz/~c.scarrott/evmix}
@@ -43,5 +43,5 @@
 #' 
 #' @seealso \code{\link[evd:gpd]{evd}}, \code{\link[ismev:ismev]{ismev}} and 
 #' \code{\link[condmixt:condmixt-package]{condmixt}}
-#' @import stats graphics MASS emdbook
+#' @import stats graphics MASS gsl
 NULL

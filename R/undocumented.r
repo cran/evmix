@@ -1,14 +1,12 @@
 #' @name internal
 #' 
-#' @param x            quantile  
-#' @param kerncentres	 kernel centres (typically sample data)
-#' @param lambda       bandwidth for KDE
-#' @param xmax         upper bound on support, for copula and beta based KDE's only
-#' @param offset       offset added to kernel centres, log transform based KDE
+#' @inheritParams kden
+#' @inheritParams bckden
 #' 
 #' @title Internal Functions
 #'
-#' @description Internal functions not designed to be used directly, but are all exported to make them visible to users.
+#' @description Internal functions not designed to be used directly, but are all exported
+#' to make them visible to users.
 #'
 #' @details Internal functions not designed to be used directly. No error
 #' checking of the inputs is carried out, so user must be know what they are doing.
@@ -19,7 +17,8 @@
 #' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}. Based on code
 #' by Anna MacDonald produced for MATLAB.
 #'
-#' @seealso \code{\link[evmix:kden]{kden}} and \code{\link[evmix:bckden]{bckden}}.
+#' @seealso \code{\link[stats:density]{density}}, \code{\link[evmix:kden]{kden}}
+#' and \code{\link[evmix:bckden]{bckden}}.
 #' 
 NULL
 
@@ -29,97 +28,184 @@ NULL
 
 #' @export
 #' @rdname internal
-kdenx <- function(x, kerncentres, lambda) {
-  mean(dnorm(x, kerncentres, lambda))
+kdenx <- function(x, kerncentres, lambda, kernel = "gaussian") {
+  mean(kdz((x - kerncentres)/lambda, kernel))/lambda
 }
 
 #' @export
 #' @rdname internal
-pkdenx <- function(x, kerncentres, lambda) {
-  mean(pnorm(x, kerncentres, lambda))
+pkdenx <- function(x, kerncentres, lambda, kernel = "gaussian") {
+  mean(kpz((x - kerncentres)/lambda, kernel))
 }
 
 #' @export
 #' @rdname internal
-simplebckdenx <- function(x, kerncentres, lambda) {
-  # distance of kerncentres to lower boundary (p in paper)
+bckdenxsimple <- function(x, kerncentres, lambda, kernel = "gaussian") {
+  # use notation of Jones (1993)
+
+  # distance of evaluation point to lower boundary (p in paper)
   truncpoint = x/lambda
   
-  # Use notation of Jones (1993) to make easier to check
-  a0 = pnorm(truncpoint)
-  a1 = -dnorm(truncpoint)  
-  a2 = a0 + truncpoint * a1
-  
-  # weights in local linear fitting
-  denom = (a2*a0 - a1^2)
-  lx = a2/denom
-  mx = a1/denom
-  
+  # distance of evaluation point to kernel centres
   u = (x - kerncentres)/lambda
+
+  # apply adjustment only if point is close to zero boundary
+  maxp = ifelse(kernel == "gaussian", 5, 1)
+  if (truncpoint <= maxp) {
+    # integral of moments upto p
+    a0 = ka0(truncpoint, kernel = kernel)
+    a1 = ka1(truncpoint, kernel = kernel) 
+    a2 = ka2(truncpoint, kernel = kernel) 
   
-  mean((lx - mx*u)*dnorm(u))/lambda
+    # weights in local linear fitting
+    denom = (a2*a0 - a1^2)
+    lx = a2/denom
+    mx = a1/denom
+    d = mean((lx - mx*u)*kdz(u, kernel = kernel))/lambda    
+  } else {
+    d = mean(kdz(u, kernel = kernel))/lambda  
+  }
+
+  d
 }
 
 #' @export
 #' @rdname internal
-simplepbckdenx <- function(x, kerncentres, lambda) {
-  # distance of kerncentres to lower boundary (p in paper)
-  truncpoint = x/lambda
+pbckdenxsimple <- function(x, kerncentres, lambda, kernel = "gaussian") {
+    
+  # apply adjustment only if point is close to zero boundary
+  maxp = ifelse(kernel == "gaussian", 5, 1)*lambda
+  if (x <= maxp) {
+    # Reuse density function to do numerical integration
+    bckdenint = try(integrate(Vectorize(bckdenxsimple, "x"), lower = 0, upper = x,
+      kerncentres = kerncentres, lambda = lambda, kernel = kernel,
+      subdivisions = 10000, rel.tol = 1.e-9, stop.on.error = FALSE))
+    
+    if (inherits(bckdenint, "try-error")) {
+      bckdenint$value = NA
+      warning("failed to numerically evaluate cdf of simple boundary corrected KDE")
+    }
+    p = bckdenint$value    
+  } else {
+    # Reuse density function to do numerical integration upto 5*lambda
+    bckdenint = try(integrate(Vectorize(bckdenxsimple, "x"), lower = 0, upper = maxp,
+      kerncentres = kerncentres, lambda = lambda, kernel = kernel,
+      subdivisions = 10000, rel.tol = 1.e-9, stop.on.error = FALSE))
+    
+    if (inherits(bckdenint, "try-error")) {
+      bckdenint$value = NA
+      warning("failed to numerically evaluate cdf of simple boundary corrected KDE")
+    }
+    p = bckdenint$value    
+
+    # Now add contribution from maxp upwards
+    u = (x - kerncentres)/lambda
+    
+    p = p + mean(kpz(u, kernel = kernel) - kpz((maxp - kerncentres)/lambda, kernel = kernel))   
+  }
   
-  # Use notation of Jones (1993) to make easier to check
-  a0 = pnorm(truncpoint)
-  a1 = -dnorm(truncpoint)  
-  a2 = a0 + truncpoint * a1
-  
-  # weights in local linear fitting
-  denom = (a2*a0 - a1^2)
-  lx = a2/denom
-  mx = a1/denom
-  
-  u = (x - kerncentres)/lambda
-  p = 1 + mean(lx*(pnorm(u) - pnorm(truncpoint)) - 
-      mx*(dnorm(truncpoint) - dnorm(u)))
+  p
 }
 
 #' @export
 #' @rdname internal
-renormbckdenx <- function(x, kerncentres, lambda) {
+bckdenxcutnorm <- function(x, kerncentres, lambda, kernel = "gaussian") {
+  
   # distance of kernel centres to lower boundary
   truncpoint = kerncentres/lambda
   
   # how much of kernel is in range of support, so (1-a0) gives leakage past boundary
-  a0 = pnorm(truncpoint)
+  a0 = kpz(truncpoint, kernel)
   
   u = (x - kerncentres)/lambda
   
-  mean(dnorm(u)/a0)/lambda
+  mean(kdz(u, kernel)/a0)/lambda
 }
 
 #' @export
 #' @rdname internal
-renormpbckdenx <- function(x, kerncentres, lambda) {
+pbckdenxcutnorm <- function(x, kerncentres, lambda, kernel = "gaussian") {
+  
   # distance of kernel centres to lower boundary
   truncpoint = kerncentres/lambda
   
   # how much of kernel is in range of support, so (1-a0) gives leakage past boundary
-  a0 = pnorm(truncpoint)
+  a0 = kpz(truncpoint, kernel)
   
   u = (x - kerncentres)/lambda
   
-  mean((pnorm(u) - pnorm(0, kerncentres, lambda))/a0)
+  mean((kpz(u, kernel) - kpz(-kerncentres/lambda, kernel))/a0)
 }
 
 #' @export
 #' @rdname internal
-reflectbckdenx <- function(x, kerncentres, lambda) {
-  mean(dnorm(x, kerncentres, lambda) + dnorm(x, -kerncentres, lambda))
+bckdenxrenorm <- function(x, kerncentres, lambda, kernel = "gaussian") {
+  
+  # distance of x to lower boundary
+  truncpoint = x/lambda
+  
+  u = (x - kerncentres)/lambda
+
+  maxp = ifelse(kernel == "gaussian", 5, 1)
+  if (truncpoint < maxp) {
+    # first order correction
+    a0 = kpz(truncpoint, kernel)
+    
+    d = mean(kdz(u, kernel)/a0)/lambda
+  } else {
+    d = mean(kdz(u, kernel))/lambda    
+  }
+  d
 }
 
 #' @export
 #' @rdname internal
-reflectpbckdenx <- function(x, kerncentres, lambda) {
-  mean(pnorm(x, kerncentres, lambda) - pnorm(0, kerncentres, lambda) 
-    + pnorm(0, kerncentres, lambda) - pnorm(-x, kerncentres, lambda) )
+pbckdenxrenorm <- function(x, kerncentres, lambda, kernel = "gaussian") {
+  
+  maxp = ifelse(kernel == "gaussian", 5, 1)*lambda
+  if (x <= maxp) {
+    # Reuse density function to do numerical integration
+    bckdenint = try(integrate(Vectorize(bckdenxrenorm, "x"), lower = 0, upper = x,
+      kerncentres = kerncentres, lambda = lambda, kernel = kernel,
+      subdivisions = 10000, rel.tol = 1.e-9, stop.on.error = FALSE))
+    
+    if (inherits(bckdenint, "try-error")) {
+      bckdenint$value = NA
+      warning("failed to numerically evaluate cdf of renormalisation boundary corrected KDE")
+    }
+    p = bckdenint$value    
+  } else {
+    # Reuse density function to do numerical integration upto 5*lambda
+    bckdenint = try(integrate(Vectorize(bckdenxrenorm, "x"), lower = 0, upper = maxp,
+      kerncentres = kerncentres, lambda = lambda, kernel = kernel,
+      subdivisions = 10000, rel.tol = 1.e-9, stop.on.error = FALSE))
+    
+    if (inherits(bckdenint, "try-error")) {
+      bckdenint$value = NA
+      warning("failed to numerically evaluate cdf of renormalisation boundary corrected KDE")
+    }
+    
+    p = bckdenint$value
+
+    # Now add contribution from maxp upwards
+    u = (x - kerncentres)/lambda
+  
+    p = p + mean(kpz(u, kernel = kernel) - kpz((maxp - kerncentres)/lambda, kernel = kernel))
+  }
+  p
+}
+
+#' @export
+#' @rdname internal
+bckdenxreflect <- function(x, kerncentres, lambda, kernel = "gaussian") {
+  mean(kdz((x - kerncentres)/lambda, kernel = kernel) + kdz((x + kerncentres)/lambda, kernel = kernel))/lambda
+}
+
+#' @export
+#' @rdname internal
+pbckdenxreflect <- function(x, kerncentres, lambda, kernel = "gaussian") {
+  mean(kpz((x - kerncentres)/lambda, kernel = kernel) - kpz(-kerncentres/lambda, kernel = kernel) 
+    + kpz(-kerncentres/lambda, kernel = kernel) - kpz(-(x+kerncentres)/lambda, kernel = kernel) )
 }
 
 #' @export
@@ -128,7 +214,7 @@ pxb <- function(x, lambda) 2*lambda^2 + 2.5 - sqrt(4*lambda^4 + 6*lambda^2 + 2.2
 
 #' @export
 #' @rdname internal
-beta1bckdenx <- function(x, kerncentres, lambda, xmax) {
+bckdenxbeta1 <- function(x, kerncentres, lambda, xmax) {
   
   # rescale x and kernel centres, then treat as bounded on [0, 1] so beta kernel used directly
   x = x/xmax
@@ -145,14 +231,14 @@ beta1bckdenx <- function(x, kerncentres, lambda, xmax) {
 
 #' @export
 #' @rdname internal
-beta1pbckdenx <- function(x, kerncentres, lambda, xmax) {
+pbckdenxbeta1 <- function(x, kerncentres, lambda, xmax) {
   if (x <= 0) {
     p = 0
   } else if (x > xmax) {
     p = 1
   } else {
     # Re-use density function to do numerical integration
-    bckdenint = try(integrate(Vectorize(beta1bckdenx, "x"), lower = 0, upper = x,
+    bckdenint = try(integrate(Vectorize(bckdenxbeta1, "x"), lower = 0, upper = x,
       kerncentres = kerncentres, lambda = lambda, xmax = xmax,
       subdivisions = 10000, rel.tol = 1.e-9, stop.on.error = FALSE))
     
@@ -167,7 +253,7 @@ beta1pbckdenx <- function(x, kerncentres, lambda, xmax) {
 
 #' @export
 #' @rdname internal
-beta2bckdenx <- function(x, kerncentres, lambda, xmax) {
+bckdenxbeta2 <- function(x, kerncentres, lambda, xmax) {
   
   # rescale x and kernel centres, then treat as bounded on [0, 1] so beta kernel used directly
   x = x/xmax
@@ -189,14 +275,14 @@ beta2bckdenx <- function(x, kerncentres, lambda, xmax) {
 
 #' @export
 #' @rdname internal
-beta2pbckdenx <- function(x, kerncentres, lambda, xmax) {
+pbckdenxbeta2 <- function(x, kerncentres, lambda, xmax) {
   if (x <= 0) {
     p = 0
   } else if (x > xmax) {
     p = 1
   } else {
-    # Re-use density function to do numerical integration
-    bckdenint = try(integrate(Vectorize(beta2bckdenx, "x"), lower = 0, upper = x,
+    # Reuse density function to do numerical integration
+    bckdenint = try(integrate(Vectorize(bckdenxbeta2, "x"), lower = 0, upper = x,
       kerncentres = kerncentres, lambda = lambda, xmax = xmax,
       subdivisions = 10000, rel.tol = 1.e-9, stop.on.error = FALSE))
     
@@ -211,7 +297,7 @@ beta2pbckdenx <- function(x, kerncentres, lambda, xmax) {
 
 #' @export
 #' @rdname internal
-gamma1bckdenx <- function(x, kerncentres, lambda) {
+bckdenxgamma1 <- function(x, kerncentres, lambda) {
   
   if (x >= 0) {
     d = mean(dgamma(kerncentres, shape = x/lambda + 1, scale = lambda))
@@ -223,13 +309,13 @@ gamma1bckdenx <- function(x, kerncentres, lambda) {
 
 #' @export
 #' @rdname internal
-gamma1pbckdenx <- function(x, kerncentres, lambda) {
+pbckdenxgamma1 <- function(x, kerncentres, lambda) {
 
   if (x < 0) {
     p = 0
   } else {
-    # Re-use density function to do numerical integration
-    bckdenint = try(integrate(Vectorize(gamma1bckdenx, "x"), lower = 0, upper = x,
+    # Reuse density function to do numerical integration
+    bckdenint = try(integrate(Vectorize(bckdenxgamma1, "x"), lower = 0, upper = x,
       kerncentres = kerncentres, lambda = lambda,
       subdivisions = 10000, rel.tol = 1.e-9, stop.on.error = FALSE))
   
@@ -244,7 +330,7 @@ gamma1pbckdenx <- function(x, kerncentres, lambda) {
 
 #' @export
 #' @rdname internal
-gamma2bckdenx <- function(x, kerncentres, lambda) {
+bckdenxgamma2 <- function(x, kerncentres, lambda) {
 
   if ((x >= 0) & (x < 2*lambda)) {
     d = mean(dgamma(kerncentres, shape = (x/lambda)^2/4 + 1, scale = lambda))
@@ -258,13 +344,13 @@ gamma2bckdenx <- function(x, kerncentres, lambda) {
 
 #' @export
 #' @rdname internal
-gamma2pbckdenx <- function(x, kerncentres, lambda) {
+pbckdenxgamma2 <- function(x, kerncentres, lambda) {
 
   if (x < 0) {
     p = 0
   } else {
-    # Re-use density function to do numerical integration
-    bckdenint = try(integrate(Vectorize(gamma2bckdenx, "x"), lower = 0, upper = x,
+    # Reuse density function to do numerical integration
+    bckdenint = try(integrate(Vectorize(bckdenxgamma2, "x"), lower = 0, upper = x,
       kerncentres = kerncentres, lambda = lambda,
       subdivisions = 10000, rel.tol = 1.e-9, stop.on.error = FALSE))
   
@@ -279,7 +365,7 @@ gamma2pbckdenx <- function(x, kerncentres, lambda) {
 
 #' @export
 #' @rdname internal
-copulabckdenx <- function(x, kerncentres, lambda, xmax) {
+bckdenxcopula <- function(x, kerncentres, lambda, xmax) {
   # rescale x and kernel centres, then treat as bounded on [0, 1] so beta kernel used directly
   x = x/xmax
   kerncentres = kerncentres/xmax
@@ -300,14 +386,14 @@ copulabckdenx <- function(x, kerncentres, lambda, xmax) {
 
 #' @export
 #' @rdname internal
-copulapbckdenx <- function(x, kerncentres, lambda, xmax) {
+pbckdenxcopula <- function(x, kerncentres, lambda, xmax) {
   if (x <= 0) {
     p = 0
   } else if (x > xmax) {
     p = 1
   } else {
-    # Re-use density function to do numerical integration
-    bckdenint = try(integrate(Vectorize(copulabckdenx, "x"), lower = 0, upper = x,
+    # Reuse density function to do numerical integration
+    bckdenint = try(integrate(Vectorize(bckdenxcopula, "x"), lower = 0, upper = x,
       kerncentres = kerncentres, lambda = lambda, xmax = xmax,
       subdivisions = 10000, rel.tol = 1.e-9, stop.on.error = FALSE))
     
@@ -322,11 +408,11 @@ copulapbckdenx <- function(x, kerncentres, lambda, xmax) {
 
 #' @export
 #' @rdname internal
-logpbckdenx <- function(x, kerncentres, lambda, offset) {
+pbckdenxlog <- function(x, kerncentres, lambda, offset, kernel = "gaussian") {
 
-  # Re-use density function to do numerical integration
+  # Reuse density function to do numerical integration
   bckdenint = try(integrate(dbckden, lower = 0, upper = x,
-    kerncentres = kerncentres, lambda = lambda, bcmethod = "logtrans",
+    kerncentres = kerncentres, lambda = lambda, kernel = kernel, bcmethod = "logtrans",
     offset = offset, subdivisions = 10000, rel.tol = 1.e-9, stop.on.error = FALSE))
   
   if (inherits(bckdenint, "try-error")) {
@@ -338,12 +424,40 @@ logpbckdenx <- function(x, kerncentres, lambda, offset) {
 
 #' @export
 #' @rdname internal
-nnbckdenx <- function(x, kerncentres, lambda) {
-  mean(dnorm(x, kerncentres, lambda))/pnorm(x/lambda)
+pbckdenxnn <- function(x, kerncentres, lambda, kernel = "gaussian", nn) {
+
+  maxp = ifelse(kernel == "gaussian", 5, 1)*lambda
+  # apply adjustment only if point is close to zero boundary
+  if (x <= maxp) {
+    # Reuse density function to do numerical integration
+    bckdenint = try(integrate(dbckden, lower = 0, upper = x,
+      kerncentres = kerncentres, lambda = lambda, kernel = kernel,
+      bcmethod = "simple", proper = FALSE, nn = nn,
+      subdivisions = 10000, rel.tol = 1.e-9, stop.on.error = FALSE))
+  
+    if (inherits(bckdenint, "try-error")) {
+      bckdenint$value = NA
+      warning("failed to numerically evaluate cdf of non-negative (simple) boundary corrected KDE")
+    }
+    p = bckdenint$value
+  } else {
+    # Reuse density function to do numerical integration upto maxp
+    bckdenint = try(integrate(dbckden, lower = 0, upper = maxp,
+      kerncentres = kerncentres, lambda = lambda, kernel = kernel,
+      bcmethod = "simple", proper = FALSE, nn = nn,
+      subdivisions = 10000, rel.tol = 1.e-9, stop.on.error = FALSE))
+  
+    if (inherits(bckdenint, "try-error")) {
+      bckdenint$value = NA
+      warning("failed to numerically evaluate cdf of non-negative (simple) boundary corrected KDE")
+    }
+    p = bckdenint$value
+    
+    # Now add contribution from maxp upwards
+    u = (x - kerncentres)/lambda
+    
+    p = p + mean(kpz(u, kernel = kernel) - kpz((maxp - kerncentres)/lambda, kernel = kernel))   
+  }
+  p
 }
 
-#' @export
-#' @rdname internal
-nnpbckdenx <- function(x, kerncentres, lambda) {
-  mean(pnorm(x, kerncentres, lambda))/pnorm(x/lambda)
-}

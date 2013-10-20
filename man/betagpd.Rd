@@ -27,31 +27,31 @@
     xi = 0, phiu = TRUE)
 }
 \arguments{
-  \item{bshape1}{beta shape 1 (non-negative)}
+  \item{bshape1}{beta shape 1 (positive)}
 
-  \item{bshape2}{beta shape 2 (non-negative)}
+  \item{bshape2}{beta shape 2 (positive)}
 
-  \item{u}{threshold over \eqn{(0,1)}}
+  \item{u}{threshold over \eqn{(0, 1)}}
 
-  \item{phiu}{probability of being above threshold [0,1] or
-  TRUE}
+  \item{phiu}{probability of being above threshold \eqn{[0,
+  1]} or \code{TRUE}}
 
-  \item{x}{quantile}
+  \item{x}{quantiles}
 
-  \item{sigmau}{scale parameter (non-negative)}
+  \item{sigmau}{scale parameter (positive)}
 
   \item{xi}{shape parameter}
 
   \item{log}{logical, if TRUE then log density}
 
-  \item{q}{quantile}
+  \item{q}{quantiles}
 
   \item{lower.tail}{logical, if FALSE then upper tail
   probabilities}
 
-  \item{p}{cumulative probability}
+  \item{p}{cumulative probabilities}
 
-  \item{n}{sample size (non-negative integer)}
+  \item{n}{sample size (positive integer)}
 }
 \value{
   \code{\link[evmix:betagpd]{dbetagpd}} gives the density,
@@ -66,24 +66,26 @@
   function and random number generation for the extreme
   value mixture model with beta for bulk distribution upto
   the threshold and conditional GPD above threshold. The
-  parameters are the beta shape \code{wshape} and scale
-  \code{wscale}, threshold \code{u} GPD scale \code{sigmau}
-  and shape \code{xi} and tail fraction \code{phiu}.
+  parameters are the beta shape 1 \code{bshape1} and shape
+  2 \code{bshape2}, threshold \code{u} GPD scale
+  \code{sigmau} and shape \code{xi} and tail fraction
+  \code{phiu}.
 }
 \details{
   Extreme value mixture model combining beta distribution
   for the bulk below the threshold and GPD for upper tail.
+
   The user can pre-specify \code{phiu} permitting a
   parameterised value for the tail fraction \eqn{\phi_u}.
   Alternatively, when \code{phiu=TRUE} the tail fraction is
   estimated as the tail fraction from the beta bulk model.
 
-  The usual beta distribution is defined on \eqn{[0, 1]},
+  The usual beta distribution is defined over \eqn{[0, 1]},
   but this mixture is generally not limited in the upper
   tail \eqn{[0,\infty]}, except for the usual upper tail
   limits for the GPD when \code{xi<0} discussed in
   \code{\link[evmix:gpd]{gpd}}. Therefore, the threshold is
-  limited to \eqn{(0,1)}.
+  limited to \eqn{(0, 1)}.
 
   The cumulative distribution function with tail fraction
   \eqn{\phi_u} defined by the upper tail fraction of the
@@ -92,7 +94,7 @@
   above the threshold \eqn{x > u}: \deqn{F(x) = H(u) + [1 -
   H(u)] G(x)} where \eqn{H(x)} and \eqn{G(X)} are the beta
   and conditional GPD cumulative distribution functions
-  (i.e. \code{pbeta(x, wshape, wscale)} and \code{pgpd(x,
+  (i.e. \code{pbeta(x, bshape1, bshape2)} and \code{pgpd(x,
   u, sigmau, xi)}).
 
   The cumulative distribution function for pre-specified
@@ -112,8 +114,9 @@
   \code{q}) and parameters must be either a scalar or a
   vector. If vectors are provided they must all be of the
   same length, and the function will be evaluated for each
-  element of vector. In the case of \code{rbetagpd} any
-  input vector must be of length \code{n}.
+  element of vector. In the case of
+  \code{\link[evmix:betagpd]{rbetagpd}} any input vector
+  must be of length \code{n}.
 
   Default values are provided for all inputs, except for
   the fundamentals \code{x}, \code{q} and \code{p}. The
@@ -121,8 +124,9 @@
   \code{\link[evmix:betagpd]{rbetagpd}} is 1.
 
   Missing (\code{NA}) and Not-a-Number (\code{NaN}) values
-  in \code{x} and \code{q} are passed through as is and
-  infinite values are set to \code{NA}.
+  in \code{x}, \code{p} and \code{q} are passed through as
+  is and infinite values are set to \code{NA}. None of
+  these are not permitted for the parameters.
 
   Error checking of the inputs (e.g. invalid probabilities)
   is carried out and will either stop or give warning
@@ -140,7 +144,7 @@ lines(xx, dbetagpd(xx, bshape1 = 1.5, bshape2 = 2, u = 0.7, phiu = 0.2))
 plot(xx, pbetagpd(xx, bshape1 = 1.5, bshape2 = 2, u = 0.7, phiu = 0.2), type = "l")
 lines(xx, pbetagpd(xx, bshape1 = 1.5, bshape2 = 2, u = 0.7, phiu = 0.2, xi = 0.3), col = "red")
 lines(xx, pbetagpd(xx, bshape1 = 1.5, bshape2 = 2, u = 0.7, phiu = 0.2, xi = -0.3), col = "blue")
-legend("topleft", paste("xi =",c(0, 0.3, -0.3)),
+legend("bottomright", paste("xi =",c(0, 0.3, -0.3)),
   col=c("black", "red", "blue"), lty = 1)
 
 x = rbetagpd(1000, bshape1 = 2, bshape2 = 0.8, u = 0.7, phiu = 0.5)
@@ -178,7 +182,9 @@ legend("topright", c("xi = 0", "xi = 0.2", "xi = -0.2"),
   \code{\link[evmix:gpd]{gpd}} and
   \code{\link[stats:Beta]{dbeta}}
 
-  Other betagpd: \code{\link{fbetagpd}},
-  \code{\link{lbetagpd}}, \code{\link{nlbetagpd}}
+  Other betagpd betagpdcon fbetagpd fbetagpdcon:
+  \code{\link{betagpdcon}}, \code{\link{dbetagpdcon}},
+  \code{\link{pbetagpdcon}}, \code{\link{qbetagpdcon}},
+  \code{\link{rbetagpdcon}}
 }
 

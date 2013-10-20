@@ -2,15 +2,16 @@
 \name{evmix-package}
 \alias{evmix}
 \alias{evmix-package}
-\title{Extreme Value Mixture Modelling and Threshold Estimation}
+\title{Extreme Value Mixture Modelling, Threshold Estimation and Boundary Corrected Kernel Density Estimation}
 \description{
-  Functions for univariate extreme value mixture modelling,
-  threshold estimation and uncertainty quantification
+  Functions for Extreme Value Mixture Modelling, Threshold
+  Estimation and Boundary Corrected Kernel Density
+  Estimation
 }
 \details{
   \tabular{ll}{ Package: \tab evmix\cr Type: \tab
-  Package\cr Version: \tab 0.1-0\cr Date: \tab
-  2013-05-06\cr License: \tab GPL-3\cr LazyLoad: \tab
+  Package\cr Version: \tab 0.2-0\cr Date: \tab
+  2013-10-20\cr License: \tab GPL-3\cr LazyLoad: \tab
   yes\cr }
 
   The usual distribution functions, maximum likelihood
@@ -18,9 +19,9 @@
   extreme value mixture models are provided.
 
   Kernel density estimation including various boundary
-  corrected kernel density estimation methods, with
-  cross-validation likelihood based bandwidth estimators
-  are included.
+  corrected kernel density estimation methods and a wide
+  choice of kernels, with cross-validation likelihood based
+  bandwidth estimators are included.
 
   Reasonable consistency with the base functions in the
   \code{evd} package is provided, so that users can safely

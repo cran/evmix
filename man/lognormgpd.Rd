@@ -25,30 +25,29 @@
 \arguments{
   \item{lnmean}{mean on log scale}
 
-  \item{lnsd}{standard deviation on log scale
-  (non-negative)}
+  \item{lnsd}{standard deviation on log scale (positive)}
 
-  \item{x}{quantile}
+  \item{phiu}{probability of being above threshold \eqn{[0,
+  1]} or \code{TRUE}}
+
+  \item{x}{quantiles}
 
   \item{u}{threshold}
 
-  \item{sigmau}{scale parameter (non-negative)}
+  \item{sigmau}{scale parameter (positive)}
 
   \item{xi}{shape parameter}
 
-  \item{phiu}{probability of being above threshold [0,1] or
-  TRUE}
-
   \item{log}{logical, if TRUE then log density}
 
-  \item{q}{quantile}
+  \item{q}{quantiles}
 
   \item{lower.tail}{logical, if FALSE then upper tail
   probabilities}
 
-  \item{p}{cumulative probability}
+  \item{p}{cumulative probabilities}
 
-  \item{n}{sample size (non-negative integer)}
+  \item{n}{sample size (positive integer)}
 }
 \value{
   \code{\link[evmix:lognormgpd]{dlognormgpd}} gives the
@@ -64,7 +63,7 @@
   function and random number generation for the extreme
   value mixture model with log-normal for bulk distribution
   upto the threshold and conditional GPD above threshold.
-  The parameters are the normal mean \code{lnmean} and
+  The parameters are the log-normal mean \code{lnmean} and
   standard deviation \code{lnsd}, threshold \code{u} GPD
   scale \code{sigmau} and shape \code{xi} and tail fraction
   \code{phiu}.
@@ -72,11 +71,13 @@
 \details{
   Extreme value mixture model combining log-normal
   distribution for the bulk below the threshold and GPD for
-  upper tail. The user can pre-specify \code{phiu}
-  permitting a parameterised value for the tail fraction
-  \eqn{\phi_u}. Alternatively, when \code{phiu=TRUE} the
-  tail fraction is estimated as the tail fraction from the
-  log-normal bulk model.
+  upper tail.
+
+  The user can pre-specify \code{phiu} permitting a
+  parameterised value for the tail fraction \eqn{\phi_u}.
+  Alternatively, when \code{phiu=TRUE} the tail fraction is
+  estimated as the tail fraction from the log-normal bulk
+  model.
 
   The cumulative distribution function with tail fraction
   \eqn{\phi_u} defined by the upper tail fraction of the
@@ -85,8 +86,8 @@
   and above the threshold \eqn{x > u}: \deqn{F(x) = H(u) +
   [1 - H(u)] G(x)} where \eqn{H(x)} and \eqn{G(X)} are the
   log-normal and conditional GPD cumulative distribution
-  functions (i.e. \code{plnorm(x, meanlog = lnmean, sdlog =
-  lnsd)} and \code{pgpd(x, u, sigmau, xi)}).
+  functions (i.e. \code{plnorm(x, lnmean, lnsd)} and
+  \code{pgpd(x, u, sigmau, xi)}) respectively.
 
   The cumulative distribution function for pre-specified
   \eqn{\phi_u}, upto the threshold \eqn{0 < x \le u}, is
@@ -95,8 +96,8 @@
   \phi_u] G(x)} Notice that these definitions are
   equivalent when \eqn{\phi_u = 1 - H(u)}.
 
-  The gamma is defined on the non-negative reals, so the
-  threshold must be non-negative.
+  The log-normal is defined on the positive reals, so the
+  threshold must be positive.
 
   See \code{\link[evmix:gpd]{gpd}} for details of GPD upper
   tail component and \code{\link[stats:Lognormal]{dlnorm}}
@@ -108,8 +109,9 @@
   \code{q}) and parameters must be either a scalar or a
   vector. If vectors are provided they must all be of the
   same length, and the function will be evaluated for each
-  element of vector. In the case of \code{rlognormgpd} any
-  input vector must be of length \code{n}.
+  element of vector. In the case of
+  \code{\link[evmix:lognormgpd]{rlognormgpd}} any input
+  vector must be of length \code{n}.
 
   Default values are provided for all inputs, except for
   the fundamentals \code{x}, \code{q} and \code{p}. The
@@ -117,8 +119,9 @@
   \code{\link[evmix:lognormgpd]{rlognormgpd}} is 1.
 
   Missing (\code{NA}) and Not-a-Number (\code{NaN}) values
-  in \code{x} and \code{q} are passed through as is and
-  infinite values are set to \code{NA}.
+  in \code{x}, \code{p} and \code{q} are passed through as
+  is and infinite values are set to \code{NA}. None of
+  these are not permitted for the parameters.
 
   Error checking of the inputs (e.g. invalid probabilities)
   is carried out and will either stop or give warning
@@ -148,7 +151,7 @@ lines(xx, dlognormgpd(xx, u = 2, xi=-0.2, phiu = 0.2), col = "red")
 lines(xx, dlognormgpd(xx, u = 2, xi=0.2, phiu = 0.2), col = "blue")
 legend("topright", c("xi = 0", "xi = 0.2", "xi = -0.2"),
   col=c("black", "red", "blue"), lty = 1)
-  }
+}
 }
 \author{
   Yang Hu and Carl Scarrott
@@ -174,7 +177,12 @@ legend("topright", c("xi = 0", "xi = 0.2", "xi = -0.2"),
   \code{\link[evmix:gpd]{gpd}} and
   \code{\link[stats:Lognormal]{dlnorm}}
 
-  Other lognormgpd: \code{\link{flognormgpd}},
-  \code{\link{llognormgpd}}, \code{\link{nllognormgpd}}
+  Other lognormgpd lognormgpdcon normgpd normgpdcon
+  flognormgpd flognormgpdcon fnormgpd fnormgpdcon:
+  \code{\link{dlognormgpdcon}},
+  \code{\link{lognormgpdcon}},
+  \code{\link{plognormgpdcon}},
+  \code{\link{qlognormgpdcon}},
+  \code{\link{rlognormgpdcon}}
 }
 

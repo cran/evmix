@@ -1,44 +1,95 @@
 \name{fbckdengpd}
 \alias{fbckdengpd}
-\title{Cross-validation MLE Fitting of Boundary Corrected Kernel Density Estimation
-and GPD Tail Extreme Value Mixture Model}
+\alias{lbckdengpd}
+\alias{nlbckdengpd}
+\alias{nlubckdengpd}
+\alias{proflubckdengpd}
+\title{MLE Fitting of Boundary Corrected Kernel Density Estimate for Bulk and GPD Tail Extreme Value Mixture Model}
 \usage{
-  fbckdengpd(x, phiu = TRUE, pvector = NULL,
-    add.jitter = FALSE, factor = 0.1, amount = NULL,
+  fbckdengpd(x, phiu = TRUE, useq = NULL, fixedu = FALSE,
+    pvector = NULL, kernel = "gaussian",
     bcmethod = "simple", proper = TRUE, nn = "jf96",
-    offset = 0, xmax = Inf, std.err = TRUE,
+    offset = NULL, xmax = NULL, add.jitter = FALSE,
+    factor = 0.1, amount = NULL, std.err = TRUE,
     method = "BFGS", control = list(maxit = 10000),
     finitelik = TRUE, ...)
+
+  lbckdengpd(x, lambda = NULL, u = 0, sigmau = 1, xi = 0,
+    phiu = TRUE, bw = NULL, kernel = "gaussian",
+    bcmethod = "simple", proper = TRUE, nn = "jf96",
+    offset = NULL, xmax = NULL, log = TRUE)
+
+  nlbckdengpd(pvector, x, phiu = TRUE, kernel = "gaussian",
+    bcmethod = "simple", proper = TRUE, nn = "jf96",
+    offset = NULL, xmax = NULL, finitelik = FALSE)
+
+  proflubckdengpd(u, pvector, x, phiu = TRUE,
+    kernel = "gaussian", bcmethod = "simple",
+    proper = TRUE, nn = "jf96", offset = NULL, xmax = NULL,
+    method = "BFGS", control = list(maxit = 10000),
+    finitelik = FALSE, ...)
+
+  nlubckdengpd(pvector, u, x, phiu = TRUE,
+    kernel = "gaussian", bcmethod = "simple",
+    proper = TRUE, nn = "jf96", offset = NULL, xmax = NULL,
+    finitelik = FALSE)
 }
 \arguments{
-  \item{x}{quantile}
-
-  \item{bcmethod}{boundary correction approach}
-
-  \item{proper}{logical, should density be renormalised to
-  integrate to unity, simple boundary correction only}
-
-  \item{nn}{non-negativity correction, so simple boundary
-  correction only}
-
-  \item{offset}{offset added to kernel centres, for
-  logtrans}
-
-  \item{xmax}{upper bound on support, for copula and beta
-  kernels only}
-
-  \item{phiu}{logical}
-
-  \item{pvector}{vector of initial values of mixture model
-  parameters (\code{nmean}, \code{nsd}, \code{u},
-  \code{sigmau}, \code{xi}) or \code{NULL}}
-
   \item{add.jitter}{logical, whether jitter is needed for
-  rounded data}
+  rounded kernel centres}
 
   \item{factor}{see \code{\link[base:jitter]{jitter}}}
 
   \item{amount}{see \code{\link[base:jitter]{jitter}}}
+
+  \item{phiu}{probability of being above threshold \eqn{(0,
+  1)} or logical, see Details in help for
+  \code{\link[evmix:fnormgpd]{fnormgpd}}}
+
+  \item{useq}{vector of thresholds (or scalar) to be
+  considered in profile likelihood or \code{NULL} for no
+  profile likelihood}
+
+  \item{fixedu}{logical, should threshold be fixed (at
+  either scalar value in \code{useq}, or estimated from
+  maximum of profile likelihood evaluated at sequence of
+  thresholds in \code{useq})}
+
+  \item{pvector}{vector of initial values of parameters or
+  \code{NULL} for default values, see below}
+
+  \item{u}{scalar threshold value}
+
+  \item{x}{location to evaluate KDE (single scalar or
+  vector)}
+
+  \item{kernel}{kernel name (\code{default = "gaussian"})}
+
+  \item{bcmethod}{boundary correction method}
+
+  \item{proper}{logical, whether density is renormalised to
+  integrate to unity (where needed)}
+
+  \item{nn}{non-negativity correction method (simple
+  boundary correction only)}
+
+  \item{offset}{offset added to kernel centres (logtrans
+  only) or \code{NULL}}
+
+  \item{xmax}{upper bound on support (copula and beta
+  kernels only) or \code{NULL}}
+
+  \item{lambda}{bandwidth for kernel (as half-width of
+  kernel) or \code{NULL}}
+
+  \item{sigmau}{scale parameter (positive)}
+
+  \item{xi}{shape parameter}
+
+  \item{bw}{bandwidth for kernel (as standard deviations of
+  kernel) or \code{NULL}}
+
+  \item{log}{logical, if TRUE then log density}
 
   \item{std.err}{logical, should standard errors be
   calculated}
@@ -56,141 +107,171 @@ and GPD Tail Extreme Value Mixture Model}
   \code{\link[stats:optim]{optim}}}
 }
 \value{
-  Returns a simple list with the following elements
+  \code{\link[evmix:fbckdengpd]{lbckdengpd}},
+  \code{\link[evmix:fbckdengpd]{nlbckdengpd}}, and
+  \code{\link[evmix:fbckdengpd]{nlubckdengpd}} give the
+  log-likelihood, negative log-likelihood and profile
+  likelihood for threshold. Profile likelihood for single
+  threshold is given by
+  \code{\link[evmix:fbckdengpd]{proflubckdengpd}}.
+  \code{\link[evmix:fbckdengpd]{fbckdengpd}} returns a
+  simple list with the following elements
 
   \tabular{ll}{ \code{call}: \tab \code{optim} call\cr
-  \code{x}: \tab (jittered) data vector \code{x}\cr
-  \code{kerncentres}: actual kernel centres used
-  \code{x}\cr \code{init}: \tab \code{pvector}\cr
-  \code{optim}: \tab complete \code{optim} output\cr
-  \code{mle}: \tab vector of MLE of parameters\cr
-  \code{cov}: \tab variance of MLE parameters\cr \code{se}:
-  \tab standard error of MLE parameters\cr \code{nllh}:
-  \tab minimum negative cross-validation log-likelihood\cr
-  \code{allparams}: \tab vector of MLE of model parameters,
-  including \code{phiu}\cr \code{allse}: \tab vector of
-  standard error of all parameters, including
-  \code{phiu}\cr \code{n}: \tab total sample size\cr
-  \code{lambda}: \tab MLE of bandwidth\cr \code{u}: \tab
-  threshold\cr \code{sigmau}: \tab MLE of GPD scale\cr
-  \code{xi}: \tab MLE of GPD shape\cr \code{phiu}: \tab MLE
-  of tail fraction\cr \code{bcmethod}: \tab boundary
-  correction method\cr \code{proper}: \tab logical, whether
+  \code{x}: \tab data vector \code{x}\cr \code{init}: \tab
+  \code{pvector}\cr \code{fixedu}: \tab fixed threshold,
+  logical\cr \code{useq}: \tab threshold vector for profile
+  likelihood or scalar for fixed threshold\cr \code{optim}:
+  \tab complete \code{optim} output\cr \code{mle}: \tab
+  vector of MLE of parameters\cr \code{cov}: \tab
+  variance-covariance matrix of MLE of parameters\cr
+  \code{se}: \tab vector of standard errors of MLE of
+  parameters\cr \code{rate}: \tab \code{phiu} to be
+  consistent with \code{\link[evd:fpot]{evd}}\cr
+  \code{nllh}: \tab minimum negative log-likelihood\cr
+  \code{n}: \tab total sample size\cr \code{lambda}: \tab
+  MLE of lambda (kernel half-width)\cr \code{u}: \tab
+  threshold (fixed or MLE)\cr \code{sigmau}: \tab MLE of
+  GPD scale\cr \code{xi}: \tab MLE of GPD shape\cr
+  \code{phiu}: \tab MLE of tail fraction (bulk model or
+  parameterised approach)\cr \code{se.phiu}: \tab standard
+  error of MLE of tail fraction\cr \code{bw}: \tab MLE of
+  bw (kernel standard deviations)\cr \code{kernel}: \tab
+  kernel name\cr \code{bcmethod}:\tab boundary correction
+  method\cr \code{proper}: \tab logical, whether
   renormalisation is requested\cr \code{nn}: \tab
   non-negative correction method\cr \code{offset}: \tab
   offset for log transformation method\cr \code{xmax}: \tab
-  maximum value of scale beta or copula }
-
-  The output list has some duplicate entries and repeats
-  some of the inputs to both provide similar items to those
-  from \code{\link[evd:fpot]{fpot}} and to make it as
-  useable as possible.
+  maximum value of scaled beta or copula }
 }
 \description{
-  Maximum likelihood estimation for fitting boundary
-  corrected kernel density estimators for the bulk and GPD
-  tail extreme value mixture model
+  Maximum likelihood estimation for fitting the extreme
+  value mixture model with boundary corrected kernel
+  density estimate for bulk distribution upto the threshold
+  and conditional GPD above threshold. With options for
+  profile likelihood estimation for threshold and fixed
+  threshold approach.
 }
 \details{
-  Extreme value mixture model combining boundary corrected
-  kernel density estimators for the bulk below the
-  threshold and GPD for upper tail is fitted to the entire
-  dataset using maximum cross-validation likelihood
-  estimation. The estimated parameters, their variance and
-  standard error are automatically output.
+  The extreme value mixture model with boundary corrected
+  kernel density estimate (BCKDE) for bulk and GPD tail is
+  fitted to the entire dataset using maximum likelihood
+  estimation. The estimated parameters, variance-covariance
+  matrix and their standard errors are automatically
+  output.
 
-  Cross-validation likelihood is used for boundary
-  corrected kernel density component, but standard
-  likelihood is used for GPD component. The default value
-  for \code{phiu=TRUE} so that the tail fraction is
-  specified by boundary corrected kernel density estimators
-  cumulative distribution \eqn{\phi_u = 1 - H(u)}. When
-  \code{phiu=FALSE} then the tail fraction is treated as an
-  extra parameter estimated using the MLE which is the
-  sample proportion above the threshold. In this case the
-  standard error for \code{phiu} is estimated and output as
-  \code{sephiu}.
+  See help for \code{\link[evmix:fnormgpd]{fnormgpd}} for
+  details, type \code{help fnormgpd}. Only the different
+  features are outlined below for brevity.
 
-  Missing values (\code{NA} and \code{NaN}) are assumed to
-  be invalid data so are ignored, which is inconsistent
-  with the \code{\link[evd:fpot]{evd}} library which
-  assumes the missing values are below the threshold.
+  The full parameter vector is (\code{lambda}, \code{u},
+  \code{sigmau}, \code{xi}) if threshold is also estimated
+  and (\code{lambda}, \code{sigmau}, \code{xi}) for profile
+  likelihood or fixed threshold approach.
 
-  The default optimisation algorithm is "BFGS", which
-  requires a finite negative log-likelihood function
-  evaluation \code{finitelik=TRUE}. For invalid parameters,
-  a zero likelihood is replaced with \code{exp(-1e6)}.  The
-  "BFGS" optimisation algorithms require finite values for
-  likelihood, so any user input for \code{finitelik} will
-  be overridden and set to \code{finitelik=TRUE} if either
-  of these optimisation methods is chosen.
+  Negative data are ignored.
 
-  It will display a warning for non-zero convergence result
-  comes from \code{\link[stats:optim]{optim}} function
-  call.
+  Cross-validation likelihood is used for BCKDE, but
+  standard likelihood is used for GPD component. See help
+  for \code{\link[evmix:fkden]{fkden}} for details, type
+  \code{help fkden}.
 
-  If the hessian is of reduced rank then the variance (from
-  inverse hessian) and standard error of bandwidth
-  parameter cannot be calculated, then by default
-  \code{std.err=TRUE} and the function will stop. If you
-  want the bandwidth estimate even if the hessian is of
-  reduced rank (e.g. in a simulation study) then set
-  \code{std.err=FALSE}.
+  The alternate bandwidth definitions are discussed in the
+  \code{\link[evmix:kernels]{kernels}}, with the
+  \code{lambda} as the default used in the likelihood
+  fitting. The \code{bw} specification is the same as used
+  in the \code{\link[stats:density]{density}} function.
+
+  The possible kernels are also defined in
+  \code{\link[evmix:kernels]{kernels}} with the
+  \code{"gaussian"} as the default choice.
+
+  Unlike the standard KDE, there is no general
+  rule-of-thumb bandwidth for all these estimators, with
+  only certain methods having a guideline in the
+  literature, so none have been implemented. Hence, a
+  bandwidth must always be specified.
+
+  The \code{simple}, \code{renorm}, \code{beta1},
+  \code{beta2} \code{gamma1} and \code{gamma2} boundary
+  corrected kernel density estimates require
+  renormalisation, achieved by numerical integration, so
+  are very time consuming.
 }
 \note{
-  When \code{pvector=NULL} then the initial value for the
-  parameters are calculated type \code{fkdengpdcon} to see
-  how.
+  See notes in \code{\link[evmix:fnormgpd]{fnormgpd}} for
+  details, type \code{help fnormgpd}. Only the different
+  features are outlined below for brevity.
 
-  The fitting function will stop if infinite sample values
-  are given.
+  No default initial values for parameter vector are
+  provided, so will stop evaluation if \code{pvector} is
+  left as \code{NULL}. Avoid setting the starting value for
+  the shape parameter to \code{xi=0} as depending on the
+  optimisation method it may be get stuck.
 
-  Error checking of the inputs is carried out and will
-  either stop or give warning message as appropriate.
+  The data and kernel centres are both vectors. Infinite,
+  missing and negative sample values (and kernel centres)
+  are dropped.
 }
+\section{Boundary Correction Methods}{
+  See \code{\link[evmix:bckden]{dbckden}} for details of
+  BCKDE methods.
+}
+
 \section{Warning}{
-  Two important practical issues arise with MLE for the
-  kernel bandwidth: 1) Cross-validation likelihood is
-  needed for the KDE bandwidth parameter as the usual
-  likelihood degenerates, so that the MLE
-  \eqn{\hat{\lambda} \rightarrow 0} as \eqn{n \rightarrow
-  \infty}, thus giving a negative bias towards a small
-  bandwidth. Leave one out cross-validation essentially
-  ensures that some smoothing between the kernel centres is
-  required (i.e. a non-zero bandwidth), otherwise the
-  resultant density estimates would always be zero if the
-  bandwidth was zero.
+  See important warnings about cross-validation likelihood
+  estimation in \code{\link[evmix:fkden]{fkden}}, type
+  \code{help fkden}.
 
-  This problem occassionally rears its ugly head for data
-  which has been heavily rounded, as even when using
-  cross-validation the density can be non-zero even if the
-  bandwidth is zero. To overcome this issue an option to
-  add a small jitter should be added to the data (\code{x}
-  only) has been included in the fitting inputs, using the
-  \code{\link[base:jitter]{jitter}} function, to remove the
-  ties. The default options red in the
-  \code{\link[base:jitter]{jitter}} are specified above,
-  but the user can override these. Notice the default
-  scaling \code{factor=0.1}, which is a tenth of the
-  default value in the \code{\link[base:jitter]{jitter}}
-  function itself.
+  See important warnings about boundary correction
+  approaches in \code{\link[evmix:bckden]{dbckden}}, type
+  \code{help bckden}.
+}
 
-  A warning message is given if the data appear to be
-  rounded (i.e. more than 5% of data are tied). If the
-  estimated bandwidth is too small, then data rounding is
-  the likely culprit. Only use the jittering when the MLE
-  of the bandwidth is far too small.
+\section{Acknowledgments}{
+  See Acknowledgments in
+  \code{\link[evmix:fnormgpd]{fnormgpd}}, type \code{help
+  fnormgpd}. Based on MATLAB code written by Anna
+  MacDonald.
 }
 \examples{
 \dontrun{
-xx = seq(0.1, 10, 0.01)
+par(mfrow=c(2,1))
 x = rgamma(500, 2, 1)
-pinit = c(0.1, quantile(x, 0.9), 1, 0.1)
-fit = fbckdengpd(x, phiu = FALSE, pvector = pinit, std.err = FALSE, bcmethod = "reflect")
-hist(x, 100, freq = FALSE,ylim=c(0,0.6))
-lines(xx, dbckdengpd(xx, x, fit$lambda, fit$u, fit$sigmau, fit$xi,
-  fit$phiu, bcmethod = "reflect"), col="blue")
-abline(v = fit$u)
+xx = seq(-0.1, 10, 0.01)
+y = dgamma(xx, 2, 1)
+
+# Bulk model based tail fraction
+pinit = c(0.1, quantile(x, 0.9), 1, 0.1) # initial values required for BCKDE
+fit = fbckdengpd(x, pvector = pinit, bcmethod = "cutnorm")
+hist(x, breaks = 100, freq = FALSE, xlim = c(-0.1, 10))
+lines(xx, y)
+with(fit, lines(xx, dbckdengpd(xx, x, lambda, u, sigmau, xi, bcmethod = "cutnorm"), col="red"))
+abline(v = fit$u, col = "red")
+
+# Parameterised tail fraction
+fit2 = fbckdengpd(x, phiu = FALSE, pvector = pinit, bcmethod = "cutnorm")
+with(fit2, lines(xx, dbckdengpd(xx, x, lambda, u, sigmau, xi, phiu, bc = "cutnorm"), col="blue"))
+abline(v = fit2$u, col = "blue")
+legend("topright", c("True Density","Bulk Tail Fraction","Parameterised Tail Fraction"),
+  col=c("black", "red", "blue"), lty = 1)
+
+# Profile likelihood for initial value of threshold and fixed threshold approach
+pinit = c(0.1, 1, 0.1) # notice threshold dropped from initial values
+fitu = fbckdengpd(x, useq = seq(1, 6, length = 20), pvector = pinit, bcmethod = "cutnorm")
+fitfix = fbckdengpd(x, useq = seq(1, 6, length = 20), fixedu = TRUE, pv = pinit, bc = "cutnorm")
+
+hist(x, breaks = 100, freq = FALSE, xlim = c(-0.1, 10))
+lines(xx, y)
+with(fit, lines(xx, dbckdengpd(xx, x, lambda, u, sigmau, xi, bc = "cutnorm"), col="red"))
+abline(v = fit$u, col = "red")
+with(fitu, lines(xx, dbckdengpd(xx, x, lambda, u, sigmau, xi, bc = "cutnorm"), col="purple"))
+abline(v = fitu$u, col = "purple")
+with(fitfix, lines(xx, dbckdengpd(xx, x, lambda, u, sigmau, xi, bc = "cutnorm"), col="darkgreen"))
+abline(v = fitfix$u, col = "darkgreen")
+legend("topright", c("True Density","Default initial value (90\% quantile)",
+ "Prof. lik. for initial value", "Prof. lik. for fixed threshold"),
+ col=c("black", "red", "purple", "darkgreen"), lty = 1)
 }
 }
 \author{
@@ -198,15 +279,24 @@ abline(v = fit$u)
   \email{carl.scarrott@canterbury.ac.nz}
 }
 \references{
+  \url{http://www.math.canterbury.ac.nz/~c.scarrott/evmix}
+
   \url{http://en.wikipedia.org/wiki/Kernel_density_estimation}
 
   \url{http://en.wikipedia.org/wiki/Cross-validation_(statistics)}
+
+  \url{http://en.wikipedia.org/wiki/Generalized_Pareto_distribution}
 
   Scarrott, C.J. and MacDonald, A. (2012). A review of
   extreme value threshold estimation and uncertainty
   quantification. REVSTAT - Statistical Journal 10(1),
   33-59. Available from
   \url{http://www.ine.pt/revstat/pdf/rs120102.pdf}
+
+  Hu, Y. (2013). Extreme value mixture modelling: An R
+  package and simulation study. MSc (Hons) thesis,
+  University of Canterbury, New Zealand.
+  \url{http://ir.canterbury.ac.nz/simple-search?query=extreme&submit=Go}
 
   Bowman, A.W. (1984). An alternative method of
   cross-validation for the smoothing of density estimates.
@@ -227,11 +317,31 @@ abline(v = fit$u)
   densities using extreme value theory. Submitted.
   Available from:
   \url{http://www.math.canterbury.ac.nz/~c.scarrott}.
+
+  Wand, M. and Jones, M.C. (1995). Kernel Smoothing.
+  Chapman && Hall.
 }
 \seealso{
-  \code{\link[evmix:fkden]{fkden}},
-  \code{\link[base:jitter]{jitter}},
-  \code{\link[stats:density]{density}} and
-  \code{\link[stats:bandwidth]{bw.nrd0}}
+  \code{\link[evmix:kernels]{kernels}},
+  \code{\link[evmix:kfun]{kfun}},
+  \code{\link[stats:density]{density}},
+  \code{\link[stats:bandwidth]{bw.nrd0}} and
+  \code{\link[ks:kde.1d]{dkde}} in
+  \code{\link[ks:kde.1d]{ks}} package.
+  \code{\link[evmix:fgpd]{fgpd}} and
+  \code{\link[evmix:gpd]{gpd}}
+
+  Other kdengpd kdengpdcon fkdengpd fkdengpdcon normgpd
+  fnormgpd kden bckden bckdengpd bckdengpdcon fkden fbckden
+  fbckdengpd fbckdengpdcon: \code{\link{fbckdengpdcon}},
+  \code{\link{fkdengpd}}, \code{\link{fkdengpdcon}},
+  \code{\link{lbckdengpdcon}}, \code{\link{lkdengpd}},
+  \code{\link{lkdengpdcon}}, \code{\link{nlbckdengpdcon}},
+  \code{\link{nlkdengpd}}, \code{\link{nlkdengpdcon}},
+  \code{\link{nlubckdengpdcon}}, \code{\link{nlukdengpd}},
+  \code{\link{nlukdengpdcon}},
+  \code{\link{proflubckdengpdcon}},
+  \code{\link{proflukdengpd}},
+  \code{\link{proflukdengpdcon}}
 }
 

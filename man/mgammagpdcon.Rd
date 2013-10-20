@@ -1,0 +1,240 @@
+\name{mgammagpdcon}
+\alias{dmgammagpdcon}
+\alias{mgammagpdcon}
+\alias{pmgammagpdcon}
+\alias{qmgammagpdcon}
+\alias{rmgammagpdcon}
+\title{Mixture of Gammas Bulk and GPD Tail Extreme Value Mixture Model with Single Continuity Constraint}
+\usage{
+  dmgammagpdcon(x, mgshape = 1, mgscale = 1,
+    mgweight = NULL,
+    u = qgamma(0.9, mgshape[[1]], 1/mgscale[[1]]), xi = 0,
+    phiu = TRUE, log = FALSE)
+
+  pmgammagpdcon(q, mgshape = 1, mgscale = 1,
+    mgweight = NULL,
+    u = qgamma(0.9, mgshape[[1]], 1/mgscale[[1]]), xi = 0,
+    phiu = TRUE, lower.tail = TRUE)
+
+  qmgammagpdcon(p, mgshape = 1, mgscale = 1,
+    mgweight = NULL,
+    u = qgamma(0.9, mgshape[[1]], 1/mgscale[[1]]), xi = 0,
+    phiu = TRUE, lower.tail = TRUE)
+
+  rmgammagpdcon(n = 1, mgshape = 1, mgscale = 1,
+    mgweight = NULL,
+    u = qgamma(0.9, mgshape[[1]], 1/mgscale[[1]]), xi = 0,
+    phiu = TRUE)
+}
+\arguments{
+  \item{x}{quantiles}
+
+  \item{mgshape}{mgamma shape (positive) as list or vector}
+
+  \item{mgscale}{mgamma scale (positive) as list or vector}
+
+  \item{mgweight}{mgamma weights (positive) as list or
+  vector (\code{NULL} for equi-weighted)}
+
+  \item{u}{threshold}
+
+  \item{xi}{shape parameter}
+
+  \item{phiu}{probability of being above threshold \eqn{[0,
+  1]} or \code{TRUE}}
+
+  \item{log}{logical, if TRUE then log density}
+
+  \item{q}{quantiles}
+
+  \item{lower.tail}{logical, if FALSE then upper tail
+  probabilities}
+
+  \item{p}{cumulative probabilities}
+
+  \item{n}{sample size (positive integer)}
+}
+\value{
+  \code{\link[evmix:mgammagpdcon]{dmgammagpdcon}} gives the
+  density, \code{\link[evmix:mgammagpdcon]{pmgammagpdcon}}
+  gives the cumulative distribution function,
+  \code{\link[evmix:mgammagpdcon]{qmgammagpdcon}} gives the
+  quantile function and
+  \code{\link[evmix:mgammagpdcon]{rmgammagpdcon}} gives a
+  random sample.
+}
+\description{
+  Density, cumulative distribution function, quantile
+  function and random number generation for the extreme
+  value mixture model with mixture of gammas for bulk
+  distribution upto the threshold and conditional GPD for
+  upper tail with continuity at threshold. The parameters
+  are the multiple gamma shapes \code{mgshape}, scales
+  \code{mgscale} and \code{mgweights}, threshold \code{u}
+  GPD shape \code{xi} and tail fraction \code{phiu}.
+}
+\details{
+  Extreme value mixture model combining mixture of gammas
+  for the bulk below the threshold and GPD for upper tail
+  with continuity at threshold.
+
+  The user can pre-specify \code{phiu} permitting a
+  parameterised value for the tail fraction \eqn{\phi_u}.
+  Alternatively, when \code{phiu=TRUE} the tail fraction is
+  estimated as the tail fraction from the mixture of gammas
+  bulk model.
+
+  Suppose there are \eqn{M>=1} gamma components in the
+  mixture model. If you wish to have a single (scalar)
+  value for each parameter within each of the \eqn{M}
+  components then these can be input as a vector of length
+  \eqn{M}. If you wish to input a vector of values for each
+  parameter within each of the \eqn{M} components, then
+  they are input as a list with each entry the parameter
+  object for each component (which can either be a scalar
+  or vector as usual). No matter whether they are input as
+  a vector or list there must be \eqn{M} elements in
+  \code{mgshape} and \code{mgscale}, one for each gamma
+  mixture component. Further, any vectors in the list of
+  parameters must of the same length of the \code{x, q, p}
+  or equal to the sample size \code{n}, where relevant.
+
+  If \code{mgweight=NULL} then equal weights for each
+  component are assumed. Otherwise, \code{mgweight} must be
+  a list of the same length as \code{mgshape} and
+  \code{mgscale}, filled with positive values. In the
+  latter case, the weights are rescaled to sum to unity.
+
+  The cumulative distribution function with tail fraction
+  \eqn{\phi_u} defined by the upper tail fraction of the
+  mixture of gammas bulk model (\code{phiu=TRUE}), upto the
+  threshold \eqn{0 < x \le u}, given by: \deqn{F(x) = H(x)}
+  and above the threshold \eqn{x > u}: \deqn{F(x) = H(u) +
+  [1 - H(u)] G(x)} where \eqn{H(x)} and \eqn{G(X)} are the
+  mixture of gammas and conditional GPD cumulative
+  distribution functions.
+
+  The cumulative distribution function for pre-specified
+  \eqn{\phi_u}, upto the threshold \eqn{0 < x \le u}, is
+  given by: \deqn{F(x) = (1 - \phi_u) H(x)/H(u)} and above
+  the threshold \eqn{x > u}: \deqn{F(x) = \phi_u + [1 -
+  \phi_u] G(x)} Notice that these definitions are
+  equivalent when \eqn{\phi_u = 1 - H(u)}.
+
+  The continuity constraint means that \eqn{(1 - \phi_u)
+  h(u)/H(u) = \phi_u g(u)} where \eqn{h(x)} and \eqn{g(x)}
+  are the mixture of gammas and conditional GPD density
+  functions respectively. The resulting GPD scale parameter
+  is then: \deqn{\sigma_u = \phi_u H(u) / [1 - \phi_u]
+  h(u)}. In the special case of where the tail fraction is
+  defined by the bulk model this reduces to \deqn{\sigma_u
+  = [1 - H(u)] / h(u)}.
+
+  The gamma is defined on the non-negative reals, so the
+  threshold must be positive. Though behaviour at zero
+  depends on the shape (\eqn{\alpha}): \itemize{ \item
+  \eqn{f(0+)=\infty} for \eqn{0<\alpha<1}; \item
+  \eqn{f(0+)=1/\beta} for \eqn{\alpha=1} (exponential);
+  \item \eqn{f(0+)=0} for \eqn{\alpha>1}; } where
+  \eqn{\beta} is the scale parameter.
+
+  See \code{\link[evmix:gammagpd]{gammagpd}} for details of
+  simpler parametric mixture model with single gamma for
+  bulk component and GPD for upper tail.
+}
+\note{
+  All inputs are vectorised except \code{log} and
+  \code{lower.tail}, and the gamma mixture parameters can
+  be vectorised within the list. The main inputs (\code{x},
+  \code{p} or \code{q}) and parameters must be either a
+  scalar or a vector. If vectors are provided they must all
+  be of the same length, and the function will be evaluated
+  for each element of vector. In the case of
+  \code{\link[evmix:mgammagpdcon]{rmgammagpdcon}} any input
+  vector must be of length \code{n}.
+
+  Default values are provided for all inputs, except for
+  the fundamentals \code{x}, \code{q} and \code{p}. The
+  default sample size for
+  \code{\link[evmix:mgammagpdcon]{rmgammagpdcon}} is 1.
+
+  Missing (\code{NA}) and Not-a-Number (\code{NaN}) values
+  in \code{x}, \code{p} and \code{q} are passed through as
+  is and infinite values are set to \code{NA}. None of
+  these are not permitted for the parameters.
+
+  Error checking of the inputs (e.g. invalid probabilities)
+  is carried out and will either stop or give warning
+  message as appropriate.
+}
+\examples{
+\dontrun{
+x = rmgammagpdcon(1000, mgshape = c(1, 6), mgscale = c(1, 2), mgweight = c(1, 2), u = 15, xi = 0)
+xx = seq(-1, 40, 0.01)
+hist(x, breaks = 100, freq = FALSE, xlim = c(-1, 40))
+lines(xx, dmgammagpdcon(xx, mgshape = c(1, 6), mgscale = c(1, 2), mgweight = c(1, 2),
+ u = 15, xi = 0))
+abline(v = 15)
+}
+}
+\author{
+  Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
+}
+\references{
+  \url{http://www.math.canterbury.ac.nz/~c.scarrott/evmix}
+
+  \url{http://en.wikipedia.org/wiki/Gamma_distribution}
+
+  \url{http://en.wikipedia.org/wiki/Generalized_Pareto_distribution}
+
+  \url{http://en.wikipedia.org/wiki/Mixture_model}
+
+  McLachlan, G.J. and Peel, D. (2000). Finite Mixture
+  Models. Wiley.
+
+  Scarrott, C.J. and MacDonald, A. (2012). A review of
+  extreme value threshold estimation and uncertainty
+  quantification. REVSTAT - Statistical Journal 10(1),
+  33-59. Available from
+  \url{http://www.ine.pt/revstat/pdf/rs120102.pdf}
+
+  do Nascimento, F.F., Gamerman, D. and Lopes, H.F. (2011).
+  A semiparametric Bayesian approach to extreme value
+  estimation. Statistical Computing, 22(2), 661-675.
+}
+\seealso{
+  \code{\link[evmix:gpd]{gpd}} and
+  \code{\link[stats:GammaDist]{dgamma}}
+
+  Other mgamma fmgamma gammagpd gammagpdcon fgammagpd
+  fgammagpdcon normgpd fnormgpd mgammagpd mgammagpdcon
+  fmgammagpd fmgammagpdcon: \code{\link{dgammagpd}},
+  \code{\link{dgammagpdcon}}, \code{\link{dmgamma}},
+  \code{\link{dmgammagpd}}, \code{\link{fgammagpd}},
+  \code{\link{fgammagpdcon}}, \code{\link{fmgamma}},
+  \code{\link{fmgammagpd}}, \code{\link{fmgammagpdcon}},
+  \code{\link{gammagpd}}, \code{\link{gammagpdcon}},
+  \code{\link{lgammagpd}}, \code{\link{lgammagpdcon}},
+  \code{\link{lmgamma}}, \code{\link{lmgammagpd}},
+  \code{\link{lmgammagpdcon}}, \code{\link{mgamma}},
+  \code{\link{mgammagpd}}, \code{\link{nlEMmgamma}},
+  \code{\link{nlEMmgammagpd}},
+  \code{\link{nlEMmgammagpdcon}}, \code{\link{nlgammagpd}},
+  \code{\link{nlgammagpdcon}}, \code{\link{nlmgamma}},
+  \code{\link{nlmgammagpd}}, \code{\link{nlmgammagpdcon}},
+  \code{\link{nluEMmgammagpd}},
+  \code{\link{nluEMmgammagpdcon}},
+  \code{\link{nlugammagpd}}, \code{\link{nlugammagpdcon}},
+  \code{\link{nlumgammagpd}},
+  \code{\link{nlumgammagpdcon}}, \code{\link{pgammagpd}},
+  \code{\link{pgammagpdcon}}, \code{\link{pmgamma}},
+  \code{\link{pmgammagpd}}, \code{\link{proflugammagpd}},
+  \code{\link{proflugammagpdcon}},
+  \code{\link{proflumgammagpd}},
+  \code{\link{proflumgammagpdcon}},
+  \code{\link{qgammagpd}}, \code{\link{qgammagpdcon}},
+  \code{\link{qmgamma}}, \code{\link{qmgammagpd}},
+  \code{\link{rgammagpd}}, \code{\link{rgammagpdcon}},
+  \code{\link{rmgamma}}, \code{\link{rmgammagpd}}
+}
+

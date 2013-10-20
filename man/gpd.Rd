@@ -17,21 +17,22 @@
   rgpd(n = 1, u = 0, sigmau = 1, xi = 0, phiu = 1)
 }
 \arguments{
-  \item{x}{quantile}
+  \item{x}{quantiles}
 
-  \item{q}{quantile}
+  \item{q}{quantiles}
 
-  \item{p}{cumulative probability}
+  \item{p}{cumulative probabilities}
 
-  \item{n}{sample size (non-negative integer)}
+  \item{n}{sample size (positive integer)}
 
   \item{u}{threshold}
 
-  \item{sigmau}{scale parameter (non-negative)}
+  \item{sigmau}{scale parameter (positive)}
 
   \item{xi}{shape parameter}
 
-  \item{phiu}{probability of being above threshold [0,1]}
+  \item{phiu}{probability of being above threshold \eqn{[0,
+  1]}}
 
   \item{log}{logical, if TRUE then log density}
 
@@ -47,15 +48,14 @@
 }
 \description{
   Density, cumulative distribution function, quantile
-  function and random number generation for the GPD
-  conditional on being above a threshold \code{u} with
-  parameters \code{sigmau} and \code{xi}. Unconditional
-  quantities are provided when the probability \code{phiu}
-  of being above the threshold \code{u} is given.
+  function and random number generation for the generalised
+  Pareto distribution, either as a conditional on being
+  above the threshold \code{u} or unconditional.
 }
 \details{
   The GPD with parameters scale \eqn{\sigma_u} and shape
-  \eqn{\xi} has conditional density given by
+  \eqn{\xi} has conditional density of being above the
+  threshold \code{u} given by
 
   \deqn{f(x | X > u) = 1/\sigma_u [1 + \xi(x -
   u)/\sigma_u]^{-1/\xi - 1}}
@@ -63,8 +63,9 @@
   for non-zero \eqn{\xi}, \eqn{x > u} and \eqn{\sigma_u >
   0}. Further, \eqn{[1+\xi (x - u) / \sigma_u] > 0} which
   for \eqn{\xi < 0} implies \eqn{u < x \le u -
-  \sigma_u/\xi}. In the special case of \eqn{\xi = 0},
-  which is treated as \eqn{|\xi|<1e-6}, it reduces to the
+  \sigma_u/\xi}. In the special case of \eqn{\xi = 0}
+  considered in the limit \eqn{\xi \rightarrow 0}, which is
+  treated here as \eqn{|\xi| < 1e-6}, it reduces to the
   exponential:
 
   \deqn{f(x | X > u) = 1/\sigma_u exp(-(x - u)/\sigma_u).}
@@ -76,8 +77,8 @@
 
   The syntax of these functions are similar to those of the
   \code{\link[evd:gpd]{evd}} package, so most code using
-  these functions can simply be reused. The key difference
-  is the introduction of \code{phiu} to permit output of
+  these functions can be reused. The key difference is the
+  introduction of \code{phiu} to permit output of
   unconditional quantities.
 }
 \note{
@@ -86,20 +87,22 @@
   \code{q}) and parameters must be either a scalar or a
   vector. If vectors are provided they must all be of the
   same length, and the function will be evaluated for each
-  element of vector. In the case of \code{rgpd} any input
-  vector must be of length \code{n}.
+  element of vector. In the case of
+  \code{\link[evmix:gpd]{rgpd}} any input vector must be of
+  length \code{n}.
 
   Default values are provided for all inputs, except for
   the fundamentals \code{x}, \code{q} and \code{p}. The
   default threshold \code{u=0} and tail fraction
-  \code{phiu=1} which assumes the user will default to
-  inputting excesses above \code{u}, rather than
-  exceedance. The default sample size for
+  \code{phiu=1} which essentially assumes the user provide
+  excesses above \code{u} by default, rather than
+  exceedances. The default sample size for
   \code{\link[evmix:gpd]{rgpd}} is 1.
 
   Missing (\code{NA}) and Not-a-Number (\code{NaN}) values
-  in \code{x} and \code{q} are passed through as is and
-  infinite values are set to \code{NA}.
+  in \code{x}, \code{p} and \code{q} are passed through as
+  is and infinite values are set to \code{NA}. None of
+  these are not permitted for the parameters.
 
   Some key differences arise for \code{phiu=1} and
   \code{phiu<1} (see examples below):
@@ -129,7 +132,7 @@
   values are above the threshold. For \code{phiu<1} then a
   standard uniform \eqn{U} is simulated and the variate
   will be classified as above the threshold if
-  \eqn{U<\phi}, and below the threshold otherwise. This is
+  \eqn{u<\phi}, and below the threshold otherwise. This is
   equivalent to a binomial random variable for simulated
   number of exceedances. Those above the threshold are then
   simulated from the conditional GPD and those below the
@@ -143,12 +146,20 @@
   is carried out and will either stop or give warning
   message as appropriate.
 }
+\section{Acknowledgments}{
+  Apects of these functions are deliberately similar in
+  syntax and function with the commonly used functions in
+  the \code{\link[ismev:gpd.fit]{ismev}} and
+  \code{\link[evd:fpot]{evd}} packages for which their
+  author's contributions are gratefully acknowledged.
+}
 \examples{
 par(mfrow=c(2,2))
 x = rgpd(1000) # simulate sample from GPD
 xx = seq(-1, 10, 0.01)
 hist(x, breaks = 100, freq = FALSE, xlim = c(-1, 10))
 lines(xx, dgpd(xx))
+
 # three tail behaviours
 plot(xx, pgpd(xx), type = "l")
 lines(xx, pgpd(xx, xi = 0.3), col = "red")
@@ -179,14 +190,16 @@ legend("bottomright", c("u = 0 phiu = 1","u = 2 phiu = 1","u = 5 phiu = 0.2"),
 }
 \references{
   \url{http://en.wikipedia.org/wiki/Generalized_Pareto_distribution}
-  Based on GPD functions in the \code{\link[evd:gpd]{evd}}
-  package.
+
+  Coles, S.G. (2001). An Introduction to Statistical
+  Modelling of Extreme Values. Springer Series in
+  Statistics. Springer-Verlag: London.
 }
 \seealso{
-  \code{\link[evd:gpd]{evd}} and
+  \code{\link[evd:gpd]{evd}} package and
   \code{\link[evd:fpot]{fpot}}
 
-  Other gpd: \code{\link{fgpd}}, \code{\link{lgpd}},
+  Other gpd fgpd: \code{\link{fgpd}}, \code{\link{lgpd}},
   \code{\link{nlgpd}}
 }
 

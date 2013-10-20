@@ -1,16 +1,29 @@
 \name{fhpd}
 \alias{fhpd}
+\alias{lhpd}
+\alias{nlhpd}
 \title{MLE Fitting of Hybrid Pareto Extreme Value Mixture Model}
 \usage{
   fhpd(x, pvector = NULL, std.err = TRUE, method = "BFGS",
     control = list(maxit = 10000), finitelik = TRUE, ...)
+
+  lhpd(x, nmean = 0, nsd = 1, xi = 0, log = TRUE)
+
+  nlhpd(pvector, x, finitelik = FALSE)
 }
 \arguments{
-  \item{pvector}{vector of initial values of mixture model
-  parameters (\code{nmean}, \code{nsd}, \code{xi}) or
-  \code{NULL}}
+  \item{pvector}{vector of initial values of parameters
+  (\code{nmean}, \code{nsd}, \code{xi}) or \code{NULL}}
 
-  \item{x}{vector of sample data}
+  \item{nmean}{scalar normal mean}
+
+  \item{nsd}{scalar normal standard deviation (positive)}
+
+  \item{x}{quantiles}
+
+  \item{xi}{shape parameter}
+
+  \item{log}{logical, if TRUE then log density}
 
   \item{std.err}{logical, should standard errors be
   calculated}
@@ -28,27 +41,25 @@
   \code{\link[stats:optim]{optim}}}
 }
 \value{
-  Returns a simple list with the following elements
+  \code{\link[evmix:fhpd]{lhpd}} gives (log-)likelihood and
+  \code{\link[evmix:fhpd]{nlhpd}} gives the negative
+  log-likelihood. \code{\link[evmix:fhpd]{fhpd}} returns a
+  simple list with the following elements
 
   \tabular{ll}{ \code{call}: \tab \code{optim} call\cr
   \code{x}: \tab data vector \code{x}\cr \code{init}: \tab
   \code{pvector}\cr \code{optim}: \tab complete
   \code{optim} output\cr \code{mle}: \tab vector of MLE of
-  model parameters\cr \code{cov}: \tab variance-covariance
-  matrix of MLE of model parameters\cr \code{se}: \tab
-  vector of standard errors of MLE of model parameters\cr
-  \code{rate}: \tab \code{phiu} to be consistent with
+  parameters\cr \code{cov}: \tab variance-covariance matrix
+  of MLE of parameters\cr \code{se}: \tab vector of
+  standard errors of MLE of parameters\cr \code{rate}: \tab
+  \code{phiu} to be consistent with
   \code{\link[evd:fpot]{evd}}\cr \code{nllh}: \tab minimum
-  negative log-likelihood\cr \code{allparams}: \tab vector
-  of MLE of model parameters, including \code{u},
-  \code{sigmau} and \code{phiu}\cr \code{allse}: \tab
-  vector of standard error of all parameters, including
-  \code{u}, \code{sigmau} and \code{phiu}\cr \code{n}: \tab
-  total sample size\cr \code{nmean}: \tab MLE of normal
-  mean\cr \code{nsd}: \tab MLE of normal standard
-  deviation\cr \code{u}: \tab threshold\cr \code{sigmau}:
-  \tab MLE of GPD scale\cr \code{xi}: \tab MLE of GPD
-  shape\cr }
+  negative log-likelihood\cr \code{n}: \tab total sample
+  size\cr \code{nmean}: \tab MLE of normal mean\cr
+  \code{nsd}: \tab MLE of normal standard deviation\cr
+  \code{u}: \tab threshold\cr \code{sigmau}: \tab MLE of
+  GPD scale\cr \code{xi}: \tab MLE of GPD shape\cr }
 
   The output list has some duplicate entries and repeats
   some of the inputs to both provide similar items to those
@@ -65,10 +76,29 @@
   parameters, variance-covariance matrix and their standard
   errors are automatically output.
 
+  The log-likelihood and negative log-likelihood are also
+  provided for wider usage, e.g. constructing profile
+  likelihood functions. The parameter vector \code{pvector}
+  must be specified in the negative log-likelihood
+  \code{\link[evmix:fhpd]{nlhpd}}.
+
+  Log-likelihood calculations are carried out in
+  \code{\link[evmix:fhpd]{lhpd}}, which takes parameters as
+  inputs in the same form as distribution functions. The
+  negative log-likelihood is a wrapper for
+  \code{\link[evmix:fhpd]{lhpd}}, designed towards making
+  it useable for optimisation (e.g. parameters are given a
+  vector as first input).
+
   Missing values (\code{NA} and \code{NaN}) are assumed to
   be invalid data so are ignored, which is inconsistent
   with the \code{\link[evd:fpot]{evd}} library which
   assumes the missing values are below the threshold.
+
+  The function \code{\link[evmix:fhpd]{lhpd}} carries out
+  the calculations for the log-likelihood directly, which
+  can be exponentiated to give actual likelihood using
+  (\code{log=FALSE}).
 
   The default optimisation algorithm is "BFGS", which
   requires a finite negative log-likelihood function
@@ -105,35 +135,40 @@
   starting value for the shape parameter to \code{xi=0} as
   depending on the optimisation method it may be get stuck.
 
-  The fitting function will stop if infinite sample values
-  are given.
+  A default value for the tail fraction \code{phiu=TRUE} is
+  given. The \code{\link[evmix:fhpd]{lhpd}} also has the
+  usual defaults for the other parameters, but
+  \code{\link[evmix:fhpd]{nlhpd}} has no defaults.
+
+  Invalid parameter ranges will give \code{0} for
+  likelihood, \code{log(0)=-Inf} for log-likelihood and
+  \code{-log(0)=Inf} for negative log-likelihood.
+
+  Infinite and missing sample values are dropped.
 
   Error checking of the inputs is carried out and will
   either stop or give warning message as appropriate.
 }
 \examples{
 \dontrun{
-par(mfrow=c(2,1))
 x = rnorm(1000)
 xx = seq(-4, 4, 0.01)
 y = dnorm(xx)
 
-# Hybrid Pareto provides reasonable fit for asymmetric heavy tailed distribution
+# Hybrid Pareto provides reasonable fit for some asymmetric heavy upper tailed distributions
 # but not for cases such as the normal distribution
 fit = fhpd(x, std.err = FALSE)
 hist(x, breaks = 100, freq = FALSE, xlim = c(-4, 4))
 lines(xx, y)
-lines(xx, dhpd(xx, nmean = fit$nmean, nsd = fit$nsd,
-  xi = fit$xi), col="red")
+lines(xx, dhpd(xx, nmean = fit$nmean, nsd = fit$nsd, xi = fit$xi), col="red")
 abline(v = fit$u)
 
 # Notice that if tail fraction is included a better fit is obtained
 fit2 = fnormgpdcon(x, std.err = FALSE)
-hist(x, breaks = 100, freq = FALSE, xlim = c(-4, 4))
-lines(xx, y)
-lines(xx, dnormgpdcon(xx, nmean = fit2$nmean, nsd = fit2$nsd, u = fit2$u,
-  xi = fit2$xi), col="blue")
+lines(xx, dnormgpdcon(xx, nmean = fit2$nmean, nsd = fit2$nsd, u = fit2$u, xi = fit2$xi), col="blue")
 abline(v = fit2$u)
+legend("topright", c("Standard Normal", "Hybrid Pareto", "Normal+GPD Continuous"),
+  col=c("black", "red", "blue"), lty = 1)
 }
 }
 \author{
@@ -156,19 +191,21 @@ abline(v = fit2$u)
   Extremes 12 (1), 53-76.
 }
 \seealso{
-  \code{\link[evmix:lgpd]{lgpd}} and
-  \code{\link[evmix:gpd]{gpd}} The
-  \code{\link[condmixt:condmixt-package]{condmixt}} package
-  written by one of the original authors of the hybrid
-  Pareto model (Carreau and Bengio, 2008) also has similar
-  functions for the likelihood of the hybrid Pareto
+  \code{\link[evmix:fgpd]{fgpd}} and
+  \code{\link[evmix:gpd]{gpd}}
+
+  The \code{\link[condmixt:condmixt-package]{condmixt}}
+  package written by one of the original authors of the
+  hybrid Pareto model (Carreau and Bengio, 2008) also has
+  similar functions for the likelihood of the hybrid Pareto
   \code{\link[condmixt:hpareto.negloglike]{hpareto.negloglike}}
   and fitting
   \code{\link[condmixt:hpareto.negloglike]{hpareto.fit}}.
 
-  Other hpd: \code{\link{dhpd}}, \code{\link{hpd}},
-  \code{\link{lhpd}}, \code{\link{nlhpd}},
-  \code{\link{phpd}}, \code{\link{qhpd}},
-  \code{\link{rhpd}}
+  Other hpd hpdcon normgpd normgpdcon gng gngcon fhpd
+  fhpdcon fnormgpd fnormgpdcon fgng fgngcon:
+  \code{\link{fhpdcon}}, \code{\link{lhpdcon}},
+  \code{\link{nlhpdcon}}, \code{\link{nluhpdcon}},
+  \code{\link{profluhpdcon}}
 }
 

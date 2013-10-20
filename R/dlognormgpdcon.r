@@ -1,18 +1,21 @@
 #' @name lognormgpdcon
 #' 
-#' @title Log-Normal Bulk and GPD Tail Extreme Value Mixture Model with Continuity Constraint
+#' @title Log-Normal Bulk and GPD Tail Extreme Value Mixture Model with Single Continuity Constraint
 #'
 #' @description Density, cumulative distribution function, quantile function and
 #'   random number generation for the extreme value mixture model with log-normal for bulk
-#'   distribution upto the threshold and conditional GPD above threshold with a continuity
-#'   constraint. The parameters are the normal mean \code{lnmean} and standard deviation
-#'   \code{lnsd}, threshold \code{u} GPD scale \code{sigmau} and shape \code{xi} and tail
-#'   fraction \code{phiu}.
+#'   distribution upto the threshold and conditional GPD above threshold with continuity
+#'   at threshold. The parameters
+#'   are the log-normal mean \code{lnmean} and standard deviation \code{lnsd}, threshold \code{u}
+#'   GPD shape \code{xi} and tail fraction \code{phiu}.
 #'
 #' @inheritParams lognormgpd
 #' 
 #' @details Extreme value mixture model combining log-normal distribution for the bulk
-#' below the threshold and GPD for upper tail with a continuity constraint. The user can pre-specify \code{phiu} 
+#' below the threshold and GPD for upper tailwith continuity
+#'   at threshold.
+#' 
+#' The user can pre-specify \code{phiu} 
 #' permitting a parameterised value for the tail fraction \eqn{\phi_u}. Alternatively, when
 #' \code{phiu=TRUE} the tail fraction is estimated as the tail fraction from the
 #' log-normal bulk model.
@@ -24,8 +27,8 @@
 #' and above the threshold \eqn{x > u}:
 #' \deqn{F(x) = H(u) + [1 - H(u)] G(x)}
 #' where \eqn{H(x)} and \eqn{G(X)} are the log-normal and conditional GPD
-#' cumulative distribution functions (i.e. \code{plnorm(x, meanlog = lnmean, sdlog = lnsd)} and
-#' \code{pgpd(x, u, sigmau, xi)}).
+#' cumulative distribution functions (i.e. \code{plnorm(x, lnmean, lnsd)} and
+#' \code{pgpd(x, u, sigmau, xi)}) respectively.
 #' 
 #' The cumulative distribution function for pre-specified \eqn{\phi_u}, upto the
 #' threshold \eqn{0 < x \le u}, is given by:
@@ -34,15 +37,15 @@
 #' \deqn{F(x) = \phi_u + [1 - \phi_u] G(x)}
 #' Notice that these definitions are equivalent when \eqn{\phi_u = 1 - H(u)}.
 #' 
+#' The log-normal is defined on the positive reals, so the threshold must be positive.
+#' 
 #' The continuity constraint means that \eqn{(1 - \phi_u) h(u)/H(u) = \phi_u g(u)}
 #' where \eqn{h(x)} and \eqn{g(x)} are the log-normal and conditional GPD
-#' density functions (i.e. \code{dlnorm(x, nmean, nsd)} and
-#' \code{dgpd(x, u, sigmau, xi)}). The resulting GPD scale parameter is then:
+#' density functions (i.e. \code{dlnorm(x, lnmean, lnsd)} and
+#' \code{dgpd(x, u, sigmau, xi)}) respectively. The resulting GPD scale parameter is then:
 #' \deqn{\sigma_u = \phi_u H(u) / [1 - \phi_u] h(u)}.
 #' In the special case of where the tail fraction is defined by the bulk model this reduces to
 #' \deqn{\sigma_u = [1 - H(u)] / h(u)}. 
-#' 
-#' The gamma is defined on the non-negative reals, so the threshold must be non-negative.
 #' 
 #' See \code{\link[evmix:gpd]{gpd}} for details of GPD upper tail component and 
 #'\code{\link[stats:Lognormal]{dlnorm}} for details of log-normal bulk component.
@@ -56,14 +59,15 @@
 #' The main inputs (\code{x}, \code{p} or \code{q}) and parameters must be either
 #' a scalar or a vector. If vectors are provided they must all be of the same length,
 #' and the function will be evaluated for each element of vector. In the case of 
-#' \code{rlognormgpd} any input vector must be of length \code{n}.
+#' \code{\link[evmix:lognormgpdcon]{rlognormgpdcon}} any input vector must be of length \code{n}.
 #' 
 #' Default values are provided for all inputs, except for the fundamentals 
 #' \code{x}, \code{q} and \code{p}. The default sample size for 
 #' \code{\link[evmix:lognormgpdcon]{rlognormgpdcon}} is 1.
 #' 
-#' Missing (\code{NA}) and Not-a-Number (\code{NaN}) values in \code{x} and \code{q}
-#' are passed through as is and infinite values are set to \code{NA}.
+#' Missing (\code{NA}) and Not-a-Number (\code{NaN}) values in \code{x},
+#' \code{p} and \code{q} are passed through as is and infinite values are set to
+#' \code{NA}. None of these are not permitted for the parameters.
 #' 
 #' Error checking of the inputs (e.g. invalid probabilities) is carried out and
 #' will either stop or give warning message as appropriate.
@@ -83,10 +87,9 @@
 #' 
 #' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'
-#' @seealso \code{\link[evmix:lognormgpd]{lognormgpd}}, \code{\link[evmix:gpd]{gpd}}
-#'   and \code{\link[stats:Lognormal]{dlnorm}}
-#' @aliases  lognormgpdcon dlognormgpdcon plognormgpdcon qlognormgpdcon rlognormgpdcon
-#' @family   lognormgpdcon
+#' @seealso \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:Lognormal]{dlnorm}}
+#' @aliases lognormgpdcon dlognormgpdcon plognormgpdcon qlognormgpdcon rlognormgpdcon
+#' @family  lognormgpd lognormgpdcon normgpd normgpdcon flognormgpd flognormgpdcon fnormgpd fnormgpdcon
 #' 
 #' @examples
 #' \dontrun{
@@ -112,65 +115,33 @@
 #' lines(xx, dlognormgpdcon(xx, u = 2, xi=0.2, phiu = 0.2), col = "blue")
 #' legend("topright", c("xi = 0", "xi = 0.2", "xi = -0.2"),
 #'   col=c("black", "red", "blue"), lty = 1)
-#'   }
+#' }
+#' 
 NULL
 
 #' @export
-#' @aliases dlognormgpdcon dlognormgpdcon plognormgpdcon qlognormgpdcon rlognormgpdcon
-#' @rdname lognormgpdcon
+#' @aliases lognormgpdcon dlognormgpdcon plognormgpdcon qlognormgpdcon rlognormgpdcon
+#' @rdname  lognormgpdcon
 
 # probability density function for log-normal bulk with GPD for upper tail
-# with continuity constraint
+# with continuity at threshold
 dlognormgpdcon <- function(x, lnmean = 0, lnsd = 1, u = qlnorm(0.9, lnmean, lnsd),
   xi = 0, phiu = TRUE, log = FALSE) {
 
   # Check properties of inputs
-  if (missing(x))
-    stop("x must be a non-empty numeric vector")
-    
-  if (length(x) == 0 | mode(x) != "numeric") 
-    stop("x must be a non-empty numeric vector")
-  
-  if (any(is.infinite(x)))
-    warning("infinite cases are set to NaN")
+  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.param(param = lnmean, allowvec = TRUE)
+  check.posparam(param = lnsd, allowvec = TRUE)
+  check.posparam(param = u, allowvec = TRUE) # threshold also positive for log-normal
+  check.param(param = xi, allowvec = TRUE)
+  check.phiu(phiu, allowvec = TRUE)
+  check.logic(logicarg = log)
 
-  x[is.infinite(x)]=NA # user will have to deal with infinite cases
+  n = check.inputn(c(length(x), length(lnmean), length(lnsd), length(u), length(xi), length(phiu)))
 
-  # parameter inputs could be single values or vectors to allow for nonstationary modelling
-  # all input vectors must be same length or scalar
-  linputs = c(length(x), length(lnmean), length(lnsd), 
-    length(u), length(xi), length(phiu))
-  n = max(linputs)
+  if (any(is.infinite(x))) warning("infinite quantiles set to NA")
 
-  if (sum(linputs[linputs != 1] != n) > 0)
-    stop("Data and parameters must be either scalar or vector, with vectors all same length")
-
-  if (mode(lnmean) != "numeric" | mode(lnsd) != "numeric" | mode(u) != "numeric" |
-    mode(xi) != "numeric")
-    stop("parameters must be numeric")
-  
-  if (any(!is.finite(c(lnmean, lnsd, u, xi, phiu))))
-    stop("parameters must be numeric")
-
-  if (min(lnsd) <= 0)
-    stop("normal standard deviation must be non-negative")
-
-  if (min(u) <= 0)
-    stop("threshold must be non-negative")
-
-  if (is.logical(phiu) & any(!phiu)) {
-    stop("phiu must be either TRUE for bulk parameterised threshold probability approach, 
-      or between 0 and 1 (exclusive) when using parameterised threshold probability approach")
-  } else {
-    if (any(phiu < 0) | any(phiu > 1))
-      stop("phiu must between 0 and 1 (inclusive)")
-  }
-
-  if (!is.logical(log))
-    stop("log must be logical")
-  
-  if (length(log) != 1)
-    stop("log must be of length 1")
+  x[is.infinite(x)] = NA # user will have to deal with infinite cases
  
   x = rep(x, length.out = n)
   lnmean = rep(lnmean, length.out = n)
@@ -178,20 +149,127 @@ dlognormgpdcon <- function(x, lnmean = 0, lnsd = 1, u = qlnorm(0.9, lnmean, lnsd
   u = rep(u, length.out = n)
   xi = rep(xi, length.out = n)
   
+  pu = plnorm(u, lnmean, lnsd)
   if (is.logical(phiu)) {
-    phiu = 1 - plnorm(u, meanlog = lnmean, sdlog = lnsd)
+    phiu = 1 - pu
   } else {
     phiu = rep(phiu, length.out = n)
   }
-  phib = (1 - phiu) / plnorm(u, meanlog = lnmean, sdlog = lnsd)
-
-  sigmau = phiu / (phib * dlnorm(u, meanlog = lnmean, sdlog = lnsd))
+  phib = (1 - phiu) / pu
   
-  if (any(!is.finite(sigmau)))
-    stop("sigmau is not numeric")
-
-  if (min(sigmau) <= 0)
-    stop("scale must be non-negative")
-
+  sigmau = phiu / (phib * dlnorm(u, lnmean, lnsd))
+  
+  check.posparam(param = sigmau, allowvec = TRUE)
+  
   dlognormgpd(x, lnmean, lnsd, u, sigmau, xi, phiu, log)
+}
+
+#' @export
+#' @aliases lognormgpdcon dlognormgpdcon plognormgpdcon qlognormgpdcon rlognormgpdcon
+#' @rdname  lognormgpdcon
+
+# cumulative distribution function for log-normal bulk with GPD for upper tail
+# with continuity at threshold
+plognormgpdcon <- function(q, lnmean = 0, lnsd = 1, u = qlnorm(0.9, lnmean, lnsd), 
+  xi = 0, phiu = TRUE, lower.tail = TRUE) {
+
+  # Check properties of inputs
+  check.quant(q, allowmiss = TRUE, allowinf = TRUE)
+  check.param(param = lnmean, allowvec = TRUE)
+  check.posparam(param = lnsd, allowvec = TRUE)
+  check.posparam(param = u, allowvec = TRUE)
+  check.param(param = xi, allowvec = TRUE)
+  check.phiu(phiu, allowvec = TRUE)
+  check.logic(logicarg = lower.tail)
+
+  n = check.inputn(c(length(q), length(lnmean), length(lnsd), length(u), length(xi), length(phiu)))
+
+  if (any(is.infinite(q))) warning("infinite quantiles set to NA")
+
+  q[is.infinite(q)] = NA # user will have to deal with infinite cases
+
+  q = rep(q, length.out = n)
+  lnmean = rep(lnmean, length.out = n)
+  lnsd = rep(lnsd, length.out = n)
+  u = rep(u, length.out = n)
+  xi = rep(xi, length.out = n)
+  
+  pu = plnorm(u, lnmean, lnsd)
+  if (is.logical(phiu)) {
+    phiu = 1 - pu
+  } else {
+    phiu = rep(phiu, length.out = n)
+  }
+  phib = (1 - phiu) / pu
+  
+  sigmau = phiu / (phib * dlnorm(u, lnmean, lnsd))
+  
+  check.posparam(param = sigmau, allowvec = TRUE)
+
+  plognormgpd(q, lnmean, lnsd, u, sigmau, xi, phiu, lower.tail)
+}
+
+#' @export
+#' @aliases lognormgpdcon dlognormgpdcon plognormgpdcon qlognormgpdcon rlognormgpdcon
+#' @rdname  lognormgpdcon
+
+# inverse cumulative distribution function for log-normal bulk with GPD for upper tail
+# with continuity at threshold
+qlognormgpdcon <- function(p, lnmean = 0, lnsd = 1, u = qlnorm(0.9, lnmean, lnsd),
+  xi = 0, phiu = TRUE, lower.tail = TRUE) {
+
+  # Check properties of inputs
+  check.prob(p, allowmiss = TRUE)
+  check.param(param = lnmean, allowvec = TRUE)
+  check.posparam(param = lnsd, allowvec = TRUE)
+  check.posparam(param = u, allowvec = TRUE)
+  check.param(param = xi, allowvec = TRUE)
+  check.phiu(phiu, allowvec = TRUE)
+  check.logic(logicarg = lower.tail)
+
+  n = check.inputn(c(length(p), length(lnmean), length(lnsd), length(u), length(xi), length(phiu)))
+
+  p = rep(p, length.out = n)
+  lnmean = rep(lnmean, length.out = n)
+  lnsd = rep(lnsd, length.out = n)
+  u = rep(u, length.out = n)
+  xi = rep(xi, length.out = n)
+  
+  pu = plnorm(u, lnmean, lnsd)
+  if (is.logical(phiu)) {
+    phiu = 1 - pu
+  } else {
+    phiu = rep(phiu, length.out = n)
+  }
+  phib = (1 - phiu) / pu
+    
+  sigmau = phiu / (phib * dlnorm(u, lnmean, lnsd))
+  
+  check.posparam(param = sigmau, allowvec = TRUE)
+    
+  qlognormgpd(p, lnmean, lnsd, u, sigmau, xi, phiu, lower.tail)
+}
+
+#' @export
+#' @aliases lognormgpdcon dlognormgpdcon plognormgpdcon qlognormgpdcon rlognormgpdcon
+#' @rdname  lognormgpdcon
+
+# random number generation for log-normal bulk with GPD for upper tail
+# with continuity at threshold
+rlognormgpdcon <- function(n = 1, lnmean = 0, lnsd = 1, u = qlnorm(0.9, lnmean, lnsd),
+  xi = 0, phiu = TRUE) {
+
+  # Check properties of inputs
+  check.n(n)
+  check.param(param = lnmean, allowvec = TRUE)
+  check.posparam(param = lnsd, allowvec = TRUE)
+  check.posparam(param = u, allowvec = TRUE)
+  check.param(param = xi, allowvec = TRUE)
+  check.phiu(phiu, allowvec = TRUE)
+
+  n = check.inputn(c(n, length(lnmean), length(lnsd), length(u), length(xi), length(phiu)))
+
+  if (any(xi == 1)) stop("shape cannot be 1")
+  
+  qlognormgpdcon(runif(n), lnmean, lnsd, u, xi, phiu)
 }

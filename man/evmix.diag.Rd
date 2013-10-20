@@ -65,27 +65,33 @@
   Consistent with \code{\link[evd:plot.uvevd]{plot}}
   function in the \code{\link[evd:gpd]{evd}} library the
   \code{\link[stats:ppoints]{ppoints}} to estimate the
-  empirical cumulative probabilities. The current default
-  behaviour of this function is to use \deqn{(i-0.5)/n} as
-  the estimate for the \eqn{i}th order statistic of the
-  given sample of size \eqn{n}.
+  empirical cumulative probabilities. The default behaviour
+  of this function is to use \deqn{(i-0.5)/n} as the
+  estimate for the \eqn{i}th order statistic of the given
+  sample of size \eqn{n}.
 
-  The return level plot quantile (\eqn{x_p} where \eqn{P(X
-  \le x_p)=p} on the \eqn{y}-axis and the (approximate)
-  return period \eqn{1/p} is shown on the \eqn{x}-axis. It
-  is approximate as the tranformation \eqn{-log(-log(p))
-  \approx 1/p} is used for the \eqn{x}-axis, which is
-  common in extreme value application as Type I
-  (\eqn{\xi=0}) upper tail behaviour will be linear on this
-  scale. The approximation is better for smaller upper tail
-  probability.
+  The return level plot has the quantile (\eqn{q} where
+  \eqn{P(X \ge q)=p} on the \eqn{y}-axis, for a particular
+  survival probability \eqn{p}. The return period
+  \eqn{t=1/p} is shown on the \eqn{x}-axis. The return
+  level is given by: \deqn{q = u + \sigma_u [(\phi_u t)^\xi
+  - 1]/\xi} for \eqn{\xi\ne 0}. But in the case of \eqn{\xi
+  = 0} this simplifies to \deqn{q = u + \sigma_u log(\phi_u
+  t)} which is linear when plotted against the return
+  period on a logarithmic scale. The special case of
+  exponential/Type I (\eqn{\xi=0}) upper tail behaviour
+  will be linear on this scale. This is the same
+  tranformation as in the GPD/POT diagnostic plot function
+  \code{\link[evd:plot.uvevd]{plot.uvevd}} in the
+  \code{\link[evd:plot.uvevd]{evd}} package, from which
+  these functions were derived.
 
   The crosses are the empirical quantiles/return levels
   (i.e. the ordered sample data) against their
-  corresponding transfomred empirical return period (from
+  corresponding transformed empirical return period (from
   \code{\link[stats:ppoints]{ppoints}}). The solid line is
   the theoretical return level (quantile) function using
-  the estimated model parameters. The estimated threshold
+  the estimated parameters. The estimated threshold
   \code{u} and tail fraction \code{phiu} are shown. For the
   two tailed models both thresholds \code{ul} and \code{ur}
   and corresponding tail fractions \code{phiul} and
@@ -157,7 +163,8 @@ densplot(fit, upperfocus = FALSE)
   \email{carl.scarrott@canterbury.ac.nz}
 }
 \references{
-  Based on model diagnostic functions in the
+  Based on GPD/POT diagnostic functions in the
+  \code{\link[evd:plot.uvevd]{evd}} function from the
   \code{\link[evd:gpd]{evd}} package.
 
   \url{http://en.wikipedia.org/wiki/Q-Q_plot}
@@ -174,7 +181,8 @@ densplot(fit, upperfocus = FALSE)
   Modelling of Extreme Values. Springer-Verlag: London.
 }
 \seealso{
-  \code{\link[stats:ppoints]{ppoints}} and
-  \code{\link[evd:plot.uvevd]{plot.uvevd}}
+  \code{\link[stats:ppoints]{ppoints}},
+  \code{\link[evd:plot.uvevd]{plot.uvevd}} and
+  \code{\link[ismev:gpd.diag]{gpd.diag}}.
 }
 

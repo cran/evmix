@@ -1,0 +1,346 @@
+\name{fgkgcon}
+\alias{fgkgcon}
+\alias{lgkgcon}
+\alias{nlgkgcon}
+\alias{nlugkgcon}
+\alias{proflugkgcon}
+\title{MLE Fitting of Kernel Density Estimate for Bulk and GPD for Both Tails with
+ Single Continuity Constraint at Both Thresholds Extreme Value Mixture Model}
+\usage{
+  fgkgcon(x, phiul = TRUE, phiur = TRUE, ulseq = NULL,
+    urseq = NULL, fixedu = FALSE, pvector = NULL,
+    kernel = "gaussian", add.jitter = FALSE, factor = 0.1,
+    amount = NULL, std.err = TRUE, method = "BFGS",
+    control = list(maxit = 10000), finitelik = TRUE, ...)
+
+  lgkgcon(x, lambda = NULL, ul = 0, xil = 0, phiul = TRUE,
+    ur = 0, xir = 0, phiur = TRUE, bw = NULL,
+    kernel = "gaussian", log = TRUE)
+
+  nlgkgcon(pvector, x, phiul = TRUE, phiur = TRUE,
+    kernel = "gaussian", finitelik = FALSE)
+
+  proflugkgcon(ulr, pvector, x, phiul = TRUE, phiur = TRUE,
+    kernel = "gaussian", method = "BFGS",
+    control = list(maxit = 10000), finitelik = FALSE, ...)
+
+  nlugkgcon(pvector, ul, ur, x, phiul = TRUE, phiur = TRUE,
+    kernel = "gaussian", finitelik = FALSE)
+}
+\arguments{
+  \item{x}{quantiles}
+
+  \item{phiul}{probability of being below lower threshold
+  \eqn{(0, 1)} or logical, see Details in help for
+  \code{\link[evmix:fgng]{fgng}}}
+
+  \item{phiur}{probability of being above upper threshold
+  \eqn{(0, 1)} or logical, see Details in help for
+  \code{\link[evmix:fgng]{fgng}}}
+
+  \item{ulseq}{vector of lower thresholds (or scalar) to be
+  considered in profile likelihood or \code{NULL} for no
+  profile likelihood}
+
+  \item{urseq}{vector of upper thresholds (or scalar) to be
+  considered in profile likelihood or \code{NULL} for no
+  profile likelihood}
+
+  \item{fixedu}{logical, should threshold be fixed (at
+  either scalar value in \code{useq}, or estimated from
+  maximum of profile likelihood evaluated at sequence of
+  thresholds in \code{useq})}
+
+  \item{pvector}{vector of initial values of parameters or
+  \code{NULL} for default values, see below}
+
+  \item{kernel}{kernel name (\code{default = "gaussian"})}
+
+  \item{add.jitter}{logical, whether jitter is needed for
+  rounded kernel centres}
+
+  \item{factor}{see \code{\link[base:jitter]{jitter}}}
+
+  \item{amount}{see \code{\link[base:jitter]{jitter}}}
+
+  \item{std.err}{logical, should standard errors be
+  calculated}
+
+  \item{method}{optimisation method (see
+  \code{\link[stats:optim]{optim}})}
+
+  \item{control}{optimisation control list (see
+  \code{\link[stats:optim]{optim}})}
+
+  \item{finitelik}{logical, should log-likelihood return
+  finite value for invalid parameters}
+
+  \item{...}{optional inputs passed to
+  \code{\link[stats:optim]{optim}}}
+
+  \item{lambda}{scalar bandwidth for kernel (as half-width
+  of kernel)}
+
+  \item{ul}{scalar lower tail threshold}
+
+  \item{xil}{scalar lower tail GPD shape parameter}
+
+  \item{ur}{scalar upper tail threshold}
+
+  \item{xir}{scalar upper tail GPD shape parameter}
+
+  \item{bw}{scalar bandwidth for kernel (as standard
+  deviations of kernel)}
+
+  \item{log}{logical, if TRUE then log density}
+
+  \item{ulr}{vector of length 2 giving lower and upper tail
+  thresholds or \code{NULL} for default values}
+}
+\value{
+  Log-likelihood is given by
+  \code{\link[evmix:fgkgcon]{lgkgcon}} and it's wrappers
+  for negative log-likelihood from
+  \code{\link[evmix:fgkgcon]{nlgkgcon}} and
+  \code{\link[evmix:fgkgcon]{nlugkgcon}}. Profile
+  likelihood for single pair of upper and lower thresholds
+  given by \code{\link[evmix:fgkgcon]{proflugkgcon}}.
+  Fitting function \code{\link[evmix:fgkgcon]{fgkgcon}}
+  returns a simple list with the following elements
+
+  \tabular{ll}{ \code{call}: \tab \code{optim} call\cr
+  \code{x}: \tab data vector \code{x}\cr \code{init}: \tab
+  \code{pvector}\cr \code{fixedu}: \tab fixed threshold,
+  logical\cr \code{useq}: \tab threshold vector for profile
+  likelihood or scalar for fixed threshold\cr \code{optim}:
+  \tab complete \code{optim} output\cr \code{mle}: \tab
+  vector of MLE of parameters\cr \code{cov}: \tab
+  variance-covariance matrix of MLE of parameters\cr
+  \code{se}: \tab vector of standard errors of MLE of
+  parameters\cr \code{rate}: \tab \code{phiu} to be
+  consistent with \code{\link[evd:fpot]{evd}}\cr
+  \code{nllh}: \tab minimum negative log-likelihood\cr
+  \code{n}: \tab total sample size\cr \code{lambda}: \tab
+  MLE of lambda (kernel half-width)\cr \code{ul}: \tab
+  lower threshold (fixed or MLE)\cr \code{sigmaul}: \tab
+  MLE of lower tail GPD scale (estimated from other
+  parameters)\cr \code{xil}: \tab MLE of lower tail GPD
+  shape\cr \code{phiul}: \tab MLE of lower tail fraction
+  (bulk model or parameterised approach)\cr
+  \code{se.phiul}: \tab standard error of MLE of lower tail
+  fraction\cr \code{ur}: \tab upper threshold (fixed or
+  MLE)\cr \code{sigmaur}: \tab MLE of upper tail GPD scale
+  (estimated from other parameters)\cr \code{xir}: \tab MLE
+  of upper tail GPD shape\cr \code{phiur}: \tab MLE of
+  upper tail fraction (bulk model or parameterised
+  approach)\cr \code{se.phiur}: \tab standard error of MLE
+  of lower tail fraction\cr \code{bw}: \tab MLE of bw
+  (kernel standard deviations)\cr \code{kernel}: \tab
+  kernel name\cr }
+}
+\description{
+  Maximum likelihood estimation for fitting the extreme
+  value mixture model with kernel density estimate for bulk
+  distribution between thresholds and conditional GPDs for
+  both tails with continuity at thresholds. With options
+  for profile likelihood estimation for both thresholds and
+  fixed threshold approach.
+}
+\details{
+  The extreme value mixture model with kernel density
+  estimate for bulk and GPD for both tails with continuity
+  at thresholds is fitted to the entire dataset using
+  maximum likelihood estimation. The estimated parameters,
+  variance-covariance matrix and their standard errors are
+  automatically output.
+
+  See help for \code{\link[evmix:fnormgpd]{fnormgpd}} and
+  \code{\link[evmix:fgkg]{fgng}} for details, type
+  \code{help fnormgpd} and \code{help fgng}. Only the
+  different features are outlined below for brevity.
+
+  The GPD \code{sigmaul} and \code{sigmaur} parameters are
+  now specified as function of other parameters, see help
+  for \code{\link[evmix:gkgcon]{dgkgcon}} for details, type
+  \code{help gkgcon}. Therefore, \code{sigmaul} and
+  \code{sigmaur} should not be included in the parameter
+  vector if initial values are provided, making the full
+  parameter vector The full parameter vector is
+  (\code{lambda}, \code{ul}, \code{xil}, \code{ur},
+  \code{xir}) if threshold is also estimated and
+  (\code{lambda}, \code{xil}, \code{xir}) for profile
+  likelihood or fixed threshold approach.
+
+  Cross-validation likelihood is used for KDE, but standard
+  likelihood is used for GPD components. See help for
+  \code{\link[evmix:fkden]{fkden}} for details, type
+  \code{help fkden}.
+
+  The alternate bandwidth definitions are discussed in the
+  \code{\link[evmix:kernels]{kernels}}, with the
+  \code{lambda} as the default used in the likelihood
+  fitting. The \code{bw} specification is the same as used
+  in the \code{\link[stats:density]{density}} function.
+
+  The possible kernels are also defined in
+  \code{\link[evmix:kernels]{kernels}} with the
+  \code{"gaussian"} as the default choice.
+
+  The tail fractions \code{phiul} and \code{phiur} are
+  treated separately to the other parameters, to allow for
+  all their representations. In the fitting functions
+  \code{\link[evmix:fgkgcon]{fgkgcon}} and
+  \code{\link[evmix:fgkgcon]{proflugkgcon}} they are
+  logical: \itemize{ \item default values \code{phiul=TRUE}
+  and \code{phiur=TRUE} - tail fractions specified by KDE
+  distribution and survivior functions respectively and
+  standard error is output as \code{NA}.  \item
+  \code{phiul=FALSE} and \code{phiur=FALSE} - treated as
+  extra parameters estimated using the MLE which is the
+  sample proportion beyond the thresholds and standard
+  error is output. } In the likelihood functions
+  \code{\link[evmix:fgkgcon]{lgkgcon}},
+  \code{\link[evmix:fgkgcon]{nlgkgcon}} and
+  \code{\link[evmix:fgkgcon]{nlugkgcon}} it can be logical
+  or numeric: \itemize{ \item logical - same as for fitting
+  functions with default values \code{phiul=TRUE} and
+  \code{phiur=TRUE}.  \item numeric - any value over range
+  \eqn{(0, 1)}. Notice that the tail fraction probability
+  cannot be 0 or 1 otherwise there would be no contribution
+  from either tail or bulk components respectively. Also,
+  \code{phiul+phiur<1} as bulk must contribute. }
+}
+\note{
+  The data and kernel centres are both vectors. Infinite
+  and missing sample values (and kernel centres) are
+  dropped.
+
+  When \code{pvector=NULL} then the initial values are:
+  \itemize{ \item normal reference rule for bandwidth,
+  using the \code{\link[stats:bandwidth]{bw.nrd0}}
+  function, which is consistent with the
+  \code{\link[stats:density]{density}} function. At least
+  two kernel centres must be provided as the variance needs
+  to be estimated.  \item lower threshold 10\% quantile
+  (not relevant for profile likelihood for threshold or
+  fixed threshold approaches); \item upper threshold 90\%
+  quantile (not relevant for profile likelihood for
+  threshold or fixed threshold approaches); \item MLE of
+  GPD shape parameters beyond thresholds. }
+}
+\section{Warning}{
+  See important warnings about cross-validation likelihood
+  estimation in \code{\link[evmix:fkden]{fkden}}, type
+  \code{help fkden}.
+}
+
+\section{Acknowledgments}{
+  See Acknowledgments in
+  \code{\link[evmix:fnormgpd]{fnormgpd}}, type \code{help
+  fnormgpd}. Based on MATLAB code written by Anna
+  MacDonald.
+}
+\examples{
+\dontrun{
+par(mfrow=c(2,1))
+x = rnorm(1000)
+xx = seq(-4, 4, 0.01)
+y = dnorm(xx)
+
+# Continuity constraint
+fit = fgkgcon(x)
+hist(x, breaks = 100, freq = FALSE, xlim = c(-4, 4))
+lines(xx, y)
+with(fit, lines(xx, dgkgcon(xx, x, lambda, ul, xil, phiul,
+   ur, xir, phiur), col="red"))
+abline(v = c(fit$ul, fit$ur), col = "red")
+
+# No continuity constraint
+fit2 = fgkg(x)
+with(fit2, lines(xx, dgkg(xx, x, lambda, ul, sigmaul, xil, phiul,
+   ur, sigmaur, xir, phiur), col="blue"))
+abline(v = c(fit2$ul, fit2$ur), col = "blue")
+legend("topleft", c("True Density","No continuity constraint","With continuty constraint"),
+  col=c("black", "blue", "red"), lty = 1)
+
+# Profile likelihood for initial value of threshold and fixed threshold approach
+fitu = fgkgcon(x, ulseq = rep(seq(-2, -0.2, length = 10), times = 10),
+ urseq = rep(seq(0.2, 2, length = 10), each = 10))
+fitfix = fgkgcon(x, ulseq = rep(seq(-2, -0.2, length = 10), times = 10),
+ urseq = rep(seq(0.2, 2, length = 10), each = 10), fixedu = TRUE)
+
+hist(x, breaks = 100, freq = FALSE, xlim = c(-4, 4))
+lines(xx, y)
+with(fit, lines(xx, dgkgcon(xx, x, lambda, ul, xil, phiul,
+   ur, xir, phiur), col="red"))
+abline(v = c(fit$ul, fit$ur), col = "red")
+with(fitu, lines(xx, dgkgcon(xx, x, lambda, ul, xil, phiul,
+   ur, xir, phiur), col="purple"))
+abline(v = c(fitu$ul, fitu$ur), col = "purple")
+with(fitfix, lines(xx, dgkgcon(xx, x, lambda, ul, xil, phiul,
+   ur, xir, phiur), col="darkgreen"))
+abline(v = c(fitfix$ul, fitfix$ur), col = "darkgreen")
+legend("topright", c("True Density","Default initial value (90\% quantile)",
+ "Prof. lik. for initial value", "Prof. lik. for fixed threshold"),
+ col=c("black", "red", "purple", "darkgreen"), lty = 1)
+}
+}
+\author{
+  Yang Hu and Carl Scarrott
+  \email{carl.scarrott@canterbury.ac.nz}
+}
+\references{
+  \url{http://www.math.canterbury.ac.nz/~c.scarrott/evmix}
+
+  \url{http://en.wikipedia.org/wiki/Kernel_density_estimation}
+
+  \url{http://en.wikipedia.org/wiki/Cross-validation_(statistics)}
+
+  \url{http://en.wikipedia.org/wiki/Generalized_Pareto_distribution}
+
+  Scarrott, C.J. and MacDonald, A. (2012). A review of
+  extreme value threshold estimation and uncertainty
+  quantification. REVSTAT - Statistical Journal 10(1),
+  33-59. Available from
+  \url{http://www.ine.pt/revstat/pdf/rs120102.pdf}
+
+  Hu, Y. (2013). Extreme value mixture modelling: An R
+  package and simulation study. MSc (Hons) thesis,
+  University of Canterbury, New Zealand.
+  \url{http://ir.canterbury.ac.nz/simple-search?query=extreme&submit=Go}
+
+  Bowman, A.W. (1984). An alternative method of
+  cross-validation for the smoothing of density estimates.
+  Biometrika 71(2), 353-360.
+
+  Duin, R.P.W. (1976). On the choice of smoothing
+  parameters for Parzen estimators of probability density
+  functions. IEEE Transactions on Computers C25(11),
+  1175-1179.
+
+  MacDonald, A., Scarrott, C.J., Lee, D., Darlow, B.,
+  Reale, M. and Russell, G. (2011). A flexible extreme
+  value mixture model. Computational Statistics and Data
+  Analysis 55(6), 2137-2157.
+
+  Wand, M. and Jones, M.C. (1995). Kernel Smoothing.
+  Chapman && Hall.
+}
+\seealso{
+  \code{\link[evmix:kernels]{kernels}},
+  \code{\link[evmix:kfun]{kfun}},
+  \code{\link[stats:density]{density}},
+  \code{\link[stats:bandwidth]{bw.nrd0}} and
+  \code{\link[ks:kde.1d]{dkde}} in
+  \code{\link[ks:kde.1d]{ks}} package.
+  \code{\link[evmix:fgpd]{fgpd}} and
+  \code{\link[evmix:gpd]{gpd}}
+
+  Other kdengpd kdengpdcon fkdengpd fkdengpdcon normgpd
+  fnormgpd gkg gkgcon fgkg fgkgcon kden bckden bckdengpd
+  bckdengpdcon fkden fbckden fbckdengpd fbckdengpdcon:
+  \code{\link{fgkg}}, \code{\link{lgkg}},
+  \code{\link{nlgkg}}, \code{\link{nlugkg}},
+  \code{\link{proflugkg}}
+}
+

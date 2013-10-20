@@ -26,31 +26,31 @@
     sigmau = sqrt(gshape) * gscale, xi = 0, phiu = TRUE)
 }
 \arguments{
-  \item{gshape}{gamma shape (non-negative)}
+  \item{gshape}{gamma shape (positive)}
 
-  \item{gscale}{gamma scale (non-negative)}
+  \item{gscale}{gamma scale (positive)}
 
-  \item{u}{threshold (non-negative)}
+  \item{phiu}{probability of being above threshold \eqn{[0,
+  1]} or \code{TRUE}}
 
-  \item{phiu}{probability of being above threshold [0,1] or
-  TRUE}
+  \item{x}{quantiles}
 
-  \item{x}{quantile}
+  \item{u}{threshold}
 
-  \item{sigmau}{scale parameter (non-negative)}
+  \item{sigmau}{scale parameter (positive)}
 
   \item{xi}{shape parameter}
 
   \item{log}{logical, if TRUE then log density}
 
-  \item{q}{quantile}
+  \item{q}{quantiles}
 
   \item{lower.tail}{logical, if FALSE then upper tail
   probabilities}
 
-  \item{p}{cumulative probability}
+  \item{p}{cumulative probabilities}
 
-  \item{n}{sample size (non-negative integer)}
+  \item{n}{sample size (positive integer)}
 }
 \value{
   \code{\link[evmix:gammagpd]{dgammagpd}} gives the
@@ -73,6 +73,7 @@
 \details{
   Extreme value mixture model combining gamma distribution
   for the bulk below the threshold and GPD for upper tail.
+
   The user can pre-specify \code{phiu} permitting a
   parameterised value for the tail fraction \eqn{\phi_u}.
   Alternatively, when \code{phiu=TRUE} the tail fraction is
@@ -85,8 +86,8 @@
   the threshold \eqn{x > u}: \deqn{F(x) = H(u) + [1 - H(u)]
   G(x)} where \eqn{H(x)} and \eqn{G(X)} are the gamma and
   conditional GPD cumulative distribution functions (i.e.
-  \code{pgamma(x, gshape, scale = gscale)} and
-  \code{pgpd(x, u, sigmau, xi)}).
+  \code{pgamma(x, gshape, 1/gscale)} and \code{pgpd(x, u,
+  sigmau, xi)}) respectively.
 
   The cumulative distribution function for pre-specified
   \eqn{\phi_u}, upto the threshold \eqn{0 < x \le u}, is
@@ -96,7 +97,12 @@
   equivalent when \eqn{\phi_u = 1 - H(u)}.
 
   The gamma is defined on the non-negative reals, so the
-  threshold must be non-negative.
+  threshold must be positive. Though behaviour at zero
+  depends on the shape (\eqn{\alpha}): \itemize{ \item
+  \eqn{f(0+)=\infty} for \eqn{0<\alpha<1}; \item
+  \eqn{f(0+)=1/\beta} for \eqn{\alpha=1} (exponential);
+  \item \eqn{f(0+)=0} for \eqn{\alpha>1}; } where
+  \eqn{\beta} is the scale parameter.
 
   See \code{\link[evmix:gpd]{gpd}} for details of GPD upper
   tail component and \code{\link[stats:GammaDist]{dgamma}}
@@ -108,8 +114,9 @@
   \code{q}) and parameters must be either a scalar or a
   vector. If vectors are provided they must all be of the
   same length, and the function will be evaluated for each
-  element of vector. In the case of \code{rgammagpd} any
-  input vector must be of length \code{n}.
+  element of vector. In the case of
+  \code{\link[evmix:gammagpd]{rgammagpd}} any input vector
+  must be of length \code{n}.
 
   Default values are provided for all inputs, except for
   the fundamentals \code{x}, \code{q} and \code{p}. The
@@ -117,8 +124,9 @@
   \code{\link[evmix:gammagpd]{rgammagpd}} is 1.
 
   Missing (\code{NA}) and Not-a-Number (\code{NaN}) values
-  in \code{x} and \code{q} are passed through as is and
-  infinite values are set to \code{NA}.
+  in \code{x}, \code{p} and \code{q} are passed through as
+  is and infinite values are set to \code{NA}. None of
+  these are not permitted for the parameters.
 
   Error checking of the inputs (e.g. invalid probabilities)
   is carried out and will either stop or give warning
@@ -136,7 +144,7 @@ lines(xx, dgammagpd(xx, gshape = 2))
 plot(xx, pgammagpd(xx, gshape = 2), type = "l")
 lines(xx, pgammagpd(xx, gshape = 2, xi = 0.3), col = "red")
 lines(xx, pgammagpd(xx, gshape = 2, xi = -0.3), col = "blue")
-legend("topleft", paste("xi =",c(0, 0.3, -0.3)),
+legend("bottomright", paste("xi =",c(0, 0.3, -0.3)),
   col=c("black", "red", "blue"), lty = 1)
 
 x = rgammagpd(1000, gshape = 2, u = 3, phiu = 0.2)
@@ -148,7 +156,7 @@ lines(xx, dgammagpd(xx, gshape = 2, u = 3, xi=-0.2, phiu = 0.2), col = "red")
 lines(xx, dgammagpd(xx, gshape = 2, u = 3, xi=0.2, phiu = 0.2), col = "blue")
 legend("topright", c("xi = 0", "xi = 0.2", "xi = -0.2"),
   col=c("black", "red", "blue"), lty = 1)
-  }
+}
 }
 \author{
   Yang Hu and Carl Scarrott
@@ -173,7 +181,36 @@ legend("topright", c("xi = 0", "xi = 0.2", "xi = -0.2"),
   \code{\link[evmix:gpd]{gpd}} and
   \code{\link[stats:GammaDist]{dgamma}}
 
-  Other gammagpd: \code{\link{fgammagpd}},
-  \code{\link{lgammagpd}}, \code{\link{nlgammagpd}}
+  Other mgamma fmgamma gammagpd gammagpdcon fgammagpd
+  fgammagpdcon normgpd fnormgpd mgammagpd mgammagpdcon
+  fmgammagpd fmgammagpdcon: \code{\link{dgammagpdcon}},
+  \code{\link{dmgamma}}, \code{\link{dmgammagpd}},
+  \code{\link{dmgammagpdcon}}, \code{\link{fgammagpd}},
+  \code{\link{fgammagpdcon}}, \code{\link{fmgamma}},
+  \code{\link{fmgammagpd}}, \code{\link{fmgammagpdcon}},
+  \code{\link{gammagpdcon}}, \code{\link{lgammagpd}},
+  \code{\link{lgammagpdcon}}, \code{\link{lmgamma}},
+  \code{\link{lmgammagpd}}, \code{\link{lmgammagpdcon}},
+  \code{\link{mgamma}}, \code{\link{mgammagpd}},
+  \code{\link{mgammagpdcon}}, \code{\link{nlEMmgamma}},
+  \code{\link{nlEMmgammagpd}},
+  \code{\link{nlEMmgammagpdcon}}, \code{\link{nlgammagpd}},
+  \code{\link{nlgammagpdcon}}, \code{\link{nlmgamma}},
+  \code{\link{nlmgammagpd}}, \code{\link{nlmgammagpdcon}},
+  \code{\link{nluEMmgammagpd}},
+  \code{\link{nluEMmgammagpdcon}},
+  \code{\link{nlugammagpd}}, \code{\link{nlugammagpdcon}},
+  \code{\link{nlumgammagpd}},
+  \code{\link{nlumgammagpdcon}},
+  \code{\link{pgammagpdcon}}, \code{\link{pmgamma}},
+  \code{\link{pmgammagpd}}, \code{\link{pmgammagpdcon}},
+  \code{\link{proflugammagpd}},
+  \code{\link{proflugammagpdcon}},
+  \code{\link{proflumgammagpd}},
+  \code{\link{proflumgammagpdcon}},
+  \code{\link{qgammagpdcon}}, \code{\link{qmgamma}},
+  \code{\link{qmgammagpd}}, \code{\link{qmgammagpdcon}},
+  \code{\link{rgammagpdcon}}, \code{\link{rmgamma}},
+  \code{\link{rmgammagpd}}, \code{\link{rmgammagpdcon}}
 }
 

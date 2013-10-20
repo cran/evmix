@@ -4,35 +4,44 @@
 \alias{pkden}
 \alias{qkden}
 \alias{rkden}
-\title{Kernel Density Estimation Using Normal Kernel}
+\title{Kernel Density Estimation, With Variety of Kernels}
 \usage{
-  dkden(x, kerncentres, lambda = NULL, log = FALSE)
+  dkden(x, kerncentres, lambda = NULL, bw = NULL,
+    kernel = "gaussian", log = FALSE)
 
-  pkden(q, kerncentres, lambda = NULL, lower.tail = TRUE)
+  pkden(q, kerncentres, lambda = NULL, bw = NULL,
+    kernel = "gaussian", lower.tail = TRUE)
 
-  qkden(p, kerncentres, lambda = NULL, lower.tail = TRUE)
+  qkden(p, kerncentres, lambda = NULL, bw = NULL,
+    kernel = "gaussian", lower.tail = TRUE)
 
-  rkden(n = 1, kerncentres, lambda = NULL)
+  rkden(n = 1, kerncentres, lambda = NULL, bw = NULL,
+    kernel = "gaussian")
 }
 \arguments{
-  \item{lambda}{bandwidth for normal kernel (standard
-  deviation of normal)}
-
-  \item{kerncentres}{kernel centres (typically sample
-  data)}
-
-  \item{x}{quantile}
+  \item{x}{quantiles}
 
   \item{log}{logical, if TRUE then log density}
 
-  \item{q}{quantile}
+  \item{q}{quantiles}
 
   \item{lower.tail}{logical, if FALSE then upper tail
   probabilities}
 
-  \item{p}{cumulative probability}
+  \item{p}{cumulative probabilities}
 
-  \item{n}{sample size (non-negative integer)}
+  \item{n}{sample size (positive integer)}
+
+  \item{kerncentres}{kernel centres (typically sample data
+  vector or scalar)}
+
+  \item{lambda}{bandwidth for kernel (as half-width of
+  kernel) or \code{NULL}}
+
+  \item{bw}{bandwidth for kernel (as standard deviations of
+  kernel) or \code{NULL}}
+
+  \item{kernel}{kernel name (\code{default = "gaussian"})}
 }
 \value{
   \code{\link[evmix:kden]{dkden}} gives the density,
@@ -44,12 +53,23 @@
 \description{
   Density, cumulative distribution function, quantile
   function and random number generation for the kernel
-  density estimation using the normal kernel with a
-  constant bandwidth \code{lambda}. The kernel centres
-  (typically the data) are given by \code{kerncentres}.
+  density estimation using the kernel specified by
+  \code{kernel}, with a constant bandwidth specified by
+  either \code{lambda} or \code{bw}.
 }
 \details{
-  Kernel density estimation using normal density as kernel.
+  Kernel density estimation using one of many possible
+  kernels with a constant bandwidth.
+
+  The alternate bandwidth definitions are discussed in the
+  \code{\link[evmix:kernels]{kernels}}, with the
+  \code{lambda} as the default. The \code{bw} specification
+  is the same as used in the
+  \code{\link[stats:density]{density}} function.
+
+  The possible kernels are also defined in
+  \code{\link[evmix:kernels]{kernels}} help documentation
+  with the \code{"gaussian"} as the default choice.
 
   The density function \code{\link[evmix:kden]{dkden}}
   produces exactly the same density estimate as
@@ -57,56 +77,57 @@
   \code{x} values are provided, see examples. The latter
   function is far more efficient in this situation as it
   takes advantage of the computational savings from doing
-  the kernel smoothing in the spectral domain, where the
-  convolution becomes a multiplication. So even after
-  accounting for applying the (Fast) Fourier Transform
-  (FFT) and its inverse it is much more efficient
-  especially for a large sample size.
+  the kernel smoothing in the spectral domain (using the
+  FFT), where the convolution becomes a multiplication. So
+  even after accounting for applying the (Fast) Fourier
+  Transform (FFT) and its inverse it is much more efficient
+  especially for a large sample size or large number of
+  evaluation points.
 
   However, this KDE function applies the less efficient
-  convolution using the classic definition:
+  convolution using the standard definition:
   \deqn{\hat{f}_(x) = \frac{1}{n} \sum_{j=1}^{n} K(\frac{x
   - x_j}{\lambda})} where \eqn{K(.)} is the density
-  function for the standard normal. Thus is no restriction
-  on the values \code{x} can take. Computationally for a
-  particular \code{x} the density is then just
-  \code{mean(dnorm(x, kerncentres, lambda))} for the
-  density and \code{mean(pnorm(x, kerncentres, lambda))}
-  for cumulative distribution function. The random number
-  generation is achieved by treating the KDE as a mixture
-  model with equal probability of coming from each kernel,
-  given by \code{rnorm(rep(1, n), sample(kerncentres, n,
-  replace = TRUE), sd = lambda)}. The \code{sample()}
-  function decides which kernel each of the \code{n}
-  generated samples comes from and gives the normal random
-  number generator the kernel center as its mean, with
-  \code{lambda} as the kernel standard deviation.
+  function for the standard kernel. Thus are no restriction
+  on the values \code{x} can take. For example, in the
+  \code{"gaussian"} kernel case for a particular \code{x}
+  the density is evaluated as \code{mean(dnorm(x,
+  kerncentres, lambda))} for the density and
+  \code{mean(pnorm(x, kerncentres, lambda))} for cumulative
+  distribution function which is slower than the FFT but is
+  more adaptable.
 
-  The quantile function is rather more complicated as there
-  is no closed form solution, so is typically obtained by
-  approximation or numerical solution to \eqn{P(X \le x_p)
-  = p} to find \eqn{x_p}. The quantile function
-  \code{\link[evmix:kden]{qkden}} evaluates the KDE
-  cumulative distribution function over the range from
-  \code{c(min(kerncentre) - 5*lambda, max(kerncentre) -
-  5*lambda)} as for normal kernel the probability of being
-  outside this range is of the order \code{1e-7}. Outside
-  of the range the quantiles are set to \code{-Inf} for
-  lower tail and \code{Inf} for upper tail. A sequence of
-  values of length fifty times the number of kernels is
-  first calculated. Spline based interpolation using
+  An inversion sampler is used for random number generation
+  which also rather inefficient, as it can be carried out
+  more efficiently using a mixture representation.
+
+  The quantile function is rather complicated as there is
+  no closed form solution, so is obtained by numerical
+  approximation of the inverse cumulative distribution
+  function \eqn{P(X \le q) = p} to find \eqn{q}. The
+  quantile function \code{\link[evmix:kden]{qkden}}
+  evaluates the KDE cumulative distribution function over
+  the range from \code{c(max(kerncentre) - lambda,
+  max(kerncentre) + lambda)}, or \code{c(max(kerncentre) -
+  5*lambda, max(kerncentre) + 5*lambda)} for normal kernel.
+  Outside of this range the quantiles are set to
+  \code{-Inf} for lower tail and \code{Inf} for upper tail.
+  A sequence of values of length fifty times the number of
+  kernels (upto a maximum of 1000) is first calculated.
+  Spline based interpolation using
   \code{\link[stats:splinefun]{splinefun}}, with default
-  \code{fmm} method, is then used to approximate the
+  \code{monoH.FC} method, is then used to approximate the
   quantile function. This is a similar approach to that
   taken by Matt Wand in the \code{\link[ks:kde.1d]{qkde}}
   in the \code{\link[ks:kde.1d]{ks}} package.
 
-  If no bandwidth is provided \code{lambda=NULL} then the
-  normal reference rule is used, from the function
-  \code{\link[stats:bandwidth]{bw.nrd0}}, which is
-  consistent with the \code{\link[stats:density]{density}}
-  function. At least two kernel centres must be provided as
-  the variance needs to be estimated.
+  If no bandwidth is provided \code{lambda=NULL} and
+  \code{bw=NULL} then the normal reference rule is used,
+  using the \code{\link[stats:bandwidth]{bw.nrd0}}
+  function, which is consistent with the
+  \code{\link[stats:density]{density}} function. At least
+  two kernel centres must be provided as the variance needs
+  to be estimated.
 }
 \note{
   Unlike all the other extreme value mixture model
@@ -128,12 +149,9 @@
   \code{\link[evmix:kden]{rkden}} is 1.
 
   Missing (\code{NA}) and Not-a-Number (\code{NaN}) values
-  in \code{x} and \code{q} are passed through as is and
-  infinite values are set to \code{NA}.
-
-  Due to symmetry, the lower tail can be described by GPD
-  by negating the quantiles. The normal mean \code{nmean}
-  and GPD threshold \code{u} will also require negation.
+  in \code{x}, \code{p} and \code{q} are passed through as
+  is and infinite values are set to \code{NA}. None of
+  these are not permitted for the parameters.
 
   Error checking of the inputs (e.g. invalid probabilities)
   is carried out and will either stop or give warning
@@ -141,6 +159,7 @@
 }
 \examples{
 \dontrun{
+par(mfrow=c(2,2))
 nk=50
 x = rnorm(nk)
 xx = seq(-5, 5, 0.01)
@@ -153,21 +172,21 @@ legend("topright", c("True Density", "KDE Using evmix", "KDE Using density funct
 lty = c(1, 1, 2), lwd = c(1, 2, 2), col = c("black", "red", "green"))
 
 # Estimate bandwidth using cross-validation likelihood
+x = rnorm(nk)
 fit = fkden(x)
-hist(x, nk/5, freq = FALSE, xlim = c(-5, 5))
+hist(x, nk/5, freq = FALSE, xlim = c(-5, 5), ylim = c(0, 0.6))
 rug(x)
-for (i in 1:nk) lines(xx, dnorm(xx, x[i], sd = fit$lambda)*0.05)
+for (i in 1:nk) lines(xx, dnorm(xx, x[i], sd = fit$bw)*0.05)
 lines(xx,dnorm(xx), col = "black")
 lines(xx, dkden(xx, x, lambda = fit$lambda), lwd = 2, col = "red")
 lines(density(x), lty = 2, lwd = 2, col = "green")
-lines(density(x, bw = fit$lambda), lwd = 2, lty = 2,  col = "blue")
+lines(density(x, bw = fit$bw), lwd = 2, lty = 2,  col = "blue")
 legend("topright", c("True Density", "KDE fitted evmix",
 "KDE Using density, default bandwidth", "KDE Using density, c-v likelihood bandwidth"),
 lty = c(1, 1, 2, 2), lwd = c(1, 2, 2, 2), col = c("black", "red", "green", "blue"))
 
 plot(xx, pnorm(xx), type = "l")
 rug(x)
-for (i in 1:nk) lines(xx, dnorm(xx, x[i], sd = fit$lambda)*0.05)
 lines(xx, pkden(xx, x), lwd = 2, col = "red")
 lines(xx, pkden(xx, x, lambda = fit$lambda), lwd = 2, col = "green")
 # green and blue (quantile) function should be same
@@ -177,14 +196,14 @@ legend("topleft", c("True Density", "KDE using evmix, normal reference rule",
 "KDE using evmix, c-v likelihood","KDE quantile function, c-v likelihood"),
 lty = c(1, 1, 1, 2), lwd = c(1, 2, 2, 2), col = c("black", "red", "green", "blue"))
 
-xnew = rkden(1000, x, lambda = fit$lambda)
-hist(xnew, breaks = 200, freq = FALSE, xlim = c(-5, 5))
+xnew = rkden(10000, x, lambda = fit$lambda)
+hist(xnew, breaks = 100, freq = FALSE, xlim = c(-5, 5))
 rug(xnew)
 lines(xx,dnorm(xx), col = "black")
 lines(xx, dkden(xx, x), lwd = 2, col = "red")
 legend("topright", c("True Density", "KDE Using evmix"),
 lty = c(1, 2), lwd = c(1, 2), col = c("black", "red"))
- }
+}
 }
 \author{
   Yang Hu and Carl Scarrott
@@ -215,14 +234,35 @@ lty = c(1, 2), lwd = c(1, 2), col = c("black", "red"))
   Reale, M. and Russell, G. (2011). A flexible extreme
   value mixture model. Computational Statistics and Data
   Analysis 55(6), 2137-2157.
+
+  Wand, M. and Jones, M.C. (1995). Kernel Smoothing.
+  Chapman && Hall.
 }
 \seealso{
+  \code{\link[evmix:kernels]{kernels}},
+  \code{\link[evmix:kfun]{kfun}},
   \code{\link[stats:density]{density}},
   \code{\link[stats:bandwidth]{bw.nrd0}} and
   \code{\link[ks:kde.1d]{dkde}} in
   \code{\link[ks:kde.1d]{ks}} package.
 
-  Other kden: \code{\link{fkden}}, \code{\link{lkden}},
-  \code{\link{nlkden}}
+  Other kden kdengpd kdengpdcon bckden bckdengpd
+  bckdengpdcon fkden fkdengpd fkdengpdcon fbckden
+  fbckdengpd fbckdengpdcon: \code{\link{bckden}},
+  \code{\link{bckdengpd}}, \code{\link{bckdengpdcon}},
+  \code{\link{dbckden}}, \code{\link{dbckdengpd}},
+  \code{\link{dbckdengpdcon}}, \code{\link{dkdengpd}},
+  \code{\link{dkdengpdcon}}, \code{\link{fbckden}},
+  \code{\link{fkden}}, \code{\link{kdengpd}},
+  \code{\link{kdengpdcon}}, \code{\link{lbckden}},
+  \code{\link{lkden}}, \code{\link{nlbckden}},
+  \code{\link{nlkden}}, \code{\link{pbckden}},
+  \code{\link{pbckdengpd}}, \code{\link{pbckdengpdcon}},
+  \code{\link{pkdengpd}}, \code{\link{pkdengpdcon}},
+  \code{\link{qbckden}}, \code{\link{qbckdengpd}},
+  \code{\link{qbckdengpdcon}}, \code{\link{qkdengpd}},
+  \code{\link{qkdengpdcon}}, \code{\link{rbckden}},
+  \code{\link{rbckdengpd}}, \code{\link{rbckdengpdcon}},
+  \code{\link{rkdengpd}}, \code{\link{rkdengpdcon}}
 }
 

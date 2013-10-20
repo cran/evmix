@@ -27,31 +27,31 @@
     xi = 0, phiu = TRUE)
 }
 \arguments{
-  \item{wshape}{Weibull shape (non-negative)}
+  \item{wshape}{Weibull shape (positive)}
 
-  \item{wscale}{Weibull scale (non-negative)}
+  \item{wscale}{Weibull scale (positive)}
 
-  \item{u}{threshold (non-negative)}
+  \item{x}{quantiles}
 
-  \item{x}{quantile}
+  \item{u}{threshold}
 
-  \item{sigmau}{scale parameter (non-negative)}
+  \item{sigmau}{scale parameter (positive)}
 
   \item{xi}{shape parameter}
 
-  \item{phiu}{probability of being above threshold [0,1] or
-  TRUE}
+  \item{phiu}{probability of being above threshold \eqn{[0,
+  1]} or \code{TRUE}}
 
   \item{log}{logical, if TRUE then log density}
 
-  \item{q}{quantile}
+  \item{q}{quantiles}
 
   \item{lower.tail}{logical, if FALSE then upper tail
   probabilities}
 
-  \item{p}{cumulative probability}
+  \item{p}{cumulative probabilities}
 
-  \item{n}{sample size (non-negative integer)}
+  \item{n}{sample size (positive integer)}
 }
 \value{
   \code{\link[evmix:weibullgpd]{dweibullgpd}} gives the
@@ -67,7 +67,7 @@
   function and random number generation for the extreme
   value mixture model with Weibull for bulk distribution
   upto the threshold and conditional GPD above threshold.
-  The parameters are the Weibull shape \code{wshape} and
+  The parameters are the weibull shape \code{wshape} and
   scale \code{wscale}, threshold \code{u} GPD scale
   \code{sigmau} and shape \code{xi} and tail fraction
   \code{phiu}.
@@ -75,35 +75,37 @@
 \details{
   Extreme value mixture model combining Weibull
   distribution for the bulk below the threshold and GPD for
-  upper tail. The user can pre-specify \code{phiu}
-  permitting a parameterised value for the tail fraction
-  \eqn{\phi_u}. Alternatively, when \code{phiu=TRUE} the
-  tail fraction is estimated as the tail fraction from the
-  Weibull bulk model.
+  upper tail.
+
+  The user can pre-specify \code{phiu} permitting a
+  parameterised value for the tail fraction \eqn{\phi_u}.
+  Alternatively, when \code{phiu=TRUE} the tail fraction is
+  estimated as the tail fraction from the weibull bulk
+  model.
 
   The cumulative distribution function with tail fraction
   \eqn{\phi_u} defined by the upper tail fraction of the
   Weibull bulk model (\code{phiu=TRUE}), upto the threshold
-  \eqn{0 \le x \le u}, given by: \deqn{F(x) = H(x)} and
-  above the threshold \eqn{x > u}: \deqn{F(x) = H(u) + [1 -
-  H(u)] G(x)} where \eqn{H(x)} and \eqn{G(X)} are the
-  Weibull and conditional GPD cumulative distribution
-  functions (i.e. \code{pweibull(x, wshape, wscale)} and
-  \code{pgpd(x, u, sigmau, xi)}).
+  \eqn{0 < x \le u}, given by: \deqn{F(x) = H(x)} and above
+  the threshold \eqn{x > u}: \deqn{F(x) = H(u) + [1 - H(u)]
+  G(x)} where \eqn{H(x)} and \eqn{G(X)} are the Weibull and
+  conditional GPD cumulative distribution functions (i.e.
+  \code{pweibull(x, wshape, wscale)} and \code{pgpd(x, u,
+  sigmau, xi)}) respectively.
 
   The cumulative distribution function for pre-specified
-  \eqn{\phi_u}, upto the threshold \eqn{0 \le x \le u}, is
+  \eqn{\phi_u}, upto the threshold \eqn{0 < x \le u}, is
   given by: \deqn{F(x) = (1 - \phi_u) H(x)/H(u)} and above
   the threshold \eqn{x > u}: \deqn{F(x) = \phi_u + [1 -
   \phi_u] G(x)} Notice that these definitions are
   equivalent when \eqn{\phi_u = 1 - H(u)}.
 
-  The gamma is defined on the positive reals, so the
+  The Weibull is defined on the non-negative reals, so the
   threshold must be positive.
 
   See \code{\link[evmix:gpd]{gpd}} for details of GPD upper
   tail component and \code{\link[stats:Weibull]{dweibull}}
-  for details of Weibull bulk component.
+  for details of weibull bulk component.
 }
 \note{
   All inputs are vectorised except \code{log} and
@@ -111,8 +113,9 @@
   \code{q}) and parameters must be either a scalar or a
   vector. If vectors are provided they must all be of the
   same length, and the function will be evaluated for each
-  element of vector. In the case of \code{rweibullgpd} any
-  input vector must be of length \code{n}.
+  element of vector. In the case of
+  \code{\link[evmix:weibullgpd]{rweibullgpd}} any input
+  vector must be of length \code{n}.
 
   Default values are provided for all inputs, except for
   the fundamentals \code{x}, \code{q} and \code{p}. The
@@ -120,8 +123,9 @@
   \code{\link[evmix:weibullgpd]{rweibullgpd}} is 1.
 
   Missing (\code{NA}) and Not-a-Number (\code{NaN}) values
-  in \code{x} and \code{q} are passed through as is and
-  infinite values are set to \code{NA}.
+  in \code{x}, \code{p} and \code{q} are passed through as
+  is and infinite values are set to \code{NA}. None of
+  these are not permitted for the parameters.
 
   Error checking of the inputs (e.g. invalid probabilities)
   is carried out and will either stop or give warning
@@ -176,7 +180,10 @@ legend("topleft", c("xi = 0", "xi = 0.2", "xi = -0.2"),
   \code{\link[evmix:gpd]{gpd}} and
   \code{\link[stats:Weibull]{dweibull}}
 
-  Other weibullgpd: \code{\link{fweibullgpd}},
-  \code{\link{lweibullgpd}}, \code{\link{nlweibullgpd}}
+  Other weibullgpd weibullgpdcon fweibullgpd
+  fweibullgpdcon: \code{\link{dweibullgpdcon}},
+  \code{\link{pweibullgpdcon}},
+  \code{\link{qweibullgpdcon}},
+  \code{\link{rweibullgpdcon}}, \code{\link{weibullgpdcon}}
 }
 

@@ -1,51 +1,63 @@
 #' @name kdengpdcon
 #' 
-#' @title Kernel Density Estimation Using Normal Kernel and GPD Tail Extreme Value Mixture Model
-#'  with Single Continuity Constraint
+#' @title Kernel Density Estimate and GPD Tail Extreme Value Mixture Model With 
+#'  Single Continuity Constraint
 #'
 #' @description Density, cumulative distribution function, quantile function and
-#'   random number generation for the kernel density estimation using normal
-#'   kernel for the bulk distribution upto the threshold and conditional GPD
-#'   above threshold and continuous at threshold. The parameters are the
-#'   bandwidth \code{lambda}, threshold \code{u} GPD and
-#'   shape \code{xi} and tail fraction \code{phiu}.
+#'   random number generation for the extreme value mixture model with kernel density
+#'   estimate for bulk distribution upto the threshold and conditional GPD above threshold
+#'   with continuity at threshold. The parameters
+#'   are the bandwidth \code{lambda}, threshold \code{u}
+#'   GPD shape \code{xi} and tail fraction \code{phiu}.
 #'
 #' @inheritParams kdengpd
 #' 
-#' @details Extreme value mixture model combining kernel density estimation
-#'   using normal kernel for the bulk below the threshold and GPD for upper
-#'   tail, with a constraint to be continuous at the threshold. The user can
-#'   pre-specify \code{phiu} permitting a parameterised value for the tail
-#'   fraction \eqn{\phi_u}. Alternatively, when \code{phiu=TRUE} the tail
-#'   fraction is estimated as the tail fraction from the normal bulk model.
+#' @details Extreme value mixture model combining kernel density estimate (KDE) for the bulk
+#' below the threshold and GPD for upper tail with continuity at threshold.
 #' 
-#' The cumulative distribution function with tail fraction \eqn{\phi_u} defined
-#' by the upper tail fraction of the kernel density estimation using normal
-#' kernel (\code{phiu=TRUE}), upto the threshold \eqn{x \le u}, given by: 
-#'  \deqn{F(x) = H(x)}
+#' The user can pre-specify \code{phiu} 
+#' permitting a parameterised value for the tail fraction \eqn{\phi_u}. Alternatively, when
+#' \code{phiu=TRUE} the tail fraction is estimated as the tail fraction from the
+#' KDE bulk model.
+#' 
+#' The alternate bandwidth definitions are discussed in the
+#' \code{\link[evmix:kernels]{kernels}}, with the \code{lambda} as the default.
+#' The \code{bw} specification is the same as used in the
+#' \code{\link[stats:density]{density}} function.
+#' 
+#' The possible kernels are also defined in \code{\link[evmix:kernels]{kernels}}
+#' with the \code{"gaussian"} as the default choice.
+#' 
+#' The cumulative distribution function with tail fraction \eqn{\phi_u} defined by the
+#' upper tail fraction of the kernel density estimate (\code{phiu=TRUE}), upto the 
+#' threshold \eqn{x \le u}, given by:
+#' \deqn{F(x) = H(x)}
 #' and above the threshold \eqn{x > u}:
 #' \deqn{F(x) = H(u) + [1 - H(u)] G(x)}
-#' where \eqn{H(x)} and \eqn{G(X)} are the kernel and conditional GPD cumulative
-#' distribution functions (i.e. \code{mean(pnorm(x, kerncentres, lambda))}
-#' and \code{pgpd(x, u, sigmau, xi)}).
+#' where \eqn{H(x)} and \eqn{G(X)} are the KDE and conditional GPD
+#' cumulative distribution functions respectively.
 #' 
 #' The cumulative distribution function for pre-specified \eqn{\phi_u}, upto the
 #' threshold \eqn{x \le u}, is given by:
-#' \deqn{F(x) = (1 - \phi_u) H(x)/H(u)} 
+#' \deqn{F(x) = (1 - \phi_u) H(x)/H(u)}
 #' and above the threshold \eqn{x > u}:
 #' \deqn{F(x) = \phi_u + [1 - \phi_u] G(x)}
-#' Notice that these definitions are equivalent when \eqn{\phi_u = 1 -
-#' mean(H(u))}.
+#' Notice that these definitions are equivalent when \eqn{\phi_u = 1 - H(u)}.
 #' 
 #' The continuity constraint means that \eqn{(1 - \phi_u) h(u)/H(u) = \phi_u g(u)}
 #' where \eqn{h(x)} and \eqn{g(x)} are the KDE and conditional GPD
-#' density functions. The resulting GPD scale parameter is then:
+#' density functions respectively. The resulting GPD scale parameter is then:
 #' \deqn{\sigma_u = \phi_u H(u) / [1 - \phi_u] h(u)}.
 #' In the special case of where the tail fraction is defined by the bulk model this reduces to
-#' \deqn{\sigma_u = [1 - H(u)] / h(u)}. 
+#' \deqn{\sigma_u = [1 - H(u)] / h(u)}.
+#' 
+#' If no bandwidth is provided \code{lambda=NULL} and \code{bw=NULL} then the normal
+#' reference rule is used, using the \code{\link[stats:bandwidth]{bw.nrd0}} function, which is
+#' consistent with the \code{\link[stats:density]{density}} function. At least two kernel
+#' centres must be provided as the variance needs to be estimated.
 #' 
 #' See \code{\link[evmix:gpd]{gpd}} for details of GPD upper tail component and 
-#'\code{\link[evmix:kden]{dkden}} for details of KDE of bulk component.
+#'\code{\link[evmix:kden]{dkden}} for details of KDE bulk component.
 #' 
 #' @return \code{\link[evmix:kdengpdcon]{dkdengpdcon}} gives the density, 
 #' \code{\link[evmix:kdengpdcon]{pkdengpdcon}} gives the cumulative distribution function,
@@ -53,10 +65,10 @@
 #' \code{\link[evmix:kdengpdcon]{rkdengpdcon}} gives a random sample.
 #' 
 #' @note Unlike all the other extreme value mixture model functions the 
-#'   \code{\link[evmix:kdengpdcon]{kdengpdcon}} functions have not been vectorised as
-#'   this is not appropriate. The main inputs (\code{x}, \code{p} or \code{q})
-#'   must be either a scalar or a vector, which also define the output length.
-#'   The \code{kerncentres} can also be a scalar or vector.
+#' \code{\link[evmix:kdengpdcon]{kdengpdcon}} functions have not been vectorised as
+#' this is not appropriate. The main inputs (\code{x}, \code{p} or \code{q})
+#' must be either a scalar or a vector, which also define the output length.
+#' The \code{kerncentres} can also be a scalar or vector.
 #' 
 #' The kernel centres \code{kerncentres} can either be a single datapoint or a vector
 #' of data. The kernel centres (\code{kerncentres}) and locations to evaluate density (\code{x})
@@ -66,17 +78,17 @@
 #' \code{kerncentres}, \code{x}, \code{q} and \code{p}. The default sample size for 
 #' \code{\link[evmix:kdengpdcon]{rkdengpdcon}} is 1.
 #' 
-#' Missing (\code{NA}) and Not-a-Number (\code{NaN}) values in \code{x} and \code{q}
-#' are passed through as is and infinite values are set to \code{NA}.
+#' Missing (\code{NA}) and Not-a-Number (\code{NaN}) values in \code{x},
+#' \code{p} and \code{q} are passed through as is and infinite values are set to
+#' \code{NA}. None of these are not permitted for the parameters or kernel centres.
 #' 
 #' Due to symmetry, the lower tail can be described by GPD by negating the quantiles. 
-#' The KDE bandwidth \code{lambda} will not require negation.
 #' 
 #' Error checking of the inputs (e.g. invalid probabilities) is carried out and
 #' will either stop or give warning message as appropriate.
 #' 
 #' @references
-#' \url{http://en.wikipedia.org/wiki/Normal_distribution}
+#' \url{http://en.wikipedia.org/wiki/Kernel_density_estimation}
 #' 
 #' \url{http://en.wikipedia.org/wiki/Generalized_Pareto_distribution}
 #' 
@@ -94,13 +106,18 @@
 #' A flexible extreme value mixture model. Computational Statistics and Data Analysis
 #' 55(6), 2137-2157.
 #' 
-#' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
+#' Wand, M. and Jones, M.C. (1995). Kernel Smoothing. Chapman && Hall.
+#' 
+#' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}. Based on code
+#' by Anna MacDonald produced for MATLAB.
 #'
-#' @seealso \code{\link[evmix:kdengpd]{kdengpd}}, \code{\link[evmix:kden]{kden}},
-#'  \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:Normal]{dnorm}}
-#'  
-#' @aliases  kdengpdcon dkdengpdcon pkdengpdcon qkdengpdcon rkdengpdcon
-#' @family   kdengpdcon
+#' @seealso \code{\link[evmix:kernels]{kernels}}, \code{\link[evmix:kfun]{kfun}},
+#' \code{\link[stats:density]{density}}, \code{\link[stats:bandwidth]{bw.nrd0}}
+#' and \code{\link[ks:kde.1d]{dkde}} in \code{\link[ks:kde.1d]{ks}} package.
+#' 
+#' @aliases kdengpdcon dkdengpdcon pkdengpdcon qkdengpdcon rkdengpdcon
+#' @family  kden kdengpd kdengpdcon bckden bckdengpd bckdengpdcon
+#'          fkden fkdengpd fkdengpdcon fbckden fbckdengpd fbckdengpdcon
 #' 
 #' @examples
 #' \dontrun{
@@ -116,118 +133,238 @@
 #' legend("topleft", paste("xi =",c(0, 0.3, -0.3)),
 #'       col=c("black", "red", "blue"), lty = 1, cex = 0.5)
 #'
-#' kerncentres=rnorm(1000, 0, 1)
-#' x = rkdengpdcon(1000, kerncentres, phiu = 0.1, u = 1.2, xi = 0.1)
+#' x = rkdengpdcon(1000, kerncentres, phiu = 0.2, u = 1, xi = 0.2)
 #' xx = seq(-4, 6, 0.01)
 #' hist(x, breaks = 100, freq = FALSE, xlim = c(-4, 6))
-#' lines(xx, dkdengpdcon(xx, kerncentres, phiu = 0.1))
+#' lines(xx, dkdengpdcon(xx, kerncentres, phiu = 0.2, u = 1, xi = -0.1))
 #'
-#' plot(xx, dkdengpdcon(xx, kerncentres, xi=0, phiu = 0.2), type = "l")
-#' lines(xx, dkdengpdcon(xx, kerncentres, xi=-0.2, phiu = 0.2), col = "red")
-#' lines(xx, dkdengpdcon(xx, kerncentres, xi=0.2, phiu = 0.2), col = "blue")
+#' plot(xx, dkdengpdcon(xx, kerncentres, xi=0, u = 1, phiu = 0.2), type = "l")
+#' lines(xx, dkdengpdcon(xx, kerncentres, xi=0.2, u = 1, phiu = 0.2), col = "red")
+#' lines(xx, dkdengpdcon(xx, kerncentres, xi=-0.2, u = 1, phiu = 0.2), col = "blue")
 #' legend("topleft", c("xi = 0", "xi = 0.2", "xi = -0.2"),
 #'       col=c("black", "red", "blue"), lty = 1)
 #' }
+#' 
 NULL
 
 #' @export
 #' @aliases kdengpdcon dkdengpdcon pkdengpdcon qkdengpdcon rkdengpdcon
-#' @rdname kdengpdcon
+#' @rdname  kdengpdcon
 
-# probability density function for kernel density estimation using normal kernel
-# for the bulk distribution upto the threshold and conditional GPD above
-# threshold with a single continuity constraint.
-dkdengpdcon <- function(x, kerncentres, lambda = NULL, 
-  u = as.vector(quantile(kerncentres, 0.9)), xi = 0, phiu = TRUE, log = FALSE) {
+# probability density function for kernel density estimate for the bulk
+# distribution upto the threshold and conditional GPD above threshold
+# with continuity at threshold
+dkdengpdcon <- function(x, kerncentres, lambda = NULL, u = as.vector(quantile(kerncentres, 0.9)), 
+  xi = 0, phiu = TRUE, bw = NULL, kernel = "gaussian", log = FALSE) {
   
   # Check properties of inputs
-  if (missing(x))
-    stop("x must be a non-empty numeric vector")
-  
-  if (length(x) == 0 | mode(x) != "numeric") 
-    stop("x must be a non-empty numeric vector")
-  
-  if (any(is.infinite(x)))
-    warning("infinite cases are set to NaN")
-  
-  x[is.infinite(x)] = NaN # user will have to deal with infinite cases
-  
-  if (missing(kerncentres))
-    stop("kerncentres must be a non-empty numeric vector")
-  
-  if (length(kerncentres) == 0 | mode(kerncentres) != "numeric") 
-    stop("kerncentres must be a non-empty numeric vector")
-  
-  if (any(!is.finite(kerncentres)))
-    warning("non-finite kernel centres are dropped")
-  
+  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(kerncentres, allowmiss = TRUE, allowinf = TRUE)
+  check.kbw(lambda, bw, allownull = TRUE)
+  check.kernel(kernel)
+  check.param(param = u)
+  check.param(param = xi)
+  check.phiu(phiu)
+  check.logic(logicarg = log)
+
+  kernel = ifelse(kernel == "rectangular", "uniform", kernel)
+  kernel = ifelse(kernel == "normal", "gaussian", kernel)
+
+  if (any(is.infinite(x))) warning("infinite quantiles set to NA")
+
+  x[is.infinite(x)] = NA # user will have to deal with infinite cases
+    
+  if (any(!is.finite(kerncentres))) warning("non-finite kernel centres are dropped")
+
   kerncentres = kerncentres[is.finite(kerncentres)]
+  check.quant(kerncentres)
   nk = length(kerncentres)
-  
-  if (is.null(lambda)){
+
+  if (is.null(lambda) & is.null(bw)) {
     if (nk == 1) {
       stop("Automated bandwidth estimation requires 2 or more kernel centres")
-    } else if (nk < 10){
+    } else if (nk < 10) {
       warning("Automated bandwidth estimation unreliable with less than 10 kernel centres")
     }
-    lambda = bw.nrd0(kerncentres)
+    bw = bw.nrd0(kerncentres)
   }
+  lambda = klambda(bw, kernel, lambda)
   
-  linputs = c(length(lambda), length(u), length(xi), length(phiu))
-
-  if (sum(linputs != 1) > 0)
-    stop("parameters must be scalar")
-  
-  if (mode(lambda) != "numeric" | mode(u) != "numeric" | mode(xi) != "numeric")
-    stop("parameters must be numeric")
-
-  if (any(!is.finite(c(lambda, u, xi, phiu))))
-    stop("parameters must be numeric")  
-  
-  if (lambda <= 0)
-    stop("bandwidth must be non-negative")  
-    
-  if (is.logical(phiu) & (!phiu)) {
-    stop("phiu must be either TRUE for bulk parameterised threshold probability approach, 
-         or between 0 and 1 (exclusive) when using parameterised threshold probability approach")
-  } else {
-    if ((phiu < 0)| (phiu > 1))
-      stop("phiu must between 0 and 1 (inclusive)")
-  }
-  
-  if (!is.logical(log))
-    stop("log must be logical")
-  
-  if (length(log) != 1)
-    stop("log must be of length 1")
-   
+  check.inputn(c(length(lambda), length(u), length(xi), length(phiu)))
+     
+  pu = pkdenx(u, kerncentres, lambda, kernel)
   if (is.logical(phiu)) {
-    phiu = 1 - pkdenx(u, kerncentres, lambda)
+    phiu = 1 - pu
   } else {
     phiu = phiu
   }
-  phib = (1 - phiu) / pkdenx(u, kerncentres, lambda)
+  phib = (1 - phiu) / pu
 
-  du = kdenx(u, kerncentres, lambda)
+  du = kdenx(u, kerncentres, lambda, kernel)
   sigmau = phiu / (phib * du)
   
-  if (!is.finite(sigmau))
-    stop("sigmau is not numeric")
-
-  if (sigmau <= 0)
-    stop("scale must be non-negative")
+  check.posparam(param = sigmau)
   
-  d = x # this will pass through NA/NaN in x just as they are entered
+  dkdengpd(x, kerncentres, lambda, u, sigmau, xi, phiu, kernel = kernel, log = log)
+}
 
-  whichb = which(x <= u)
-  nb = length(whichb)
-  whichu = which(x > u)
-  nu = length(whichu)
+#' @export
+#' @aliases kdengpdcon dkdengpdcon pkdengpdcon qkdengpdcon rkdengpdcon
+#' @rdname  kdengpdcon
 
-  if (nb > 0) d[whichb] = log(phib) + log(sapply(x[whichb], FUN = kdenx, kerncentres = kerncentres, lambda = lambda))
-  if (nu > 0) d[whichu] = log(phiu) + dgpd(x[whichu], u, sigmau, xi, log = TRUE)
+# cumulative distribution function for kernel density estimate for the bulk
+# distribution upto the threshold and conditional GPD above threshold
+# with continuity at threshold
+pkdengpdcon <- function(q, kerncentres, lambda = NULL, u = as.vector(quantile(kerncentres, 0.9)), 
+  xi = 0, phiu = TRUE, bw = NULL, kernel = "gaussian", lower.tail = TRUE) {
   
-  if (!log) d = exp(d)
+  # Check properties of inputs
+  check.quant(q, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(kerncentres, allowmiss = TRUE, allowinf = TRUE)
+  check.kbw(lambda, bw, allownull = TRUE)
+  check.kernel(kernel)
+  check.param(param = u)
+  check.param(param = xi)
+  check.phiu(phiu)
+  check.logic(logicarg = lower.tail)
+
+  kernel = ifelse(kernel == "rectangular", "uniform", kernel)
+  kernel = ifelse(kernel == "normal", "gaussian", kernel)
+
+  if (any(is.infinite(q))) warning("infinite quantiles set to NA")
+
+  q[is.infinite(q)] = NA # user will have to deal with infinite cases
+    
+  if (any(!is.finite(kerncentres))) warning("non-finite kernel centres are dropped")
+
+  kerncentres = kerncentres[is.finite(kerncentres)]
+  check.quant(kerncentres)
+  nk = length(kerncentres)
+
+  if (is.null(lambda) & is.null(bw)) {
+    if (nk == 1) {
+      stop("Automated bandwidth estimation requires 2 or more kernel centres")
+    } else if (nk < 10) {
+      warning("Automated bandwidth estimation unreliable with less than 10 kernel centres")
+    }
+    bw = bw.nrd0(kerncentres)
+  }
+  lambda = klambda(bw, kernel, lambda)
   
-  d
+  check.inputn(c(length(lambda), length(u), length(xi), length(phiu)))
+
+  pu = pkdenx(u, kerncentres, lambda, kernel)
+  if (is.logical(phiu)) {
+    phiu = 1 - pu
+  } else {
+    phiu = phiu
+  }
+  phib = (1 - phiu) / pu
+    
+  du = kdenx(u, kerncentres, lambda, kernel)
+  sigmau = phiu / (phib * du)
+  
+  check.posparam(param = sigmau)
+  
+  pkdengpd(q, kerncentres, lambda, u, sigmau, xi, phiu, kernel = kernel, lower.tail = lower.tail)
+}
+
+#' @export
+#' @aliases kdengpdcon dkdengpdcon pkdengpdcon qkdengpdcon rkdengpdcon
+#' @rdname  kdengpdcon
+
+# inverse cumulative distribution function for kernel density estimate for the bulk
+# distribution upto the threshold and conditional GPD above threshold.
+qkdengpdcon <- function(p, kerncentres, lambda = NULL, u = as.vector(quantile(kerncentres, 0.9)), 
+  xi = 0, phiu = TRUE, bw = NULL, kernel = "gaussian", lower.tail = TRUE) {
+  
+  # Check properties of inputs
+  check.prob(p, allowmiss = TRUE)
+  check.quant(kerncentres, allowmiss = TRUE, allowinf = TRUE)
+  check.kbw(lambda, bw, allownull = TRUE)
+  check.kernel(kernel)
+  check.param(param = u)
+  check.param(param = xi)
+  check.phiu(phiu)
+  check.logic(logicarg = lower.tail)
+    
+  kernel = ifelse(kernel == "rectangular", "uniform", kernel)
+  kernel = ifelse(kernel == "normal", "gaussian", kernel)
+
+  if (any(!is.finite(kerncentres))) warning("non-finite kernel centres are dropped")
+
+  kerncentres = kerncentres[is.finite(kerncentres)]
+  check.quant(kerncentres)
+  nk = length(kerncentres)
+
+  if (is.null(lambda) & is.null(bw)) {
+    if (nk == 1) {
+      stop("Automated bandwidth estimation requires 2 or more kernel centres")
+    } else if (nk < 10) {
+      warning("Automated bandwidth estimation unreliable with less than 10 kernel centres")
+    }
+    bw = bw.nrd0(kerncentres)
+  }
+  lambda = klambda(bw, kernel, lambda)
+  
+  check.inputn(c(length(lambda), length(u), length(xi), length(phiu)))
+    
+  pu = pkdenx(u, kerncentres, lambda, kernel)
+  if (is.logical(phiu)) {
+    phiu = 1 - pu
+  } else {
+    phiu = phiu
+  }
+  phib = (1 - phiu) / pu
+  
+  du = kdenx(u, kerncentres, lambda, kernel)
+  sigmau = phiu / (phib * du)
+  
+  check.posparam(param = sigmau)
+  
+  qkdengpd(p, kerncentres, lambda, u, sigmau, xi, phiu, kernel = kernel, lower.tail = lower.tail)
+}
+
+#' @export
+#' @aliases kdengpdcon dkdengpdcon pkdengpdcon qkdengpdcon rkdengpdcon
+#' @rdname  kdengpdcon
+
+# random number generation for kernel density estimate for the bulk
+# distribution upto the threshold and conditional GPD above threshold.
+rkdengpdcon <- function(n = 1, kerncentres, lambda = NULL, u = as.vector(quantile(kerncentres, 0.9)), 
+  xi = 0, phiu = TRUE, bw = NULL, kernel = "gaussian") {
+  
+  # Check properties of inputs
+  check.n(n)
+  check.quant(kerncentres, allowmiss = TRUE, allowinf = TRUE)
+  check.kbw(lambda, bw, allownull = TRUE)
+  check.kernel(kernel)
+  check.param(param = u)
+  check.param(param = xi)
+  check.phiu(phiu)
+    
+  kernel = ifelse(kernel == "rectangular", "uniform", kernel)
+  kernel = ifelse(kernel == "normal", "gaussian", kernel)
+
+  if (any(!is.finite(kerncentres))) warning("non-finite kernel centres are dropped")
+
+  kerncentres = kerncentres[is.finite(kerncentres)]
+  check.quant(kerncentres)
+  nk = length(kerncentres)
+
+  if (is.null(lambda) & is.null(bw)) {
+    if (nk == 1) {
+      stop("Automated bandwidth estimation requires 2 or more kernel centres")
+    } else if (nk < 10) {
+      warning("Automated bandwidth estimation unreliable with less than 10 kernel centres")
+    }
+    bw = bw.nrd0(kerncentres)
+  }
+  lambda = klambda(bw, kernel, lambda)
+  
+  check.inputn(c(length(lambda), length(u), length(xi), length(phiu)))
+  
+  if (any(xi == 1)) stop("shape cannot be 1")
+
+  qkdengpdcon(runif(n), kerncentres, lambda, u, xi, phiu, kernel = kernel)
 }

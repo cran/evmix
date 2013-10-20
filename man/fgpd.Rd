@@ -1,18 +1,31 @@
 \name{fgpd}
 \alias{fgpd}
+\alias{lgpd}
+\alias{nlgpd}
 \title{MLE Fitting of Generalised Pareto Distribution (GPD)}
 \usage{
   fgpd(x, u = 0, phiu = NULL, pvector = NULL,
-    std.err = TRUE, method = "BFGS", finitelik = TRUE, ...)
+    std.err = TRUE, method = "BFGS",
+    control = list(maxit = 10000), finitelik = TRUE, ...)
+
+  lgpd(x, u = 0, sigmau = 1, xi = 0, phiu = 1, log = TRUE)
+
+  nlgpd(pvector, x, u = 0, phiu = 1, finitelik = FALSE)
 }
 \arguments{
   \item{x}{vector of sample data}
 
+  \item{u}{scalar threshold}
+
+  \item{sigmau}{scalar scale parameter (positive)}
+
+  \item{xi}{scalar shape parameter}
+
   \item{pvector}{vector of initial values of GPD parameters
   (\code{sigmau}, \code{xi}) or \code{NULL}}
 
-  \item{phiu}{probability of being above threshold [0,1] or
-  \code{NULL}}
+  \item{phiu}{probability of being above threshold \eqn{[0,
+  1]} or \code{NULL}, see Details}
 
   \item{std.err}{logical, should standard errors be
   calculated}
@@ -20,39 +33,43 @@
   \item{method}{optimisation method (see
   \code{\link[stats:optim]{optim}})}
 
+  \item{control}{optimisation control list (see
+  \code{\link[stats:optim]{optim}})}
+
   \item{finitelik}{logical, should log-likelihood return
   finite value for invalid parameters}
 
+  \item{log}{logical, if \code{TRUE} then log-likelihood
+  rather than likelihood is output}
+
   \item{...}{optional inputs passed to
   \code{\link[stats:optim]{optim}}}
-
-  \item{u}{threshold}
 }
 \value{
-  Returns a simple list with the following elements
+  \code{\link[evmix:fgpd]{lgpd}} gives (log-)likelihood and
+  \code{\link[evmix:fgpd]{nlgpd}} gives the negative
+  log-likelihood.  \code{\link[evmix:fgpd]{fgpd}} returns a
+  simple list with the following elements
 
   \tabular{ll}{ \code{call}: \tab \code{optim} call\cr
   \code{x}: \tab data vector \code{x}\cr \code{init}: \tab
   \code{pvector}\cr \code{optim}: \tab complete
   \code{optim} output\cr \code{mle}: \tab vector of MLE of
-  model parameters\cr \code{cov}: \tab variance-covariance
-  matrix of MLE of model parameters\cr \code{se}: \tab
-  vector of standard errors of MLE of model parameters\cr
-  \code{rate}: \tab \code{phiu} to be consistent with
+  parameters\cr \code{cov}: \tab variance-covariance matrix
+  of MLE of parameters\cr \code{se}: \tab vector of
+  standard errors of MLE of parameters\cr \code{rate}: \tab
+  \code{phiu} to be consistent with
   \code{\link[evd:fpot]{evd}}\cr \code{nllh}: \tab minimum
-  negative log-likelihood\cr \code{allparams}: \tab vector
-  of MLE of GPD parameters and (possibly given)
-  \code{phiu}\cr \code{allse}: \tab vector of standard
-  error of GPD parameters and (possibly given)
-  \code{phiu}\cr \code{n}: \tab total sample size\cr
-  \code{u}: \tab threshold\cr \code{sigmau}: \tab MLE of
-  GPD scale\cr \code{xi}: \tab MLE of GPD shape\cr
-  \code{phiu}: \tab MLE of tail fraction\cr }
+  negative log-likelihood\cr \code{n}: \tab total sample
+  size\cr \code{u}: \tab threshold\cr \code{sigmau}: \tab
+  MLE of GPD scale\cr \code{xi}: \tab MLE of GPD shape\cr
+  \code{phiu}: \tab MLE of tail fraction\cr \code{se.phiu}:
+  \tab standard error of MLE of tail fraction
+  (parameterised approach using sample proportion)\cr }
 
   The output list has some duplicate entries and repeats
   some of the inputs to both provide similar items to those
-  from \code{\link[evd:fpot]{fpot}} and to make it as
-  useable as possible.
+  from \code{\link[evd:fpot]{fpot}} and increase usability.
 }
 \description{
   Maximum likelihood estimation for fitting the GPD with
@@ -68,21 +85,49 @@
   estimated parameters, variance-covariance matrix and
   their standard errors are automatically output.
 
-  The default value for \code{phiu} is NULL, which means it
-  will be estimated as the MLE of the tail fraction which
-  is the sample proportion above the threshold. In this
-  case the standard error for \code{phiu} is estimated and
-  output as \code{sephiu}. Consistent with the
-  \code{\link[evd:fpot]{evd}} library the missing values
-  (\code{NA} and \code{NaN}) are assumed to be below the
-  threshold.
+  The log-likelihood and negative log-likelihood are also
+  provided for wider usage, e.g. constructing your own
+  extreme value mixture model or profile likelihood
+  functions. The parameter vector \code{pvector} must be
+  specified in the negative log-likelihood
+  \code{\link[evmix:fgpd]{nlgpd}}.
 
-  Otherwise, \code{phiu} can be specified as any value over
-  [0, 1] leading to the unconditional log-likelihood being
-  used for estimation. In this case the standard error will
-  be output as \code{NA}. The value of \code{phiu} does not
-  effect the GPD parameter estimates, only the value of the
-  likelihood, as:
+  Log-likelihood calculations are carried out in
+  \code{\link[evmix:fgpd]{lgpd}}, which takes parameters as
+  inputs in the same form as distribution functions. The
+  negative log-likelihood is a wrapper for
+  \code{\link[evmix:fgpd]{lgpd}}, designed towards making
+  it useable for optimisation (e.g. parameters are given a
+  vector as first input).
+
+  The default value for the tail fraction \code{phiu} in
+  the fitting function \code{\link[evmix:fgpd]{fgpd}} is
+  \code{NULL}, in which case the MLE is calculated using
+  the sample proportion of exceedances. In this case the
+  standard error for \code{phiu} is estimated and output as
+  \code{se.phiu}, otherwise it is set to \code{NA}.
+  Consistent with the \code{\link[evd:fpot]{evd}} library
+  the missing values (\code{NA} and \code{NaN}) are assumed
+  to be below the threshold in calculating the tail
+  fraction.
+
+  Otherwise, in the fitting function
+  \code{\link[evmix:fgpd]{fgpd}} the tail fraction
+  \code{phiu} can be specified as any value over \eqn{(0,
+  1]}, i.e.  excludes \eqn{\phi_u=0}, leading to the
+  unconditional log-likelihood being used for estimation.
+  In this case the standard error will be output as
+  \code{NA}.
+
+  In the log-likelihood functions
+  \code{\link[evmix:fgpd]{lgpd}} and
+  \code{\link[evmix:fgpd]{nlgpd}} the tail fraction
+  \code{phiu} cannot be \code{NULL} but can be over the
+  range \eqn{[0, 1]}, i.e. which includes \eqn{\phi_u=0}.
+
+  The value of \code{phiu} does not effect the GPD
+  parameter estimates, only the value of the likelihood,
+  as:
 
   \deqn{L(\sigma_u, \xi; u, \phi_u) = (\phi_u ^ {n_u})
   L(\sigma_u, \xi; u, \phi_u=1)}
@@ -90,14 +135,14 @@
   where the GPD has scale \eqn{\sigma_u} and shape
   \eqn{\xi}, the threshold is \eqn{u} and \eqn{nu} is the
   number of exceedances. A non-unit value for \code{phiu}
-  simply scales the likelihood, and shifts the
+  simply scales the likelihood and shifts the
   log-likelihood, thus the GPD parameter estimates are
   invariant to \code{phiu}.
 
   The default optimisation algorithm is "BFGS", which
   requires a finite negative log-likelihood function
   evaluation \code{finitelik=TRUE}. For invalid parameters,
-  a zero likelihood is replaced with \code{exp(-1e6)}. The
+  a zero likelihood is replaced with \code{exp(-1e6)}.  The
   "BFGS" optimisation algorithms require finite values for
   likelihood, so any user input for \code{finitelik} will
   be overridden and set to \code{finitelik=TRUE} if either
@@ -118,8 +163,7 @@
 \note{
   Unlike all the distribution functions for the GPD, the
   MLE fitting only permits single scalar values for each
-  parameter, \code{phiu} and threshold \code{u}. Only the
-  data is a vector.
+  parameter, \code{phiu} and threshold \code{u}.
 
   When \code{pvector=NULL} then the initial values are
   calculated, type \code{fgpd} to see the default formulae
@@ -130,13 +174,25 @@
   optimisation method it may be get stuck.
 
   Default values for the threshold \code{u=0} and tail
-  fraction \code{phiu=NULL} are given. If the threshold is
-  left as the default \code{u=0} and the tail fraction set
-  to \code{phiu=1} then MLE assumes tha excesses over the
-  threshold are given, rather than exceedances.
+  fraction \code{phiu=NULL} are given in the fitting
+  \code{\link[evmix:fgpd]{fpgd}}, in which case the MLE
+  assumes that excesses over the threshold are given,
+  rather than exceedances.
 
-  The fitting function will stop if infinite sample values
-  are given.
+  The usual default of \code{phiu=1} is given in the
+  likelihood functions \code{\link[evmix:fgpd]{lpgd}} and
+  \code{\link[evmix:fgpd]{nlpgd}}.
+
+  The \code{\link[evmix:fgpd]{lgpd}} also has the usual
+  defaults for the other parameters, but
+  \code{\link[evmix:fgpd]{nlgpd}} has no defaults.
+
+  Infinite sample values are dropped in fitting function
+  \code{\link[evmix:fgpd]{fpgd}}, but missing values are
+  used to estimate \code{phiu} as described above. But in
+  likelihood functions \code{\link[evmix:fgpd]{lpgd}} and
+  \code{\link[evmix:fgpd]{nlpgd}} both infinite and missing
+  values are ignored.
 
   Error checking of the inputs is carried out and will
   either stop or give warning message as appropriate.
@@ -174,8 +230,7 @@ legend("topright", c("True Density","Fitted Density"), col=c("black", "red"), lt
   \code{\link[evd:gpd]{dgpd}}, \code{\link[evd:fpot]{fpot}}
   and \code{\link[MASS:fitdistr]{fitdistr}}
 
-  Other gpd: \code{\link{dgpd}}, \code{\link{gpd}},
-  \code{\link{lgpd}}, \code{\link{nlgpd}},
+  Other gpd fgpd: \code{\link{dgpd}}, \code{\link{gpd}},
   \code{\link{pgpd}}, \code{\link{qgpd}},
   \code{\link{rgpd}}
 }

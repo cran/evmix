@@ -5,39 +5,47 @@
 #' @description Density, cumulative distribution function, quantile function and
 #'   random number generation for the extreme value mixture model with mixture of gammas for bulk
 #'   distribution upto the threshold and conditional GPD above threshold. The parameters
-#'   are the gamma shape \code{gshape} and scale \code{gscale}, threshold \code{u}
+#'   are the multiple gamma shapes \code{mgshape}, scales \code{mgscale} and \code{mgweights}, threshold \code{u}
 #'   GPD scale \code{sigmau} and shape \code{xi} and tail fraction \code{phiu}.
 #'
 #' @inheritParams gammagpd
-#' @param mgshape     mgamma shape (non-negative) as list
-#' @param mgscale     mgamma scale (non-negative) as list
-#' @param mgweights   mgamma weights (positive) as list or \code{NULL}
+#' @inheritParams gpd
+#' @param mgshape     mgamma shape (positive) as list or vector
+#' @param mgscale     mgamma scale (positive) as list or vector
+#' @param mgweight    mgamma weights (positive) as list or vector (\code{NULL} for equi-weighted)
 #' 
 #' @details Extreme value mixture model combining mixture of gammas for the bulk
-#' below the threshold and GPD for upper tail. The parameters are input as a list,
-#' with one parameter object in the list for each gamma component. There must be the same number of 
-#' components in \code{mgshape} and \code{mgscale}. The number of objects in the parameters lists
-#' determines the number of components. The parameter object for each gamma component
-#' can either be a scalar or vector, consistent with the other mixture models
+#' below the threshold and GPD for upper tail. 
 #' 
-#' If \code{mgweights=NULL} then assumes equal weights for each component. Otherwise, 
-#' \code{mgweights} must be a list of the same length as \code{mgshape} and 
+#' The user can pre-specify \code{phiu} permitting a parameterised value for the tail
+#' fraction \eqn{\phi_u}. Alternatively, when \code{phiu=TRUE} the tail fraction is
+#' estimated as the tail fraction from the mixture of gammas bulk model.
+#' 
+#' Suppose there are \eqn{M>=1} gamma components in the mixture model. If you 
+#' wish to have a single (scalar) value for each parameter within each of the
+#' \eqn{M} components then these can be input as a vector of length \eqn{M}. If
+#' you wish to input a vector of values for each parameter within each of the
+#' \eqn{M} components, then they are input as a list with each entry the
+#' parameter object for each component (which can either be a scalar or
+#' vector as usual). No matter whether they are input as a vector or list there
+#' must be \eqn{M} elements in \code{mgshape} and \code{mgscale}, one for each
+#' gamma mixture component. Further, any vectors in the list of parameters must
+#' of the same length of the \code{x, q, p} or equal to the sample size \code{n}, where
+#' relevant.
+#' 
+#' If \code{mgweight=NULL} then equal weights for each component are assumed. Otherwise, 
+#' \code{mgweight} must be a list of the same length as \code{mgshape} and 
 #' \code{mgscale}, filled with positive values. In the latter case, the weights are rescaled
 #' to sum to unity.
 #' 
-#' The user can pre-specify \code{phiu} 
-#' permitting a parameterised value for the tail fraction \eqn{\phi_u}. Alternatively, when
-#' \code{phiu=TRUE} the tail fraction is estimated as the tail fraction from the
-#' gamma bulk model.
-#' 
 #' The cumulative distribution function with tail fraction \eqn{\phi_u} defined by the
-#' upper tail fraction of the gamma bulk model (\code{phiu=TRUE}), upto the 
+#' upper tail fraction of the mixture of gammas bulk model (\code{phiu=TRUE}), upto the 
 #' threshold \eqn{0 < x \le u}, given by:
 #' \deqn{F(x) = H(x)}
 #' and above the threshold \eqn{x > u}:
 #' \deqn{F(x) = H(u) + [1 - H(u)] G(x)}
 #' where \eqn{H(x)} and \eqn{G(X)} are the mixture of gammas and conditional GPD
-#' cumulative distribution functions respectively.
+#' cumulative distribution functions.
 #' 
 #' The cumulative distribution function for pre-specified \eqn{\phi_u}, upto the
 #' threshold \eqn{0 < x \le u}, is given by:
@@ -46,7 +54,14 @@
 #' \deqn{F(x) = \phi_u + [1 - \phi_u] G(x)}
 #' Notice that these definitions are equivalent when \eqn{\phi_u = 1 - H(u)}.
 #' 
-#' The gamma is defined on the non-negative reals, so the threshold must be non-negative.
+#' The gamma is defined on the non-negative reals, so the threshold must be positive. 
+#' Though behaviour at zero depends on the shape (\eqn{\alpha}):
+#' \itemize{
+#'  \item \eqn{f(0+)=\infty} for \eqn{0<\alpha<1};
+#'  \item \eqn{f(0+)=1/\beta} for \eqn{\alpha=1} (exponential);
+#'  \item \eqn{f(0+)=0} for \eqn{\alpha>1};
+#' }
+#' where \eqn{\beta} is the scale parameter.
 #' 
 #' See \code{\link[evmix:gammagpd]{gammagpd}} for details of simpler parametric mixture model
 #' with single gamma for bulk component and GPD for upper tail.
@@ -56,27 +71,33 @@
 #' \code{\link[evmix:mgammagpd]{qmgammagpd}} gives the quantile function and 
 #' \code{\link[evmix:mgammagpd]{rmgammagpd}} gives a random sample.
 #' 
-#' @note All inputs are vectorised except \code{log} and \code{lower.tail}, and the parameters can 
-#' be vectorised within the list.
-#' The main inputs (\code{x}, \code{p} or \code{q}) and parameters must be either
-#' a scalar or a vector. If vectors are provided they must all be of the same length,
-#' and the function will be evaluated for each element of vector. In the case of 
-#' \code{rmgammagpd} any input vector must be of length \code{n}.
+#' @note All inputs are vectorised except \code{log} and \code{lower.tail}, and the gamma mixture
+#' parameters can be vectorised within the list. The main inputs (\code{x}, \code{p} or \code{q})
+#' and parameters must be either a scalar or a vector. If vectors are provided they must all be
+#' of the same length, and the function will be evaluated for each element of vector. In the case of 
+#' \code{\link[evmix:mgammagpd]{rmgammagpd}} any input vector must be of length \code{n}.
 #' 
 #' Default values are provided for all inputs, except for the fundamentals 
 #' \code{x}, \code{q} and \code{p}. The default sample size for 
 #' \code{\link[evmix:mgammagpd]{rmgammagpd}} is 1.
 #' 
-#' Missing (\code{NA}) and Not-a-Number (\code{NaN}) values in \code{x} and \code{q}
-#' are passed through as is and infinite values are set to \code{NA}.
+#' Missing (\code{NA}) and Not-a-Number (\code{NaN}) values in \code{x},
+#' \code{p} and \code{q} are passed through as is and infinite values are set to
+#' \code{NA}. None of these are not permitted for the parameters.
 #' 
 #' Error checking of the inputs (e.g. invalid probabilities) is carried out and
 #' will either stop or give warning message as appropriate.
 #' 
 #' @references
+#' \url{http://www.math.canterbury.ac.nz/~c.scarrott/evmix}
+#' 
 #' \url{http://en.wikipedia.org/wiki/Gamma_distribution}
 #' 
 #' \url{http://en.wikipedia.org/wiki/Generalized_Pareto_distribution}
+#' 
+#' \url{http://en.wikipedia.org/wiki/Mixture_model}
+#' 
+#' McLachlan, G.J. and Peel, D. (2000). Finite Mixture Models. Wiley.
 #' 
 #' Scarrott, C.J. and MacDonald, A. (2012). A review of extreme value
 #' threshold estimation and uncertainty quantification. REVSTAT - Statistical
@@ -85,157 +106,482 @@
 #' do Nascimento, F.F., Gamerman, D. and Lopes, H.F. (2011). A semiparametric
 #' Bayesian approach to extreme value estimation. Statistical Computing, 22(2), 661-675.
 #' 
-#' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
+#' @author Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'
-#' @seealso \code{\link[evmix:gammagpd]{gammagpd}}, \code{\link[evmix:mgammagpd]{mgammagpd}}, 
-#' \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:GammaDist]{dgamma}}
-#' @aliases  mgammagpd dmgammagpd pmgammagpd qmgammagpd rmgammagpd
-#' @family   mgammagpd
-#'   
+#' @seealso \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:GammaDist]{dgamma}}
+#' 
+#' @aliases mgammagpd dmgammagpd pmgammagpd qmgammagpd rmgammagpd
+#' @family  mgamma fmgamma
+#'          gammagpd gammagpdcon fgammagpd fgammagpdcon normgpd fnormgpd
+#'          mgammagpd mgammagpdcon fmgammagpd fmgammagpdcon 
+#'
+#' @examples
+#' \dontrun{
+#' x = rmgammagpd(1000, mgshape = c(1, 6), mgscale = c(1, 2), mgweight = c(1, 2),
+#'   u = 15, sigmau = 4, xi = 0)
+#' xx = seq(-1, 40, 0.01)
+#' hist(x, breaks = 100, freq = FALSE, xlim = c(-1, 40))
+#' lines(xx, dmgammagpd(xx, mgshape = c(1, 6), mgscale = c(1, 2), mgweight = c(1, 2),
+#'   u = 15, sigmau = 4, xi = 0))
+#' abline(v = 15)
+#' }
+#'
 NULL
 
 #' @export
-#' @aliases  mgammagpd dmgammagpd pmgammagpd qmgammagpd rmgammagpd
-#' @rdname mgammagpd
+#' @aliases mgammagpd dmgammagpd pmgammagpd qmgammagpd rmgammagpd
+#' @rdname  mgammagpd
 
 # probability density function for mixture of gammas bulk with GPD for upper tail
-dmgammagpd <- function(x, mgshape = list(1), mgscale = list(1),  mgweights = NULL,
+dmgammagpd <- function(x, mgshape = 1, mgscale = 1,  mgweight = NULL,
   u = qgamma(0.9, mgshape[[1]], 1/mgscale[[1]]), 
   sigmau = sqrt(mgshape[[1]]) * mgscale[[1]], xi = 0, phiu = TRUE, log = FALSE) {
 
   # Check properties of inputs
-  if (missing(x))
-    stop("x must be a non-empty numeric vector")
-    
-  if (length(x) == 0 | mode(x) != "numeric") 
-    stop("x must be a non-empty numeric vector")
+  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+
+  # user may try to input parameters as vectors if only scalar for each component
+  if (!is.list(mgshape) & is.vector(mgshape)) {
+    check.posparam(param = mgshape, allowvec = TRUE)
+    mgshape = as.list(mgshape)    
+  }
+  if (!is.list(mgscale) & is.vector(mgscale)) {
+    check.posparam(param = mgscale, allowvec = TRUE)
+    mgscale = as.list(mgscale)    
+  }
   
-  if (any(is.infinite(x)))
-    warning("infinite cases are set to NaN")
-
-  x[is.infinite(x)]=NA # user will have to deal with infinite cases
-
   if (!is.list(mgshape) | !is.list(mgshape))
     stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
 
-  allM = c(length(mgshape), length(mgshape))
-  if (!is.null(mgweights)) allM = c(allM, length(mgweights))
-  M = unique(allM) # number of components
+  if (!is.null(mgweight)) {
+    if (!is.list(mgweight) & is.vector(mgweight)) {
+      check.posparam(param = mgweight, allowvec = TRUE)
+      mgweight = as.list(mgweight)    
+    }
+    if (!is.list(mgweight))
+      stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")    
+  }
+  
+  # How many components in mixture
+  allM = c(length(mgshape), length(mgscale))
+  if (!is.null(mgweight)) allM = c(allM, length(mgweight))
+  
+  M = unique(allM)
   if (length(M) != 1)
     stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
+  
+  if (is.null(mgweight)) mgweight = as.list(rep(1/M, M))
 
-  # parameter inputs could be single values or vectors to allow for nonstationary modelling
-  # all input vectors must be same length or scalar
   linputs = c(length(x), length(u), length(sigmau), length(xi), length(phiu))
-  for (i in 1:M) linputs = c(linputs, length(mgshape[[i]]), length(mgscale[[i]]))
-  if (!is.null(mgweights)) {
-    for (i in 1:M) linputs = c(linputs, length(mgweights[[i]]))
-  }
-  n = max(linputs)
-
-  if (sum(linputs[linputs != 1] != n) > 0)
-    stop("Data and parameters must be either scalar or vector, with vectors all same length")
-
-  if (mode(u) != "numeric" | mode(sigmau) != "numeric" | mode(xi) != "numeric")
-    stop("parameters must be numeric")
-  
   for (i in 1:M) {
-    if (mode(mgshape[[i]]) != "numeric" | mode(mgscale[[i]]) != "numeric")
-      stop(paste("gamma parameters for component", i, "must be numeric"))
-  } 
-  
-  if (any(!is.finite(c(u, sigmau, xi, phiu))))
-    stop("parameters must be numeric")
-
-  for (i in 1:M) {
-    if (any(!is.finite(c(mgshape[[i]], mgscale[[i]]))))
-      stop(paste("gamma parameters for component", i, "must be numeric"))
-  
-    if (min(mgshape[[i]]) < 0)
-      stop(paste("gamma shape for component", i, "must be non-negative"))
-
-    if (min(mgscale[[i]]) < 0)
-      stop(paste("gamma scale for component", i, "must be non-negative"))
+    check.posparam(param = mgshape[[i]], allowvec = TRUE)
+    check.posparam(param = mgscale[[i]], allowvec = TRUE)
+    check.posparam(param = mgweight[[i]], allowvec = TRUE)
+    linputs = c(linputs, length(mgshape[[i]]), length(mgscale[[i]]), length(mgweight[[i]]))
   }
   
-  if (is.null(mgweights)) {
-    mgweights = as.list(rep(1/M, M))
-  } else {
-    for (i in 1:M) {
-      if (mode(mgweights[[i]]) != "numeric" | any(!is.finite(c(mgweights[[i]]))))
-        stop(paste("gamma weights for component", i, "must be numeric"))
+  check.posparam(param = u, allowvec = TRUE) # threshold also positive for gamma
+  check.posparam(param = sigmau, allowvec = TRUE)
+  check.param(param = xi, allowvec = TRUE)
+  check.phiu(phiu, allowvec = TRUE)
+  check.logic(logicarg = log)
 
-      if (min(mgweights[[i]]) <= 0)
-        stop(paste("gamma weights for component", i, "must be non-negative"))
-    }
-  }
+  n = check.inputn(linputs)
+
+  # vectors of parameters or scalars? Latter simplifies calculations
+  scalar.params = all(linputs[-1] == 1)
   
-  if (min(u) <= 0)
-    stop("threshold must be non-negative")
+  if (any(is.infinite(x))) warning("infinite quantiles set to NA")
 
-  if (min(sigmau) <= 0)
-    stop("scale must be non-negative")
-
-  if (is.logical(phiu) & any(!phiu)) {
-    stop("phiu must be either TRUE for bulk parameterised threshold probability approach, 
-      or between 0 and 1 (exclusive) when using parameterised threshold probability approach")
-  } else {
-    if (any(phiu < 0) | any(phiu > 1))
-      stop("phiu must between 0 and 1 (inclusive)")
-  }
-
-  if (!is.logical(log))
-    stop("log must be logical")
-  
-  if (length(log) != 1)
-    stop("log must be of length 1")
+  x[is.infinite(x)] = NA # user will have to deal with infinite cases
 
   x = rep(x, length.out = n)
   for (i in 1:M) {
     mgshape[[i]] = rep(mgshape[[i]], length.out = n)
     mgscale[[i]] = rep(mgscale[[i]], length.out = n)
-    mgweights[[i]] = rep(mgweights[[i]], length.out = n)
+    mgweight[[i]] = rep(mgweight[[i]], length.out = n)
   }
   u = rep(u, length.out = n)
   sigmau = rep(sigmau, length.out = n)
   xi = rep(xi, length.out = n)
 
   # Renormalise weights
-  totweights = colSums(matrix(unlist(mgweights), nrow = M, ncol = n, byrow = TRUE))
-  pmg = rep(0, n)
-  for (i in 1:M) {
-    mgweights[[i]] = mgweights[[i]]/totweights
-    pmg = pmg + pgamma(u, shape = mgshape[[i]], scale = mgscale[[i]])*mgweights[[i]]
+  if (scalar.params) {
+    mgweight = lapply(mgweight, FUN = function(x, y) x/y,
+      y = sum(sapply(mgweight, FUN = function(x) x[1])))
+    
+    # Calculate CDF of mixture of gamma upto threshold (to get phiu)
+    pu = pmgamma(u[1], sapply(mgshape, FUN = function(x) x[1]),
+      sapply(mgscale, FUN = function(x) x[1]), sapply(mgweight, FUN = function(x) x[1]))
+    
+  } else {
+    mgweight = lapply(mgweight, FUN = function(x, y) x/y, y = rowSums(simplify2array(mgweight)))
+
+    # Calculate CDF of mixture of gamma upto threshold (to get phiu)
+    pu = pmgamma(u, mgshape, mgscale, mgweight)
   }
-  
+
   if (is.logical(phiu)) {
-    phiu = 1 - pmg
+    phiu = 1 - pu
   } else {
     phiu = rep(phiu, length.out = n)
   }
-  phib = (1 - phiu) / pmg
+  phib = (1 - phiu) / pu
 
-  d = x # this will pass through NA/NaN in x just as they are entered
-  
+  d = x # will pass through NA/NaN as entered
+    
   whichb = which(x <= u)
   nb = length(whichb)
   whichu = which(x > u)
   nu = length(whichu)
   
-  if (nb > 0){
-    dmg = rep(0, nb)
-    for (i in 1:M) {
-      dmg = dmg + dgamma(x[whichb], shape = mgshape[[i]][whichb], 
-        scale = mgscale[[i]][whichb])*mgweights[[i]][whichb]
-    }
-    dmg = log(dmg)
-    
-    d[whichb] = log(phib[whichb]) + dmg
+  if (nb > 0) {
+    if (scalar.params) {
+      d[whichb] = log(phib[1]) + dmgamma(x[whichb], sapply(mgshape, FUN = function(x) x[1]),
+        sapply(mgscale, FUN = function(x) x[1]), sapply(mgweight, FUN = function(x) x[1]), log = TRUE)
+    } else {
+      d[whichb] = log(phib[whichb]) + dmgamma(x[whichb], 
+        lapply(mgshape, FUN = function(x, y) x[y], y = whichb),
+        lapply(mgshape, FUN = function(x, y) x[y], y = whichb),
+        lapply(mgweight, FUN = function(x, y) x[y], y = whichb), log = TRUE)
+    }    
   }
   
-  if (nu > 0) d[whichu] = log(phiu[whichu]) + dgpd(x[whichu], u[whichu], sigmau[whichu], xi[whichu], log = TRUE)
-
+  if (nu > 0) {
+    if (scalar.params) {
+      d[whichu] = dgpd(x[whichu], u[1], sigmau[1], xi[1], phiu[1], log = TRUE)
+    } else {
+      d[whichu] = dgpd(x[whichu], u[whichu], sigmau[whichu], xi[whichu], phiu[whichu], log = TRUE)      
+    }
+  }
+  
   if (!log) d = exp(d)
 
   d
+}
+
+#' @export
+#' @aliases mgammagpd dmgammagpd pmgammagpd qmgammagpd rmgammagpd
+#' @rdname  mgammagpd
+
+# cumulative distribution function for mixture of gammas bulk with GPD for upper tail
+pmgammagpd <- function(q, mgshape = 1, mgscale = 1,  mgweight = NULL,
+  u = qgamma(0.9, mgshape[[1]], 1/mgscale[[1]]), 
+  sigmau = sqrt(mgshape[[1]]) * mgscale[[1]], xi = 0, phiu = TRUE, lower.tail = TRUE) {
+
+  # Check properties of inputs
+  check.quant(q, allowmiss = TRUE, allowinf = TRUE)
+
+  # user may try to input parameters as vectors if only scalar for each component
+  if (!is.list(mgshape) & is.vector(mgshape)) {
+    check.posparam(param = mgshape, allowvec = TRUE)
+    mgshape = as.list(mgshape)    
+  }
+  if (!is.list(mgscale) & is.vector(mgscale)) {
+    check.posparam(param = mgscale, allowvec = TRUE)
+    mgscale = as.list(mgscale)    
+  }
+  
+  if (!is.list(mgshape) | !is.list(mgshape))
+    stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
+
+  if (!is.null(mgweight)) {
+    if (!is.list(mgweight) & is.vector(mgweight)) {
+      check.posparam(param = mgweight, allowvec = TRUE)
+      mgweight = as.list(mgweight)    
+    }
+    if (!is.list(mgweight))
+      stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")    
+  }
+  
+  # How many components in mixture
+  allM = c(length(mgshape), length(mgscale))
+  if (!is.null(mgweight)) allM = c(allM, length(mgweight))
+  
+  M = unique(allM)
+  if (length(M) != 1)
+    stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
+  
+  if (is.null(mgweight)) mgweight = as.list(rep(1/M, M))
+
+  linputs = c(length(q), length(u), length(sigmau), length(xi), length(phiu))
+  for (i in 1:M) {
+    check.posparam(param = mgshape[[i]], allowvec = TRUE)
+    check.posparam(param = mgscale[[i]], allowvec = TRUE)
+    check.posparam(param = mgweight[[i]], allowvec = TRUE)
+    linputs = c(linputs, length(mgshape[[i]]), length(mgscale[[i]]), length(mgweight[[i]]))
+  }
+  
+  check.posparam(param = u, allowvec = TRUE) # threshold also positive for gamma
+  check.posparam(param = sigmau, allowvec = TRUE)
+  check.param(param = xi, allowvec = TRUE)
+  check.phiu(phiu, allowvec = TRUE)
+  check.logic(logicarg = lower.tail)
+
+  n = check.inputn(linputs)
+
+  # vectors of parameters or scalars? Latter simplifies calculations
+  scalar.params = all(linputs[-1] == 1)
+  
+  if (any(is.infinite(q))) warning("infinite quantiles set to NA")
+
+  q[is.infinite(q)] = NA # user will have to deal with infinite cases
+
+  q = rep(q, length.out = n)
+  for (i in 1:M) {
+    mgshape[[i]] = rep(mgshape[[i]], length.out = n)
+    mgscale[[i]] = rep(mgscale[[i]], length.out = n)
+    mgweight[[i]] = rep(mgweight[[i]], length.out = n)
+  }
+  u = rep(u, length.out = n)
+  sigmau = rep(sigmau, length.out = n)
+  xi = rep(xi, length.out = n)
+
+  # Renormalise weights
+  if (scalar.params) {
+    mgweight = lapply(mgweight, FUN = function(x, y) x/y,
+      y = sum(sapply(mgweight, FUN = function(x) x[1])))
+    
+    # Calculate CDF of mixture of gamma upto threshold (to get phiu)
+    pu = pmgamma(u[1], sapply(mgshape, FUN = function(x) x[1]),
+      sapply(mgscale, FUN = function(x) x[1]), sapply(mgweight, FUN = function(x) x[1]))
+    
+  } else {
+    mgweight = lapply(mgweight, FUN = function(x, y) x/y, y = rowSums(simplify2array(mgweight)))
+
+    # Calculate CDF of mixture of gamma upto threshold (to get phiu)
+    pu = pmgamma(u, mgshape, mgscale, mgweight)
+  }
+  
+  if (is.logical(phiu)) {
+    phiu = 1 - pu
+  } else {
+    phiu = rep(phiu, length.out = n)
+  }
+  phib = (1 - phiu) / pu
+
+  p = q # will pass through NA/NaN as entered
+    
+  whichb = which(q <= u)
+  nb = length(whichb)
+  whichu = which(q > u)
+  nu = length(whichu)
+  
+  if (nb > 0) {
+    if (scalar.params) {
+      p[whichb] = phib[1] * pmgamma(q[whichb], sapply(mgshape, FUN = function(x) x[1]),
+        sapply(mgscale, FUN = function(x) x[1]), sapply(mgweight, FUN = function(x) x[1]))
+    } else {
+      p[whichb] = phib[whichb] * dmgamma(q[whichb], 
+        lapply(mgshape, FUN = function(x, y) x[y], y = whichb),
+        lapply(mgshape, FUN = function(x, y) x[y], y = whichb),
+        lapply(mgweight, FUN = function(x, y) x[y], y = whichb))
+    }    
+  }
+  
+  if (nu > 0){
+    if (scalar.params) {
+      p[whichu] = pgpd(q[whichu], u[1], sigmau[1], xi[1], phiu[1])
+    } else {
+      p[whichu] = pgpd(q[whichu], u[whichu], sigmau[whichu], xi[whichu], phiu[whichu])      
+    }
+  }
+  
+  if (!lower.tail) p = 1 - p
+
+  p
+}
+
+#' @export
+#' @aliases mgammagpd dmgammagpd pmgammagpd qmgammagpd rmgammagpd
+#' @rdname  mgammagpd
+
+# inverse cumulative distribution function for mixture of gammas bulk with GPD for upper tail
+qmgammagpd <- function(p, mgshape = 1, mgscale = 1, mgweight = NULL,
+  u = qgamma(0.9, mgshape[[1]], 1/mgscale[[1]]),
+  sigmau = sqrt(mgshape[[1]]) * mgscale[[1]], xi = 0, phiu = TRUE, lower.tail = TRUE) {
+
+  # Check properties of inputs
+  check.prob(p, allowmiss = TRUE)
+
+  # user may try to input parameters as vectors if only scalar for each component
+  if (!is.list(mgshape) & is.vector(mgshape)) {
+    check.posparam(param = mgshape, allowvec = TRUE)
+    mgshape = as.list(mgshape)    
+  }
+  if (!is.list(mgscale) & is.vector(mgscale)) {
+    check.posparam(param = mgscale, allowvec = TRUE)
+    mgscale = as.list(mgscale)    
+  }
+  
+  if (!is.list(mgshape) | !is.list(mgshape))
+    stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
+
+  if (!is.null(mgweight)) {
+    if (!is.list(mgweight) & is.vector(mgweight)) {
+      check.posparam(param = mgweight, allowvec = TRUE)
+      mgweight = as.list(mgweight)    
+    }
+    if (!is.list(mgweight))
+      stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
+    
+  }
+  
+  # How many components in mixture
+  allM = c(length(mgshape), length(mgscale))
+  if (!is.null(mgweight)) allM = c(allM, length(mgweight))
+  
+  M = unique(allM)
+  if (length(M) != 1)
+    stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
+  
+  if (is.null(mgweight)) mgweight = as.list(rep(1/M, M))
+
+  linputs = c(length(p), length(u), length(sigmau), length(xi), length(phiu))
+  for (i in 1:M) {
+    check.posparam(param = mgshape[[i]], allowvec = TRUE)
+    check.posparam(param = mgscale[[i]], allowvec = TRUE)
+    check.posparam(param = mgweight[[i]], allowvec = TRUE)
+    linputs = c(linputs, length(mgshape[[i]]), length(mgscale[[i]]), length(mgweight[[i]]))
+  }
+  
+  check.posparam(param = u, allowvec = TRUE) # threshold also positive for gamma
+  check.posparam(param = sigmau, allowvec = TRUE)
+  check.param(param = xi, allowvec = TRUE)
+  check.phiu(phiu, allowvec = TRUE)
+  check.logic(logicarg = lower.tail)
+  
+  n = check.inputn(linputs)
+
+  if (!lower.tail) p = 1 - p
+
+  # vectors of parameters or scalars? Latter simplifies calculations
+  scalar.params = all(linputs[-1] == 1)
+  
+  p = rep(p, length.out = n)
+  for (i in 1:M) {
+    mgshape[[i]] = rep(mgshape[[i]], length.out = n)
+    mgscale[[i]] = rep(mgscale[[i]], length.out = n)
+    mgweight[[i]] = rep(mgweight[[i]], length.out = n)
+  }
+  u = rep(u, length.out = n)
+  sigmau = rep(sigmau, length.out = n)
+  xi = rep(xi, length.out = n)
+
+  # Renormalise weights
+  if (scalar.params) {
+    mgweight = lapply(mgweight, FUN = function(x, y) x/y,
+      y = sum(sapply(mgweight, FUN = function(x) x[1])))
+    
+    # Calculate CDF of mixture of gamma upto threshold (to get phiu)
+    pu = pmgamma(u[1], sapply(mgshape, FUN = function(x) x[1]),
+      sapply(mgscale, FUN = function(x) x[1]), sapply(mgweight, FUN = function(x) x[1]))
+    
+  } else {
+    mgweight = lapply(mgweight, FUN = function(x, y) x/y, y = rowSums(simplify2array(mgweight)))
+
+    # Calculate CDF of mixture of gamma upto threshold (to get phiu)
+    pu = pmgamma(u, mgshape, mgscale, mgweight)
+  }
+  
+  if (is.logical(phiu)) {
+    phiu = 1 - pu
+  } else {
+    phiu = rep(phiu, length.out = n)
+  }
+  phib = (1 - phiu) / pu
+  
+  q = p # will pass through NA/NaN as entered
+  
+  whichb = which(p <= (1 - phiu))
+  nb = length(whichb)
+  whichu = which(p > (1 - phiu))
+  nu = length(whichu)
+
+  if (nb > 0) {
+    if (scalar.params) {
+      q[whichb] = qmgamma(p[whichb] / phib[1], 
+        lapply(mgshape, FUN = function(x) x[1]),
+        lapply(mgscale, FUN = function(x) x[1]),
+        lapply(mgweight, FUN = function(x) x[1]))
+    } else {
+      q[whichb] = qmgamma(p[whichb] / phib[whichb], 
+        lapply(mgshape, FUN = function(x, y) x[y], y = whichb),
+        lapply(mgscale, FUN = function(x, y) x[y], y = whichb),
+        lapply(mgweight, FUN = function(x, y) x[y], y = whichb))
+    }
+  }
+
+  if (nu > 0) {
+    if (scalar.params) {
+      q[whichu] = qgpd(p[whichu], u[1], sigmau[1], xi[1], phiu[1])
+    } else {
+      q[whichu] = qgpd(p[whichu], u[whichu], sigmau[whichu], xi[whichu], phiu[whichu])
+    }
+  }
+  
+  q
+}
+
+#' @export
+#' @aliases mgammagpd dmgammagpd pmgammagpd qmgammagpd rmgammagpd
+#' @rdname  mgammagpd
+
+# random number generation for mixture of gammas bulk with GPD for upper tail
+rmgammagpd <- function(n = 1, mgshape = 1, mgscale = 1, mgweight = NULL,
+  u = qgamma(0.9, mgshape[[1]], 1/mgscale[[1]]),
+  sigmau = sqrt(mgshape[[1]]) * mgscale[[1]], xi = 0, phiu = TRUE) {
+
+  # Check properties of inputs
+  check.n(n)
+
+  # user may try to input parameters as vectors if only scalar for each component
+  if (!is.list(mgshape) & is.vector(mgshape)) {
+    check.posparam(param = mgshape, allowvec = TRUE)
+    mgshape = as.list(mgshape)    
+  }
+  if (!is.list(mgscale) & is.vector(mgscale)) {
+    check.posparam(param = mgscale, allowvec = TRUE)
+    mgscale = as.list(mgscale)    
+  }
+  
+  if (!is.list(mgshape) | !is.list(mgshape))
+    stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
+
+  if (!is.null(mgweight)) {
+    if (!is.list(mgweight) & is.vector(mgweight)) {
+      check.posparam(param = mgweight, allowvec = TRUE)
+      mgweight = as.list(mgweight)    
+    }
+    if (!is.list(mgweight))
+      stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
+    
+  }
+  
+  # How many components in mixture
+  allM = c(length(mgshape), length(mgscale))
+  if (!is.null(mgweight)) allM = c(allM, length(mgweight))
+  
+  M = unique(allM)
+  if (length(M) != 1)
+    stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
+  
+  if (is.null(mgweight)) mgweight = as.list(rep(1/M, M))
+
+  linputs = c(n, length(u), length(sigmau), length(xi), length(phiu))
+  for (i in 1:M) {
+    check.posparam(param = mgshape[[i]], allowvec = TRUE)
+    check.posparam(param = mgscale[[i]], allowvec = TRUE)
+    check.posparam(param = mgweight[[i]], allowvec = TRUE)
+    linputs = c(linputs, length(mgshape[[i]]), length(mgscale[[i]]), length(mgweight[[i]]))
+  }
+  
+  check.posparam(param = u, allowvec = TRUE) # threshold also positive for gamma
+  check.posparam(param = sigmau, allowvec = TRUE)
+  check.param(param = xi, allowvec = TRUE)
+  check.phiu(phiu, allowvec = TRUE)
+
+  if (any(xi == 1)) stop("shape cannot be 1")
+
+  qmgammagpd(runif(n), mgshape, mgscale, mgweight, u, sigmau, xi, phiu)
 }

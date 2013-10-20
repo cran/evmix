@@ -4,9 +4,11 @@
 #'
 #' @description Maximum likelihood estimation for fitting the extreme value 
 #' mixture model with gamma for bulk distribution upto the threshold and conditional
-#' GPD above threshold
+#' GPD above threshold. With options for profile likelihood estimation for threshold and
+#' fixed threshold approach.
 #'
-#' @param pvector vector of initial values mixture model parameters (\code{gshape}, \code{gscale}, \code{u}, \code{sigmau}, \code{xi}) or \code{NULL}
+#' @param gshape  scalar gamma shape (positive)
+#' @param gscale  scalar gamma scale (positive)
 #' @inheritParams fnormgpd
 #' @inheritParams fgpd
 #' 
@@ -15,78 +17,55 @@
 #' parameters, variance-covariance matrix and their standard errors are automatically
 #' output.
 #' 
-#' Negative data are ignored.
+#' See help for \code{\link[evmix:fnormgpd]{fnormgpd}} for details, type \code{help fnormgpd}. 
+#' Only the different features are outlined below for brevity.
 #' 
-#' The default value for \code{phiu=TRUE} so that the tail fraction is specified by
-#' gamma distribution \eqn{\phi_u = 1 - H(u)}. When \code{phiu=FALSE} then the tail
-#' fraction is treated as an extra parameter estimated using the MLE which is the
-#' sample proportion above the threshold. In this case the standard error for 
-#' \code{phiu} is estimated and output as \code{sephiu}.
+#' The full parameter vector is
+#' (\code{gshape}, \code{gscale}, \code{u}, \code{sigmau}, \code{xi}) if threshold is also estimated and
+#' (\code{gshape}, \code{gscale}, \code{sigmau}, \code{xi}) for profile likelihood or fixed threshold approach.
 #' 
-#' Missing values (\code{NA} and \code{NaN}) are assumed to be invalid data so are ignored,
-#' which is inconsistent with the \code{\link[evd:fpot]{evd}} library which assumes the 
-#' missing values are below the threshold.
+#' Non-positive data are ignored as likelihood is infinite, except for \code{gshape=1}.
 #' 
-#' The default optimisation algorithm is "BFGS", which requires a finite negative 
-#' log-likelihood function evaluation \code{finitelik=TRUE}. For invalid 
-#' parameters, a zero likelihood is replaced with \code{exp(-1e6)}. The "BFGS" 
-#' optimisation algorithms require finite values for likelihood, so any user 
-#' input for \code{finitelik} will be overridden and set to \code{finitelik=TRUE} 
-#' if either of these optimisation methods is chosen.
-#' 
-#' It will display a warning for non-zero convergence result comes from 
-#' \code{\link[stats:optim]{optim}} function call.
-#' 
-#' If the hessian is of reduced rank then the variance covariance (from inverse hessian)
-#' and standard error of parameters cannot be calculated, then by default 
-#' \code{std.err=TRUE} and the function will stop. If you want the parameter estimates
-#' even if the hessian is of reduced rank (e.g. in a simulation study) then
-#' set \code{std.err=FALSE}. 
-#' 
-#' @return Returns a simple list with the following elements
+#' @return Log-likelihood is given by \code{\link[evmix:fgammagpd]{lgammagpd}} and it's
+#'   wrappers for negative log-likelihood from \code{\link[evmix:fgammagpd]{nlgammagpd}}
+#'   and \code{\link[evmix:fgammagpd]{nlugammagpd}}. Profile likelihood for single
+#'   threshold given by \code{\link[evmix:fgammagpd]{proflugammagpd}}. Fitting function
+#'   \code{\link[evmix:fgammagpd]{fgammagpd}} returns a simple list with the
+#'   following elements
 #'
 #' \tabular{ll}{
-#' \code{call}: \tab \code{optim} call\cr
-#' \code{x}: \tab data vector \code{x}\cr
-#' \code{init}: \tab \code{pvector}\cr
-#' \code{optim}: \tab complete \code{optim} output\cr
-#' \code{mle}: \tab vector of MLE of model parameters\cr
-#' \code{cov}: \tab variance-covariance matrix of MLE of model parameters\cr
-#' \code{se}: \tab vector of standard errors of MLE of model parameters\cr
-#' \code{rate}: \tab \code{phiu} to be consistent with \code{\link[evd:fpot]{evd}}\cr
-#' \code{nllh}: \tab minimum negative log-likelihood\cr
-#' \code{allparams}: \tab vector of MLE of model parameters and \code{phiu}\cr
-#' \code{allse}: \tab vector of standard error of all parameters and \code{phiu}\cr
-#' \code{n}: \tab total sample size\cr
-#' \code{gshape}: \tab MLE of gamma shape\cr
-#' \code{gscale}: \tab MLE of gamma scale\cr
-#' \code{u}: \tab threshold\cr
-#' \code{sigmau}: \tab MLE of GPD scale\cr
-#' \code{xi}: \tab MLE of GPD shape\cr
-#' \code{phiu}: \tab MLE of tail fraction\cr
+#'  \code{call}:    \tab \code{optim} call\cr
+#'  \code{x}:       \tab data vector \code{x}\cr
+#'  \code{init}:    \tab \code{pvector}\cr
+#'  \code{fixedu}:  \tab fixed threshold, logical\cr
+#'  \code{useq}:    \tab threshold vector for profile likelihood or scalar for fixed threshold\cr
+#'  \code{optim}:   \tab complete \code{optim} output\cr
+#'  \code{mle}:     \tab vector of MLE of parameters\cr
+#'  \code{cov}:     \tab variance-covariance matrix of MLE of parameters\cr
+#'  \code{se}:      \tab vector of standard errors of MLE of parameters\cr
+#'  \code{rate}:    \tab \code{phiu} to be consistent with \code{\link[evd:fpot]{evd}}\cr
+#'  \code{nllh}:    \tab minimum negative log-likelihood\cr
+#'  \code{n}:       \tab total sample size\cr
+#'  \code{gshape}:  \tab MLE of gamma shape\cr
+#'  \code{gscale}:  \tab MLE of gamma scale\cr
+#'  \code{u}:       \tab threshold (fixed or MLE)\cr
+#'  \code{sigmau}:  \tab MLE of GPD scale\cr
+#'  \code{xi}:      \tab MLE of GPD shape\cr
+#'  \code{phiu}:    \tab MLE of tail fraction (bulk model or parameterised approach)\cr
+#'  \code{se.phiu}: \tab standard error of MLE of tail fraction\cr
 #' }
 #' 
-#' The output list has some duplicate entries and repeats some of the inputs to both 
-#' provide similar items to those from \code{\link[evd:fpot]{fpot}} and to make it 
-#' as useable as possible.
-#'  
-#' @note Unlike all the distribution functions for the extreme value mixture models,
-#' the MLE fitting only permits single scalar values for each parameter and 
-#' \code{phiu}. Only the data is a vector.
-#' 
-#' When \code{pvector=NULL} then the initial values are calculated, type 
-#' \code{fgammagpd} to see the default formulae used. The mixture model fitting can be
-#' ***extremely*** sensitive to the initial values, so you if you get a poor fit then
-#' try some alternatives. Avoid setting the starting value for the shape parameter to
-#' \code{xi=0} as depending on the optimisation method it may be get stuck.
-#' 
-#' The fitting function will stop if infinite sample values are given.
-#' 
-#' Error checking of the inputs is carried out and will either stop or give warning message
-#' as appropriate.
+#' @note When \code{pvector=NULL} then the initial values are:
+#' \itemize{
+#'  \item approximation of MLE of gamma parameters assuming entire population is gamma; and
+#'  \item threshold 90\% quantile (not relevant for profile likelihood for threshold or fixed threshold approaches);
+#'  \item MLE of GPD parameters above threshold. 
+#' }
 #' 
 #' @references
-#' \url{http://en.wikipedia.org/wiki/Camma_distribution}
+#' \url{http://www.math.canterbury.ac.nz/~c.scarrott/evmix}
+#' 
+#' \url{http://en.wikipedia.org/wiki/Gamma_distribution}
 #' 
 #' \url{http://en.wikipedia.org/wiki/Generalized_Pareto_distribution}
 #' 
@@ -94,123 +73,210 @@
 #' threshold estimation and uncertainty quantification. REVSTAT - Statistical
 #' Journal 10(1), 33-59. Available from \url{http://www.ine.pt/revstat/pdf/rs120102.pdf}
 #' 
+#' Hu, Y. (2013). Extreme value mixture modelling: An R package and simulation study.
+#' MSc (Hons) thesis, University of Canterbury, New Zealand.
+#' \url{http://ir.canterbury.ac.nz/simple-search?query=extreme&submit=Go}
+#' 
 #' Behrens, C.N., Lopes, H.F. and Gamerman, D. (2004). Bayesian analysis of extreme
 #' events with threshold estimation. Statistical Modelling. 4(3), 227-244.
 #' 
 #' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'
-#' @seealso \code{\link[evmix:lgpd]{lgpd}} and \code{\link[evmix:gpd]{gpd}}
-#' @family gammagpd
+#' @section Acknowledgments: See Acknowledgments in
+#'   \code{\link[evmix:fnormgpd]{fnormgpd}}, type \code{help fnormgpd}.
+#' 
+#' @seealso \code{\link[stats:GammaDist]{dgamma}},
+#'  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
+#'  
+#' @aliases fgammagpd lgammagpd nlgammagpd proflugammagpd nlugammagpd
+#' @family  mgamma fmgamma
+#'          gammagpd gammagpdcon fgammagpd fgammagpdcon normgpd fnormgpd
+#'          mgammagpd mgammagpdcon fmgammagpd fmgammagpdcon 
 #' 
 #' @examples
 #' \dontrun{
 #' par(mfrow=c(2,1))
 #' x = rgamma(1000, shape = 2)
-#' xx = seq(-1, 10, 0.01)
+#' xx = seq(-0.1, 8, 0.01)
 #' y = dgamma(xx, shape = 2)
 #' 
-#' # Bulk model base tail fraction
-#' fit = fgammagpd(x, phiu = TRUE, std.err = FALSE)
-#' hist(x, breaks = 100, freq = FALSE, xlim = c(-1, 10))
+#' # Bulk model based tail fraction
+#' fit = fgammagpd(x)
+#' hist(x, breaks = 100, freq = FALSE, xlim = c(-0.1, 8))
 #' lines(xx, y)
-#' lines(xx, dgammagpd(xx, gshape = fit$gshape, gscale = fit$gscale, u = fit$u,
-#'   sigmau = fit$sigmau, xi = fit$xi, phiu = TRUE), col="red")
-#' abline(v = fit$u)
+#' with(fit, lines(xx, dgammagpd(xx, gshape, gscale, u, sigmau, xi), col="red"))
+#' abline(v = fit$u, col = "red")
 #'   
 #' # Parameterised tail fraction
-#' fit2 = fgammagpd(x, phiu = FALSE, std.err = FALSE)
-#' plot(xx, y, type = "l")
-#' lines(xx, dgammagpd(xx, gshape = fit$gshape, gscale = fit$gscale, u = fit$u,
-#'   sigmau = fit$sigmau, xi = fit$xi, phiu = TRUE), col="red")
-#' lines(xx, dgammagpd(xx, gshape = fit2$gshape, gscale = fit2$gscale, u = fit2$u,
-#'   sigmau = fit2$sigmau, xi = fit2$xi, phiu = fit2$phiu), col="blue")
-#' abline(v = fit$u, col = "red")
+#' fit2 = fgammagpd(x, phiu = FALSE)
+#' with(fit2, lines(xx, dgammagpd(xx, gshape, gscale, u, sigmau, xi, phiu), col="blue"))
 #' abline(v = fit2$u, col = "blue")
 #' legend("topright", c("True Density","Bulk Tail Fraction","Parameterised Tail Fraction"),
 #'   col=c("black", "red", "blue"), lty = 1)
-#'   }
+#'   
+#' # Profile likelihood for initial value of threshold and fixed threshold approach
+#' fitu = fgammagpd(x, useq = seq(1, 5, length = 20))
+#' fitfix = fgammagpd(x, useq = seq(1, 5, length = 20), fixedu = TRUE)
+#' 
+#' hist(x, breaks = 100, freq = FALSE, xlim = c(-0.1, 8))
+#' lines(xx, y)
+#' with(fit, lines(xx, dgammagpd(xx, gshape, gscale, u, sigmau, xi), col="red"))
+#' abline(v = fit$u, col = "red")
+#' with(fitu, lines(xx, dgammagpd(xx, gshape, gscale, u, sigmau, xi), col="purple"))
+#' abline(v = fitu$u, col = "purple")
+#' with(fitfix, lines(xx, dgammagpd(xx, gshape, gscale, u, sigmau, xi), col="darkgreen"))
+#' abline(v = fitfix$u, col = "darkgreen")
+#' legend("topright", c("True Density","Default initial value (90% quantile)",
+#'  "Prof. lik. for initial value", "Prof. lik. for fixed threshold"),
+#'  col=c("black", "red", "purple", "darkgreen"), lty = 1)
+#' }
+#'   
 
 # maximum likelihood fitting for gamma bulk with GPD for upper tail
-fgammagpd <- function(x, phiu = TRUE, pvector = NULL, std.err = TRUE, method = "BFGS",
-  control = list(maxit = 10000), finitelik = TRUE, ...) {
+fgammagpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL,
+  std.err = TRUE, method = "BFGS", control = list(maxit = 10000), finitelik = TRUE, ...) {
 
   call <- match.call()
     
   # Check properties of inputs
-  if (missing(x))
-    stop("x must be a non-empty numeric vector")
-    
-  if (length(x) == 0 | mode(x) != "numeric") 
-    stop("x must be a non-empty numeric vector")
+  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.logic(logicarg = phiu) # only logical
+  check.posparam(useq, allowvec = TRUE, allownull = TRUE)
+  check.logic(logicarg = fixedu)
+  check.logic(logicarg = std.err)
+  check.optim(method)
+  check.control(control)
+  check.logic(logicarg = finitelik)
 
-  if (any(is.infinite(x)))
-    stop("infinite cases must be removed")
-
-  if (any(is.na(x)))
-    warning("missing values have been removed")
-
-  x = x[!is.na(x)]
-
-  if (any(x<=0))
-    warning("non-positive values have been removed")
-
-  x = x[x>0]
-  
-  if (!is.logical(finitelik))
-    stop("finitelik must be logical")
-
-  if (!is.logical(phiu))
-    stop("phiu must be either TRUE for bulk parameterised threshold probability approach, 
-      or FALSE when using parameterised threshold probability approach")
-
-  if ((method == "L-BFGS-B") | (method == "BFGS"))
-    finitelik = TRUE
-  
-  if (is.null(pvector)) {
-    s = log(mean(x)) - mean(log(x))
-    k = (3 - s + sqrt( (s-3) ^ 2 + 24 * s)) / 12 / s
-    pvector[1] = k
-    pvector[2] = mean(x) / k
-    pvector[3] = as.vector(quantile(x, 0.9))
-    initfgpd = fgpd(x, pvector[3], std.err = std.err)
-    pvector[4] = initfgpd$sigmau
-    pvector[5] = initfgpd$xi
-  } else {
-    if (length(pvector) != 5)
-      stop("Initial values for five parameters must be specified")
-    if (any(!is.finite(pvector)) | is.logical(pvector))
-      stop("initial parameters must be numeric")
+  if (any(!is.finite(x))) {
+    warning("non-finite cases have been removed")
+    x = x[is.finite(x)] # ignore missing and infinite cases
   }
 
-  nllh = nlgammagpd(pvector, x = x, phiu = phiu, finitelik = finitelik)
-  if (is.infinite(nllh))
-    stop("initial parameter values are invalid")
+  if (any(x <= 0)) {
+    warning("non-positive values have been removed")
+    x = x[x > 0]
+  }
 
-  fit = optim(par = as.vector(pvector), fn = nlgammagpd, x = x, phiu = phiu, finitelik = finitelik,
-    method = method, control = control, hessian = TRUE, ...)
+  check.quant(x)
+  n = length(x)
 
+  if ((method == "L-BFGS-B") | (method == "BFGS")) finitelik = TRUE
+  
+  # useq must be specified if threshold is fixed
+  if (fixedu & is.null(useq))
+    stop("for fixed threshold approach, useq must be specified (as scalar or vector)")
+  
+  # Check if profile likelihood or fixed threshold is being used
+  # and determine initial values for parameters in each case
+  if (is.null(useq)) { # not profile or fixed
+    profu = FALSE
+    check.nparam(pvector, nparam = 5, allownull = TRUE)
+    
+    if (is.null(pvector)) {
+      s = log(mean(x)) - mean(log(x))
+      k = (3 - s + sqrt( (s-3) ^ 2 + 24 * s)) / 12 / s
+      pvector[1] = k
+      pvector[2] = mean(x) / k
+      pvector[3] = as.vector(quantile(x, 0.9))
+      initfgpd = fgpd(x, pvector[3], std.err = FALSE)
+      pvector[4] = initfgpd$sigmau
+      pvector[5] = initfgpd$xi
+    }
+    
+  } else { # profile or fixed
+    profu = TRUE
+    
+    check.nparam(pvector, nparam = 4, allownull = TRUE)
+
+    # profile likelihood for threshold or scalar given
+    if (length(useq) != 1) {
+      
+      # remove thresholds with less than 5 excesses
+      useq = useq[sapply(useq, FUN = function(u, x) sum(x > u) > 5, x = x)]
+      check.param(useq, allowvec = TRUE)
+      
+      nllhu = sapply(useq, proflugammagpd, pvector = pvector, x = x, phiu = phiu,
+        method = method, control = control, finitelik = finitelik, ...)
+      
+      if (all(!is.finite(nllhu))) stop("thresholds are all invalid")
+      u = useq[which.min(nllhu)]
+
+    } else {
+      u = useq
+    }
+
+    if (fixedu) { # threshold fixed (4 parameters)
+      if (is.null(pvector)) {
+        s = log(mean(x)) - mean(log(x))
+        k = (3 - s + sqrt( (s-3) ^ 2 + 24 * s)) / 12 / s
+        pvector[1] = k
+        pvector[2] = mean(x) / k
+        initfgpd = fgpd(x, u, std.err = FALSE)
+        pvector[3] = initfgpd$sigmau
+        pvector[4] = initfgpd$xi
+      }
+    } else { # threshold as initial value in usual MLE
+      if (is.null(pvector)) {
+        s = log(mean(x)) - mean(log(x))
+        k = (3 - s + sqrt( (s-3) ^ 2 + 24 * s)) / 12 / s
+        pvector[1] = k
+        pvector[2] = mean(x) / k
+        pvector[3] = u
+        initfgpd = fgpd(x, pvector[3], std.err = FALSE)
+        pvector[4] = initfgpd$sigmau
+        pvector[5] = initfgpd$xi
+      } else {
+        pvector[5] = pvector[4] # shift GPD scale and shape to add in u
+        pvector[4] = pvector[3]
+        pvector[3] = u
+      }
+    }
+  }
+
+  if (fixedu) { # fixed threshold (separable) likelihood
+    nllh = nlugammagpd(pvector, u, x, phiu)
+    if (is.infinite(nllh)) stop("initial parameter values are invalid")
+  
+    fit = optim(par = as.vector(pvector), fn = nlugammagpd, u = u, x = x, phiu = phiu,
+      finitelik = finitelik, method = method, control = control, hessian = TRUE, ...)    
+    
+    gshape = fit$par[1]
+    gscale = fit$par[2]
+    sigmau = fit$par[3]
+    xi = fit$par[4]
+    
+  } else { # complete (non-separable) likelihood
+    
+    nllh = nlgammagpd(pvector, x, phiu)
+    if (is.infinite(nllh)) stop("initial parameter values are invalid")
+  
+    fit = optim(par = as.vector(pvector), fn = nlgammagpd, x = x, phiu = phiu,
+      finitelik = finitelik, method = method, control = control, hessian = TRUE, ...)    
+    
+    gshape = fit$par[1]
+    gscale = fit$par[2]
+    u = fit$par[3]
+    sigmau = fit$par[4]
+    xi = fit$par[5]
+  }
+  
   conv = TRUE
   if ((fit$convergence != 0) | any(fit$par == pvector) | (abs(fit$value) >= 1e6)) {
     conv = FALSE
     warning("check convergence")
   }
 
-  n = length(x)
-  gshape = fit$par[1]
-  gscale = fit$par[2]
-  u = fit$par[3]
-  sigmau = fit$par[4]
-  xi = fit$par[5]
-  
+  pu = pgamma(u, gshape, scale = gscale)
   if (phiu) {
-    phiu = 1 - pgamma(u, shape = gshape, scale = gscale)
-    sephiu = NA
+    phiu = 1 - pu
+    se.phiu = NA
   } else {
     phiu = mean(x > u, na.rm = TRUE)
-    sephiu = sqrt(phiu * (1 - phiu) / n)
+    se.phiu = sqrt(phiu * (1 - phiu) / n)
   }
   
-  if (conv & std.err) {
+  if (std.err) {
     qrhess = qr(fit$hessian)
     if (qrhess$rank != ncol(qrhess$qr)) {
       warning("observed information matrix is singular; use std.err = FALSE")
@@ -231,9 +297,208 @@ fgammagpd <- function(x, phiu = TRUE, pvector = NULL, std.err = TRUE, method = "
     invhess = NULL
     se = NULL
   }
+  
+  list(call = call, x = as.vector(x), 
+    init = as.vector(pvector), fixedu = fixedu, useq = useq,
+    optim = fit, conv = conv, cov = invhess, mle = fit$par, se = se, rate = phiu,
+    nllh = fit$value, n = n,
+    gshape = gshape, gscale = gscale, u = u, sigmau = sigmau, xi = xi, phiu = phiu, se.phiu = se.phiu)
+}
 
-  list(call = call, x = as.vector(x), init = as.vector(pvector), optim = fit,
-    conv = conv, cov = invhess, mle = fit$par, se = se, rate = phiu, nllh = fit$value,
-    allparam = c(fit$par, phiu), allse = c(se, sephiu), n = n,
-    gshape = gshape, gscale = gscale, u = u, sigmau = sigmau, xi = xi, phiu = phiu)
+#' @export
+#' @aliases fgammagpd lgammagpd nlgammagpd proflugammagpd nlugammagpd
+#' @rdname  fgammagpd
+
+# log-likelihood function for gamma bulk with GPD for upper tail
+lgammagpd <- function(x, gshape = 1, gscale = 1, u = qgamma(0.9, gshape, 1/gscale),
+  sigmau = sqrt(gshape) * gscale, xi = 0, phiu = TRUE, log = TRUE) {
+
+  # Check properties of inputs
+  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.param(param = gshape) # do not check positivity in likelihood
+  check.param(param = gscale) # do not check positivity in likelihood
+  check.param(param = u)      # do not check positivity in likelihood
+  check.param(param = sigmau) # do not check positivity in likelihood
+  check.param(param = xi)
+  check.phiu(phiu, allowfalse = TRUE)
+  check.logic(logicarg = log)
+
+  if (any(!is.finite(x))) {
+    warning("non-finite cases have been removed")
+    x = x[is.finite(x)] # ignore missing and infinite cases
+  }
+
+  if (any(x <= 0)) {
+    warning("non-positive values have been removed")
+    x = x[x > 0]
+  }
+
+  check.quant(x)
+
+  check.inputn(c(length(gshape), length(gscale), length(u), length(sigmau), length(xi), length(phiu)))
+
+  # assume NA or NaN are irrelevant as entire lower tail is now modelled
+  # inconsistent with evd library definition
+  # hence use which() to ignore these
+
+  n = length(x)
+  xu = x[which(x > u)]
+  nu = length(xu)
+  xb = x[which(x <= u)]
+  nb = length(xb)
+
+  if (n != nb + nu) {
+    stop("total non-finite sample size is not equal to those above threshold and those below or equal to it")    
+  }
+
+  if ((gscale <= 0) | (gshape <= 0) | (sigmau <= 0) | (u <= 0) | (u <= min(x)) | (u >= max(x))) {
+    l = -Inf
+  } else {
+    if (is.logical(phiu)) {
+      pu = pgamma(u, gshape, scale = gscale)
+      if (phiu) {
+        phiu = 1 - pu
+      } else {
+        phiu = nu / n
+      }
+    }
+    phib = (1 - phiu) / pu
+  
+    syu = 1 + xi * (xu - u) / sigmau  
+  
+    if ((min(syu) <= 0) | (phiu <= 0) | (phiu >= 1)) {
+      l = -Inf
+    } else { 
+      l = lgpd(xu, u, sigmau, xi, phiu)
+      l = l + (gshape - 1) * sum(log(xb)) - sum(xb) / gscale - nb * gshape * log(gscale) - nb * lgamma(gshape)  + nb * log(phib)
+    }
+  }
+  
+  if (!log) l = exp(l)
+  
+  l
+}
+
+#' @export
+#' @aliases fgammagpd lgammagpd nlgammagpd proflugammagpd nlugammagpd
+#' @rdname  fgammagpd
+
+# negative log-likelihood function for gamma bulk with GPD for upper tail
+# (wrapper for likelihood, inputs and checks designed for optimisation)
+nlgammagpd <- function(pvector, x, phiu = TRUE, finitelik = FALSE) {
+
+  # Check properties of inputs
+  check.nparam(pvector, nparam = 5)
+  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.phiu(phiu, allowfalse = TRUE)
+  check.logic(logicarg = finitelik)
+
+  gshape = pvector[1]
+  gscale = pvector[2]
+  u = pvector[3]
+  sigmau = pvector[4]
+  xi = pvector[5]
+
+  nllh = -lgammagpd(x, gshape, gscale, u, sigmau, xi, phiu) 
+  
+  if (finitelik & is.infinite(nllh)) {
+    nllh = sign(nllh) * 1e6
+  }
+
+  nllh
+}
+
+#' @export
+#' @aliases fgammagpd lgammagpd nlgammagpd proflugammagpd nlugammagpd
+#' @rdname  fgammagpd
+
+# profile negative log-likelihood function for given threshold for
+# gamma bulk with GPD for upper tail
+# designed for sapply to loop over vector of thresholds (hence u is first input)
+proflugammagpd <- function(u, pvector, x, phiu = TRUE, method = "BFGS",
+  control = list(maxit = 10000), finitelik = FALSE, ...) {
+
+  # Check properties of inputs
+  np = 4
+  check.nparam(pvector, nparam = np, allownull = TRUE)
+  check.param(u) # do not check positivity in likelihood
+  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.phiu(phiu, allowfalse = TRUE)
+  check.logic(logicarg = finitelik)
+
+  if (any(!is.finite(x))) {
+    warning("non-finite cases have been removed")
+    x = x[is.finite(x)] # ignore missing and infinite cases
+  }
+
+  if (any(x <= 0)) {
+    warning("non-positive values have been removed")
+    x = x[x > 0]
+  }
+
+  check.quant(x)
+
+  # check initial values for other parameters, try usual alternative
+  if (!is.null(pvector)) {
+    nllh = nlugammagpd(pvector, u, x, phiu)
+    
+    if (is.infinite(nllh)) pvector = NULL
+  }
+
+  if (is.null(pvector)) {
+    s = log(mean(x)) - mean(log(x))
+    k = (3 - s + sqrt( (s-3) ^ 2 + 24 * s)) / 12 / s
+    pvector[1] = k
+    pvector[2] = mean(x) / k
+    initfgpd = fgpd(x, u, std.err = FALSE)
+    pvector[3] = initfgpd$sigmau
+    pvector[4] = initfgpd$xi
+    nllh = nlugammagpd(pvector, u, x, phiu)
+  }  
+
+  # if still invalid then output cleanly
+  if (is.infinite(nllh)) {
+    warning(paste("initial parameter values for threshold u =", u, "are invalid"))
+    fit = list(par = rep(NA, np), value = Inf, counts = 0, convergence = NA, 
+      message = "initial values invalid", hessian = rep(NA, np))
+  } else {
+
+    fit = optim(par = as.vector(pvector), fn = nlugammagpd, u = u, x = x, phiu = phiu,
+    finitelik = finitelik, method = method, control = control, hessian = TRUE, ...)
+  }
+    
+  if (finitelik & is.infinite(fit$value)) {
+    fit$value = sign(fit$value) * 1e6
+  }
+
+  fit$value
+}
+
+#' @export
+#' @aliases fgammagpd lgammagpd nlgammagpd proflugammagpd nlugammagpd
+#' @rdname  fgammagpd
+
+# negative log-likelihood function for gamma bulk with GPD for upper tail
+# (wrapper for likelihood, designed for threshold to be fixed and other parameters optimised)
+nlugammagpd <- function(pvector, u, x, phiu = TRUE, finitelik = FALSE) {
+
+  # Check properties of inputs
+  check.nparam(pvector, nparam = 4)
+  check.param(u) # do not check positivity in likelihood
+  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.phiu(phiu, allowfalse = TRUE)
+  check.logic(logicarg = finitelik)
+    
+  gshape = pvector[1]
+  gscale = pvector[2]
+  sigmau = pvector[3]
+  xi = pvector[4]
+
+  nllh = -lgammagpd(x, gshape, gscale, u, sigmau, xi, phiu) 
+  
+  if (finitelik & is.infinite(nllh)) {
+    nllh = sign(nllh) * 1e6
+  }
+
+  nllh
 }

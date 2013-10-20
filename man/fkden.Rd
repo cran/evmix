@@ -1,27 +1,49 @@
 \name{fkden}
 \alias{fkden}
-\title{Cross-validation MLE Fitting of Kernel Density Estimator Using normal Kernel}
+\alias{lkden}
+\alias{nlkden}
+\title{Cross-validation MLE Fitting of Kernel Density Estimator, With Variety of Kernels}
 \usage{
-  fkden(x, linit = NULL, extracentres = NULL,
+  fkden(x, linit = NULL, bwinit = NULL,
+    kernel = "gaussian", extracentres = NULL,
     add.jitter = FALSE, factor = 0.1, amount = NULL,
     std.err = TRUE, method = "BFGS",
     control = list(maxit = 10000), finitelik = TRUE, ...)
+
+  lkden(x, lambda = NULL, bw = NULL, kernel = "gaussian",
+    extracentres = NULL, log = TRUE)
+
+  nlkden(lambda, x, bw = NULL, kernel = "gaussian",
+    extracentres = NULL, finitelik = FALSE)
 }
 \arguments{
-  \item{linit}{initial value for bandwidth parameter or
-  \code{NULL}}
+  \item{linit}{initial value for bandwidth (as kernel
+  half-width) or \code{NULL}}
+
+  \item{bwinit}{initial value for bandwidth (as kernel
+  standard deviations) or \code{NULL}}
 
   \item{extracentres}{extra kernel centres used in KDE, but
   likelihood contribution not evaluated, or \code{NULL}}
 
   \item{add.jitter}{logical, whether jitter is needed for
-  rounded data}
+  rounded kernel centres}
 
   \item{factor}{see \code{\link[base:jitter]{jitter}}}
 
   \item{amount}{see \code{\link[base:jitter]{jitter}}}
 
-  \item{x}{vector of sample data}
+  \item{x}{quantiles}
+
+  \item{kernel}{kernel name (\code{default = "gaussian"})}
+
+  \item{lambda}{bandwidth for kernel (as half-width of
+  kernel) or \code{NULL}}
+
+  \item{bw}{bandwidth for kernel (as standard deviations of
+  kernel) or \code{NULL}}
+
+  \item{log}{logical, if TRUE then log density}
 
   \item{std.err}{logical, should standard errors be
   calculated}
@@ -39,39 +61,61 @@
   \code{\link[stats:optim]{optim}}}
 }
 \value{
-  Returns a simple list with the following elements
+  Log-likelihood is given by
+  \code{\link[evmix:fkden]{lkden}} and it's wrappers for
+  negative log-likelihood from
+  \code{\link[evmix:fkden]{nlkden}}.  Fitting function
+  \code{\link[evmix:fkden]{fkden}} returns a simple list
+  with the following elements
 
   \tabular{ll}{ \code{call}: \tab \code{optim} call\cr
   \code{x}: \tab (jittered) data vector \code{x}\cr
-  \code{kerncentres}: actual kernel centres used
-  \code{x}\cr \code{init}: \tab \code{linit}\cr
+  \code{kerncentres}: \tab actual kernel centres used
+  \code{x}\cr \code{init}: \tab \code{linit} for lambda\cr
   \code{optim}: \tab complete \code{optim} output\cr
   \code{mle}: \tab vector of MLE of bandwidth\cr
   \code{cov}: \tab variance of MLE of bandwidth\cr
   \code{se}: \tab standard error of MLE of bandwidth\cr
   \code{nllh}: \tab minimum negative cross-validation
   log-likelihood\cr \code{n}: \tab total sample size\cr
-  \code{lambda}: \tab MLE of bandwidth\cr }
-
-  The output list has some duplicate entries and repeats
-  some of the inputs to both provide similar items to those
-  from \code{\link[evd:fpot]{fpot}} and to make it as
-  useable as possible.
+  \code{lambda}: \tab MLE of lambda (kernel half-width)\cr
+  \code{bw}: \tab MLE of bw (kernel standard deviations)\cr
+  \code{kernel}: \tab kernel name\cr }
 }
 \description{
-  Maximum likelihood estimation for fitting kernel density
-  estimator using a normal kernels, by treating it as a
-  mixture model.
+  Maximum (cross-validation) likelihood estimation for
+  fitting kernel density estimator for a variety of
+  possible kernels, by treating it as a mixture model.
 }
 \details{
-  The kernel density estimator with a normal kernel is
-  fitted to the entire dataset using maximum
-  cross-validation likelihood estimation. The estimated
+  The kernel density estimator (KDE) with one of possible
+  kernels is fitted to the entire dataset using maximum
+  (cross-validation) likelihood estimation. The estimated
   bandwidth, variance and standard error are automatically
   output.
 
+  The alternate bandwidth definitions are discussed in the
+  \code{\link[evmix:kernels]{kernels}}, with the
+  \code{lambda} used here but \code{bw} also output. The
+  \code{bw} specification is the same as used in the
+  \code{\link[stats:density]{density}} function.
+
+  The possible kernels are also defined in
+  \code{\link[evmix:kernels]{kernels}} help documentation
+  with the \code{"gaussian"} as the default choice.
+
   Missing values (\code{NA} and \code{NaN}) are assumed to
   be invalid data so are ignored.
+
+  Cross-validation likelihood is used for kernel density
+  component, obtained by leaving each point out in turn and
+  evaluating the KDE at the point left out:
+  \deqn{L(\lambda)\prod_{i=1}^{n} \hat{f}_{-i}(x_i)} where
+  \deqn{\hat{f}_{-i}(x_i) = \frac{1}{(n-1)\lambda}
+  \sum_{j=1: j\ne i}^{n} K(\frac{x_i - x_j}{\lambda})} is
+  the KDE obtained when the \eqn{i}th datapoint is dropped
+  out and then evaluated at that dropped datapoint at
+  \eqn{x_i}.
 
   Normally for likelihood estimation of the bandwidth the
   kernel centres and the data where the likelihood is
@@ -82,8 +126,62 @@
   the threshold) should contribute to the density estimate.
   The \code{extracentres} option allows the use to specify
   extra kernel centres used in estimating the density, but
-  not evaluated in the likelihood. The default is to just
-  use the existing data, so \code{extracentres=NULL}.
+  not evaluated in the likelihood. Suppose the first
+  \code{nb} data are below the threshold, followed by
+  \code{nu} exceedances of the threshold, so \eqn{i =
+  1,\ldots,nb, nb+1, \ldots, nb+nu}. The cross-validation
+  likelihood using the extra kernel centres is then:
+  \deqn{L(\lambda)\prod_{i=1}^{nb} \hat{f}_{-i}(x_i)} where
+  \deqn{\hat{f}_{-i}(x_i) = \frac{1}{(nb+nu-1)\lambda}
+  \sum_{j=1: j\ne i}^{nb+nu} K(\frac{x_i - x_j}{\lambda})}
+  which shows that the complete set of data is used in
+  evaluating the KDE, but only those below the threshold
+  contribute to the cross-validation likelihood. The
+  default is to use the existing data, so
+  \code{extracentres=NULL}.
+
+  The following functions are provided: \itemize{ \item
+  \code{\link[evmix:fkden]{fkden}} - maximum
+  (cross-validation) likelihood fitting with all the above
+  options; \item \code{\link[evmix:fkden]{lkden}} -
+  cross-validation log-likelihood; \item
+  \code{\link[evmix:fkden]{nlnornlkdenmgpd}} - negative
+  cross-validation log-likelihood; } The log-likelihood
+  functions are provided for wider usage, e.g. constructing
+  profile likelihood functions.
+
+  The log-likelihood and negative log-likelihood are also
+  provided for wider usage, e.g. constructing your own
+  extreme value mixture models or profile likelihood
+  functions. The parameter \code{lambda} must be specified
+  in the negative log-likelihood
+  \code{\link[evmix:fkden]{nlkden}}.
+
+  Log-likelihood calculations are carried out in
+  \code{\link[evmix:fkden]{lkden}}, which takes bandwidths
+  as inputs in the same form as distribution functions. The
+  negative log-likelihood is a wrapper for
+  \code{\link[evmix:fkden]{lkden}}, designed towards making
+  it useable for optimisation (e.g. \code{lambda} given as
+  first input).
+
+  Defaults values for the bandwidth \code{linit} and
+  \code{lambda} are given in the fitting
+  \code{\link[evmix:fkden]{fkden}} and cross-validation
+  likelihood functions \code{\link[evmix:fkden]{lkden}}.
+  The bandwidth \code{linit} must be specified in the
+  negative log-likelihood function
+  \code{\link[evmix:fkden]{nlkden}}.
+
+  Missing values (\code{NA} and \code{NaN}) are assumed to
+  be invalid data so are ignored, which is inconsistent
+  with the \code{\link[evd:fpot]{evd}} library which
+  assumes the missing values are below the threshold.
+
+  The function \code{\link[evmix:fnormgpd]{lnormgpd}}
+  carries out the calculations for the log-likelihood
+  directly, which can be exponentiated to give actual
+  likelihood using (\code{log=FALSE}).
 
   The default optimisation algorithm is "BFGS", which
   requires a finite negative log-likelihood function
@@ -95,24 +193,33 @@
   of these optimisation methods is chosen.
 
   It will display a warning for non-zero convergence result
-  comes from \code{\link[stats:optim]{optim}} function
-  call.
+  comes from \code{\link[stats:optim]{optim}} function call
+  or for common indicators of lack of convergence (e.g.
+  estimated bandwidth equal to initial value).
 
-  If the hessian is of reduced rank then the variance (from
-  inverse hessian) and standard error of bandwidth
-  parameter cannot be calculated, then by default
+  If the hessian is of reduced rank then the variance
+  covariance (from inverse hessian) and standard error of
+  parameters cannot be calculated, then by default
   \code{std.err=TRUE} and the function will stop. If you
-  want the bandwidth estimate even if the hessian is of
+  want the parameter estimates even if the hessian is of
   reduced rank (e.g. in a simulation study) then set
   \code{std.err=FALSE}.
 }
 \note{
   When \code{linit=NULL} then the initial value for the
-  bandwidth is calculated using
-  \code{\link[stats:bandwidth]{bw.nrd0}} function.
+  \code{lambda} bandwidth is calculated using
+  \code{\link[stats:bandwidth]{bw.nrd0}} function and
+  transformed using \code{\link[evmix:kfun]{klambda}}
+  function.
 
-  The fitting function will stop if infinite sample values
-  are given.
+  The extra kernel centres \code{extracentres} can either
+  be a vector of data or \code{NULL}.
+
+  Invalid parameter ranges will give \code{0} for
+  likelihood, \code{log(0)=-Inf} for log-likelihood and
+  \code{-log(0)=Inf} for negative log-likelihood.
+
+  Infinite and missing sample values are dropped.
 
   Error checking of the inputs is carried out and will
   either stop or give warning message as appropriate.
@@ -161,9 +268,17 @@
   solution to this problem is to splice the GPD at a
   suitable threshold to remove the problematic tail from
   the inference for the bandwidth, using either the
-  \code{kdengpd} function for a single heavy tail or the
-  \code{kdengng} function if both tails are heavy. See
-  MacDonald et al (2013).
+  \code{\link[evmix:fkdengpd]{fkdengpd}} function for a
+  single heavy tail or the \code{\link[evmix:fgkg]{fgkg}}
+  function if both tails are heavy. See MacDonald et al
+  (2013).
+}
+
+\section{Acknowledgments}{
+  See Acknowledgments in
+  \code{\link[evmix:fnormgpd]{fnormgpd}}, type \code{help
+  fnormgpd}. Based on MATLAB code written by Anna
+  MacDonald.
 }
 \examples{
 \dontrun{
@@ -171,13 +286,13 @@ nk=50
 x = rnorm(nk)
 xx = seq(-5, 5, 0.01)
 fit = fkden(x)
-hist(x, nk/5, freq = FALSE, xlim = c(-5, 7))
+hist(x, nk/5, freq = FALSE, xlim = c(-5, 5), ylim = c(0,0.6))
 rug(x)
 for (i in 1:nk) lines(xx, dnorm(xx, x[i], sd = fit$lambda)*0.05)
 lines(xx,dnorm(xx), col = "black")
 lines(xx, dkden(xx, x, lambda = fit$lambda), lwd = 2, col = "red")
 lines(density(x), lty = 2, lwd = 2, col = "green")
-lines(density(x, bw = fit$lambda), lwd = 2, lty = 2,  col = "blue")
+lines(density(x, bw = fit$bw), lwd = 2, lty = 2,  col = "blue")
 legend("topright", c("True Density", "KDE fitted evmix",
 "KDE Using density, default bandwidth", "KDE Using density, c-v likelihood bandwidth"),
 lty = c(1, 1, 2, 2), lwd = c(1, 2, 2, 2), col = c("black", "red", "green", "blue"))
@@ -195,8 +310,8 @@ lines(xx, dkden(xx, x, lambda = fit$lambda), lwd = 2, col = "red")
 legend("topright", c("True Density", "KDE fitted evmix, c-v likelihood bandwidth"),
 lty = c(1, 1), lwd = c(1, 2), col = c("black", "red"))
 
-# remove heavy tails from likelihood evaluation, but still include used in KDE within likelihood
-# often gives better bandwidth
+# remove heavy tails from cv-likelihood evaluation, but still include them in KDE within likelihood
+# often gives better bandwidth (see MacDonald et al (2011) for justification)
 nk=100
 x = rt(nk, df = 2)
 xx = seq(-8, 8, 0.01)
@@ -214,7 +329,7 @@ lty = c(1, 1, 1), lwd = c(1, 2, 2), col = c("black", "red", "blue"))
 }
 \author{
   Yang Hu and Carl Scarrott
-  \email{carl.scarrott@canterbury.ac.nz}
+  \email{carl.scarrott@canterbury.ac.nz}.
 }
 \references{
   \url{http://en.wikipedia.org/wiki/Kernel_density_estimation}
@@ -246,15 +361,35 @@ lty = c(1, 1, 1), lwd = c(1, 2, 2), col = c("black", "red", "blue"))
   densities using extreme value theory. Submitted.
   Available from:
   \url{http://www.math.canterbury.ac.nz/~c.scarrott}.
+
+  Wand, M. and Jones, M.C. (1995). Kernel Smoothing.
+  Chapman && Hall.
 }
 \seealso{
+  \code{\link[evmix:kernels]{kernels}},
+  \code{\link[evmix:kfun]{kfun}},
   \code{\link[base:jitter]{jitter}},
   \code{\link[stats:density]{density}} and
   \code{\link[stats:bandwidth]{bw.nrd0}}
 
-  Other kden: \code{\link{dkden}}, \code{\link{kden}},
-  \code{\link{lkden}}, \code{\link{nlkden}},
-  \code{\link{pkden}}, \code{\link{qkden}},
-  \code{\link{rkden}}
+  Other kden kdengpd kdengpdcon bckden bckdengpd
+  bckdengpdcon fkden fkdengpd fkdengpdcon fbckden
+  fbckdengpd fbckdengpdcon: \code{\link{bckden}},
+  \code{\link{bckdengpd}}, \code{\link{bckdengpdcon}},
+  \code{\link{dbckden}}, \code{\link{dbckdengpd}},
+  \code{\link{dbckdengpdcon}}, \code{\link{dkden}},
+  \code{\link{dkdengpd}}, \code{\link{dkdengpdcon}},
+  \code{\link{fbckden}}, \code{\link{kden}},
+  \code{\link{kdengpd}}, \code{\link{kdengpdcon}},
+  \code{\link{lbckden}}, \code{\link{nlbckden}},
+  \code{\link{pbckden}}, \code{\link{pbckdengpd}},
+  \code{\link{pbckdengpdcon}}, \code{\link{pkden}},
+  \code{\link{pkdengpd}}, \code{\link{pkdengpdcon}},
+  \code{\link{qbckden}}, \code{\link{qbckdengpd}},
+  \code{\link{qbckdengpdcon}}, \code{\link{qkden}},
+  \code{\link{qkdengpd}}, \code{\link{qkdengpdcon}},
+  \code{\link{rbckden}}, \code{\link{rbckdengpd}},
+  \code{\link{rbckdengpdcon}}, \code{\link{rkden}},
+  \code{\link{rkdengpd}}, \code{\link{rkdengpdcon}}
 }
 

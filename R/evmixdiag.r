@@ -20,21 +20,26 @@
 #' 
 #' Consistent with \code{\link[evd:plot.uvevd]{plot}} function in the 
 #' \code{\link[evd:gpd]{evd}} library the \code{\link[stats:ppoints]{ppoints}} to 
-#' estimate the empirical cumulative probabilities. The current default behaviour of this
+#' estimate the empirical cumulative probabilities. The default behaviour of this
 #' function is to use \deqn{(i-0.5)/n} as the estimate for the \eqn{i}th order statistic of
 #' the given sample of size \eqn{n}.
 #' 
-#' The return level plot quantile (\eqn{x_p} where \eqn{P(X \le x_p)=p} on the
-#' \eqn{y}-axis and the (approximate) return period \eqn{1/p} is shown on the
-#' \eqn{x}-axis. It is approximate as the tranformation 
-#' \eqn{-log(-log(p)) \approx 1/p} is used for the \eqn{x}-axis, which is common in
-#' extreme value application as Type I (\eqn{\xi=0}) upper tail behaviour will be
-#' linear on this scale. The approximation is better for smaller upper tail probability.
+#' The return level plot has the quantile (\eqn{q} where \eqn{P(X \ge q)=p} on
+#' the \eqn{y}-axis, for a particular survival probability \eqn{p}. The return period
+#' \eqn{t=1/p} is shown on the \eqn{x}-axis. The return level is given by:
+#'    \deqn{q = u + \sigma_u [(\phi_u t)^\xi - 1]/\xi}
+#' for \eqn{\xi\ne 0}. But in the case of \eqn{\xi = 0} this simplifies to 
+#'  \deqn{q = u + \sigma_u log(\phi_u t)}
+#' which is linear when plotted against the return period on a logarithmic scale. The special
+#' case of exponential/Type I (\eqn{\xi=0}) upper tail behaviour will be linear on
+#' this scale. This is the same tranformation as in the GPD/POT diagnostic plot function
+#' \code{\link[evd:plot.uvevd]{plot.uvevd}} in the \code{\link[evd:plot.uvevd]{evd}} package,
+#' from which these functions were derived.
 #' 
 #' The crosses are the empirical quantiles/return levels (i.e. the ordered sample data)
-#' against their corresponding transfomred empirical return period (from 
+#' against their corresponding transformed empirical return period (from 
 #' \code{\link[stats:ppoints]{ppoints}}). The solid line is the theoretical return level
-#' (quantile) function using the estimated model parameters. The estimated threshold 
+#' (quantile) function using the estimated parameters. The estimated threshold 
 #' \code{u} and tail fraction \code{phiu} are shown. For the two tailed models both
 #' thresholds \code{ul} and \code{ur} and corresponding tail fractions 
 #' \code{phiul} and \code{phiur} are shown. The approximate pointwise confidence intervals
@@ -77,7 +82,8 @@
 #' will either stop or give warning message as appropriate.
 #' 
 #' @references
-#' Based on model diagnostic functions in the \code{\link[evd:gpd]{evd}} package.
+#' Based on GPD/POT diagnostic functions in the \code{\link[evd:plot.uvevd]{evd}} function
+#' from the \code{\link[evd:gpd]{evd}} package.
 #' 
 #' \url{http://en.wikipedia.org/wiki/Q-Q_plot}
 #' 
@@ -92,7 +98,8 @@
 #' 
 #' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'
-#' @seealso \code{\link[stats:ppoints]{ppoints}} and \code{\link[evd:plot.uvevd]{plot.uvevd}}
+#' @seealso \code{\link[stats:ppoints]{ppoints}}, \code{\link[evd:plot.uvevd]{plot.uvevd}} and
+#'   \code{\link[ismev:gpd.diag]{gpd.diag}}.
 #' @aliases  evmix.diag rlplot qplot pplot densplot
 #' @family   evmix.diag
 #' 
@@ -109,6 +116,7 @@
 #' pplot(fit, upperfocus = FALSE)
 #' densplot(fit, upperfocus = FALSE)
 #' }
+#' 
 
 evmix.diag <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000,
   legend = FALSE, ...) {
@@ -122,10 +130,11 @@ evmix.diag <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N =
 
   modelname = substring(strsplit(deparse(modelfit$call),"\\(")[[c(1, 1)]], 2)
 
-  allmodelnames = c("gpd", "normgpd", "normgpdcon", "gng", "gngcon", 
-    "weibullgpd",  "weibullgpdcon", "gammagpd", "gammagpdcon", "mgammagpd",
-    "lognormgpd", "lognormgpdcon", "betagpd", "hpd", "hpdcon", "dwm",
-    "kden", "kdengpd", "kdengpdcon", "gkg", "bckden", "bckdengpd")
+  allmodelnames = c("gpd", "betagpd", "betagpdcon", 
+    "bckden", "bckdengpd", "bckdengpdcon", "dwm", "gammagpd", "gammagpdcon",
+    "gkg", "gkgcon", "gng", "gngcon", "hpd", "hpdcon", "mgammagpd", 
+    "kden", "kdengpd", "kdengpdcon", "lognormgpd", "lognormgpdcon",
+    "normgpd", "normgpdcon", "weibullgpd", "weibullgpdcon")
 
   if (!(modelname %in% allmodelnames))
     stop("invalid extreme value mixture model given")
@@ -177,10 +186,11 @@ rlplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 100
 
   modelname = substring(strsplit(deparse(modelfit$call),"\\(")[[c(1, 1)]], 2)
 
-  allmodelnames = c("gpd", "normgpd", "normgpdcon", "gng", "gngcon", 
-    "weibullgpd",  "weibullgpdcon", "gammagpd", "gammagpdcon", "mgammagpd",
-    "lognormgpd", "lognormgpdcon", "betagpd", "hpd", "hpdcon", "dwm",
-    "kden", "kdengpd", "kdengpdcon", "gkg", "bckden", "bckdengpd")
+  allmodelnames = c("gpd", "betagpd", "betagpdcon", 
+    "bckden", "bckdengpd", "bckdengpdcon", "dwm", "gammagpd", "gammagpdcon",
+    "gkg", "gkgcon", "gng", "gngcon", "hpd", "hpdcon", "mgammagpd", 
+    "kden", "kdengpd", "kdengpdcon", "lognormgpd", "lognormgpdcon",
+    "normgpd", "normgpdcon", "weibullgpd", "weibullgpdcon")
 
   if (!(modelname %in% allmodelnames))
     stop("invalid extreme value mixture model given")
@@ -210,7 +220,7 @@ rlplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 100
     modelfit$x=sort(modelfit$x)
   
   nothresh = (modelname == "kden") | (modelname =="bckden") | (modelname =="dwm")
-  twotail = (modelname == "gng") | (modelname == "gngcon") | (modelname == "gkg")
+  twotail = (modelname == "gng") | (modelname == "gngcon") | (modelname == "gkg") | (modelname == "gkgcon")
   
   if (nothresh) {
     upperfocus = FALSE
@@ -233,7 +243,7 @@ rlplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 100
   
   n = length(modelfit$x)
   emp.prob = ppoints(n)
-  trans.emp.prob = -1/log(emp.prob)
+  trans.emp.prob = 1/(1-emp.prob)
 
   min.emp.power = -log10(1 - 1/n/100)
   max.emp.power = ceiling(log10(max(trans.emp.prob))) + 1
@@ -241,57 +251,66 @@ rlplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 100
   the.prob = 1 - 10^(-seq(min.emp.power, max.emp.power, 0.05))
   # Need both tail to be in fine detail
   the.prob = sort(c(the.prob, 1 - the.prob)) 
-  trans.the.prob = -1/log(the.prob)
+  trans.the.prob = 1/(1-the.prob)
 
   the.quant = switch(modelname,
     gpd = qgpd(the.prob, modelfit$u, modelfit$sigmau, modelfit$xi, modelfit$phiu),
-    normgpd = qnormgpd(the.prob, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$sigmau,
+    bckden = qbckden(the.prob, modelfit$kerncentres, modelfit$lambda, bw = NULL,
+      modelfit$kernel, modelfit$bcmethod,
+      modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
+    bckdengpd = qbckdengpd(the.prob, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+      modelfit$sigmau, modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel,
+      modelfit$bcmethod, modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
+    bckdengpdcon = qbckdengpdcon(the.prob, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+      modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel,
+      modelfit$bcmethod, modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
+    betagpd = qbetagpd(the.prob, modelfit$bshape1, modelfit$bshape2, modelfit$u,
+      modelfit$sigmau, modelfit$xi, modelfit$phiu),
+    betagpdcon = qbetagpdcon(the.prob, modelfit$bshape1, modelfit$bshape2, modelfit$u,
       modelfit$xi, modelfit$phiu),
-    normgpdcon = qnormgpdcon(the.prob, modelfit$nmean, modelfit$nsd, modelfit$u,
+    dwm = qdwm(the.prob, modelfit$wshape, modelfit$wscale, modelfit$cmu, modelfit$ctau,
+      modelfit$sigmau, modelfit$xi),
+    gammagpd = qgammagpd(the.prob, modelfit$gshape, modelfit$gscale, modelfit$u,
+      modelfit$sigmau, modelfit$xi, modelfit$phiu),
+    gammagpdcon = qgammagpdcon(the.prob, modelfit$gshape, modelfit$gscale, modelfit$u,
       modelfit$xi, modelfit$phiu),
+    gkg = qgkg(the.prob, modelfit$kerncentres, modelfit$lambda, 
+      modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul,
+      modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur, bw = NULL, modelfit$kernel),
+    gkgcon = qgkgcon(the.prob, modelfit$kerncentres, modelfit$lambda, 
+      modelfit$ul, modelfit$xil, modelfit$phiul,
+      modelfit$ur, modelfit$xir, modelfit$phiur, bw = NULL, modelfit$kernel),
     gng = qgng(the.prob, modelfit$nmean, modelfit$nsd, 
       modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul, 
       modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur),
     gngcon = qgngcon(the.prob, modelfit$nmean, modelfit$nsd, 
       modelfit$ul, modelfit$xil, modelfit$phiul, modelfit$ur, modelfit$xir, modelfit$phiur),
-    weibullgpd = qweibullgpd(the.prob, modelfit$wshape, modelfit$wscale, modelfit$u,
-      modelfit$sigmau, modelfit$xi, modelfit$phiu),
-    weibullgpdcon = qweibullgpdcon(the.prob, modelfit$wshape, modelfit$wscale, modelfit$u,
-      modelfit$xi, modelfit$phiu),
-    gammagpd = qgammagpd(the.prob, modelfit$gshape, modelfit$gscale, modelfit$u,
-      modelfit$sigmau, modelfit$xi, modelfit$phiu),
-    gammagpdcon = qgammagpdcon(the.prob, modelfit$gshape, modelfit$gscale, modelfit$u,
-      modelfit$xi, modelfit$phiu),
-    mgammagpd = qmgammagpd(the.prob, modelfit$mgshape, modelfit$mgscale, modelfit$mgweights,
+    hpd = qhpd(the.prob, modelfit$nmean, modelfit$nsd, modelfit$xi),
+    hpdcon = qhpdcon(the.prob, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$xi),
+    kden = qkden(the.prob, modelfit$kerncentres, modelfit$lambda, bw = NULL, modelfit$kernel),
+    kdengpd = qkdengpd(the.prob, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+      modelfit$sigmau, modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel),
+    kdengpdcon = qkdengpdcon(the.prob, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+      modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel),
+    mgammagpd = qmgammagpd(the.prob, modelfit$mgshape, modelfit$mgscale, modelfit$mgweight,
       modelfit$u, modelfit$sigmau, modelfit$xi, modelfit$phiu),
     lognormgpd = qlognormgpd(the.prob, modelfit$lnmean, modelfit$lnsd, modelfit$u,
       modelfit$sigmau, modelfit$xi, modelfit$phiu),
     lognormgpdcon = qlognormgpd(the.prob, modelfit$lnmean, modelfit$lnsd, modelfit$u,
-      modelfit$sigmau, modelfit$xi, modelfit$phiu),
-    betagpd = qbetagpd(the.prob, modelfit$bshape1, modelfit$bshape2, modelfit$u,
-      modelfit$sigmau, modelfit$xi, modelfit$phiu),
-    hpd = qhpd(the.prob, modelfit$nmean, modelfit$nsd, modelfit$xi),
-    hpdcon = qhpdcon(the.prob, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$xi),
-    dwm = qdwm(the.prob, modelfit$wshape, modelfit$wscale, modelfit$cmu, modelfit$ctau,
-      modelfit$sigmau, modelfit$xi),
-    kden = qkden(the.prob, modelfit$kerncentres, modelfit$lambda),
-    kdengpd = qkdengpd(the.prob, modelfit$kerncentres, modelfit$lambda, modelfit$u,
-      modelfit$sigmau, modelfit$xi, modelfit$phiu),
-    kdengpdcon = qkdengpdcon(the.prob, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+      modelfit$sigmau, modelfit$xi, modelfit$phiu), 
+    normgpd = qnormgpd(the.prob, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$sigmau,
       modelfit$xi, modelfit$phiu),
-    gkg = qgkg(the.prob, modelfit$kerncentres, modelfit$lambda, 
-      modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul,
-      modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur),
-    bckden = qbckden(the.prob, modelfit$kerncentres, modelfit$lambda, modelfit$bcmethod,
-      modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
-    bckdengpd = qbckdengpd(the.prob, modelfit$kerncentres, modelfit$lambda, modelfit$u,
-      modelfit$sigmau, modelfit$xi, modelfit$phiu, modelfit$bcmethod,
-      modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax))
+    normgpdcon = qnormgpdcon(the.prob, modelfit$nmean, modelfit$nsd, modelfit$u,
+      modelfit$xi, modelfit$phiu),
+    weibullgpd = qweibullgpd(the.prob, modelfit$wshape, modelfit$wscale, modelfit$u,
+      modelfit$sigmau, modelfit$xi, modelfit$phiu),
+    weibullgpdcon = qweibullgpdcon(the.prob, modelfit$wshape, modelfit$wscale, modelfit$u,
+      modelfit$xi, modelfit$phiu))
 
   # If focus on upper tail then must display at least upper 10%
   # even if tail fraction is smaller, otherwise may not look nice
   if (upperfocus) { 
-    xlims = c(-1/log(1 - ifelse(phiu < 0.1, 0.1, phiu)), 10^max.emp.power)
+    xlims = c(1/ifelse(phiu < 0.1, 0.1, phiu), 10^max.emp.power)
     ylims = c(min(quantile(modelfit$x, 0.9, na.rm = TRUE), u), 
       max(c(modelfit$x, the.quant), na.rm = TRUE))
   } else {
@@ -304,52 +323,62 @@ rlplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 100
     simulate.new.quantiles <- function(i, modelfit, modelname) {
       simdata = switch(modelname,
         gpd = rgpd(n, modelfit$u, modelfit$sigmau, modelfit$xi, modelfit$phiu),
-        normgpd = rnormgpd(n, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$sigmau,
-          modelfit$xi, modelfit$phiu),
-        normgpdcon = rnormgpdcon(n, modelfit$nmean, modelfit$nsd, modelfit$u,
-          modelfit$xi, modelfit$phiu),
-        gng = rgng(n, modelfit$nmean, modelfit$nsd, 
-          modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul, 
-          modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur),
-        gngcon = rgngcon(n, modelfit$nmean, modelfit$nsd, 
-          modelfit$ul, modelfit$xil, modelfit$phiul, modelfit$ur, modelfit$xir, modelfit$phiur),
-        weibullgpd = rweibullgpd(n, modelfit$wshape, modelfit$wscale, modelfit$u,
+        bckden = rbckden(n, modelfit$kerncentres, modelfit$lambda, bw = NULL, modelfit$kernel,
+          modelfit$bcmethod, modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
+        bckdengpd = rbckdengpd(n, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+          modelfit$sigmau, modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel,
+          modelfit$bcmethod, modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
+        bckdengpdcon = rbckdengpdcon(n, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+          modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel,
+          modelfit$bcmethod, modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
+        betagpd = rbetagpd(n, modelfit$bshape1, modelfit$bshape2, modelfit$u,
           modelfit$sigmau, modelfit$xi, modelfit$phiu),
-        weibullgpdcon = rweibullgpdcon(n, modelfit$wshape, modelfit$wscale, modelfit$u,
+        betagpdcon = rbetagpdcon(n, modelfit$bshape1, modelfit$bshape2, modelfit$u,
           modelfit$xi, modelfit$phiu),
+        dwm = rdwm(n, modelfit$wshape, modelfit$wscale, modelfit$cmu, modelfit$ctau,
+          modelfit$sigmau, modelfit$xi),
         gammagpd = rgammagpd(n, modelfit$gshape, modelfit$gscale, modelfit$u,
           modelfit$sigmau, modelfit$xi, modelfit$phiu),
         gammagpdcon = rgammagpdcon(n, modelfit$gshape, modelfit$gscale, modelfit$u,
           modelfit$xi, modelfit$phiu),
-        mgammagpd = rmgammagpd(n, modelfit$mgshape, modelfit$mgscale, modelfit$mgweights,
-          modelfit$u, modelfit$sigmau, modelfit$xi, modelfit$phiu),
+        gkg = rgkg(n, modelfit$kerncentres, modelfit$lambda, 
+          modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul,
+          modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur, bw = NULL, modelfit$kernel),
+        gkgcon = rgkgcon(n, modelfit$kerncentres, modelfit$lambda, 
+          modelfit$ul, modelfit$xil, modelfit$phiul,
+          modelfit$ur, modelfit$xir, modelfit$phiur, bw = NULL, modelfit$kernel),
+        gng = rgng(n, modelfit$nmean, modelfit$nsd, 
+          modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul, 
+          modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur),
+        gngcon = rgngcon(n, modelfit$nmean, modelfit$nsd, 
+          modelfit$ul, modelfit$xil, modelfit$phiul,
+          modelfit$ur, modelfit$xir, modelfit$phiur),
+        hpd = rhpd(n, modelfit$nmean, modelfit$nsd, modelfit$xi),
+        hpdcon = rhpdcon(n, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$xi),
+        kden = rkden(n, modelfit$kerncentres, modelfit$lambda, bw = NULL, modelfit$kernel),
+        kdengpd = rkdengpd(n, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+          modelfit$sigmau, modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel),
+        kdengpdcon = rkdengpdcon(n, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+          modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel),
         lognormgpd = rlognormgpd(n, modelfit$lnmean, modelfit$lnsd, modelfit$u,
           modelfit$sigmau, modelfit$xi, modelfit$phiu),
         lognormgpdcon = rlognormgpd(n, modelfit$lnmean, modelfit$lnsd, modelfit$u,
           modelfit$sigmau, modelfit$xi, modelfit$phiu),
-        betagpd = rbetagpd(n, modelfit$bshape1, modelfit$bshape2, modelfit$u,
-          modelfit$sigmau, modelfit$xi, modelfit$phiu),
-        hpd = rhpd(n, modelfit$nmean, modelfit$nsd, modelfit$xi),
-        hpdcon = rhpdcon(n, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$xi),
-        dwm = rdwm(n, modelfit$wshape, modelfit$wscale, modelfit$cmu, modelfit$ctau,
-          modelfit$sigmau, modelfit$xi),
-        kden = rkden(n, modelfit$kerncentres, modelfit$lambda),
-        kdengpd = rkdengpd(n, modelfit$kerncentres, modelfit$lambda, modelfit$u,
-          modelfit$sigmau, modelfit$xi, modelfit$phiu),
-        kdengpdcon = rkdengpdcon(n, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+        mgammagpd = rmgammagpd(n, modelfit$mgshape, modelfit$mgscale, modelfit$mgweight,
+          modelfit$u, modelfit$sigmau, modelfit$xi, modelfit$phiu),
+        normgpd = rnormgpd(n, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$sigmau,
           modelfit$xi, modelfit$phiu),
-        gkg = rgkg(n, modelfit$kerncentres, modelfit$lambda, 
-          modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul,
-          modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur),
-        bckden = rbckden(n, modelfit$kerncentres, modelfit$lambda, modelfit$bcmethod,
-          modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
-        bckdengpd = rbckdengpd(n, modelfit$kerncentres, modelfit$lambda, modelfit$u,
-          modelfit$sigmau, modelfit$xi, modelfit$phiu, modelfit$bcmethod,
-          modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax))  
+        normgpdcon = rnormgpdcon(n, modelfit$nmean, modelfit$nsd, modelfit$u,
+          modelfit$xi, modelfit$phiu),
+        weibullgpd = rweibullgpd(n, modelfit$wshape, modelfit$wscale, modelfit$u,
+          modelfit$sigmau, modelfit$xi, modelfit$phiu),
+        weibullgpdcon = rweibullgpdcon(n, modelfit$wshape, modelfit$wscale, modelfit$u,
+          modelfit$xi, modelfit$phiu))
       sort(simdata, na.last = FALSE)
     }
     sim.q = sapply(1:N, FUN = simulate.new.quantiles, modelfit = modelfit, modelname = modelname)
     ci.q = apply(sim.q, FUN = quantile, MARGIN = 1, probs = c(alpha/2, 1 - alpha/2), na.rm = TRUE)
+
     # simulation for gpd allow for uncertainty in phiu, so need to ignore CI below threshold
     if (modelname == "gpd") {
       ci.q[1, modelfit$x < u] = NA
@@ -358,6 +387,8 @@ rlplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 100
     ylims[2] = max(c(ci.q, ylims[2]), na.rm = TRUE)
   }
 
+  if (is.infinite(ylims[2])) ylims[2] = max(modelfit$x)
+  
   plot(trans.emp.prob, modelfit$x, pch = 'x', cex = 0.8, log = "x",
     xlab = "Return Period", ylab = "Return Level",
     xlim = xlims, ylim = ylims, axes = FALSE, ...)
@@ -375,7 +406,7 @@ rlplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 100
   }
 
   if (!nothresh)
-    abline(v = -1/log(1 - phiu), lty = 3)
+    abline(v = 1/phiu, lty = 3)
   
   if (ci) {
     lines(trans.emp.prob, ci.q[1, ], lty=2)
@@ -403,7 +434,7 @@ rlplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 100
 
 qplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000, 
   legend = TRUE, ...) {
-  
+
   # Check properties of inputs
   if (missing(modelfit))
     stop("modelfit from extreme value mixture model must be given")
@@ -413,10 +444,11 @@ qplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
 
   modelname = substring(strsplit(deparse(modelfit$call), "\\(")[[c(1, 1)]], 2)
 
-  allmodelnames = c("gpd", "normgpd", "normgpdcon", "gng", "gngcon", 
-    "weibullgpd",  "weibullgpdcon", "gammagpd", "gammagpdcon", "mgammagpd",
-    "lognormgpd", "lognormgpdcon", "betagpd", "hpd", "hpdcon", "dwm",
-    "kden", "kdengpd", "kdengpdcon", "gkg", "bckden", "bckdengpd")
+  allmodelnames = c("gpd", "betagpd", "betagpdcon", 
+    "bckden", "bckdengpd", "bckdengpdcon", "dwm", "gammagpd", "gammagpdcon",
+    "gkg", "gkgcon", "gng", "gngcon", "hpd", "hpdcon", "mgammagpd", 
+    "kden", "kdengpd", "kdengpdcon", "lognormgpd", "lognormgpdcon",
+    "normgpd", "normgpdcon", "weibullgpd", "weibullgpdcon")
 
   if (!(modelname %in% allmodelnames))
     stop("invalid extreme value mixture model given")
@@ -446,7 +478,7 @@ qplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
     modelfit$x=sort(modelfit$x)
   
   nothresh = (modelname == "kden") | (modelname =="bckden") | (modelname =="dwm")
-  twotail = (modelname == "gng") | (modelname == "gngcon") | (modelname == "gkg")
+  twotail = (modelname == "gng") | (modelname == "gngcon") | (modelname == "gkg")| (modelname == "gkgcon")
   
   if (nothresh) {
     upperfocus = FALSE
@@ -474,48 +506,57 @@ qplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
   
   the.quant = switch(modelname,
     gpd = qgpd(emp.prob, modelfit$u, modelfit$sigmau, modelfit$xi, modelfit$phiu),
-    normgpd = qnormgpd(emp.prob, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$sigmau,
+    bckden = qbckden(emp.prob, modelfit$kerncentres, modelfit$lambda, bw = NULL,
+      modelfit$kernel, modelfit$bcmethod,
+      modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
+    bckdengpd = qbckdengpd(emp.prob, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+      modelfit$sigmau, modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel,
+      modelfit$bcmethod, modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
+    bckdengpdcon = qbckdengpdcon(emp.prob, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+      modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel,
+      modelfit$bcmethod, modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
+    betagpd = qbetagpd(emp.prob, modelfit$bshape1, modelfit$bshape2, modelfit$u,
+      modelfit$sigmau, modelfit$xi, modelfit$phiu),
+    betagpdcon = qbetagpdcon(emp.prob, modelfit$bshape1, modelfit$bshape2, modelfit$u,
       modelfit$xi, modelfit$phiu),
-    normgpdcon = qnormgpdcon(emp.prob, modelfit$nmean, modelfit$nsd, modelfit$u,
+    dwm = qdwm(emp.prob, modelfit$wshape, modelfit$wscale, modelfit$cmu, modelfit$ctau,
+      modelfit$sigmau, modelfit$xi),
+    gammagpd = qgammagpd(emp.prob, modelfit$gshape, modelfit$gscale, modelfit$u,
+      modelfit$sigmau, modelfit$xi, modelfit$phiu),
+    gammagpdcon = qgammagpdcon(emp.prob, modelfit$gshape, modelfit$gscale, modelfit$u,
       modelfit$xi, modelfit$phiu),
+    gkg = qgkg(emp.prob, modelfit$kerncentres, modelfit$lambda, 
+      modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul,
+      modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur, bw = NULL, modelfit$kernel),
+    gkgcon = qgkgcon(emp.prob, modelfit$kerncentres, modelfit$lambda, 
+      modelfit$ul, modelfit$xil, modelfit$phiul,
+      modelfit$ur, modelfit$xir, modelfit$phiur, bw = NULL, modelfit$kernel),
     gng = qgng(emp.prob, modelfit$nmean, modelfit$nsd, 
       modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul, 
       modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur),
     gngcon = qgngcon(emp.prob, modelfit$nmean, modelfit$nsd, 
       modelfit$ul, modelfit$xil, modelfit$phiul, modelfit$ur, modelfit$xir, modelfit$phiur),
-    weibullgpd = qweibullgpd(emp.prob, modelfit$wshape, modelfit$wscale, modelfit$u,
-      modelfit$sigmau, modelfit$xi, modelfit$phiu),
-    weibullgpdcon = qweibullgpdcon(emp.prob, modelfit$wshape, modelfit$wscale, modelfit$u,
-      modelfit$xi, modelfit$phiu),
-    gammagpd = qgammagpd(emp.prob, modelfit$gshape, modelfit$gscale, modelfit$u,
-      modelfit$sigmau, modelfit$xi, modelfit$phiu),
-    gammagpdcon = qgammagpdcon(emp.prob, modelfit$gshape, modelfit$gscale, modelfit$u,
-      modelfit$xi, modelfit$phiu),
-    mgammagpd = qmgammagpd(emp.prob, modelfit$mgshape, modelfit$mgscale, modelfit$mgweights,
+    hpd = qhpd(emp.prob, modelfit$nmean, modelfit$nsd, modelfit$xi),
+    hpdcon = qhpdcon(emp.prob, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$xi),
+    kden = qkden(emp.prob, modelfit$kerncentres, modelfit$lambda, bw = NULL, modelfit$kernel),
+    kdengpd = qkdengpd(emp.prob, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+      modelfit$sigmau, modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel),
+    kdengpdcon = qkdengpdcon(emp.prob, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+      modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel),
+    mgammagpd = qmgammagpd(emp.prob, modelfit$mgshape, modelfit$mgscale, modelfit$mgweight,
       modelfit$u, modelfit$sigmau, modelfit$xi, modelfit$phiu),
     lognormgpd = qlognormgpd(emp.prob, modelfit$lnmean, modelfit$lnsd, modelfit$u,
       modelfit$sigmau, modelfit$xi, modelfit$phiu),
     lognormgpdcon = qlognormgpd(emp.prob, modelfit$lnmean, modelfit$lnsd, modelfit$u,
-      modelfit$sigmau, modelfit$xi, modelfit$phiu),
-    betagpd = qbetagpd(emp.prob, modelfit$bshape1, modelfit$bshape2, modelfit$u,
-      modelfit$sigmau, modelfit$xi, modelfit$phiu),
-    hpd = qhpd(emp.prob, modelfit$nmean, modelfit$nsd, modelfit$xi),
-    hpdcon = qhpdcon(emp.prob, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$xi),
-    dwm = qdwm(emp.prob, modelfit$wshape, modelfit$wscale, modelfit$cmu, modelfit$ctau,
-      modelfit$sigmau, modelfit$xi),
-    kden = qkden(emp.prob, modelfit$kerncentres, modelfit$lambda),
-    kdengpd = qkdengpd(emp.prob, modelfit$kerncentres, modelfit$lambda, modelfit$u,
-      modelfit$sigmau, modelfit$xi, modelfit$phiu),
-    kdengpdcon = qkdengpdcon(emp.prob, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+      modelfit$sigmau, modelfit$xi, modelfit$phiu), 
+    normgpd = qnormgpd(emp.prob, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$sigmau,
       modelfit$xi, modelfit$phiu),
-    gkg = qgkg(emp.prob, modelfit$kerncentres, modelfit$lambda, 
-      modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul,
-      modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur),
-    bckden = qbckden(emp.prob, modelfit$kerncentres, modelfit$lambda, modelfit$bcmethod,
-      modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
-    bckdengpd = qbckdengpd(emp.prob, modelfit$kerncentres, modelfit$lambda, modelfit$u,
-      modelfit$sigmau, modelfit$xi, modelfit$phiu, modelfit$bcmethod,
-      modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax))  
+    normgpdcon = qnormgpdcon(emp.prob, modelfit$nmean, modelfit$nsd, modelfit$u,
+      modelfit$xi, modelfit$phiu),
+    weibullgpd = qweibullgpd(emp.prob, modelfit$wshape, modelfit$wscale, modelfit$u,
+      modelfit$sigmau, modelfit$xi, modelfit$phiu),
+    weibullgpdcon = qweibullgpdcon(emp.prob, modelfit$wshape, modelfit$wscale, modelfit$u,
+      modelfit$xi, modelfit$phiu))
 
   axislims = range(c(modelfit$x, the.quant), na.rm = TRUE)
 
@@ -524,48 +565,57 @@ qplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
     simulate.new.quantiles <- function(i, modelfit, modelname) {
       simdata = switch(modelname,
         gpd = rgpd(n, modelfit$u, modelfit$sigmau, modelfit$xi, modelfit$phiu),
-        normgpd = rnormgpd(n, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$sigmau,
-          modelfit$xi, modelfit$phiu),
-        normgpdcon = rnormgpdcon(n, modelfit$nmean, modelfit$nsd, modelfit$u,
-          modelfit$xi, modelfit$phiu),
-        gng = rgng(n, modelfit$nmean, modelfit$nsd, 
-          modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul, 
-          modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur),
-        gngcon = rgngcon(n, modelfit$nmean, modelfit$nsd, 
-          modelfit$ul, modelfit$xil, modelfit$phiul, modelfit$ur, modelfit$xir, modelfit$phiur),
-        weibullgpd = rweibullgpd(n, modelfit$wshape, modelfit$wscale, modelfit$u,
+        bckden = rbckden(n, modelfit$kerncentres, modelfit$lambda, bw = NULL, modelfit$kernel,
+          modelfit$bcmethod, modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
+        bckdengpd = rbckdengpd(n, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+          modelfit$sigmau, modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel,
+          modelfit$bcmethod, modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
+        bckdengpdcon = rbckdengpdcon(n, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+          modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel,
+          modelfit$bcmethod, modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
+        betagpd = rbetagpd(n, modelfit$bshape1, modelfit$bshape2, modelfit$u,
           modelfit$sigmau, modelfit$xi, modelfit$phiu),
-        weibullgpdcon = rweibullgpdcon(n, modelfit$wshape, modelfit$wscale, modelfit$u,
+        betagpdcon = rbetagpdcon(n, modelfit$bshape1, modelfit$bshape2, modelfit$u,
           modelfit$xi, modelfit$phiu),
+        dwm = rdwm(n, modelfit$wshape, modelfit$wscale, modelfit$cmu, modelfit$ctau,
+          modelfit$sigmau, modelfit$xi),
         gammagpd = rgammagpd(n, modelfit$gshape, modelfit$gscale, modelfit$u,
           modelfit$sigmau, modelfit$xi, modelfit$phiu),
         gammagpdcon = rgammagpdcon(n, modelfit$gshape, modelfit$gscale, modelfit$u,
           modelfit$xi, modelfit$phiu),
-        mgammagpd = rmgammagpd(n, modelfit$mgshape, modelfit$mgscale, modelfit$mgweights,
-          modelfit$u, modelfit$sigmau, modelfit$xi, modelfit$phiu),
+        gkg = rgkg(n, modelfit$kerncentres, modelfit$lambda, 
+          modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul,
+          modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur, bw = NULL, modelfit$kernel),
+        gkgcon = rgkgcon(n, modelfit$kerncentres, modelfit$lambda, 
+          modelfit$ul, modelfit$xil, modelfit$phiul,
+          modelfit$ur, modelfit$xir, modelfit$phiur, bw = NULL, modelfit$kernel),
+        gng = rgng(n, modelfit$nmean, modelfit$nsd, 
+          modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul, 
+          modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur),
+        gngcon = rgngcon(n, modelfit$nmean, modelfit$nsd, 
+          modelfit$ul, modelfit$xil, modelfit$phiul,
+          modelfit$ur, modelfit$xir, modelfit$phiur),
+        hpd = rhpd(n, modelfit$nmean, modelfit$nsd, modelfit$xi),
+        hpdcon = rhpdcon(n, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$xi),
+        kden = rkden(n, modelfit$kerncentres, modelfit$lambda, bw = NULL, modelfit$kernel),
+        kdengpd = rkdengpd(n, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+          modelfit$sigmau, modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel),
+        kdengpdcon = rkdengpdcon(n, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+          modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel),
         lognormgpd = rlognormgpd(n, modelfit$lnmean, modelfit$lnsd, modelfit$u,
           modelfit$sigmau, modelfit$xi, modelfit$phiu),
         lognormgpdcon = rlognormgpd(n, modelfit$lnmean, modelfit$lnsd, modelfit$u,
           modelfit$sigmau, modelfit$xi, modelfit$phiu),
-        betagpd = rbetagpd(n, modelfit$bshape1, modelfit$bshape2, modelfit$u,
-          modelfit$sigmau, modelfit$xi, modelfit$phiu),
-        hpd = rhpd(n, modelfit$nmean, modelfit$nsd, modelfit$xi),
-        hpdcon = rhpdcon(n, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$xi),
-        dwm = rdwm(n, modelfit$wshape, modelfit$wscale, modelfit$cmu, modelfit$ctau,
-          modelfit$sigmau, modelfit$xi),
-        kden = rkden(n, modelfit$kerncentres, modelfit$lambda),
-        kdengpd = rkdengpd(n, modelfit$kerncentres, modelfit$lambda, modelfit$u,
-          modelfit$sigmau, modelfit$xi, modelfit$phiu),
-        kdengpdcon = rkdengpdcon(n, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+        mgammagpd = rmgammagpd(n, modelfit$mgshape, modelfit$mgscale, modelfit$mgweight,
+          modelfit$u, modelfit$sigmau, modelfit$xi, modelfit$phiu),
+        normgpd = rnormgpd(n, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$sigmau,
           modelfit$xi, modelfit$phiu),
-        gkg = rgkg(n, modelfit$kerncentres, modelfit$lambda, 
-          modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul,
-          modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur),
-        bckden = rbckden(n, modelfit$kerncentres, modelfit$lambda, modelfit$bcmethod,
-          modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
-        bckdengpd = rbckdengpd(n, modelfit$kerncentres, modelfit$lambda, modelfit$u,
-          modelfit$sigmau, modelfit$xi, modelfit$phiu, modelfit$bcmethod,
-          modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax))  
+        normgpdcon = rnormgpdcon(n, modelfit$nmean, modelfit$nsd, modelfit$u,
+          modelfit$xi, modelfit$phiu),
+        weibullgpd = rweibullgpd(n, modelfit$wshape, modelfit$wscale, modelfit$u,
+          modelfit$sigmau, modelfit$xi, modelfit$phiu),
+        weibullgpdcon = rweibullgpdcon(n, modelfit$wshape, modelfit$wscale, modelfit$u,
+          modelfit$xi, modelfit$phiu))
       sort(simdata, na.last = FALSE)
     }
     sim.q = sapply(1:N, FUN = simulate.new.quantiles, modelfit = modelfit, modelname = modelname)
@@ -583,32 +633,34 @@ qplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
     axislims = c(u, axislims[2])    
   }
   
+  if (is.infinite(axislims[2])) axislims[2] = max(modelfit$x)
+
   plot(the.quant, modelfit$x, pch = 'x',
     xlab = "Theoretical Quantiles", ylab = "Empirical Quantiles", 
     xlim = axislims, ylim = axislims, ...)
-  abline(c(0,1))
+  abline(c(0, 1), col = "red")
 
   if (twotail) {
-    abline(h = modelfit$ul, lty = 3)
-    abline(h = modelfit$ur, lty = 3)
+    abline(h = modelfit$ul, v = modelfit$ul, lty = 3)
+    abline(h = modelfit$ur, v = modelfit$ur, lty = 3)
   } else {
-    abline(h = modelfit$u, lty = 3)
+    abline(h = modelfit$u, v = modelfit$u, lty = 3)
   }
   
   if (ci) {
     lines(the.quant, ci.q[1, ], lty=2)
     lines(the.quant, ci.q[2, ], lty=2)
     if (legend) {
-      legend("bottomright", c("Data", paste("Fitted", modelname, "Model"),
+      legend("bottomright", c("Data", "Line of Equality",
         paste("Simulated Pointwise ", formatC(100 * (1 - alpha), format = "f", digits=1), "% CI", sep=""),
         ifelse(twotail & !upperfocus, "Thresholds", "Threshold")),
-        pch = c(1, rep(-1, 3)), lty = c(0, 1, 2, 3), bg = "white")
+        pch = c(1, rep(-1, 3)), lty = c(0, 1, 2, 3), bg = "white", col = c("black", "red", rep("black", 2)))
     }
   } else {
     if (legend) {
-      legend("bottomright", c("Data", "Fitted Model",
+      legend("bottomright", c("Data", "Line of Equality",
         ifelse(twotail & !upperfocus, "Thresholds" ,"Threshold")),
-        pch = c(1, rep(-1, 2)), lty = c(0, 1, 3), bg = "white")
+        pch = c(1, rep(-1, 2)), lty = c(0, 1, 3), bg = "white", col = c("black", "red", "black"))
     }
   }
 }
@@ -629,10 +681,11 @@ pplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
 
   modelname = substring(strsplit(deparse(modelfit$call),"\\(")[[c(1, 1)]], 2)
 
-  allmodelnames = c("gpd", "normgpd", "normgpdcon", "gng", "gngcon", 
-    "weibullgpd",  "weibullgpdcon", "gammagpd", "gammagpdcon", "mgammagpd",
-    "lognormgpd", "lognormgpdcon", "betagpd", "hpd", "hpdcon", "dwm",
-    "kden", "kdengpd", "kdengpdcon", "gkg", "bckden", "bckdengpd")
+  allmodelnames = c("gpd", "betagpd", "betagpdcon", 
+    "bckden", "bckdengpd", "bckdengpdcon", "dwm", "gammagpd", "gammagpdcon",
+    "gkg", "gkgcon", "gng", "gngcon", "hpd", "hpdcon", "mgammagpd", 
+    "kden", "kdengpd", "kdengpdcon", "lognormgpd", "lognormgpdcon",
+    "normgpd", "normgpdcon", "weibullgpd", "weibullgpdcon")
 
   if (!(modelname %in% allmodelnames))
     stop("invalid extreme value mixture model given")
@@ -662,7 +715,7 @@ pplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
     modelfit$x=sort(modelfit$x)
   
   nothresh = (modelname == "kden") | (modelname =="bckden") | (modelname =="dwm")
-  twotail = (modelname == "gng") | (modelname == "gngcon") | (modelname == "gkg")
+  twotail = (modelname == "gng") | (modelname == "gngcon") | (modelname == "gkg") | (modelname == "gkgcon")
   
   if (nothresh) {
     upperfocus = FALSE
@@ -685,48 +738,56 @@ pplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
   
   the.prob = switch(modelname,
     gpd = pgpd(modelfit$x, modelfit$u, modelfit$sigmau, modelfit$xi, modelfit$phiu),
-    normgpd = pnormgpd(modelfit$x, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$sigmau,
+    bckden = pbckden(modelfit$x, modelfit$kerncentres, modelfit$lambda, bw = NULL, modelfit$kernel,
+      modelfit$bcmethod, modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
+    bckdengpd = pbckdengpd(modelfit$x, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+      modelfit$sigmau, modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel, 
+      modelfit$bcmethod, modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
+    bckdengpdcon = pbckdengpdcon(modelfit$x, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+      modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel, 
+      modelfit$bcmethod, modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
+    betagpd = pbetagpd(modelfit$x, modelfit$bshape1, modelfit$bshape2, modelfit$u,
+      modelfit$sigmau, modelfit$xi, modelfit$phiu),
+    betagpdcon = pbetagpdcon(modelfit$x, modelfit$bshape1, modelfit$bshape2, modelfit$u,
       modelfit$xi, modelfit$phiu),
-    normgpdcon = pnormgpdcon(modelfit$x, modelfit$nmean, modelfit$nsd, modelfit$u,
+    dwm = pdwm(modelfit$x, modelfit$wshape, modelfit$wscale, modelfit$cmu, modelfit$ctau,
+      modelfit$sigmau, modelfit$xi),
+    gammagpd = pgammagpd(modelfit$x, modelfit$gshape, modelfit$gscale, modelfit$u,
+      modelfit$sigmau, modelfit$xi, modelfit$phiu),
+    gammagpdcon = pgammagpdcon(modelfit$x, modelfit$gshape, modelfit$gscale, modelfit$u,
       modelfit$xi, modelfit$phiu),
+    gkg = pgkg(modelfit$x, modelfit$kerncentres, modelfit$lambda, 
+      modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul,
+      modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur, bw = NULL, modelfit$kernel),
+    gkgcon = pgkgcon(modelfit$x, modelfit$kerncentres, modelfit$lambda, 
+      modelfit$ul, modelfit$xil, modelfit$phiul,
+      modelfit$ur, modelfit$xir, modelfit$phiur, bw = NULL, modelfit$kernel),
     gng = pgng(modelfit$x, modelfit$nmean, modelfit$nsd, 
       modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul, 
       modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur),
     gngcon = pgngcon(modelfit$x, modelfit$nmean, modelfit$nsd, 
       modelfit$ul, modelfit$xil, modelfit$phiul, modelfit$ur, modelfit$xir, modelfit$phiur),
-    weibullgpd = pweibullgpd(modelfit$x, modelfit$wshape, modelfit$wscale, modelfit$u,
-      modelfit$sigmau, modelfit$xi, modelfit$phiu),
-    weibullgpdcon = pweibullgpdcon(modelfit$x, modelfit$wshape, modelfit$wscale, modelfit$u,
-      modelfit$xi, modelfit$phiu),
-    gammagpd = pgammagpd(modelfit$x, modelfit$gshape, modelfit$gscale, modelfit$u,
-      modelfit$sigmau, modelfit$xi, modelfit$phiu),
-    gammagpdcon = pgammagpdcon(modelfit$x, modelfit$gshape, modelfit$gscale, modelfit$u,
-      modelfit$xi, modelfit$phiu),
-    mgammagpd = pmgammagpd(modelfit$x, modelfit$mgshape, modelfit$mgscale, modelfit$mgweights,
-      modelfit$u, modelfit$sigmau, modelfit$xi, modelfit$phiu),
+    hpd = phpd(modelfit$x, modelfit$nmean, modelfit$nsd, modelfit$xi),
+    hpdcon = phpdcon(modelfit$x, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$xi),
+    kden = pkden(modelfit$x, modelfit$kerncentres, modelfit$lambda, bw = NULL, modelfit$kernel),
+    kdengpd = pkdengpd(modelfit$x, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+      modelfit$sigmau, modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel),
+    kdengpdcon = pkdengpdcon(modelfit$x, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+      modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel),
     lognormgpd = plognormgpd(modelfit$x, modelfit$lnmean, modelfit$lnsd, modelfit$u,
       modelfit$sigmau, modelfit$xi, modelfit$phiu),
     lognormgpdcon = plognormgpd(modelfit$x, modelfit$lnmean, modelfit$lnsd, modelfit$u,
       modelfit$sigmau, modelfit$xi, modelfit$phiu),
-    betagpd = pbetagpd(modelfit$x, modelfit$bshape1, modelfit$bshape2, modelfit$u,
-      modelfit$sigmau, modelfit$xi, modelfit$phiu),
-    hpd = phpd(modelfit$x, modelfit$nmean, modelfit$nsd, modelfit$xi),
-    hpdcon = phpdcon(modelfit$x, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$xi),
-    dwm = pdwm(modelfit$x, modelfit$wshape, modelfit$wscale, modelfit$cmu, modelfit$ctau,
-      modelfit$sigmau, modelfit$xi),
-    kden = pkden(modelfit$x, modelfit$kerncentres, modelfit$lambda),
-    kdengpd = pkdengpd(modelfit$x, modelfit$kerncentres, modelfit$lambda, modelfit$u,
-      modelfit$sigmau, modelfit$xi, modelfit$phiu),
-    kdengpdcon = pkdengpdcon(modelfit$x, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+    mgammagpd = pmgammagpd(modelfit$x, modelfit$mgshape, modelfit$mgscale, modelfit$mgweight,
+      modelfit$u, modelfit$sigmau, modelfit$xi, modelfit$phiu),
+    normgpd = pnormgpd(modelfit$x, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$sigmau,
       modelfit$xi, modelfit$phiu),
-    gkg = pgkg(modelfit$x, modelfit$kerncentres, modelfit$lambda, 
-      modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul,
-      modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur),
-    bckden = pbckden(modelfit$x, modelfit$kerncentres, modelfit$lambda, modelfit$bcmethod,
-      modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
-    bckdengpd = pbckdengpd(modelfit$x, modelfit$kerncentres, modelfit$lambda, modelfit$u,
-      modelfit$sigmau, modelfit$xi, modelfit$phiu, modelfit$bcmethod,
-      modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax))  
+    normgpdcon = pnormgpdcon(modelfit$x, modelfit$nmean, modelfit$nsd, modelfit$u,
+      modelfit$xi, modelfit$phiu),
+    weibullgpd = pweibullgpd(modelfit$x, modelfit$wshape, modelfit$wscale, modelfit$u,
+      modelfit$sigmau, modelfit$xi, modelfit$phiu),
+    weibullgpdcon = pweibullgpdcon(modelfit$x, modelfit$wshape, modelfit$wscale, modelfit$u,
+      modelfit$xi, modelfit$phiu))
 
   # If focus on upper tail then must display at least upper 10%
   # even if tail fraction is smaller, otherwise may not look nice
@@ -741,93 +802,110 @@ pplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
     simulate.new.probabilities <- function(i, modelfit, modelname) {
       simdata = switch(modelname,
         gpd = rgpd(n, modelfit$u, modelfit$sigmau, modelfit$xi, modelfit$phiu),
-        normgpd = rnormgpd(n, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$sigmau,
-          modelfit$xi, modelfit$phiu),
-        normgpdcon = rnormgpdcon(n, modelfit$nmean, modelfit$nsd, modelfit$u,
-          modelfit$xi, modelfit$phiu),
-        gng = rgng(n, modelfit$nmean, modelfit$nsd, 
-          modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul, 
-          modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur),
-        gngcon = rgngcon(n, modelfit$nmean, modelfit$nsd, 
-          modelfit$ul, modelfit$xil, modelfit$phiul, modelfit$ur, modelfit$xir, modelfit$phiur),
-        weibullgpd = rweibullgpd(n, modelfit$wshape, modelfit$wscale, modelfit$u,
+        bckden = rbckden(n, modelfit$kerncentres, modelfit$lambda, bw = NULL, modelfit$kernel,
+          modelfit$bcmethod, modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
+        bckdengpd = rbckdengpd(n, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+          modelfit$sigmau, modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel,
+          modelfit$bcmethod, modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
+        bckdengpdcon = rbckdengpdcon(n, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+          modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel,
+          modelfit$bcmethod, modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
+        betagpd = rbetagpd(n, modelfit$bshape1, modelfit$bshape2, modelfit$u,
           modelfit$sigmau, modelfit$xi, modelfit$phiu),
-        weibullgpdcon = rweibullgpdcon(n, modelfit$wshape, modelfit$wscale, modelfit$u,
+        betagpdcon = rbetagpdcon(n, modelfit$bshape1, modelfit$bshape2, modelfit$u,
           modelfit$xi, modelfit$phiu),
+        dwm = rdwm(n, modelfit$wshape, modelfit$wscale, modelfit$cmu, modelfit$ctau,
+          modelfit$sigmau, modelfit$xi),
         gammagpd = rgammagpd(n, modelfit$gshape, modelfit$gscale, modelfit$u,
           modelfit$sigmau, modelfit$xi, modelfit$phiu),
         gammagpdcon = rgammagpdcon(n, modelfit$gshape, modelfit$gscale, modelfit$u,
           modelfit$xi, modelfit$phiu),
-        mgammagpd = rmgammagpd(n, modelfit$mgshape, modelfit$mgscale, modelfit$mgweights,
-          modelfit$u, modelfit$sigmau, modelfit$xi, modelfit$phiu),
+        gkg = rgkg(n, modelfit$kerncentres, modelfit$lambda, 
+          modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul,
+          modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur, bw = NULL, modelfit$kernel),
+        gkgcon = rgkgcon(n, modelfit$kerncentres, modelfit$lambda, 
+          modelfit$ul, modelfit$xil, modelfit$phiul,
+          modelfit$ur, modelfit$xir, modelfit$phiur, bw = NULL, modelfit$kernel),
+        gng = rgng(n, modelfit$nmean, modelfit$nsd, 
+          modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul, 
+          modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur),
+        gngcon = rgngcon(n, modelfit$nmean, modelfit$nsd, 
+          modelfit$ul, modelfit$xil, modelfit$phiul,
+          modelfit$ur, modelfit$xir, modelfit$phiur),
+        hpd = rhpd(n, modelfit$nmean, modelfit$nsd, modelfit$xi),
+        hpdcon = rhpdcon(n, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$xi),
+        kden = rkden(n, modelfit$kerncentres, modelfit$lambda, bw = NULL, modelfit$kernel),
+        kdengpd = rkdengpd(n, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+          modelfit$sigmau, modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel),
+        kdengpdcon = rkdengpdcon(n, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+          modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel),
         lognormgpd = rlognormgpd(n, modelfit$lnmean, modelfit$lnsd, modelfit$u,
           modelfit$sigmau, modelfit$xi, modelfit$phiu),
         lognormgpdcon = rlognormgpd(n, modelfit$lnmean, modelfit$lnsd, modelfit$u,
           modelfit$sigmau, modelfit$xi, modelfit$phiu),
-        betagpd = rbetagpd(n, modelfit$bshape1, modelfit$bshape2, modelfit$u,
-          modelfit$sigmau, modelfit$xi, modelfit$phiu),
-        hpd = rhpd(n, modelfit$nmean, modelfit$nsd, modelfit$xi),
-        hpdcon = rhpdcon(n, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$xi),
-        dwm = rdwm(n, modelfit$wshape, modelfit$wscale, modelfit$cmu, modelfit$ctau,
-          modelfit$sigmau, modelfit$xi),
-        kden = rkden(n, modelfit$kerncentres, modelfit$lambda),
-        kdengpd = rkdengpd(n, modelfit$kerncentres, modelfit$lambda, modelfit$u,
-          modelfit$sigmau, modelfit$xi, modelfit$phiu),
-        kdengpdcon = rkdengpdcon(n, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+        mgammagpd = rmgammagpd(n, modelfit$mgshape, modelfit$mgscale, modelfit$mgweight,
+          modelfit$u, modelfit$sigmau, modelfit$xi, modelfit$phiu),
+        normgpd = rnormgpd(n, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$sigmau,
           modelfit$xi, modelfit$phiu),
-        gkg = rgkg(n, modelfit$kerncentres, modelfit$lambda, 
-          modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul,
-          modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur),
-        bckden = rbckden(n, modelfit$kerncentres, modelfit$lambda, modelfit$bcmethod,
-          modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
-        bckdengpd = rbckdengpd(n, modelfit$kerncentres, modelfit$lambda, modelfit$u,
-          modelfit$sigmau, modelfit$xi, modelfit$phiu, modelfit$bcmethod,
-          modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax))  
+        normgpdcon = rnormgpdcon(n, modelfit$nmean, modelfit$nsd, modelfit$u,
+          modelfit$xi, modelfit$phiu),
+        weibullgpd = rweibullgpd(n, modelfit$wshape, modelfit$wscale, modelfit$u,
+          modelfit$sigmau, modelfit$xi, modelfit$phiu),
+        weibullgpdcon = rweibullgpdcon(n, modelfit$wshape, modelfit$wscale, modelfit$u,
+          modelfit$xi, modelfit$phiu))
       simdata = sort(simdata, na.last = FALSE)
       simprob = switch(modelname,
         gpd = pgpd(simdata, modelfit$u, modelfit$sigmau, modelfit$xi, modelfit$phiu),
-        normgpd = pnormgpd(simdata, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$sigmau,
+        bckden = pbckden(simdata, modelfit$kerncentres, modelfit$lambda, bw = NULL, modelfit$kernel,
+          modelfit$bcmethod, modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
+        bckdengpd = pbckdengpd(simdata, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+          modelfit$sigmau, modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel,
+          modelfit$bcmethod, modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),  
+        bckdengpdcon = pbckdengpdcon(simdata, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+          modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel, modelfit$bcmethod,
+          modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),  
+        betagpd = pbetagpd(simdata, modelfit$bshape1, modelfit$bshape2, modelfit$u,
+          modelfit$sigmau, modelfit$xi, modelfit$phiu),
+        betagpdcon = pbetagpdcon(simdata, modelfit$bshape1, modelfit$bshape2, modelfit$u,
           modelfit$xi, modelfit$phiu),
-        normgpdcon = pnormgpdcon(simdata, modelfit$nmean, modelfit$nsd, modelfit$u,
+        dwm = pdwm(simdata, modelfit$wshape, modelfit$wscale, modelfit$cmu, modelfit$ctau,
+          modelfit$sigmau, modelfit$xi),
+        gammagpd = pgammagpd(simdata, modelfit$gshape, modelfit$gscale, modelfit$u,
+          modelfit$sigmau, modelfit$xi, modelfit$phiu),
+        gammagpdcon = pgammagpdcon(simdata, modelfit$gshape, modelfit$gscale, modelfit$u,
           modelfit$xi, modelfit$phiu),
+        gkg = pgkg(simdata, modelfit$kerncentres, modelfit$lambda, 
+          modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul,
+          modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur, bw = NULL, modelfit$kernel),
+        gkgcon = pgkgcon(simdata, modelfit$kerncentres, modelfit$lambda, 
+          modelfit$ul, modelfit$xil, modelfit$phiul,
+          modelfit$ur, modelfit$xir, modelfit$phiur, bw = NULL, modelfit$kernel),
         gng = pgng(simdata, modelfit$nmean, modelfit$nsd, 
           modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul, 
           modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur),
         gngcon = pgngcon(simdata, modelfit$nmean, modelfit$nsd, 
           modelfit$ul, modelfit$xil, modelfit$phiul, modelfit$ur, modelfit$xir, modelfit$phiur),
-        weibullgpd = pweibullgpd(simdata, modelfit$wshape, modelfit$wscale, modelfit$u,
-          modelfit$sigmau, modelfit$xi, modelfit$phiu),
-        weibullgpdcon = pweibullgpdcon(simdata, modelfit$wshape, modelfit$wscale, modelfit$u,
-          modelfit$xi, modelfit$phiu),
-        gammagpd = pgammagpd(simdata, modelfit$gshape, modelfit$gscale, modelfit$u,
-          modelfit$sigmau, modelfit$xi, modelfit$phiu),
-        gammagpdcon = pgammagpdcon(simdata, modelfit$gshape, modelfit$gscale, modelfit$u,
-          modelfit$xi, modelfit$phiu),
-        mgammagpd = pmgammagpd(simdata, modelfit$mgshape, modelfit$mgscale, modelfit$mgweights,
-          modelfit$u, modelfit$sigmau, modelfit$xi, modelfit$phiu),
+        hpd = phpd(simdata, modelfit$nmean, modelfit$nsd, modelfit$xi),
+        hpdcon = phpdcon(simdata, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$xi),
+        kden = pkden(simdata, modelfit$kerncentres, modelfit$lambda, bw = NULL, modelfit$kernel),
+        kdengpd = pkdengpd(simdata, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+          modelfit$sigmau, modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel),
+        kdengpdcon = pkdengpdcon(simdata, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+          modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel),
         lognormgpd = plognormgpd(simdata, modelfit$lnmean, modelfit$lnsd, modelfit$u,
           modelfit$sigmau, modelfit$xi, modelfit$phiu),
         lognormgpdcon = plognormgpd(simdata, modelfit$lnmean, modelfit$lnsd, modelfit$u,
           modelfit$sigmau, modelfit$xi, modelfit$phiu),
-        betagpd = pbetagpd(simdata, modelfit$bshape1, modelfit$bshape2, modelfit$u,
-          modelfit$sigmau, modelfit$xi, modelfit$phiu),
-        hpd = phpd(simdata, modelfit$nmean, modelfit$nsd, modelfit$xi),
-        hpdcon = phpdcon(simdata, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$xi),
-        dwm = pdwm(simdata, modelfit$wshape, modelfit$wscale, modelfit$cmu, modelfit$ctau,
-          modelfit$sigmau, modelfit$xi),
-        kden = pkden(simdata, modelfit$kerncentres, modelfit$lambda),
-        kdengpd = pkdengpd(simdata, modelfit$kerncentres, modelfit$lambda, modelfit$u,
-          modelfit$sigmau, modelfit$xi, modelfit$phiu),
-        kdengpdcon = pkdengpdcon(simdata, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+        mgammagpd = pmgammagpd(simdata, modelfit$mgshape, modelfit$mgscale, modelfit$mgweight,
+          modelfit$u, modelfit$sigmau, modelfit$xi, modelfit$phiu),
+        normgpd = pnormgpd(simdata, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$sigmau,
           modelfit$xi, modelfit$phiu),
-        gkg = pgkg(simdata, modelfit$kerncentres, modelfit$lambda, 
-          modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul,
-          modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur),
-        bckden = pbckden(simdata, modelfit$kerncentres, modelfit$lambda, modelfit$bcmethod,
-          modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
-        bckdengpd = pbckdengpd(simdata, modelfit$kerncentres, modelfit$lambda, modelfit$u,
-          modelfit$sigmau, modelfit$xi, modelfit$phiu, modelfit$bcmethod,
-          modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax))  
+        normgpdcon = pnormgpdcon(simdata, modelfit$nmean, modelfit$nsd, modelfit$u,
+          modelfit$xi, modelfit$phiu),
+        weibullgpd = pweibullgpd(simdata, modelfit$wshape, modelfit$wscale, modelfit$u,
+          modelfit$sigmau, modelfit$xi, modelfit$phiu),
+        weibullgpdcon = pweibullgpdcon(simdata, modelfit$wshape, modelfit$wscale, modelfit$u,
+          modelfit$xi, modelfit$phiu))
       simprob      
     }
     sim.p = sapply(1:N, FUN = simulate.new.probabilities, modelfit = modelfit, modelname = modelname)
@@ -837,29 +915,29 @@ pplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
   plot(the.prob, emp.prob, pch = 'x', cex = 0.8,
     xlab = "Theoretical Probability", ylab = "Empirical Probability",
     xlim = axislims, ylim = axislims, ...)
-  abline(c(0,1))
+  abline(c(0, 1), col = "red")
 
   if (twotail) {
-    abline(h = modelfit$phiul, lty = 3)
-    abline(h = 1 - modelfit$phiur, lty = 3)
+    abline(h = modelfit$phiul, v = modelfit$phiul, lty = 3)
+    abline(h = 1 - modelfit$phiur, v = 1 - modelfit$phiur, lty = 3)
   } else {
-    abline(h = 1 - modelfit$phiu, lty = 3)
+    abline(h = 1 - modelfit$phiu, v = 1 - modelfit$phiu, lty = 3)
   }
   
   if (ci) {
     lines(the.prob, ci.p[1, ], lty=2)
     lines(the.prob, ci.p[2, ], lty=2)
     if (legend) {
-      legend("bottomright", c("Data", paste("Fitted", modelname, "Model"),
+      legend("bottomright", c("Data", "Line of Equality",
         paste("Simulated Pointwise ", formatC(100 * (1 - alpha), format = "f", digits=1), "% CI", sep=""),
         ifelse(twotail & !upperfocus, "Tail Fractions", "Tail Fraction")),
-        pch = c(1, rep(-1, 3)), lty = c(0, 1, 2, 3), bg = "white")
+        pch = c(1, rep(-1, 3)), lty = c(0, 1, 2, 3), bg = "white", col = c("black", "red", rep("black", 2)))
     }
   } else {
     if (legend) {
-      legend("bottomright", c("Data", "Fitted Model",
+      legend("bottomright", c("Data", "Line of Equality",
         ifelse(twotail & !upperfocus, "Tail Fractions", "Tail Fraction")),
-        pch = c(1, rep(-1, 2)), lty = c(0, 1, 3), bg = "white")
+        pch = c(1, rep(-1, 2)), lty = c(0, 1, 3), bg = "white", col = c("black", "red", "black"))
     }
   }
 }
@@ -879,10 +957,11 @@ densplot <- function(modelfit, upperfocus = TRUE, legend = TRUE, ...) {
 
   modelname = substring(strsplit(deparse(modelfit$call), "\\(")[[c(1, 1)]], 2)
 
-  allmodelnames = c("gpd", "normgpd", "normgpdcon", "gng", "gngcon", 
-    "weibullgpd",  "weibullgpdcon", "gammagpd", "gammagpdcon", "mgammagpd",
-    "lognormgpd", "lognormgpdcon", "betagpd", "hpd", "hpdcon", "dwm",
-    "kden", "kdengpd", "kdengpdcon", "gkg", "bckden", "bckdengpd")
+  allmodelnames = c("gpd", "betagpd", "betagpdcon", 
+    "bckden", "bckdengpd", "bckdengpdcon", "dwm", "gammagpd", "gammagpdcon",
+    "gkg", "gkgcon", "gng", "gngcon", "hpd", "hpdcon", "mgammagpd", 
+    "kden", "kdengpd", "kdengpdcon", "lognormgpd", "lognormgpdcon",
+    "normgpd", "normgpdcon", "weibullgpd", "weibullgpdcon")
 
   if (!(modelname %in% allmodelnames))
     stop("invalid extreme value mixture model given")
@@ -897,7 +976,7 @@ densplot <- function(modelfit, upperfocus = TRUE, legend = TRUE, ...) {
     modelfit$x=sort(modelfit$x)
 
   nothresh = (modelname == "kden") | (modelname =="bckden") | (modelname =="dwm")
-  twotail = (modelname == "gng") | (modelname == "gngcon") | (modelname == "gkg")
+  twotail = (modelname == "gng") | (modelname == "gngcon") | (modelname == "gkg") | (modelname == "gkgcon")
   
   if (nothresh) {
     upperfocus = FALSE
@@ -919,48 +998,56 @@ densplot <- function(modelfit, upperfocus = TRUE, legend = TRUE, ...) {
 
   the.dens = switch(modelname,
     gpd = dgpd(xx, modelfit$u, modelfit$sigmau, modelfit$xi, modelfit$phiu),
-    normgpd = dnormgpd(xx, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$sigmau,
+    bckden = dbckden(xx, modelfit$kerncentres, modelfit$lambda, bw=NULL, modelfit$kernel,
+      modelfit$bcmethod, modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
+    bckdengpd = dbckdengpd(xx, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+      modelfit$sigmau, modelfit$xi, modelfit$phiu, bw=NULL, modelfit$kernel,
+      modelfit$bcmethod, modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
+    bckdengpdcon = dbckdengpdcon(xx, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+      modelfit$xi, modelfit$phiu, bw=NULL, modelfit$kernel, modelfit$bcmethod,
+      modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
+    betagpd = dbetagpd(xx, modelfit$bshape1, modelfit$bshape2, modelfit$u,
+      modelfit$sigmau, modelfit$xi, modelfit$phiu),
+    betagpdcon = dbetagpdcon(xx, modelfit$bshape1, modelfit$bshape2, modelfit$u,
       modelfit$xi, modelfit$phiu),
-    normgpdcon = dnormgpdcon(xx, modelfit$nmean, modelfit$nsd, modelfit$u,
+    dwm = ddwm(xx, modelfit$wshape, modelfit$wscale, modelfit$cmu, modelfit$ctau,
+      modelfit$sigmau, modelfit$xi),
+    gammagpd = dgammagpd(xx, modelfit$gshape, modelfit$gscale, modelfit$u,
+      modelfit$sigmau, modelfit$xi, modelfit$phiu),
+    gammagpdcon = dgammagpdcon(xx, modelfit$gshape, modelfit$gscale, modelfit$u,
       modelfit$xi, modelfit$phiu),
+    gkg = dgkg(xx, modelfit$kerncentres, modelfit$lambda, 
+      modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul,
+      modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur, bw=NULL, modelfit$kernel),
+    gkgcon = dgkgcon(xx, modelfit$kerncentres, modelfit$lambda, 
+      modelfit$ul, modelfit$xil, modelfit$phiul,
+      modelfit$ur, modelfit$xir, modelfit$phiur, bw=NULL, modelfit$kernel),
     gng = dgng(xx, modelfit$nmean, modelfit$nsd, 
       modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul, 
       modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur),
     gngcon = dgngcon(xx, modelfit$nmean, modelfit$nsd, 
       modelfit$ul, modelfit$xil, modelfit$phiul, modelfit$ur, modelfit$xir, modelfit$phiur),
-    weibullgpd = dweibullgpd(xx, modelfit$wshape, modelfit$wscale, modelfit$u,
-      modelfit$sigmau, modelfit$xi, modelfit$phiu),
-    weibullgpdcon = dweibullgpdcon(xx, modelfit$wshape, modelfit$wscale, modelfit$u,
-      modelfit$xi, modelfit$phiu),
-    gammagpd = dgammagpd(xx, modelfit$gshape, modelfit$gscale, modelfit$u,
-      modelfit$sigmau, modelfit$xi, modelfit$phiu),
-    gammagpdcon = dgammagpdcon(xx, modelfit$gshape, modelfit$gscale, modelfit$u,
-      modelfit$xi, modelfit$phiu),
-    mgammagpd = dmgammagpd(xx, modelfit$mgshape, modelfit$mgscale, modelfit$mgweights,
-      modelfit$u, modelfit$sigmau, modelfit$xi, modelfit$phiu),
+    hpd = dhpd(xx, modelfit$nmean, modelfit$nsd, modelfit$xi),
+    hpdcon = dhpdcon(xx, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$xi),
+    kden = dkden(xx, modelfit$kerncentres, modelfit$lambda, bw=NULL, modelfit$kernel),
+    kdengpd = dkdengpd(xx, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+      modelfit$sigmau, modelfit$xi, modelfit$phiu, bw=NULL, modelfit$kernel),
+    kdengpdcon = dkdengpdcon(xx, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+      modelfit$xi, modelfit$phiu, bw=NULL, modelfit$kernel),
     lognormgpd = dlognormgpd(xx, modelfit$lnmean, modelfit$lnsd, modelfit$u,
       modelfit$sigmau, modelfit$xi, modelfit$phiu),
     lognormgpdcon = dlognormgpd(xx, modelfit$lnmean, modelfit$lnsd, modelfit$u,
       modelfit$sigmau, modelfit$xi, modelfit$phiu),
-    betagpd = dbetagpd(xx, modelfit$bshape1, modelfit$bshape2, modelfit$u,
-      modelfit$sigmau, modelfit$xi, modelfit$phiu),
-    hpd = dhpd(xx, modelfit$nmean, modelfit$nsd, modelfit$xi),
-    hpdcon = dhpdcon(xx, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$xi),
-    dwm = ddwm(xx, modelfit$wshape, modelfit$wscale, modelfit$cmu, modelfit$ctau,
-      modelfit$sigmau, modelfit$xi),
-    kden = dkden(xx, modelfit$kerncentres, modelfit$lambda),
-    kdengpd = dkdengpd(xx, modelfit$kerncentres, modelfit$lambda, modelfit$u,
-      modelfit$sigmau, modelfit$xi, modelfit$phiu),
-    kdengpdcon = dkdengpdcon(xx, modelfit$kerncentres, modelfit$lambda, modelfit$u,
+    mgammagpd = dmgammagpd(xx, modelfit$mgshape, modelfit$mgscale, modelfit$mgweight,
+      modelfit$u, modelfit$sigmau, modelfit$xi, modelfit$phiu),
+    normgpd = dnormgpd(xx, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$sigmau,
       modelfit$xi, modelfit$phiu),
-    gkg = dgkg(xx, modelfit$kerncentres, modelfit$lambda, 
-      modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul,
-      modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur),
-    bckden = dbckden(xx, modelfit$kerncentres, modelfit$lambda, modelfit$bcmethod,
-      modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax),
-    bckdengpd = dbckdengpd(xx, modelfit$kerncentres, modelfit$lambda, modelfit$u,
-      modelfit$sigmau, modelfit$xi, modelfit$phiu, modelfit$bcmethod,
-      modelfit$proper, modelfit$nn, modelfit$offset, modelfit$xmax))
+    normgpdcon = dnormgpdcon(xx, modelfit$nmean, modelfit$nsd, modelfit$u,
+      modelfit$xi, modelfit$phiu),
+    weibullgpd = dweibullgpd(xx, modelfit$wshape, modelfit$wscale, modelfit$u,
+      modelfit$sigmau, modelfit$xi, modelfit$phiu),
+    weibullgpdcon = dweibullgpdcon(xx, modelfit$wshape, modelfit$wscale, modelfit$u,
+      modelfit$xi, modelfit$phiu))
 
   kde.est = density(modelfit$x, from = min(modelfit$x, na.rm = TRUE),
     to = max(modelfit$x, na.rm = TRUE), na.rm = TRUE)
@@ -981,17 +1068,16 @@ densplot <- function(modelfit, upperfocus = TRUE, legend = TRUE, ...) {
   
   if ((modelname == "gpd") & any(is.na(modelfit$x))) {
     hist(ifelse(is.na(modelfit$x), u - (max(modelfit$x, na.rm = TRUE) - u), modelfit$x),
-      breaks = ceiling(sum(!is.na(modelfit$x))/5), freq = FALSE, 
-      xlab = "Sample Data", main="", xlim = xlims, ylim = ylims)
+      breaks = "Scott", freq = FALSE, xlab = "Sample Data", main="", xlim = xlims, ylim = ylims)
   } else {
-    hist(modelfit$x, breaks = ceiling(sum(!is.na(modelfit$x))/5), freq = FALSE, 
+    hist(modelfit$x, breaks = "Scott", freq = FALSE, 
       xlab = "Sample Data", main="", xlim = xlims, ylim = ylims)    
   }
   rug(modelfit$x, quiet = TRUE)
   box()
     
   lines(xx, the.dens, lwd = 2)
-  lines(kde.est,lty = 2, lwd = 1.5)
+  lines(kde.est, lty = 2, lwd = 1.5, col = "green")
 
   if (twotail) {
     abline(v = c(modelfit$ul, modelfit$ur), lty = 3)
@@ -1001,6 +1087,6 @@ densplot <- function(modelfit, upperfocus = TRUE, legend = TRUE, ...) {
   if (legend) {
     legend("topright", c("Fitted Density", 
     ifelse(modelname == "gng", "Thresholds", "Threshold"), "KDE"),
-    lty = c(1, 3, 2), lwd = c(2, 1, 1.5), bg = "white")
+    lty = c(1, 3, 2), lwd = c(2, 1, 1.5), bg = "white", col = c(rep("black", 2), "green"))
   }
 }

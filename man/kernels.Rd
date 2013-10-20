@@ -1,0 +1,220 @@
+\name{kernels}
+\alias{kdbiweight}
+\alias{kdcosine}
+\alias{kdepanechnikov}
+\alias{kdgaussian}
+\alias{kdoptcosine}
+\alias{kdparzen}
+\alias{kdtriangular}
+\alias{kdtricube}
+\alias{kdtriweight}
+\alias{kduniform}
+\alias{kdz}
+\alias{kernels}
+\alias{kpbiweight}
+\alias{kpcosine}
+\alias{kpepanechnikov}
+\alias{kpgaussian}
+\alias{kpoptcosine}
+\alias{kpparzen}
+\alias{kptriangular}
+\alias{kptricube}
+\alias{kptriweight}
+\alias{kpuniform}
+\alias{kpz}
+\title{Kernel functions}
+\usage{
+  kdgaussian(x = 0, lambda = NULL, bw = NULL,
+    kerncentres = 0)
+
+  kduniform(x = 0, lambda = NULL, bw = NULL,
+    kerncentres = 0)
+
+  kdtriangular(x = 0, lambda = NULL, bw = NULL,
+    kerncentres = 0)
+
+  kdepanechnikov(x = 0, lambda = NULL, bw = NULL,
+    kerncentres = 0)
+
+  kdbiweight(x = 0, lambda = NULL, bw = NULL,
+    kerncentres = 0)
+
+  kdtriweight(x = 0, lambda = NULL, bw = NULL,
+    kerncentres = 0)
+
+  kdtricube(x = 0, lambda = NULL, bw = NULL,
+    kerncentres = 0)
+
+  kdparzen(x = 0, lambda = NULL, bw = NULL,
+    kerncentres = 0)
+
+  kdcosine(x = 0, lambda = NULL, bw = NULL,
+    kerncentres = 0)
+
+  kdoptcosine(x = 0, lambda = NULL, bw = NULL,
+    kerncentres = 0)
+
+  kpgaussian(x = 0, lambda = NULL, bw = NULL,
+    kerncentres = 0)
+
+  kpuniform(x = 0, lambda = NULL, bw = NULL,
+    kerncentres = 0)
+
+  kptriangular(x = 0, lambda = NULL, bw = NULL,
+    kerncentres = 0)
+
+  kpepanechnikov(x = 0, lambda = NULL, bw = NULL,
+    kerncentres = 0)
+
+  kpbiweight(x = 0, lambda = NULL, bw = NULL,
+    kerncentres = 0)
+
+  kptriweight(x = 0, lambda = NULL, bw = NULL,
+    kerncentres = 0)
+
+  kptricube(x = 0, lambda = NULL, bw = NULL,
+    kerncentres = 0)
+
+  kpparzen(x = 0, lambda = NULL, bw = NULL,
+    kerncentres = 0)
+
+  kpcosine(x = 0, lambda = NULL, bw = NULL,
+    kerncentres = 0)
+
+  kpoptcosine(x = 0, lambda = NULL, bw = NULL,
+    kerncentres = 0)
+
+  kdz(z, kernel = "gaussian")
+
+  kpz(z, kernel = "gaussian")
+}
+\arguments{
+  \item{x}{location to evaluate KDE (single scalar or
+  vector)}
+
+  \item{kerncentres}{kernel centres (typically sample data
+  vector or scalar)}
+
+  \item{lambda}{bandwidth for kernel (as half-width of
+  kernel) or \code{NULL}}
+
+  \item{bw}{bandwidth for kernel (as standard deviations of
+  kernel) or \code{NULL}}
+
+  \item{z}{standardised location put into kernel \code{z =
+  (x-kerncentres)/lambda}}
+
+  \item{kernel}{kernel name (\code{default = "gaussian"})}
+}
+\value{
+  code{\link[evmix:kernels]{kd*}} and
+  \code{\link[evmix:kernels]{kp*}} give the density and
+  cumulative distribution functions for each kernel
+  respectively, where \code{*} is the kernel name.
+  \code{\link[evmix:kernels]{kdz}} and
+  \code{\link[evmix:kernels]{kpz}} are the equivalent
+  global functions for all of the kernels.
+}
+\description{
+  Functions for commonly used kernels for kernel density
+  estimation. The density and cumulative distribution
+  functions are provided.
+}
+\details{
+  Functions for the commonly used kernels for kernel
+  density estimation. The density and cumulative
+  distribution functions are provided. Each function can
+  accept the bandwidth specified as either: \enumerate{
+  \item \code{bw} - in terms of number of standard
+  deviations of the kernel, consistent with the defined
+  values in the \code{\link[stats:density]{density}}
+  function in the \code{R} base libraries \item
+  \code{lambda} - in terms of half-width of kernel } If
+  both bandwidths are given as \code{NULL} then the default
+  bandwidth is \code{lambda=1}. If either one is specified
+  then this will be used. If both are specified then
+  \code{lambda} will be used.
+
+  All the kernels have bounded support \eqn{[-\lambda,
+  \lambda]}, except the normal (\code{"gaussian"}) which is
+  unbounded. In the latter, both bandwidths are the same
+  \code{bw=lambda} and equal to the standard deviation.
+
+  Typically,a single location \code{x} at which to evaluate
+  kernel is given along with vector of kernel centres. As
+  such, they are designed to be used with
+  \code{\link[base:lapply]{sapply}} to loop over vector of
+  locations at which to evaluate KDE. Alternatively, a
+  vector of locations \code{x} can be given with a single
+  scalar kernel centre \code{kerncentres}, which is
+  commonly used when locations are pre-standardised by
+  \code{(x-kerncentres)/lambda} and \code{kerncentre=0}. A
+  warnings is given if both the evaluation locations and
+  kernel centres are vectors as this is not often needed so
+  is likely to be a user error.
+
+  If no kernel centres are provided then by default it is
+  set to zero (i.e. x is at middle of kernel).
+
+  The following kernels are implemented, with relevant ones
+  having definitions consistent with those of the
+  \code{\link[stats:density]{density}} function, except
+  where specified: \itemize{ \item \code{gaussian} or
+  \code{normal} \item \code{uniform} or \code{rectangular}
+  - same as \code{"rectangular"} in
+  \code{\link[stats:density]{density}} function \item
+  \code{triangular} \item \code{epanechnikov} \item
+  \code{biweight} \item \code{triweight} \item
+  \code{tricube} \item \code{parzen} \item \code{cosine}
+  \item \code{optcosine} } The kernel densities are all
+  normalised to unity. See Wikipedia reference below for
+  their definitions.
+
+  Each kernel's functions can be called individually, or
+  the global functions \code{\link[evmix:kernels]{kdz}} and
+  \code{\link[evmix:kernels]{kpz}} for the density and
+  cumulative distribution function can apply any particular
+  kernel which is specified by the \code{kernel} input.
+  These global functions take the standardised locations
+  \code{z = (x - kerncentres)/lambda}.
+}
+\examples{
+xx = seq(-2, 2, 0.01)
+plot(xx, kdgaussian(xx), type = "l", col = "black",ylim = c(0, 1.2))
+lines(xx, kduniform(xx), col = "grey")
+lines(xx, kdtriangular(xx), col = "blue")
+lines(xx, kdepanechnikov(xx), col = "darkgreen")
+lines(xx, kdbiweight(xx), col = "red")
+lines(xx, kdtriweight(xx), col = "purple")
+lines(xx, kdtricube(xx), col = "orange")
+lines(xx, kdparzen(xx), col = "salmon")
+lines(xx, kdcosine(xx), col = "cyan")
+lines(xx, kdoptcosine(xx), col = "goldenrod")
+legend("topright", c("Gaussian", "uniform", "triangular", "Epanechnikov",
+"biweight", "triweight", "tricube", "Parzen", "cosine", "optcosine"), lty = 1,
+col = c("black", "grey", "blue", "darkgreen", "red", "purple", "orange",
+  "salmon", "cyan", "goldenrod"))
+}
+\author{
+  Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}.
+}
+\references{
+  \url{http://en.wikipedia.org/wiki/Kernel_density_estimation}
+
+  \url{http://http://en.wikipedia.org/wiki/Kernel_(statistics)}
+
+  Wand, M. and Jones, M.C. (1995). Kernel Smoothing.
+  Chapman && Hall.
+}
+\seealso{
+  \code{\link[stats:density]{density}},
+  \code{\link[evmix:kden]{kden}} and
+  \code{\link[evmix:bckden]{bckden}}.
+
+  Other kernels: \code{\link{check.kbw}},
+  \code{\link{check.kernel}}, \code{\link{check.kinputs}},
+  \code{\link{ka0}}, \code{\link{ka1}}, \code{\link{ka2}},
+  \code{\link{kbw}}, \code{\link{kfun}},
+  \code{\link{klambda}}
+}
+

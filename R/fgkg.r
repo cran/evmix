@@ -1,120 +1,139 @@
 #' @export
 #' 
-#' @title Cross-validation MLE Fitting of Kernel Density Estimation for Bulk and GPD
-#' for Both Upper and Lower Tails in Extreme Value Mixture Model
+#' @title MLE Fitting of Kernel Density Estimate for Bulk and GPD for Both Tails
+#'  Extreme Value Mixture Model
 #'
-#' @description Maximum likelihood estimation for the extreme value mixture model
-#' with kernel density estimation using normal kernel for bulk distribution between
-#' the upper and lower thresholds with conditional GPD's for the two tails
+#' @description Maximum likelihood estimation for fitting the extreme value 
+#' mixture model with kernel density estimate for bulk distribution between thresholds and conditional
+#' GPDs beyond thresholds. With options for profile likelihood estimation for both thresholds and
+#' fixed threshold approach.
 #'
-#' @inheritParams fkdengpd
 #' @inheritParams fgng
+#' @inheritParams fkdengpd
+#' @inheritParams fkden
+#' @inheritParams kden
+#' @inheritParams fnormgpd
+#' @inheritParams fgpd
 #' 
-#' @details Extreme value mixture model combining for the extreme value mixture model
-#' with kernel density estimation using normal kernel for bulk distribution between the
-#' upper and lower thresholds with conditional GPD's for the two tails. Fitted to the
-#' entire dataset using maximum cross-validation likelihood
-#'   estimation. The estimated parameters, their variance and standard error are
-#'   automatically output.
-#'   
-#'   Cross-validation likelihood is used for kernel density component, but 
-#'   standard likelihood is used for GPD components. The default value for
-#'   \code{phiul=TRUE} so that the tail fraction is specified by normal
-#'   distribution \eqn{\phi_u = 1 - mean(H(ul))}. When \code{phiul=FALSE} then the tail 
-#'   fraction is treated as an extra parameter estimated using the MLE which is
-#'   the sample proportion below the threshold \code{ul}. In this case the standard error
-#'   for \code{phiu} is estimated and output as \code{sephiu}.
-#'   
-#'   Missing values (\code{NA} and \code{NaN}) are assumed to be invalid data so
-#'   are ignored, which is inconsistent with the \code{\link[evd:fpot]{evd}}
-#'   library which assumes the missing values are below the threshold.
-#'   
-#'   The default optimisation algorithm is "BFGS", which requires a finite
-#'   negative log-likelihood function evaluation \code{finitelik=TRUE}. For
-#'   invalid parameters, a zero likelihood is replaced with \code{exp(-1e6)}.
-#'   The "BFGS" optimisation algorithms require finite values for likelihood, so
-#'   any user input for \code{finitelik} will be overridden and set to
-#'   \code{finitelik=TRUE} if either of these optimisation methods is chosen.
-#'   
-#'   It will display a warning for non-zero convergence result comes from 
-#'   \code{\link[stats:optim]{optim}} function call.
-#'   
-#'   If the hessian is of reduced rank then the variance (from inverse hessian) 
-#'   and standard error of bandwidth parameter cannot be calculated, then by
-#'   default \code{std.err=TRUE} and the function will stop. If you want the
-#'   bandwidth estimate even if the hessian is of reduced rank (e.g. in a
-#'   simulation study) then set \code{std.err=FALSE}.
-#'   
-#' @section Warning:
-#' Two important practical issues arise with MLE for the kernel bandwidth:
-#' 1) Cross-validation likelihood is needed for the KDE bandwidth parameter
-#' as the usual likelihood degenerates, so that the MLE \eqn{\hat{\lambda} \rightarrow 0} as
-#' \eqn{n \rightarrow \infty}, thus giving a negative bias towards a small bandwidth.
-#' Leave one out cross-validation essentially ensures that some smoothing between the kernel centres
-#' is required (i.e. a non-zero bandwidth), otherwise the resultant density estimates would always
-#' be zero if the bandwidth was zero.
+#' @details The extreme value mixture model with kernel density estimate for bulk and
+#' GPD for both tails is 
+#' fitted to the entire dataset using maximum likelihood estimation. The estimated
+#' parameters, variance-covariance matrix and their standard errors are automatically
+#' output.
 #' 
-#' This problem occassionally rears its ugly head for data which has been heavily rounded,
-#' as even when using cross-validation the density can be non-zero even if the bandwidth is zero.
-#' To overcome this issue an option to add a small jitter should be added to the data
-#' (\code{x} only) has been included in the fitting inputs, using the 
-#' \code{\link[base:jitter]{jitter}} function, to remove the ties. The default options red in the 
-#' \code{\link[base:jitter]{jitter}} are specified above, but the user can override these.
-#' Notice the default scaling \code{factor=0.1}, which is a tenth of the default value in the
-#' \code{\link[base:jitter]{jitter}}
-#' function itself.
+#' See help for \code{\link[evmix:fnormgpd]{fnormgpd}} and \code{\link[evmix:fgkg]{fgkg}} 
+#' for details, type \code{help fnormgpd} and \code{help fgkg}. 
+#' Only the different features are outlined below for brevity.
 #' 
-#' A warning message is given if the data appear to be rounded
-#' (i.e. more than 5% of data are tied). If the estimated bandwidth is too small, then
-#' data rounding is the likely culprit. Only use the jittering when the MLE of
-#' the bandwidth is far too small. 
+#' The full parameter vector is
+#' (\code{lambda}, \code{ul}, \code{sigmaul}, \code{xil}, \code{ur}, \code{sigmaur}, \code{xir})
+#' if threshold is also estimated and
+#' (\code{lambda}, \code{sigmaul}, \code{xil}, \code{sigmaur}, \code{xir})
+#' for profile likelihood or fixed threshold approach.
 #' 
-#' @return Returns a simple list with the following elements
-#'
-#' \tabular{ll}{
-#' \code{call}: \tab \code{optim} call\cr
-#' \code{x}: \tab (jittered) data vector \code{x}\cr
-#' \code{kerncentres}: actual kernel centres used \code{x}\cr
-#' \code{init}: \tab \code{pvector}\cr
-#' \code{optim}: \tab complete \code{optim} output\cr
-#' \code{mle}: \tab vector of MLE of parameters\cr
-#' \code{cov}: \tab variance of MLE parameters\cr
-#' \code{se}: \tab standard error of MLE parameters\cr
-#' \code{nllh}: \tab minimum negative cross-validation log-likelihood\cr
-#' \code{allparams}: \tab vector of MLE of model parameters, including \code{phiul} and \code{phiur}\cr
-#' \code{allse}: \tab vector of standard error of all parameters, including \code{phiul} and \code{phiur}\cr
-#' \code{n}: \tab total sample size\cr
-#' \code{lambda}: \tab MLE of bandwidth\cr
-#' \code{ul}: \tab lower threshold\cr
-#' \code{sigmaul}: \tab MLE of lower tail GPD scale\cr
-#' \code{xil}: \tab MLE of lower tail GPD shape\cr
-#' \code{phiul}: \tab MLE of lower tail fraction\cr
-#' \code{ur}: \tab upper threshold\cr
-#' \code{sigmaur}: \tab MLE of upper tail GPD scale\cr
-#' \code{xir}: \tab MLE of upper tail GPD shape\cr
-#' \code{phiur}: \tab MLE of upper tail fraction\cr
+#' Cross-validation likelihood is used for KDE, but standard likelihood is used
+#' for GPD components. See help for \code{\link[evmix:fkden]{fkden}} for details,
+#' type \code{help fkden}.
+#' 
+#' The alternate bandwidth definitions are discussed in the 
+#' \code{\link[evmix:kernels]{kernels}}, with the \code{lambda} as the default
+#' used in the likelihood fitting. The \code{bw} specification is the same as
+#' used in the \code{\link[stats:density]{density}} function.
+#' 
+#' The possible kernels are also defined in \code{\link[evmix:kernels]{kernels}}
+#' with the \code{"gaussian"} as the default choice.
+#' 
+#' The tail fractions \code{phiul} and \code{phiur} are treated separately to the other parameters, 
+#' to allow for all their representations. In the fitting functions 
+#' \code{\link[evmix:fgkg]{fgkg}} and
+#' \code{\link[evmix:fgkg]{proflugkg}} they are logical:
+#' \itemize{
+#'  \item default values \code{phiul=TRUE} and \code{phiur=TRUE} - tail fractions specified by 
+#'    KDE distribution and survivior functions respectively and
+#'    standard error is output as \code{NA}.
+#'  \item \code{phiul=FALSE} and \code{phiur=FALSE} - treated as extra parameters estimated using
+#'    the MLE which is the sample proportion beyond the thresholds and 
+#'    standard error is output.
+#' }
+#' In the likelihood functions \code{\link[evmix:fgkg]{lgkg}},
+#' \code{\link[evmix:fgkg]{nlgkg}} and \code{\link[evmix:fgkg]{nlugkg}} 
+#' it can be logical or numeric:
+#' \itemize{
+#'  \item logical - same as for fitting functions with default values \code{phiul=TRUE} and \code{phiur=TRUE}.
+#'  \item numeric - any value over range \eqn{(0, 1)}. Notice that the tail
+#'    fraction probability cannot be 0 or 1 otherwise there would be no
+#'    contribution from either tail or bulk components respectively. Also,
+#'    \code{phiul+phiur<1} as bulk must contribute.
 #' }
 #' 
-#' The output list has some duplicate entries and repeats some of the inputs to both 
-#' provide similar items to those from \code{\link[evd:fpot]{fpot}} and to make it 
-#' as useable as possible.
-#'  
-#' @note When \code{pvector=NULL} then the initial value for the parameters are calculated 
-#' type \code{fkdengpdcon} to see how.
+#' @section Warning:
+#' See important warnings about cross-validation likelihood estimation in 
+#' \code{\link[evmix:fkden]{fkden}}, type \code{help fkden}.
 #' 
-#' The fitting function will stop if infinite sample values are given.
+#' @return Log-likelihood is given by \code{\link[evmix:fgkg]{lgkg}} and it's
+#'   wrappers for negative log-likelihood from \code{\link[evmix:fgkg]{nlgkg}}
+#'   and \code{\link[evmix:fgkg]{nlugkg}}. Profile likelihood for single pair of upper and lower
+#'   thresholds given by \code{\link[evmix:fgkg]{proflugkg}}. Fitting function
+#'   \code{\link[evmix:fgkg]{fgkg}} returns a simple list with the
+#'   following elements
+#'
+#' \tabular{ll}{
+#'  \code{call}:      \tab \code{optim} call\cr
+#'  \code{x}:         \tab data vector \code{x}\cr
+#'  \code{init}:      \tab \code{pvector}\cr
+#'  \code{fixedu}:    \tab fixed threshold, logical\cr
+#'  \code{useq}:      \tab threshold vector for profile likelihood or scalar for fixed threshold\cr
+#'  \code{optim}:     \tab complete \code{optim} output\cr
+#'  \code{mle}:       \tab vector of MLE of parameters\cr
+#'  \code{cov}:       \tab variance-covariance matrix of MLE of parameters\cr
+#'  \code{se}:        \tab vector of standard errors of MLE of parameters\cr
+#'  \code{rate}:      \tab \code{phiu} to be consistent with \code{\link[evd:fpot]{evd}}\cr
+#'  \code{nllh}:      \tab minimum negative log-likelihood\cr
+#'  \code{n}:         \tab total sample size\cr
+#'  \code{lambda}:    \tab MLE of lambda (kernel half-width)\cr
+#'  \code{ul}:        \tab lower threshold (fixed or MLE)\cr
+#'  \code{sigmaul}:   \tab MLE of lower tail GPD scale\cr
+#'  \code{xil}:       \tab MLE of lower tail GPD shape\cr
+#'  \code{phiul}:     \tab MLE of lower tail fraction (bulk model or parameterised approach)\cr
+#'  \code{se.phiul}:  \tab standard error of MLE of lower tail fraction\cr
+#'  \code{ur}:        \tab upper threshold (fixed or MLE)\cr
+#'  \code{sigmaur}:   \tab MLE of upper tail GPD scale\cr
+#'  \code{xir}:       \tab MLE of upper tail GPD shape\cr
+#'  \code{phiur}:     \tab MLE of upper tail fraction (bulk model or parameterised approach)\cr
+#'  \code{se.phiur}:  \tab standard error of MLE of upper tail fraction\cr
+#'  \code{bw}:        \tab MLE of bw (kernel standard deviations)\cr
+#'  \code{kernel}:    \tab kernel name\cr
+#' }
 #' 
-#' Error checking of the inputs is carried out and will either stop or give warning message
-#' as appropriate.
+#' @note The data and kernel centres are both vectors. Infinite and missing sample values
+#' (and kernel centres) are dropped.
+#' 
+#' When \code{pvector=NULL} then the initial values are:
+#' \itemize{
+#'  \item normal reference rule for bandwidth, using the \code{\link[stats:bandwidth]{bw.nrd0}} function, which is
+#'    consistent with the \code{\link[stats:density]{density}} function. At least two kernel
+#'    centres must be provided as the variance needs to be estimated.
+#'  \item lower threshold 10\% quantile (not relevant for profile likelihood for threshold or fixed threshold approaches);
+#'  \item upper threshold 90\% quantile (not relevant for profile likelihood for threshold or fixed threshold approaches);
+#'  \item MLE of GPD parameters beyond thresholds. 
+#' }
 #' 
 #' @references
+#' \url{http://www.math.canterbury.ac.nz/~c.scarrott/evmix}
+#' 
 #' \url{http://en.wikipedia.org/wiki/Kernel_density_estimation}
 #' 
 #' \url{http://en.wikipedia.org/wiki/Cross-validation_(statistics)}
 #' 
+#' \url{http://en.wikipedia.org/wiki/Generalized_Pareto_distribution}
+#' 
 #' Scarrott, C.J. and MacDonald, A. (2012). A review of extreme value
 #' threshold estimation and uncertainty quantification. REVSTAT - Statistical
 #' Journal 10(1), 33-59. Available from \url{http://www.ine.pt/revstat/pdf/rs120102.pdf}
+#' 
+#' Hu, Y. (2013). Extreme value mixture modelling: An R package and simulation study.
+#' MSc (Hons) thesis, University of Canterbury, New Zealand.
+#' \url{http://ir.canterbury.ac.nz/simple-search?query=extreme&submit=Go}
 #' 
 #' Bowman, A.W. (1984). An alternative method of cross-validation for the smoothing of
 #' density estimates. Biometrika 71(2), 353-360.
@@ -126,151 +145,266 @@
 #' A flexible extreme value mixture model. Computational Statistics and Data Analysis
 #' 55(6), 2137-2157.
 #' 
-#' MacDonald, A., C. J. Scarrott, and D. S. Lee (2011). Boundary correction, consistency
-#' and robustness of kernel densities using extreme value theory. Submitted.
-#' Available from: \url{http://www.math.canterbury.ac.nz/~c.scarrott}.
-
+#' Wand, M. and Jones, M.C. (1995). Kernel Smoothing. Chapman && Hall.
+#' 
 #' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'
-#' @seealso \code{\link[evmix:fkdengpd]{fkdengpd}}, \code{\link[evmix:fkden]{fkden}}, 
-#' \code{\link[base:jitter]{jitter}},
-#' \code{\link[stats:density]{density}} and \code{\link[stats:bandwidth]{bw.nrd0}}
+#' @section Acknowledgments: See Acknowledgments in
+#'   \code{\link[evmix:fnormgpd]{fnormgpd}}, type \code{help fnormgpd}. Based on MATLAB
+#'   code written by Anna MacDonald.
 #' 
-#' @family gkg
+#' @seealso \code{\link[evmix:kernels]{kernels}}, \code{\link[evmix:kfun]{kfun}},
+#'  \code{\link[stats:density]{density}}, \code{\link[stats:bandwidth]{bw.nrd0}}
+#' and \code{\link[ks:kde.1d]{dkde}} in \code{\link[ks:kde.1d]{ks}} package.
+#'  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
+#'  
+#' @aliases fgkg lgkg nlgkg proflugkg nlugkg
+#' @family  kdengpd kdengpdcon fkdengpd fkdengpdcon normgpd fnormgpd gkg gkgcon fgkg fgkgcon
+#'          kden bckden bckdengpd bckdengpdcon fkden fbckden fbckdengpd fbckdengpdcon
 #' 
 #' @examples
 #' \dontrun{
-#' x = rnorm(1000, 0, 1)
-#' fit = fgkg(x, phiul = FALSE, phiur = FALSE, std.err = FALSE)
-#' hist(x, 100, freq = FALSE, xlim = c(-5, 5)) 
-#' xx = seq(-5, 5, 0.01)
-#' lines(xx, dgkg(xx, x, fit$lambda, fit$ul, fit$sigmaul, fit$xil, fit$phiul,
-#'  fit$ur, fit$sigmaur, fit$xir, fit$phiur), col="blue")
-#' abline(v = fit$ul)
-#' abline(v = fit$ur)
+#' par(mfrow=c(2,1))
+#' x = rnorm(1000)
+#' xx = seq(-4, 4, 0.01)
+#' y = dnorm(xx)
+#' 
+#' # Bulk model based tail fraction
+#' fit = fgkg(x)
+#' hist(x, breaks = 100, freq = FALSE, xlim = c(-4, 4))
+#' lines(xx, y)
+#' with(fit, lines(xx, dgkg(xx, x, lambda, ul, sigmaul, xil, phiul,
+#'    ur, sigmaur, xir, phiur), col="red"))
+#' abline(v = c(fit$ul, fit$ur), col = "red")
+#'   
+#' # Parameterised tail fraction
+#' fit2 = fgkg(x, phiul = FALSE, phiur = FALSE)
+#' with(fit2, lines(xx, dgkg(xx, x, lambda, ul, sigmaul, xil, phiul,
+#'    ur, sigmaur, xir, phiur), col="blue"))
+#' abline(v = c(fit2$ul, fit2$ur), col = "blue")
+#' legend("topright", c("True Density","Bulk Tail Fraction","Parameterised Tail Fraction"),
+#'   col=c("black", "red", "blue"), lty = 1)
+#'   
+#' # Profile likelihood for initial value of threshold and fixed threshold approach
+#' fitu = fgkg(x, ulseq = rep(seq(-2, -0.2, length = 10), times = 10), 
+#'  urseq = rep(seq(0.2, 2, length = 10), each = 10))
+#' fitfix = fgkg(x, ulseq = rep(seq(-2, -0.2, length = 10), times = 10), 
+#'  urseq = rep(seq(0.2, 2, length = 10), each = 10), fixedu = TRUE)
+#' 
+#' hist(x, breaks = 100, freq = FALSE, xlim = c(-4, 4))
+#' lines(xx, y)
+#' with(fit, lines(xx, dgkg(xx, x, lambda, ul, sigmaul, xil, phiul,
+#'    ur, sigmaur, xir, phiur), col="red"))
+#' abline(v = c(fit$ul, fit$ur), col = "red")
+#' with(fitu, lines(xx, dgkg(xx, x, lambda, ul, sigmaul, xil, phiul,
+#'    ur, sigmaur, xir, phiur), col="purple"))
+#' abline(v = c(fitu$ul, fitu$ur), col = "purple")
+#' with(fitfix, lines(xx, dgkg(xx, x, lambda, ul, sigmaul, xil, phiul,
+#'    ur, sigmaur, xir, phiur), col="darkgreen"))
+#' abline(v = c(fitfix$ul, fitfix$ur), col = "darkgreen")
+#' legend("topright", c("True Density","Default initial value (90% quantile)",
+#'  "Prof. lik. for initial value", "Prof. lik. for fixed threshold"),
+#'  col=c("black", "red", "purple", "darkgreen"), lty = 1)
 #' }
+#'   
 
-# maximum cross-validation likelihood fitting for KDE for bulk with GPD's for both upper and lower tails
-fgkg<- function(x, phiul = TRUE, phiur = TRUE, pvector = NULL,
-  add.jitter = FALSE, factor = 0.1, amount = NULL,
-  std.err = TRUE, method = "BFGS",  control = list(maxit = 10000), finitelik = TRUE, ...) {
-  
+# maximum likelihood fitting for kernel density estimate for bulk with GPD for both tails
+fgkg <- function(x, phiul = TRUE, phiur = TRUE, ulseq = NULL, urseq = NULL, fixedu = FALSE,
+  pvector = NULL, kernel = "gaussian", add.jitter = FALSE, factor = 0.1, amount = NULL,
+  std.err = TRUE, method = "BFGS", control = list(maxit = 10000), finitelik = TRUE, ...) {
+
   call <- match.call()
-  
-  # Check properties of inputs
-  if (missing(x))
-    stop("x must be a non-empty numeric vector")
-  
-  if (length(x) == 0 | mode(x) != "numeric") 
-    stop("x must be a non-empty numeric vector")
-  
-  if (any(is.infinite(x)))
-    stop("infinite cases must be removed")
-  
-  if (any(is.na(x)))
-    warning("missing values have been removed")
-  
-  x = x[!is.na(x)]
-  n = length(x)
-  
-  if (!is.logical(add.jitter))
-    stop("add.jitter must be logical")
-  
-  if (length(add.jitter) != 1)
-    stop("add.jitter must be of length 1")
-  
-  if (length(factor) != 1)
-    stop("jitter factor must be (small) numeric value")
-  
-  if ((mode(factor) != "numeric") & !is.finite(factor))
-    stop("jitter factor must be (small) numeric value")
-  
-  if (!is.null(amount)) {
-    if (length(amount) != 1)
-      stop("jitter amount must be NULL or (small) numeric value")
     
-    if ((mode(amount) != "numeric") & !is.finite(amount))
-      stop("jitter amount must be NULL or (small) numeric value")
-  }
+  # Check properties of inputs
+  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.logic(logicarg = phiul) # only logical
+  check.logic(logicarg = phiur) # only logical
+  check.param(ulseq, allowvec = TRUE, allownull = TRUE)
+  check.param(urseq, allowvec = TRUE, allownull = TRUE)
+  check.logic(logicarg = fixedu)
+  check.logic(logicarg = std.err)
+  check.optim(method)
+  check.control(control)
+  check.logic(logicarg = finitelik)
+
+  check.kernel(kernel)
+  check.posparam(param = factor)
+  check.posparam(param = amount, allownull = TRUE)
+  check.logic(logicarg = add.jitter)
   
-  if (add.jitter) {
-    x = jitter(x, factor, amount)
+  if (any(!is.finite(x))) {
+    warning("non-finite cases have been removed")
+    x = x[is.finite(x)] # ignore missing and infinite cases
   }
-  
+
+  check.quant(x)
+  n = length(x)
+
+  if (add.jitter) x = jitter(x, factor, amount)
+
   xuniq = unique(x)
-  if (length(xuniq) < (0.95*n)) {
-    warning("data could be rounded, as there are more than 5% of ties, so bandwidth could be biased towards zero")
-  }
+  if (length(xuniq) < (0.95*n))
+    warning("data may be rounded, as more than 5% are ties, so bandwidth could be biased to zero")
+
+  if ((method == "L-BFGS-B") | (method == "BFGS")) finitelik = TRUE
   
-  if (!is.logical(finitelik))
-    stop("finitelik must be logical")
+  # useq must be specified if threshold is fixed
+  if (fixedu & (is.null(ulseq) | is.null(urseq)))
+    stop("for fixed threshold approach, ulseq and urseq must be specified (as scalar or vector)")
   
-  if ((method == "L-BFGS-B") | (method == "BFGS"))
-    finitelik = TRUE
-  
-  if (is.null(pvector)){
-    if (n == 1) {
-      stop("Automated bandwidth estimation requires 2 or more kernel centres")
-    } else if (n < 10){
-      stop("Automated bandwidth estimation unreliable with less than 10 kernel centres")
+  # Check if profile likelihood or fixed threshold is being used
+  # and determine initial values for parameters in each case
+  if (is.null(ulseq) | is.null(ulseq)) { # not profile or fixed
+    profu = FALSE
+    check.nparam(pvector, nparam = 7, allownull = TRUE)
+    
+    if (is.null(pvector)) {
+      if (n == 1) {
+        stop("Automated bandwidth estimation requires 2 or more kernel centres")
+      } else if (n < 10) {
+        stop("Automated bandwidth estimation unreliable with less than 10 kernel centres")
+      }
+      pvector[1] = klambda(bw.nrd0(x), kernel)
+      pvector[2] = as.vector(quantile(x, 0.1))
+      initfgpd = fgpd(-x, -pvector[2], std.err = FALSE)
+      pvector[3] = initfgpd$sigmau
+      pvector[4] = initfgpd$xi
+      pvector[5] = as.vector(quantile(x, 0.9))
+      initfgpd = fgpd(x, pvector[5], std.err = FALSE)
+      pvector[6] = initfgpd$sigmau
+      pvector[7] = initfgpd$xi
     }
-    pvector[1] = bw.nrd0(x)
-    pvector[2] = as.vector(quantile(x, 0.1))
-    initfgpd = fgpd(-x, -pvector[2], std.err = std.err)
-    pvector[3] = initfgpd$sigmau
-    pvector[4] = initfgpd$xi 
-    pvector[5] = as.vector(quantile(x, 0.9))
-    initfgpd = fgpd(x, pvector[5], std.err = std.err)
-    pvector[6] = initfgpd$sigmau
-    pvector[7] = initfgpd$xi
+    
+  } else { # profile or fixed
+    profu = TRUE
+    
+    check.nparam(pvector, nparam = 5, allownull = TRUE)
+
+    # profile likelihood for threshold or scalar given
+    if ((length(ulseq) != 1) | (length(urseq) != 1)) {
+      
+      # remove thresholds with less than 5 excesses
+      ulseq = ulseq[sapply(ulseq, FUN = function(u, x) sum(x < u) > 5, x = x)]
+      check.param(ulseq, allowvec = TRUE)
+      urseq = urseq[sapply(urseq, FUN = function(u, x) sum(x > u) > 5, x = x)]
+      check.param(ulseq, allowvec = TRUE)
+
+      nuseq = max(length(ulseq), length(urseq))
+      ulseq = rep(ulseq, length.out = nuseq)
+      urseq = rep(urseq, length.out = nuseq)
+      
+      nllhu = apply(cbind(ulseq, urseq), 1, proflugkg, pvector = pvector, x = x,
+        phiul = phiul, phiur = phiur, kernel = kernel,
+        method = method, control = control, finitelik = finitelik, ...)
+      
+      if (all(!is.finite(nllhu))) stop("thresholds are all invalid")
+      ul = ulseq[which.min(nllhu)]
+      ur = urseq[which.min(nllhu)]
+
+    } else {
+      ul = ulseq
+      ur = urseq
+    }
+
+    if (fixedu) { # threshold fixed (4 parameters)
+      if (is.null(pvector)) {
+        if (n == 1) {
+          stop("Automated bandwidth estimation requires 2 or more kernel centres")
+        } else if (n < 10) {
+          stop("Automated bandwidth estimation unreliable with less than 10 kernel centres")
+        }
+        pvector[1] = klambda(bw.nrd0(x), kernel)
+        initfgpd = fgpd(-x, -ul, std.err = FALSE)
+        pvector[2] = initfgpd$sigmau
+        pvector[3] = initfgpd$xi
+        initfgpd = fgpd(x, ur, std.err = FALSE)
+        pvector[4] = initfgpd$sigmau
+        pvector[5] = initfgpd$xi
+      }
+    } else { # threshold as initial value in usual MLE
+      if (is.null(pvector)) {
+        if (n == 1) {
+          stop("Automated bandwidth estimation requires 2 or more kernel centres")
+        } else if (n < 10) {
+          stop("Automated bandwidth estimation unreliable with less than 10 kernel centres")
+        }
+        pvector[1] = klambda(bw.nrd0(x), kernel)
+        pvector[2] = ul
+        initfgpd = fgpd(-x, -pvector[2], std.err = FALSE)
+        pvector[3] = initfgpd$sigmau
+        pvector[4] = initfgpd$xi
+        pvector[5] = ur
+        initfgpd = fgpd(x, pvector[5], std.err = FALSE)
+        pvector[6] = initfgpd$sigmau
+        pvector[7] = initfgpd$xi
+      } else {
+        pvector[7] = pvector[5] # shift upper tail GPD scale and shape to add in ur
+        pvector[6] = pvector[4]
+        pvector[5] = ur
+        pvector[4] = pvector[3] # shift lower tail GPD scale and shape to add in ul
+        pvector[3] = pvector[2]
+        pvector[2] = ul
+      }
+    }
   }
 
-  if (length(pvector) != 7)
-    stop("Initial values for seven parameters must be specified")
+  if (fixedu) { # fixed threshold (separable) likelihood
+    nllh = nlugkg(pvector, ul, ur, x, phiul, phiur, kernel = kernel)
+    if (is.infinite(nllh)) stop("initial parameter values are invalid")
   
-  if (any(!is.finite(pvector)) | is.logical(pvector))
-    stop("initial parameters must be numeric")
+    fit = optim(par = as.vector(pvector), fn = nlugkg, ul = ul, ur = ur, x = x,
+      phiul = phiul, phiur = phiur, kernel = kernel,
+      finitelik = finitelik, method = method, control = control, hessian = TRUE, ...)    
+    
+    lambda = fit$par[1]
+    sigmaul = fit$par[2]
+    xil = fit$par[3]
+    sigmaur = fit$par[4]
+    xir = fit$par[5]
+    
+  } else { # complete (non-separable) likelihood
+    
+    nllh = nlgkg(pvector, x, phiul, phiur, kernel = kernel)
+    if (is.infinite(nllh)) stop("initial parameter values are invalid")
   
-  nllh = nlgkg(pvector, x = x, phiul = phiul, phiur = phiur, finitelik = finitelik)
-  if (is.infinite(nllh))
-    stop("initial parameter values are invalid")
+    fit = optim(par = as.vector(pvector), fn = nlgkg, x = x, phiul = phiul, phiur = phiur, kernel = kernel,
+      finitelik = finitelik, method = method, control = control, hessian = TRUE, ...)    
+    
+    lambda = fit$par[1]
+    ul = fit$par[2]
+    sigmaul = fit$par[3]
+    xil = fit$par[4]
+    ur = fit$par[5]
+    sigmaur = fit$par[6]
+    xir = fit$par[7]
+  }
 
-  fit = optim(par = as.vector(pvector), fn = nlgkg, x = x, 
-    phiul = phiul, phiur = phiur, finitelik = finitelik,
-    method = method, control = control, hessian = TRUE, ...)
-  
+  bw = kbw(fit$par[1], kernel)
+
   conv = TRUE
   if ((fit$convergence != 0) | any(fit$par == pvector) | (abs(fit$value) >= 1e6)) {
     conv = FALSE
     warning("check convergence")
   }
-  
-  n = length(x)
-  lambda = fit$par[1]
-  ul = fit$par[2]
-  sigmaul = fit$par[3]
-  xil = fit$par[4]
-  ur = fit$par[5]
-  sigmaur = fit$par[6]
-  xir = fit$par[7]
-  
+
+  pul = pkdenx(ul, x, lambda, kernel)
   if (phiul) {
-    phiul = pkdenx(ul, x, lambda)
-    sephiul = NA
+    phiul = pul
+    se.phiul = NA
   } else {
     phiul = mean(x < ul, na.rm = TRUE)
-    sephiul = sqrt(phiul * (1 - phiul) / n)
+    se.phiul = sqrt(phiul * (1 - phiul) / n)
   }
+  pur = pkdenx(ur, x, lambda, kernel)
   if (phiur) {
-    phiur = 1 - pkdenx(ur, x, lambda)
-    sephiur = NA
+    phiur = 1 - pur
+    se.phiur = NA
   } else {
     phiur = mean(x > ur, na.rm = TRUE)
-    sephiur = sqrt(phiur * (1 - phiur) / n)
+    se.phiur = sqrt(phiur * (1 - phiur) / n)
   }
-  phib = (1 - phiul - phiur) / (pkdenx(ur, x, lambda) - pkdenx(ul, x, lambda))
   
-  if (conv & std.err) {
+  if (std.err) {
     qrhess = qr(fit$hessian)
     if (qrhess$rank != ncol(qrhess$qr)) {
       warning("observed information matrix is singular; use std.err = FALSE")
@@ -292,10 +426,265 @@ fgkg<- function(x, phiul = TRUE, phiur = TRUE, pvector = NULL,
     se = NULL
   }
   
-  list(call = call, x = as.vector(x), kerncentres = x,
-    init = as.vector(pvector), optim = fit,
-    conv = conv, cov = invhess, mle = fit$par, se = se, ratel = phiul, rater = phiur, 
-    nllh = fit$value, allparam = c(fit$par, phiul, phiur), allse = c(se, sephiul, sephiur), n = n,
-    lambda = lambda, ul = ul, sigmaul = sigmaul, xil = xil, phiul = phiul,
-    ur = ur, sigmaur = sigmaur, xir = xir, phiur = phiur)
+  list(call = call, x = as.vector(x),
+    init = as.vector(pvector), fixedu = fixedu, ulseq = ulseq, urseq = urseq,
+    optim = fit, conv = conv, cov = invhess, mle = fit$par, se = se, ratel = phiul, rater = phiur,
+    nllh = fit$value, n = n, lambda = lambda, 
+    ul = ul, sigmaul = sigmaul, xil = xil, phiul = phiul, se.phiul = se.phiul, 
+    ur = ur, sigmaur = sigmaur, xir = xir, phiur = phiur, se.phiur = se.phiur, bw = bw, kernel = kernel)
+}
+
+#' @export
+#' @aliases fgkg lgkg nlgkg proflugkg nlugkg
+#' @rdname  fgkg
+
+# log-likelihood function for kernel density estimate for bulk with GPD for both tails
+# cross-validation for KDE component
+lgkg <- function(x, lambda = NULL,
+  ul = 0, sigmaul = 1, xil = 0, phiul = TRUE,
+  ur = 0, sigmaur = 1, xir = 0, phiur = TRUE, bw = NULL, kernel = "gaussian", log = TRUE) {
+
+  # Check properties of inputs
+  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.param(param = lambda, allownull = TRUE) # do not check positivity in likelihood
+  check.param(param = bw, allownull = TRUE)     # do not check positivity in likelihood
+  check.param(param = ul)                       
+  check.param(param = sigmaul)                  # do not check positivity in likelihood
+  check.param(param = xil)
+  check.param(param = ur)                       
+  check.param(param = sigmaur)                  # do not check positivity in likelihood
+  check.param(param = xir)
+  check.phiu(phiul, allowfalse = TRUE)
+  check.phiu(phiur, allowfalse = TRUE)
+  check.logic(logicarg = log)
+
+  check.kernel(kernel)
+
+  kernel = ifelse(kernel == "rectangular", "uniform", kernel)
+  kernel = ifelse(kernel == "normal", "gaussian", kernel)
+  
+  if (any(!is.finite(x))) {
+    warning("non-finite cases have been removed")
+    x = x[is.finite(x)] # ignore missing and infinite cases
+  }
+
+  check.quant(x)
+  n = length(x)
+
+  if (is.null(lambda) & is.null(bw)) {
+    if (n == 1) {
+      stop("Automated bandwidth estimation requires 2 or more kernel centres")
+    } else if (n < 10) {
+      warning("Automated bandwidth estimation unreliable with less than 10 kernel centres")
+    }
+    bw = bw.nrd0(x)
+  }
+
+  if (is.null(lambda)) lambda = klambda(bw, kernel, lambda)
+  
+  check.inputn(c(length(lambda), length(ul), length(sigmaul), length(xil), length(phiul), 
+    length(ur), length(sigmaur), length(xir), length(phiur)))
+
+  # assume NA or NaN are irrelevant as entire lower tail is now modelled
+  # inconsistent with evd library definition
+  # hence use which() to ignore these
+
+  xur = x[which(x > ur)]
+  nur = length(xur)
+  xul = x[which(x < ul)]
+  nul = length(xul)
+  xb = x[which((x >= ul) & (x <= ur))]
+  nb = length(xb)
+
+  if ((lambda <= 0) | (sigmaul <= 0) | (ul <= min(x)) | (ul >= max(x))
+    | (sigmaur <= 0) | (ur <= min(x)) | (ur >= max(x))| (ur <= ul)) {
+    l = -Inf
+  } else {
+    if (is.logical(phiul)) {
+      pul = pkdenx(ul, x, lambda, kernel)
+      if (phiul) {
+        phiul = pul
+      } else {
+        phiul = nul / n
+      }
+    }
+    if (is.logical(phiur)) {
+      pur = pkdenx(ur, x, lambda, kernel)
+      if (phiur) {
+        phiur = 1 - pur
+      } else {
+        phiur = nur / n
+      }
+    }
+    phib = (1 - phiul - phiur) / (pur - pul)
+  
+    syul = 1 + xil * (ul - xul) / sigmaul  
+    syur = 1 + xir * (xur - ur) / sigmaur  
+  
+    if ((min(syul) <= 0) | (phiul <= 0) | (phiul >= 1) | 
+        (min(syur) <= 0) | (phiur <= 0) | (phiur >= 1) | ((phiul + phiur) > 1)) {
+      l = -Inf
+    } else { 
+      l = lgpd(-xul, -ul, sigmaul, xil, phiul)
+      l = l + lgpd(xur, ur, sigmaur, xir, phiur)
+      l = l + lkden(xb, lambda, kernel = kernel, extracentres = c(xul, xur)) + nb*log(phib)
+    }
+  }
+  
+  if (!log) l = exp(l)
+  
+  l
+}
+
+#' @export
+#' @aliases fgkg lgkg nlgkg proflugkg nlugkg
+#' @rdname  fgkg
+
+# negative log-likelihood function for kernel density estimate for bulk with GPD for both tails
+# cross-validation for KDE component
+# (wrapper for likelihood, inputs and checks designed for optimisation)
+nlgkg <- function(pvector, x, phiul = TRUE, phiur = TRUE, kernel = "gaussian", finitelik = FALSE) {
+
+  # Check properties of inputs
+  check.nparam(pvector, nparam = 7)
+  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.phiu(phiul, allowfalse = TRUE)
+  check.phiu(phiur, allowfalse = TRUE)
+  check.logic(logicarg = finitelik)
+
+  check.kernel(kernel)
+  kernel = ifelse(kernel == "rectangular", "uniform", kernel)
+  kernel = ifelse(kernel == "normal", "gaussian", kernel)
+
+  lambda = pvector[1]
+  ul = pvector[2]
+  sigmaul = pvector[3]
+  xil = pvector[4]
+  ur = pvector[5]
+  sigmaur = pvector[6]
+  xir = pvector[7]
+
+  nllh = -lgkg(x, lambda, ul, sigmaul, xil, phiul, ur, sigmaur, xir, phiur, kernel = kernel) 
+  
+  if (finitelik & is.infinite(nllh)) {
+    nllh = sign(nllh) * 1e6
+  }
+
+  nllh
+}
+
+#' @export
+#' @aliases fgkg lgkg nlgkg proflugkg nlugkg
+#' @rdname  fgkg
+
+# profile negative log-likelihood function for given threshold for
+# kernel density estimate for bulk with GPD for both tails
+# designed for apply to loop over vector of thresholds (hence c(ul, ur) vector is first input)
+# cross-validation for KDE component
+proflugkg <- function(ulr, pvector, x, phiul = TRUE, phiur = TRUE, kernel = "gaussian",
+  method = "BFGS", control = list(maxit = 10000), finitelik = FALSE, ...) {
+
+  # Check properties of inputs
+  np = 5
+  check.nparam(pvector, nparam = np, allownull = TRUE)
+  check.param(ulr, allowvec = TRUE)
+  check.nparam(ulr, nparam = 2)
+  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.phiu(phiul, allowfalse = TRUE)
+  check.phiu(phiur, allowfalse = TRUE)
+  check.logic(logicarg = finitelik)
+
+  check.kernel(kernel)
+
+  kernel = ifelse(kernel == "rectangular", "uniform", kernel)
+  kernel = ifelse(kernel == "normal", "gaussian", kernel)
+
+  if (any(!is.finite(x))) {
+    warning("non-finite cases have been removed")
+    x = x[is.finite(x)] # ignore missing and infinite cases
+  }
+
+  check.quant(x)
+  n = length(x)
+  
+  ul = ulr[1]
+  ur = ulr[2]
+
+  # check initial values for other parameters, try usual alternative
+  if (!is.null(pvector)) {
+    nllh = nlugkg(pvector, ul, ur, x, phiul, phiur, kernel = kernel)
+    
+    if (is.infinite(nllh)) pvector = NULL
+  }
+
+  if (is.null(pvector)) {
+    if (n == 1) {
+      stop("Automated bandwidth estimation requires 2 or more kernel centres")
+    } else if (n < 10) {
+        stop("Automated bandwidth estimation unreliable with less than 10 kernel centres")
+    }
+    pvector[1] = klambda(bw.nrd0(x), kernel)
+    initfgpd = fgpd(-x, -ul, std.err = FALSE)
+    pvector[2] = initfgpd$sigmau
+    pvector[3] = initfgpd$xi
+    initfgpd = fgpd(x, ur, std.err = FALSE)
+    pvector[4] = initfgpd$sigmau
+    pvector[5] = initfgpd$xi
+    nllh = nlugkg(pvector, ul, ur, x, phiul, phiur, kernel = kernel)
+  }
+
+  # if still invalid then output cleanly
+  if (is.infinite(nllh)) {
+    warning(paste("initial parameter values for thresholds ul =", ul, "and ur =", ur,"are invalid"))
+    fit = list(par = rep(NA, np), value = Inf, counts = 0, convergence = NA, 
+      message = "initial values invalid", hessian = rep(NA, np))
+  } else {
+
+    fit = optim(par = as.vector(pvector), fn = nlugkg, ul = ul, ur = ur, x = x, 
+      phiul = phiul, phiur = phiur, kernel = kernel,
+      finitelik = finitelik, method = method, control = control, hessian = TRUE, ...)
+  }
+    
+  if (finitelik & is.infinite(fit$value)) {
+    fit$value = sign(fit$value) * 1e6
+  }
+
+  fit$value
+}
+
+#' @export
+#' @aliases fgkg lgkg nlgkg proflugkg nlugkg
+#' @rdname  fgkg
+
+# negative log-likelihood function for kernel density estimate for bulk with GPD for both tails
+# (wrapper for likelihood, designed for threshold to be fixed and other parameters optimised)
+# cross-validation for KDE component
+nlugkg <- function(pvector, ul, ur, x, phiul = TRUE, phiur = TRUE, kernel = "gaussian", finitelik = FALSE) {
+
+  # Check properties of inputs
+  check.nparam(pvector, nparam = 5)
+  check.param(ul)
+  check.param(ur)
+  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.phiu(phiul, allowfalse = TRUE)
+  check.phiu(phiur, allowfalse = TRUE)
+  check.logic(logicarg = finitelik)
+
+  check.kernel(kernel)
+  kernel = ifelse(kernel == "rectangular", "uniform", kernel)
+  kernel = ifelse(kernel == "normal", "gaussian", kernel)
+    
+  lambda = pvector[1]
+  sigmaul = pvector[2]
+  xil = pvector[3]
+  sigmaur = pvector[4]
+  xir = pvector[5]
+
+  nllh = -lgkg(x, lambda, ul, sigmaul, xil, phiul, ur, sigmaur, xir, phiur, kernel = kernel) 
+  
+  if (finitelik & is.infinite(nllh)) {
+    nllh = sign(nllh) * 1e6
+  }
+
+  nllh
 }

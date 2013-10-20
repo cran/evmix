@@ -29,40 +29,38 @@
 \arguments{
   \item{ul}{lower tail threshold}
 
-  \item{sigmaul}{lower tail GPD scale parameter
-  (non-negative)}
+  \item{sigmaul}{lower tail GPD scale parameter (positive)}
 
   \item{xil}{lower tail GPD shape parameter}
 
   \item{phiul}{probability of being below lower threshold
-  (0,1)}
+  \eqn{[0, 1]} or \code{TRUE}}
 
   \item{ur}{upper tail threshold}
 
-  \item{sigmaur}{upper tail GPD scale parameter
-  (non-negative)}
+  \item{sigmaur}{upper tail GPD scale parameter (positive)}
 
   \item{xir}{upper tail GPD shape parameter}
 
   \item{phiur}{probability of being above upper threshold
-  (0,1)}
-
-  \item{x}{quantile}
+  \eqn{[0, 1]} or \code{TRUE}}
 
   \item{nmean}{normal mean}
 
-  \item{nsd}{normal standard deviation (non-negative)}
+  \item{nsd}{normal standard deviation (positive)}
+
+  \item{x}{quantiles}
 
   \item{log}{logical, if TRUE then log density}
 
-  \item{q}{quantile}
+  \item{q}{quantiles}
 
   \item{lower.tail}{logical, if FALSE then upper tail
   probabilities}
 
-  \item{p}{cumulative probability}
+  \item{p}{cumulative probabilities}
 
-  \item{n}{sample size (non-negative integer)}
+  \item{n}{sample size (positive integer)}
 }
 \value{
   \code{\link[evmix:gng]{dgng}} gives the density,
@@ -138,8 +136,9 @@
   \code{q}) and parameters must be either a scalar or a
   vector. If vectors are provided they must all be of the
   same length, and the function will be evaluated for each
-  element of vector. In the case of \code{rgng} any input
-  vector must be of length \code{n}.
+  element of vector. In the case of
+  \code{\link[evmix:gng]{rgng}} any input vector must be of
+  length \code{n}.
 
   Default values are provided for all inputs, except for
   the fundamentals \code{x}, \code{q} and \code{p}. The
@@ -147,8 +146,9 @@
   1.
 
   Missing (\code{NA}) and Not-a-Number (\code{NaN}) values
-  in \code{x} and \code{q} are passed through as is and
-  infinite values are set to \code{NA}.
+  in \code{x}, \code{p} and \code{q} are passed through as
+  is and infinite values are set to \code{NA}. None of
+  these are not permitted for the parameters.
 
   Error checking of the inputs (e.g. invalid probabilities)
   is carried out and will either stop or give warning
@@ -179,7 +179,7 @@ lines(xx, dgng(xx, xil = -0.3, phiul = 0.3, xir = 0.3, phiur = 0.3), col = "red"
 lines(xx, dgng(xx, xil = -0.3, phiul = TRUE, xir = 0.3, phiur = TRUE), col = "blue")
 legend("topleft", c("phiul = phiur = 0.2", "phiul = phiur = 0.3", "Bulk Tail Fraction"),
   col=c("black", "red", "blue"), lty = 1)
-  }
+}
 }
 \author{
   Yang Hu and Carl Scarrott
@@ -201,11 +201,28 @@ legend("topleft", c("phiul = phiur = 0.2", "phiul = phiur = 0.3", "Bulk Tail Fra
   crisis. Applied Financial Econometrics 20(1), 63-72.
 }
 \seealso{
-  \code{\link[evmix:normgpd]{normgpd}},
   \code{\link[evmix:gpd]{gpd}} and
   \code{\link[stats:Normal]{dnorm}}
 
-  Other gng: \code{\link{fgng}}, \code{\link{lgng}},
-  \code{\link{nlgng}}
+  Other normgpd normgpdcon gng gngcon fnormgpd fnormgpdcon
+  fgng fgngcon: \code{\link{dgngcon}},
+  \code{\link{dnormgpd}}, \code{\link{dnormgpdcon}},
+  \code{\link{fgng}}, \code{\link{fgngcon}},
+  \code{\link{fnormgpd}}, \code{\link{fnormgpdcon}},
+  \code{\link{gngcon}}, \code{\link{lgng}},
+  \code{\link{lgngcon}}, \code{\link{lnormgpd}},
+  \code{\link{lnormgpdcon}}, \code{\link{nlgng}},
+  \code{\link{nlgngcon}}, \code{\link{nlnormgpd}},
+  \code{\link{nlnormgpdcon}}, \code{\link{nlugng}},
+  \code{\link{nlugngcon}}, \code{\link{nlunormgpd}},
+  \code{\link{nlunormgpdcon}}, \code{\link{normgpd}},
+  \code{\link{normgpdcon}}, \code{\link{pgngcon}},
+  \code{\link{pnormgpd}}, \code{\link{pnormgpdcon}},
+  \code{\link{proflugng}}, \code{\link{proflugngcon}},
+  \code{\link{proflunormgpd}},
+  \code{\link{proflunormgpdcon}}, \code{\link{qgngcon}},
+  \code{\link{qnormgpd}}, \code{\link{qnormgpdcon}},
+  \code{\link{rgngcon}}, \code{\link{rnormgpd}},
+  \code{\link{rnormgpdcon}}
 }
 
