@@ -123,7 +123,7 @@ dmgamma <- function(x, mgshape = 1, mgscale = 1,  mgweight = NULL, log = FALSE) 
     mgscale = as.list(mgscale)    
   }
   
-  if (!is.list(mgshape) | !is.list(mgshape))
+  if (!is.list(mgscale) | !is.list(mgshape))
     stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
 
   if (!is.null(mgweight)) {
@@ -183,7 +183,7 @@ dmgamma <- function(x, mgshape = 1, mgscale = 1,  mgweight = NULL, log = FALSE) 
     d[whichb] = 0
     for (i in 1:M) {
       d[whichb] = d[whichb] + dgamma(x[whichb], shape = mgshape[[i]][whichb], 
-        scale = mgscale[[i]][whichb]) * (mgweight[[i]][whichb])
+        scale = mgscale[[i]][whichb]) * mgweight[[i]][whichb]
     }
   }
   
@@ -212,7 +212,7 @@ pmgamma <- function(q, mgshape = 1, mgscale = 1,  mgweight = NULL, lower.tail = 
     mgscale = as.list(mgscale)    
   }
   
-  if (!is.list(mgshape) | !is.list(mgshape))
+  if (!is.list(mgscale) | !is.list(mgshape))
     stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
 
   if (!is.null(mgweight)) {
@@ -272,7 +272,7 @@ pmgamma <- function(q, mgshape = 1, mgscale = 1,  mgweight = NULL, lower.tail = 
     p[whichb] = rep(0, nb)
     for (i in 1:M) {
       p[whichb] = p[whichb] + pgamma(q[whichb], shape = mgshape[[i]][whichb],
-        scale = mgscale[[i]][whichb]) * (mgweight[[i]][whichb])
+        scale = mgscale[[i]][whichb]) * mgweight[[i]][whichb]
     }
   }
 
@@ -301,7 +301,7 @@ qmgamma <- function(p, mgshape = 1, mgscale = 1,  mgweight = NULL, lower.tail = 
     mgscale = as.list(mgscale)    
   }
   
-  if (!is.list(mgshape) | !is.list(mgshape))
+  if (!is.list(mgscale) | !is.list(mgshape))
     stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
 
   if (!is.null(mgweight)) {
@@ -424,7 +424,7 @@ rmgamma <- function(n = 1, mgshape = 1, mgscale = 1,  mgweight = NULL) {
     mgscale = as.list(mgscale)    
   }
   
-  if (!is.list(mgshape) | !is.list(mgshape))
+  if (!is.list(mgscale) | !is.list(mgshape))
     stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
 
   if (!is.null(mgweight)) {

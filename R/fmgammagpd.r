@@ -652,7 +652,7 @@ lmgammagpd <- function(x, mgshape, mgscale, mgweight, u, sigmau, xi, phiu = TRUE
   check.param(param = mgweight, allowvec = TRUE) # do not check positivity in likelihood
 
   # How many components in mixture
-  M = check.inputn(c(length(mgshape), length(mgshape), length(mgweight)))
+  M = check.inputn(c(length(mgshape), length(mgscale), length(mgweight)))
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -700,7 +700,7 @@ lmgammagpd <- function(x, mgshape, mgscale, mgweight, u, sigmau, xi, phiu = TRUE
     }
     else {
       l = lgpd(xu, u, sigmau, xi, phiu)
-      l = l + sum(dmgamma(x, mgshape, mgscale, mgweight, log = TRUE)) + nb * log(phib)
+      l = l + sum(dmgamma(xb, mgshape, mgscale, mgweight, log = TRUE)) + nb * log(phib)
     }
   }
   

@@ -274,10 +274,8 @@ fhpdcon <- function(x, useq = NULL, fixedu = FALSE, pvector = NULL,
     xi = fit$par[4]
   }
   
-  z = (1 + xi)^2/(2*pi)
-  wz = lambert_W0(z)
-  
-  sigmau = nsd * abs(1 + xi) / sqrt(wz)
+  du = dnorm(u, nmean, nsd)
+  sigmau = 1/du
 
   r = 1 + pnorm(u, nmean, nsd)
   phiu = 1/r # same normalisation for GPD and normal
@@ -340,9 +338,6 @@ lhpdcon <- function(x, nmean = 0, nsd = 1, u = qnorm(0.9, nmean, nsd),
 
   check.inputn(c(length(nmean), length(nsd), length(u), length(xi)))
 
-  z = (1 + xi)^2/(2*pi)
-  wz = lambert_W0(z)
-  
   # assume NA or NaN are irrelevant as entire lower tail is now modelled
   # inconsistent with evd library definition
   # hence use which() to ignore these

@@ -144,7 +144,8 @@ dhpdcon <- function(x, nmean = 0, nsd = 1, u = qnorm(0.9, nmean, nsd), xi = 0, l
   u = rep(u, length.out = n)
   xi = rep(xi, length.out = n)
   
-  sigmau = 1/dnorm(u, nmean, nsd)
+  du = dnorm(u, nmean, nsd)
+  sigmau = 1/du
   
   check.posparam(param = sigmau, allowvec = TRUE)
   
@@ -192,7 +193,8 @@ phpdcon <- function(q, nmean = 0, nsd = 1, u = qnorm(0.9, nmean, nsd), xi = 0, l
   u = rep(u, length.out = n)
   xi = rep(xi, length.out = n)
   
-  sigmau = 1/dnorm(u, nmean, nsd)
+  du = dnorm(u, nmean, nsd)
+  sigmau = 1/du
   
   check.posparam(param = sigmau, allowvec = TRUE)
   
@@ -238,7 +240,8 @@ qhpdcon <- function(p, nmean = 0, nsd = 1, u = qnorm(0.9, nmean, nsd), xi = 0, l
   u = rep(u, length.out = n)
   xi = rep(xi, length.out = n)
   
-  sigmau = 1/dnorm(u, nmean, nsd)
+  du = dnorm(u, nmean, nsd)
+  sigmau = 1/du
   
   check.posparam(param = sigmau, allowvec = TRUE)
     
