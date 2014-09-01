@@ -158,6 +158,7 @@ fweibullgpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = N
 
   check.quant(x)
   n = length(x)
+  np = 5 # maximum number of parameters
 
   if ((method == "L-BFGS-B") | (method == "BFGS")) finitelik = TRUE
   
@@ -168,11 +169,11 @@ fweibullgpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = N
   # Check if profile likelihood or fixed threshold is being used
   # and determine initial values for parameters in each case
   if (is.null(useq)) { # not profile or fixed
-    profu = FALSE
-    check.nparam(pvector, nparam = 5, allownull = TRUE)
+
+    check.nparam(pvector, nparam = np, allownull = TRUE)
     
     if (is.null(pvector)) {
-      initfweibull = fitdistr(x, "weibull")
+      initfweibull = fitdistr(x, "weibull", lower = c(1e-8, 1e-8))
       pvector[1] = initfweibull$estimate[1]
       pvector[2] = initfweibull$estimate[2]
       pvector[3] = as.vector(quantile(x, 0.9))
@@ -182,9 +183,8 @@ fweibullgpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = N
     }
     
   } else { # profile or fixed
-    profu = TRUE
     
-    check.nparam(pvector, nparam = 4, allownull = TRUE)
+    check.nparam(pvector, nparam = np - 1, allownull = TRUE)
 
     # profile likelihood for threshold or scalar given
     if (length(useq) != 1) {
@@ -203,9 +203,9 @@ fweibullgpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = N
       u = useq
     }
 
-    if (fixedu) { # threshold fixed (4 parameters)
+    if (fixedu) { # threshold fixed
       if (is.null(pvector)) {
-        initfweibull = fitdistr(x, "weibull")
+        initfweibull = fitdistr(x, "weibull", lower = c(1e-8, 1e-8))
         pvector[1] = initfweibull$estimate[1]
         pvector[2] = initfweibull$estimate[2]
         initfgpd = fgpd(x, u, std.err = FALSE)
@@ -214,7 +214,7 @@ fweibullgpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = N
       }
     } else { # threshold as initial value in usual MLE
       if (is.null(pvector)) {
-        initfweibull = fitdistr(x, "weibull")
+        initfweibull = fitdistr(x, "weibull", lower = c(1e-8, 1e-8))
         pvector[1] = initfweibull$estimate[1]
         pvector[2] = initfweibull$estimate[2]
         pvector[3] = u
@@ -383,8 +383,10 @@ lweibullgpd <- function(x, wshape = 1, wscale = 1, u = qweibull(0.9, wshape, wsc
 # (wrapper for likelihood, inputs and checks designed for optimisation)
 nlweibullgpd <- function(pvector, x, phiu = TRUE, finitelik = FALSE) {
 
+  np = 5 # maximum number of parameters
+
   # Check properties of inputs
-  check.nparam(pvector, nparam = 5)
+  check.nparam(pvector, nparam = np)
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
   check.logic(logicarg = finitelik)
@@ -414,9 +416,10 @@ nlweibullgpd <- function(pvector, x, phiu = TRUE, finitelik = FALSE) {
 profluweibullgpd <- function(u, pvector, x, phiu = TRUE, method = "BFGS",
   control = list(maxit = 10000), finitelik = FALSE, ...) {
 
+  np = 5 # maximum number of parameters
+
   # Check properties of inputs
-  np = 4
-  check.nparam(pvector, nparam = np, allownull = TRUE)
+  check.nparam(pvector, nparam = np - 1, allownull = TRUE)
   check.param(u) # do not check positivity in likelihood
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
@@ -442,7 +445,7 @@ profluweibullgpd <- function(u, pvector, x, phiu = TRUE, method = "BFGS",
   }
 
   if (is.null(pvector)) {
-    initfweibull = fitdistr(x, "weibull")
+    initfweibull = fitdistr(x, "weibull", lower = c(1e-8, 1e-8))
     pvector[1] = initfweibull$estimate[1]
     pvector[2] = initfweibull$estimate[2]
     initfgpd = fgpd(x, u, std.err = FALSE)
@@ -477,8 +480,10 @@ profluweibullgpd <- function(u, pvector, x, phiu = TRUE, method = "BFGS",
 # (wrapper for likelihood, designed for threshold to be fixed and other parameters optimised)
 nluweibullgpd <- function(pvector, u, x, phiu = TRUE, finitelik = FALSE) {
 
+  np = 5 # maximum number of parameters
+
   # Check properties of inputs
-  check.nparam(pvector, nparam = 4)
+  check.nparam(pvector, nparam = np - 1)
   check.param(u) # do not check positivity in likelihood
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)

@@ -250,6 +250,7 @@ fmgammagpd <- function(x, M, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector =
 
   check.quant(x)
   n = length(x)
+  np = 3*M + 3 # maximum number of parameters
 
   if (is.unsorted(x)) x = sort(x)
 
@@ -269,8 +270,8 @@ fmgammagpd <- function(x, M, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector =
   # Check if profile likelihood or fixed threshold is being used
   # and determine initial values for parameters in each case
   if (is.null(useq)) { # not profile or fixed
-    profu = FALSE
-    check.nparam(pvector, nparam = 3*M + 2, allownull = TRUE)
+
+    check.nparam(pvector, nparam = np - 1, allownull = TRUE)
     
     if (is.null(pvector)) {
       # split dataset into components
@@ -298,9 +299,8 @@ fmgammagpd <- function(x, M, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector =
     }
     
   } else { # profile or fixed
-    profu = TRUE
     
-    check.nparam(pvector, nparam = 3*M + 1, allownull = TRUE)
+    check.nparam(pvector, nparam = np - 2, allownull = TRUE)
 
     # profile likelihood for threshold or scalar given
     if (length(useq) != 1) {
@@ -319,7 +319,7 @@ fmgammagpd <- function(x, M, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector =
       u = useq
     }
 
-    if (fixedu) { # threshold fixed (4 parameters)
+    if (fixedu) { # threshold fixed
       if (is.null(pvector)) {
         # split dataset into components
         nM = rmultinom(1, n, rep(1/M, M))
@@ -717,9 +717,11 @@ lmgammagpd <- function(x, mgshape, mgscale, mgweight, u, sigmau, xi, phiu = TRUE
 # (wrapper for likelihood, inputs and checks designed for optimisation)
 nlmgammagpd <- function(pvector, x, M, phiu = TRUE, finitelik = FALSE) {
 
+  np = 3*M + 3 # maximum number of parameters
+
   # Check properties of inputs
   check.param(pvector, allowvec = TRUE)
-  check.nparam(pvector, nparam = 3*M + 2)
+  check.nparam(pvector, nparam = np - 1)
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
   check.logic(logicarg = finitelik)
@@ -750,9 +752,11 @@ nlmgammagpd <- function(pvector, x, M, phiu = TRUE, finitelik = FALSE) {
 # (wrapper for likelihood, designed for threshold to be fixed and other parameters optimised)
 nlumgammagpd <- function(pvector, u, x, M, phiu = TRUE, finitelik = FALSE) {
 
+  np = 3*M + 3 # maximum number of parameters
+
   # Check properties of inputs
   check.param(pvector, allowvec = TRUE)
-  check.nparam(pvector, nparam = 3*M + 1)
+  check.nparam(pvector, nparam = np - 2)
   check.posparam(u)
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
@@ -783,9 +787,11 @@ nlumgammagpd <- function(pvector, u, x, M, phiu = TRUE, finitelik = FALSE) {
 # with component probabilities separated for EM algorithm
 nlEMmgammagpd <- function(pvector, tau, mgweight, x, M, phiu = TRUE, finitelik = FALSE) {
 
+  np.noweight = 2*M + 3 # maximum number of non-weight parameters
+
   # Check properties of inputs
   check.param(pvector, allowvec = TRUE)
-  check.nparam(pvector, nparam = 2 * M + 3)
+  check.nparam(pvector, nparam = np.noweight)
   check.nparam(mgweight, nparam = M)
   check.prob(mgweight)
   
@@ -865,10 +871,11 @@ nlEMmgammagpd <- function(pvector, tau, mgweight, x, M, phiu = TRUE, finitelik =
 proflumgammagpd <- function(u, pvector, x, M, phiu = TRUE,
   method = "BFGS", control = list(maxit = 10000), finitelik = FALSE, ...) {
 
+  np = 3*M + 3 # maximum number of parameters
+
   # Check properties of inputs
   check.param(pvector, allowvec = TRUE)
-  np = 3*M + 1
-  check.nparam(pvector, nparam = np, allownull = TRUE)
+  check.nparam(pvector, nparam = np - 2, allownull = TRUE)
   check.posparam(param = u)
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
@@ -1045,9 +1052,11 @@ proflumgammagpd <- function(u, pvector, x, M, phiu = TRUE,
 # (wrapper for likelihood, designed for threshold to be fixed and other parameters optimised)
 nluEMmgammagpd <- function(pvector, u, tau, mgweight, x, M, phiu = TRUE, finitelik = FALSE) {
 
+  np.noweight = 2*M + 3 # maximum number of non-weight parameters
+
   # Check properties of inputs
   check.param(pvector, allowvec = TRUE)
-  check.nparam(pvector, nparam = 2*M + 2)
+  check.nparam(pvector, nparam = np.noweight - 1)
   check.posparam(u)
   check.nparam(mgweight, nparam = M)
   check.prob(mgweight)

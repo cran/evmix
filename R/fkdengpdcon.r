@@ -195,6 +195,7 @@ fkdengpdcon <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = N
 
   check.quant(x)
   n = length(x)
+  np = 3 # maximum number of parameters
 
   if (add.jitter) x = jitter(x, factor, amount)
 
@@ -211,8 +212,8 @@ fkdengpdcon <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = N
   # Check if profile likelihood or fixed threshold is being used
   # and determine initial values for parameters in each case
   if (is.null(useq)) { # not profile or fixed
-    profu = FALSE
-    check.nparam(pvector, nparam = 3, allownull = TRUE)
+
+    check.nparam(pvector, nparam = np, allownull = TRUE)
     
     if (is.null(pvector)) {
       if (n == 1) {
@@ -227,9 +228,8 @@ fkdengpdcon <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = N
     }
     
   } else { # profile or fixed
-    profu = TRUE
     
-    check.nparam(pvector, nparam = 2, allownull = TRUE)
+    check.nparam(pvector, nparam = np - 1, allownull = TRUE)
 
     # profile likelihood for threshold or scalar given
     if (length(useq) != 1) {
@@ -248,7 +248,7 @@ fkdengpdcon <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = N
       u = useq
     }
 
-    if (fixedu) { # threshold fixed (4 parameters)
+    if (fixedu) { # threshold fixed
       if (is.null(pvector)) {
         if (n == 1) {
           stop("Automated bandwidth estimation requires 2 or more kernel centres")
@@ -447,8 +447,10 @@ lkdengpdcon <- function(x, lambda = NULL, u = 0, xi = 0, phiu = TRUE,
 # (wrapper for likelihood, inputs and checks designed for optimisation)
 nlkdengpdcon <- function(pvector, x, phiu = TRUE, kernel = "gaussian", finitelik = FALSE) {
 
+  np = 3 # maximum number of parameters
+
   # Check properties of inputs
-  check.nparam(pvector, nparam = 3)
+  check.nparam(pvector, nparam = np)
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
   check.logic(logicarg = finitelik)
@@ -484,7 +486,7 @@ proflukdengpdcon <- function(u, pvector, x, phiu = TRUE, kernel = "gaussian",
 
   # Check properties of inputs
   np = 2
-  check.nparam(pvector, nparam = np, allownull = TRUE)
+  check.nparam(pvector, nparam = np - 1, allownull = TRUE)
   check.param(u)
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
@@ -549,8 +551,10 @@ proflukdengpdcon <- function(u, pvector, x, phiu = TRUE, kernel = "gaussian",
 # cross-validation for KDE component
 nlukdengpdcon <- function(pvector, u, x, phiu = TRUE, kernel = "gaussian", finitelik = FALSE) {
 
+  np = 3 # maximum number of parameters
+
   # Check properties of inputs
-  check.nparam(pvector, nparam = 2)
+  check.nparam(pvector, nparam = np - 1)
   check.param(u)
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)

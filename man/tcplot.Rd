@@ -36,11 +36,11 @@ to plot MRL, or \code{NULL} to use default values}
 \item{p.or.n}{logical, should tail fraction (\code{FALSE}) or number of
 exceedances (\code{TRUE}) be given on upper x-axis}
 
-\item{alpha}{logical, significance level (0, 1)}
+\item{alpha}{significance level over range (0, 1), or \code{NULL} for no CI}
 
 \item{legend.loc}{location of legend (see \code{\link[graphics:legend]{legend}}) or \code{NULL} for no legend}
 
-\item{try.thresh}{vector of threshold to fit GPD using MLE and show theoretical MRL}
+\item{try.thresh}{vector of thresholds to consider}
 
 \item{...}{further arguments to be passed to the plotting functions}
 
@@ -57,36 +57,35 @@ exceedances (\code{TRUE}) be given on upper x-axis}
 \code{\link[evmix:tcplot]{tscaleplot}} produces the threshold stability plot for the
 shape and scale parameter respectively. They also returns a matrix containing columns of
 the threshold, number of exceedances, MLE shape/scale
-and their standard devation and \eqn{100(1 - \alpha)\%} Wald confidence interval. Where the
+and their standard devation and \eqn{100(1 - \alpha)\%} Wald confidence interval if requested. Where the
 observed information matrix is not obtainable the standard deviation and confidence intervals
 are \code{NA}. For the \code{\link[evmix:tcplot]{tscaleplot}} the modified scale quantities
 are also provided. \code{\link[evmix:tcplot]{tcplot}} produces both plots on one graph and
 outputs a merged dataframe of results.
 }
 \description{
-Plots the sample mean residual life (MRL) plot.
+Plots the MLE of the GPD parameters against threshold
 }
 \details{
-The MLE of the (modified) GPD scale and shape (xi) parameters are plotted against
-as reange of possible threshold. Known as the threshold stability plots
-(Coles, 2001). The modified scale parameter is \eqn{\sigma_u - u\xi}. If the
-GPD is a suitable model for a threshold \eqn{u} then for all higher threshold
-\eqn{v > u} it will also be suitable, with the shape and modified scale being
-constant.
+The MLE of the (modified) GPD scale and shape (xi) parameters are
+  plotted against a set of possible thresholds. If the GPD is a suitable
+  model for a threshold \eqn{u} then for all higher thresholds \eqn{v > u} it
+  will also be suitable, with the shape and modified scale being
+  constant. Known as the threshold stability plots (Coles, 2001). The modified
+  scale parameter is \eqn{\sigma_u - u\xi}.
 
 In practice there is sample uncertainty in the parameter estimates, which
 must be taken into account when choosing a threshold.
 
 The usual asymptotic Wald confidence intervals are shown based on the
-observed information matrix to measure this undertainty. The sampling density
+observed information matrix to measure this uncertainty. The sampling density
 of the Wald normal approximation is shown by a greyscale image, where lighter
 greys indicate low density.
 
 A pre-chosen threshold (or more than one) can be given in \code{try.thresh}.
 The GPD is fitted to the excesses using maximum likelihood estimation. The
-estimated parameters are plot as a horizontal line which is solid above this
-threshold where the parameter from
-smaller tail fraction should be the same if the GPD is a good model (upto sample uncertainty).
+estimated parameters are shown as a horizontal line which is solid above this
+threshold, for which they should be the same if the GPD is a good model (upto sample uncertainty).
 The threshold should always be chosen to be as low as possible to reduce sample uncertainty.
 Therefore, below the pre-chosen threshold, where the GPD should not be a good model, the line
 is dashed and the parameter estimates should now deviate from the dashed line
@@ -95,7 +94,7 @@ If no threshold limits are provided \code{tlim = NULL} then the lowest threshold
 to be just below the median data point and the maximum threshold is set to the 11th
 largest datapoint. This is a slightly lower order statistic compared to that used in the MRL plot
 \code{\link[evmix:mrlplot]{mrlplot}} function to account for the fact the maximum likelihood
-estimation is likely to be very unreliable with 10 or fewer datapoints.
+estimation is likely to be unreliable with 10 or fewer datapoints.
 
 The range of permitted thresholds is just below the minimum datapoint and the
 second largest value. If there are less unique values of data within the threshold
@@ -136,6 +135,10 @@ tcplot(x, tlim = c(0, 2), try.thresh = c(0.5, 1, 1.5))
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
 \references{
+Based on threshold stability plot function in the \code{\link[evd:tcplot]{evd}} function
+from the \code{\link[evd:gpd]{evd}} package, for which Stuart Coles and Alec Stephenson's
+contributions are gratefully acknowledged.
+
 Scarrott, C.J. and MacDonald, A. (2012). A review of extreme value
 threshold estimation and uncertainty quantification. REVSTAT - Statistical
 Journal 10(1), 33-59. Available from \url{http://www.ine.pt/revstat/pdf/rs120102.pdf}

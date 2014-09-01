@@ -300,6 +300,7 @@ fnormgpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL
 
   check.quant(x)
   n = length(x)
+  np = 5 # maximum number of parameters
 
   if ((method == "L-BFGS-B") | (method == "BFGS")) finitelik = TRUE
   
@@ -310,8 +311,8 @@ fnormgpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL
   # Check if profile likelihood or fixed threshold is being used
   # and determine initial values for parameters in each case
   if (is.null(useq)) { # not profile or fixed
-    profu = FALSE
-    check.nparam(pvector, nparam = 5, allownull = TRUE)
+
+    check.nparam(pvector, nparam = np, allownull = TRUE)
     
     if (is.null(pvector)) {
       pvector[1] = mean(x, trim = 0.2)
@@ -323,9 +324,8 @@ fnormgpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL
     }
     
   } else { # profile or fixed
-    profu = TRUE
     
-    check.nparam(pvector, nparam = 4, allownull = TRUE)
+    check.nparam(pvector, nparam = np - 1, allownull = TRUE)
 
     # profile likelihood for threshold or scalar given
     if (length(useq) != 1) {
@@ -370,6 +370,8 @@ fnormgpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL
 
   if (fixedu) { # fixed threshold (separable) likelihood
     nllh = nlunormgpd(pvector, u, x, phiu)
+    if (is.infinite(nllh)) pvector[4] = 0.1
+    nllh = nlunormgpd(pvector, u, x, phiu)
     if (is.infinite(nllh)) stop("initial parameter values are invalid")
   
     fit = optim(par = as.vector(pvector), fn = nlunormgpd, u = u, x = x, phiu = phiu,
@@ -382,6 +384,8 @@ fnormgpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL
     
   } else { # complete (non-separable) likelihood
     
+    nllh = nlnormgpd(pvector, x, phiu)
+    if (is.infinite(nllh)) pvector[5] = 0.1
     nllh = nlnormgpd(pvector, x, phiu)
     if (is.infinite(nllh)) stop("initial parameter values are invalid")
   
@@ -514,8 +518,10 @@ lnormgpd <- function(x, nmean = 0, nsd = 1, u = qnorm(0.9, nmean, nsd),
 # (wrapper for likelihood, inputs and checks designed for optimisation)
 nlnormgpd <- function(pvector, x, phiu = TRUE, finitelik = FALSE) {
 
+  np = 5 # maximum number of parameters
+
   # Check properties of inputs
-  check.nparam(pvector, nparam = 5)
+  check.nparam(pvector, nparam = np)
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
   check.logic(logicarg = finitelik)
@@ -545,9 +551,10 @@ nlnormgpd <- function(pvector, x, phiu = TRUE, finitelik = FALSE) {
 proflunormgpd <- function(u, pvector, x, phiu = TRUE, method = "BFGS",
   control = list(maxit = 10000), finitelik = FALSE, ...) {
 
+  np = 5 # maximum number of parameters
+
   # Check properties of inputs
-  np = 4
-  check.nparam(pvector, nparam = np, allownull = TRUE)
+  check.nparam(pvector, nparam = np - 1, allownull = TRUE)
   check.param(u)
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
@@ -574,6 +581,9 @@ proflunormgpd <- function(u, pvector, x, phiu = TRUE, method = "BFGS",
     nllh = nlunormgpd(pvector, u, x, phiu)
   }  
 
+  if (is.infinite(nllh)) pvector[4] = 0.1
+    nllh = nlunormgpd(pvector, u, x, phiu)
+  
   # if still invalid then output cleanly
   if (is.infinite(nllh)) {
     warning(paste("initial parameter values for threshold u =", u, "are invalid"))
@@ -600,8 +610,10 @@ proflunormgpd <- function(u, pvector, x, phiu = TRUE, method = "BFGS",
 # (wrapper for likelihood, designed for threshold to be fixed and other parameters optimised)
 nlunormgpd <- function(pvector, u, x, phiu = TRUE, finitelik = FALSE) {
 
+  np = 5 # maximum number of parameters
+
   # Check properties of inputs
-  check.nparam(pvector, nparam = 4)
+  check.nparam(pvector, nparam = np - 1)
   check.param(u)
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)

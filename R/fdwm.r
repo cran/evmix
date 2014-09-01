@@ -129,9 +129,11 @@ fdwm = function(x, pvector = NULL, std.err = TRUE, method = "BFGS",
   
   call <- match.call()
   
+  np = 6 # maximum number of parameters
+  
   # Check properties of inputs
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.nparam(pvector, nparam = 6, allownull = TRUE)
+  check.nparam(pvector, nparam = np, allownull = TRUE)
   check.logic(logicarg = std.err)
   check.optim(method)
   check.control(control)
@@ -152,7 +154,7 @@ fdwm = function(x, pvector = NULL, std.err = TRUE, method = "BFGS",
   if ((method == "L-BFGS-B") | (method == "BFGS")) finitelik = TRUE
     
   if (is.null(pvector)) {
-    initfweibull = fitdistr(x, "weibull")
+    initfweibull = fitdistr(x, "weibull", lower = c(1e-8, 1e-8))
     pvector[1] = initfweibull$estimate[1]
     pvector[2] = initfweibull$estimate[2]    
     pvector[3] = quantile(x, 0.7)
@@ -289,8 +291,10 @@ ldwm = function(x,  wshape = 1, wscale = 1, cmu = 1, ctau = 1,
 # (wrapper for likelihood, inputs and checks designed for optimisation)
 nldwm = function(pvector, x, finitelik = FALSE) {
   
+  np = 6 # maximum number of parameters
+
   # Check properties of inputs
-  check.nparam(pvector, nparam = 6)
+  check.nparam(pvector, nparam = np)
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.logic(logicarg = finitelik)
   

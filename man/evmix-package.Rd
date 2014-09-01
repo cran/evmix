@@ -12,8 +12,8 @@ Boundary Corrected Kernel Density Estimation
 \tabular{ll}{
 Package: \tab evmix\cr
 Type: \tab Package\cr
-Version: \tab 0.2-1\cr
-Date: \tab 2014-06-03\cr
+Version: \tab 0.2-3\cr
+Date: \tab 2014-09-01\cr
 License: \tab GPL-3\cr
 LazyLoad: \tab yes\cr
 }
@@ -30,7 +30,7 @@ Reasonable consistency with the base functions in the \code{evd} package is
 provided, so that users can safely interchange most code.
 }
 \author{
-Yang Hu and Carl Scarrott, University of Canterbury, New Zealand \email{carl.scarrott@canterbury.ac.nz}
+Carl Scarrott and Yang Hu, University of Canterbury, New Zealand \email{carl.scarrott@canterbury.ac.nz}
 }
 \references{
 \url{http://www.math.canterbury.ac.nz/~c.scarrott/evmix}

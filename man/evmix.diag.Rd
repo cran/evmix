@@ -7,16 +7,16 @@
 \alias{rlplot}
 \title{Diagnostic Plots for Extreme Value Mixture Models}
 \usage{
-evmix.diag(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05,
-  N = 1000, legend = FALSE, ...)
+evmix.diag(modelfit, upperfocus = TRUE, alpha = 0.05, N = 1000,
+  legend = FALSE, ...)
 
-rlplot(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000,
+rlplot(modelfit, upperfocus = TRUE, alpha = 0.05, N = 1000,
   legend = TRUE, ...)
 
-qplot(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000,
+qplot(modelfit, upperfocus = TRUE, alpha = 0.05, N = 1000,
   legend = TRUE, ...)
 
-pplot(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000,
+pplot(modelfit, upperfocus = TRUE, alpha = 0.05, N = 1000,
   legend = TRUE, ...)
 
 densplot(modelfit, upperfocus = TRUE, legend = TRUE, ...)
@@ -26,9 +26,7 @@ densplot(modelfit, upperfocus = TRUE, legend = TRUE, ...)
 
 \item{upperfocus}{logical, should plot focus on upper tail?}
 
-\item{ci}{logical, should Monte Carlo based CI's be plotted}
-
-\item{alpha}{logical, significance level (0, 1)}
+\item{alpha}{significance level over range (0, 1), or \code{NULL} for no CI}
 
 \item{N}{number of Monte Carlo simulation for CI (N>=10)}
 
@@ -130,7 +128,8 @@ Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
 \references{
 Based on GPD/POT diagnostic functions in the \code{\link[evd:plot.uvevd]{evd}} function
-from the \code{\link[evd:gpd]{evd}} package.
+from the \code{\link[evd:gpd]{evd}} package, for which Stuart Coles and Alec Stephenson's
+contributions are gratefully acknowledged.
 
 \url{http://en.wikipedia.org/wiki/Q-Q_plot}
 

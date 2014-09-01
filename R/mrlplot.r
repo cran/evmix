@@ -8,12 +8,12 @@
 #' @param tlim       vector of (lower, upper) limits of range of threshold
 #'                   to plot MRL, or \code{NULL} to use default values
 #' @param nt         number of thresholds for which to evaluate MRL
-#' @param alpha      logical, significance level (0, 1)
+#' @param alpha      significance level over range (0, 1), or \code{NULL} for no CI
 #' @param p.or.n     logical, should tail fraction (\code{FALSE}) or number of
 #'                   exceedances (\code{TRUE}) be given on upper x-axis
 #' @param ylim       y-axis limits or \code{NULL}
 #' @param legend.loc location of legend (see \code{\link[graphics:legend]{legend}}) or \code{NULL} for no legend
-#' @param try.thresh vector of threshold to fit GPD using MLE and show theoretical MRL
+#' @param try.thresh vector of thresholds to consider
 #' @param main       title of plot
 #' @param xlab       x-axis label
 #' @param ylab       y-axis label
@@ -31,9 +31,8 @@
 #' and gradient \eqn{\xi/(1 - \xi)}. The estimated mean residual life above a threshold
 #' \eqn{v} is given by the sample mean excess \code{mean(x[x > v]) - v}. 
 #' 
-#' Symmetric central limit theorem based confidence intervals are provided for all mean
-#' excesses, provided there are at least 5 exceedances. The sampling density for the MRL
-#' is shown by a greyscale image, where lighter greys indicate low density.
+#' Symmetric CLT based confidence intervals are provided, provided there are at least 5 exceedances.
+#' The sampling density for the MRL is shown by a greyscale image, where lighter greys indicate low density.
 #' 
 #' A pre-chosen threshold (or more than one) can be given in \code{try.thresh}. The GPD is
 #' fitted to the excesses using maximum likelihood estimation. The estimated parameters are
@@ -48,8 +47,7 @@
 #' The range of permitted thresholds is just below the minimum datapoint and the
 #' second largest value. If there are less unique values of data within the threshold
 #' range than the number of threshold evalations requested, then instead of a sequence
-#' of thresholds they will be set to each unique datapoint, i.e. the MRL will only be evaluated
-#' where there is data.
+#' of thresholds the MRL will be evaluated at each unique datapoint.
 #' 
 #' The missing (\code{NA} and \code{NaN}) and non-finite values are ignored.
 #' 
@@ -61,7 +59,7 @@
 #' 
 #' @return \code{\link[evmix:mrlplot]{mrlplot}} gives the mean residual life plot. It also
 #' returns a matrix containing columns of the threshold, number of exceedances, mean excess,
-#' standard devation of excesses and \eqn{100(1 - \alpha)\%} confidence interval. The standard
+#' standard devation of excesses and \eqn{100(1 - \alpha)\%} confidence interval if requested. The standard
 #' deviation and confidence interval are \code{NA} for less than 5 exceedances.
 #' 
 #' @note If the user specifies the threshold range, the thresholds above the second
@@ -74,6 +72,10 @@
 #' will either stop or give warning message as appropriate.
 #' 
 #' @references
+#' 
+#' Based on MRL plot function in the \code{\link[evd:mrlplot]{evd}} function
+#' from the \code{\link[evd:gpd]{evd}} package, for which Stuart Coles and Alec Stephenson's 
+#' contributions are gratefully acknowledged.
 #' 
 #' Scarrott, C.J. and MacDonald, A. (2012). A review of extreme value
 #' threshold estimation and uncertainty quantification. REVSTAT - Statistical
@@ -133,12 +135,14 @@ mrlplot <- function(data, tlim = NULL, nt = min(100, length(data)), p.or.n = FAL
   if (abs(nt - round(nt)) > sqrt(.Machine$double.eps) | nt < 10)
     stop("number of thresholds must be a non-negative integer >= 2")
 
-  if (!is.numeric(alpha) | length(alpha) != 1)
-    stop("significance level alpha must be single numeric value")
+  if (!is.null(alpha)){
+    if (!is.numeric(alpha) | length(alpha) != 1)
+      stop("significance level alpha must be single numeric value")
 
-  if (alpha <= 0 | alpha >= 1)
-    stop("significance level alpha must be between (0, 1)")
-
+    if (alpha <= 0 | alpha >= 1)
+      stop("significance level alpha must be between (0, 1)")
+  }
+  
   if (!is.null(ylim)) {
     if (length(ylim) != 2 | mode(ylim) != "numeric") 
       stop("ylim must be a numeric vector of length 2")
@@ -208,31 +212,50 @@ mrlplot <- function(data, tlim = NULL, nt = min(100, length(data)), p.or.n = FAL
     nxs = length(excesses)
     meanxs = mean(excesses)
     sdxs = ifelse(nxs <= 5, NA, sd(excesses))
-    c(u, nxs, meanxs, sdxs, meanxs + qnorm(c(alpha/2, 1 - alpha/2)) * sdxs/sqrt(nxs))
+    
+    results = c(u, nxs, meanxs, sdxs)
+    if (!is.null(alpha)) {
+      results = c(results, meanxs + qnorm(c(alpha/2, 1 - alpha/2)) * sdxs/sqrt(nxs))
+    }
+  
+    return(results)
   }
-  me = t(sapply(thresholds, FUN = me.calc, x = data, alpha = 0.05))
+  me = t(sapply(thresholds, FUN = me.calc, x = data, alpha = alpha))
   me = as.data.frame(me)
-  names(me) = c("u", "nu", "mean.excess", "sd.excess", "cil.excess", "ciu.excess")
-  
-  # Assume CLT holds for mean excess, calculate density over all thresholds
-  mes = range(me[, 5:6], na.rm = TRUE)
-  merange = seq(mes[1] - (mes[2] - mes[1])/10, mes[2] + (mes[2] - mes[1])/10, length.out = 200)
-  allmat = matrix(merange, nrow = nt, ncol = 200, byrow = TRUE)
-  memat = matrix(me[, 3], nrow = nt, ncol = 200, byrow = FALSE)
-  sdmat = matrix(me[, 4]/sqrt(me[, 2]), nrow = nt, ncol = 200, byrow = FALSE)
-  z = (allmat - memat)/sdmat
-  z[abs(z) > 3] = NA
-
-  if (is.null(ylim)) {
-    ylim = range(merange, na.rm = TRUE)
-    ylim = ylim + c(-1, 1) * diff(ylim)/10
+  if (!is.null(alpha)) {
+    names(me) = c("u", "nu", "mean.excess", "sd.excess", "cil.excess", "ciu.excess")
+  } else {
+    names(me) = c("u", "nu", "mean.excess", "sd.excess")    
   }
   
+  # if CI requested then fancy plot, otherwise give usual MRL
   par(mar = c(5, 4, 7, 2) + 0.1)
-  image(thresholds, merange, dnorm(z), col = gray(seq(1, 0.3, -0.01)),
-    main = main, xlab = xlab, ylab = ylab, ylim = ylim, ...)
-  matplot(matrix(thresholds, nrow = nt, ncol = 3, byrow = FALSE), me[, c(3, 5, 6)], add = TRUE,
-    type = "l", lty = c(1, 2, 2), col = "black", lwd = c(2, 1, 1), ...)
+  if (!is.null(alpha)) {
+    # Assume CLT holds for mean excess, calculate density over all thresholds
+    mes = range(me[, 5:6], na.rm = TRUE)
+    merange = seq(mes[1] - (mes[2] - mes[1])/10, mes[2] + (mes[2] - mes[1])/10, length.out = 200)
+    allmat = matrix(merange, nrow = nt, ncol = 200, byrow = TRUE)
+    memat = matrix(me[, 3], nrow = nt, ncol = 200, byrow = FALSE)
+    sdmat = matrix(me[, 4]/sqrt(me[, 2]), nrow = nt, ncol = 200, byrow = FALSE)
+    z = (allmat - memat)/sdmat
+    z[abs(z) > 3] = NA
+
+    if (is.null(ylim)) {
+      ylim = range(merange, na.rm = TRUE)
+      ylim = ylim + c(-1, 1) * diff(ylim)/10
+    }
+    image(thresholds, merange, dnorm(z), col = gray(seq(1, 0.3, -0.01)),
+          main = main, xlab = xlab, ylab = ylab, ylim = ylim, ...)
+    matplot(matrix(thresholds, nrow = nt, ncol = 3, byrow = FALSE), me[, c(3, 5, 6)], add = TRUE,
+            type = "l", lty = c(1, 2, 2), col = "black", lwd = c(2, 1, 1), ...)    
+  } else {
+    if (is.null(ylim)) {
+      ylim = range(me[, 3], na.rm = TRUE)
+      ylim = ylim + c(-1, 1) * diff(ylim)/10
+    }
+    plot(thresholds, me[, 3], main = main, xlab = xlab, ylab = ylab, ylim = ylim, add = TRUE,
+      type = "l", lty = 1, col = "black", lwd = 2, ...)    
+  }
   box()
 
   naxis = rev(ceiling(2^pretty(log2(c(nmaxu, nminu)), 10)))
@@ -278,18 +301,31 @@ mrlplot <- function(data, tlim = NULL, nt = min(100, length(data)), p.or.n = FAL
       abline(v = try.thresh[i], lty = 3, col = linecols[i])
     }
     if (!is.null(legend.loc)) {
-      legend(legend.loc, c("Sample Mean Excess", paste(100*(1 - alpha), "% CI"),
-        paste("u =", formatC(try.thresh[1:min(c(3, ntry))], digits = 2, format = "g"),
-          "sigmau =", formatC(mleparams[1, 1:min(c(3, ntry))], digits = 2, format = "g"),
-          "xi =", formatC(mleparams[2, 1:min(c(3, ntry))], digits = 2, format = "g"))),
-        lty = c(1, 2, rep(1, min(c(3, ntry)))),
-        lwd = c(2, 1, rep(1, min(c(3, ntry)))),
-        col = c("black", "black", linecols), bg = "white")
+      if (!is.null(alpha)) {
+        legend(legend.loc, c("Sample Mean Excess", paste(100*(1 - alpha), "% CI"),
+          paste("u =", formatC(try.thresh[1:min(c(3, ntry))], digits = 2, format = "g"),
+            "sigmau =", formatC(mleparams[1, 1:min(c(3, ntry))], digits = 2, format = "g"),
+            "xi =", formatC(mleparams[2, 1:min(c(3, ntry))], digits = 2, format = "g"))),
+          lty = c(1, 2, rep(1, min(c(3, ntry)))),
+          lwd = c(2, 1, rep(1, min(c(3, ntry)))),
+          col = c("black", "black", linecols), bg = "white")
+      } else {
+        legend(legend.loc, c("Sample Mean Excess",
+          paste("u =", formatC(try.thresh[1:min(c(3, ntry))], digits = 2, format = "g"),
+            "sigmau =", formatC(mleparams[1, 1:min(c(3, ntry))], digits = 2, format = "g"),
+            "xi =", formatC(mleparams[2, 1:min(c(3, ntry))], digits = 2, format = "g"))),
+          lty = c(1, rep(1, min(c(3, ntry)))), lwd = c(2, rep(1, min(c(3, ntry)))),
+          col = c("black", linecols), bg = "white")
+      }
     }
   } else {
     if (!is.null(legend.loc)) {
-      legend(legend.loc, c("Sample Mean Excess", paste(100*(1 - alpha), "% CI")),
-        lty = c(1, 2), lwd = c(2, 1), bg = "white")
+      if (!is.null(alpha)) {
+        legend(legend.loc, c("Sample Mean Excess", paste(100*(1 - alpha), "% CI")),
+          lty = c(1, 2), lwd = c(2, 1), bg = "white")
+      } else {
+        legend(legend.loc, "Sample Mean Excess", lty = 1, lwd = 2, bg = "white")        
+      }
     }
   }
   

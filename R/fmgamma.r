@@ -205,7 +205,8 @@ fmgamma <- function(x, M, pvector = NULL, std.err = TRUE,
 
   check.quant(x)
   n = length(x)
-
+  np = 3*M # maximum number of parameters
+  
   if (is.null(pvector)) {
     if (is.unsorted(x)) x = sort(x)
     
@@ -234,10 +235,10 @@ fmgamma <- function(x, M, pvector = NULL, std.err = TRUE,
     pvector = c(mgparam[1,], mgparam[2,], nM[-M]/n)
   }
 
-  if (length(pvector) != (3*M - 1)) 
-    stop(paste("initial parameter vector must be of length", 3*M - 1))
+  if (length(pvector) != (np - 1)) 
+    stop(paste("initial parameter vector must be of length", np - 1))
 
-  check.nparam(pvector, nparam = length(pvector), allownull = FALSE)
+  check.nparam(pvector, nparam = np - 1, allownull = FALSE)
 
   if ((method == "L-BFGS-B") | (method == "BFGS")) finitelik = TRUE
   
@@ -417,8 +418,10 @@ lmgamma <- function(x, mgshape, mgscale, mgweight, log = TRUE) {
 # (wrapper for likelihood, inputs and checks designed for optimisation)
 nlmgamma <- function(pvector, x, M, finitelik = FALSE) {
 
+  np = 3*M # maximum number of parameters
+
   # Check properties of inputs
-  check.nparam(pvector, nparam = 3*M - 1)
+  check.nparam(pvector, nparam = np - 1)
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.logic(logicarg = finitelik)
   check.n(M)
@@ -445,8 +448,10 @@ nlmgamma <- function(pvector, x, M, finitelik = FALSE) {
 # with component probabilities separated for EM algorithm
 nlEMmgamma <- function(pvector, tau, mgweight, x, M, finitelik = FALSE) {
 
+  np.noweight = 2*M # maximum number of non-weight parameters
+
   # Check properties of inputs
-  check.nparam(pvector, nparam = 2*M)
+  check.nparam(pvector, nparam = np.noweight)
   check.nparam(mgweight, nparam = M)
   check.prob(mgweight)
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)

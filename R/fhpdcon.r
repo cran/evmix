@@ -185,6 +185,7 @@ fhpdcon <- function(x, useq = NULL, fixedu = FALSE, pvector = NULL,
 
   check.quant(x)
   n = length(x)
+  np = 4 # maximum number of parameters
 
   if ((method == "L-BFGS-B") | (method == "BFGS")) finitelik = TRUE
   
@@ -195,8 +196,7 @@ fhpdcon <- function(x, useq = NULL, fixedu = FALSE, pvector = NULL,
   # Check if profile likelihood or fixed threshold is being used
   # and determine initial values for parameters in each case
   if (is.null(useq)) { # not profile or fixed
-    profu = FALSE
-    check.nparam(pvector, nparam = 4, allownull = TRUE)
+    check.nparam(pvector, nparam = np, allownull = TRUE)
     
     if (is.null(pvector)) {
       pvector[1] = mean(x, trim = 0.2)
@@ -207,9 +207,8 @@ fhpdcon <- function(x, useq = NULL, fixedu = FALSE, pvector = NULL,
     }
     
   } else { # profile or fixed
-    profu = TRUE
     
-    check.nparam(pvector, nparam = 3, allownull = TRUE)
+    check.nparam(pvector, nparam = np - 1, allownull = TRUE)
 
     # profile likelihood for threshold or scalar given
     if (length(useq) != 1) {
@@ -228,7 +227,7 @@ fhpdcon <- function(x, useq = NULL, fixedu = FALSE, pvector = NULL,
       u = useq
     }
 
-    if (fixedu) { # threshold fixed (3 parameters)
+    if (fixedu) { # threshold fixed
       if (is.null(pvector)) {
         pvector[1] = mean(x, trim = 0.2)
         pvector[2] = sd(x)
@@ -385,8 +384,10 @@ lhpdcon <- function(x, nmean = 0, nsd = 1, u = qnorm(0.9, nmean, nsd),
 # (wrapper for likelihood, inputs and checks designed for optimisation)
 nlhpdcon <- function(pvector, x, finitelik = FALSE) {
 
+  np = 4 # maximum number of parameters
+
   # Check properties of inputs
-  check.nparam(pvector, nparam = 4)
+  check.nparam(pvector, nparam = np)
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.logic(logicarg = finitelik)
 
@@ -414,9 +415,10 @@ nlhpdcon <- function(pvector, x, finitelik = FALSE) {
 profluhpdcon <- function(u, pvector, x,
   method = "BFGS", control = list(maxit = 10000), finitelik = FALSE, ...) {
 
+  np = 4 # maximum number of parameters
+
   # Check properties of inputs
-  np = 3
-  check.nparam(pvector, nparam = np, allownull = TRUE)
+  check.nparam(pvector, nparam = np - 1, allownull = TRUE)
   check.param(u)
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.logic(logicarg = finitelik)
@@ -462,8 +464,10 @@ profluhpdcon <- function(u, pvector, x,
 # (wrapper for likelihood, designed for threshold to be fixed and other parameters optimised)
 nluhpdcon <- function(pvector, u, x, finitelik = FALSE) {
 
+  np = 4 # maximum number of parameters
+
   # Check properties of inputs
-  check.nparam(pvector, nparam = 3)
+  check.nparam(pvector, nparam = np - 1)
   check.param(u)
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.logic(logicarg = finitelik)

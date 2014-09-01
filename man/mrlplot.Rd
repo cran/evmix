@@ -17,7 +17,7 @@ to plot MRL, or \code{NULL} to use default values}
 
 \item{nt}{number of thresholds for which to evaluate MRL}
 
-\item{alpha}{logical, significance level (0, 1)}
+\item{alpha}{significance level over range (0, 1), or \code{NULL} for no CI}
 
 \item{p.or.n}{logical, should tail fraction (\code{FALSE}) or number of
 exceedances (\code{TRUE}) be given on upper x-axis}
@@ -26,7 +26,7 @@ exceedances (\code{TRUE}) be given on upper x-axis}
 
 \item{legend.loc}{location of legend (see \code{\link[graphics:legend]{legend}}) or \code{NULL} for no legend}
 
-\item{try.thresh}{vector of threshold to fit GPD using MLE and show theoretical MRL}
+\item{try.thresh}{vector of thresholds to consider}
 
 \item{main}{title of plot}
 
@@ -39,7 +39,7 @@ exceedances (\code{TRUE}) be given on upper x-axis}
 \value{
 \code{\link[evmix:mrlplot]{mrlplot}} gives the mean residual life plot. It also
 returns a matrix containing columns of the threshold, number of exceedances, mean excess,
-standard devation of excesses and \eqn{100(1 - \alpha)\%} confidence interval. The standard
+standard devation of excesses and \eqn{100(1 - \alpha)\%} confidence interval if requested. The standard
 deviation and confidence interval are \code{NA} for less than 5 exceedances.
 }
 \description{
@@ -58,9 +58,8 @@ which is linear in higher thresholds \eqn{v} with intercept given by \eqn{[\sigm
 and gradient \eqn{\xi/(1 - \xi)}. The estimated mean residual life above a threshold
 \eqn{v} is given by the sample mean excess \code{mean(x[x > v]) - v}.
 
-Symmetric central limit theorem based confidence intervals are provided for all mean
-excesses, provided there are at least 5 exceedances. The sampling density for the MRL
-is shown by a greyscale image, where lighter greys indicate low density.
+Symmetric CLT based confidence intervals are provided, provided there are at least 5 exceedances.
+The sampling density for the MRL is shown by a greyscale image, where lighter greys indicate low density.
 
 A pre-chosen threshold (or more than one) can be given in \code{try.thresh}. The GPD is
 fitted to the excesses using maximum likelihood estimation. The estimated parameters are
@@ -75,8 +74,7 @@ largest datapoint.
 The range of permitted thresholds is just below the minimum datapoint and the
 second largest value. If there are less unique values of data within the threshold
 range than the number of threshold evalations requested, then instead of a sequence
-of thresholds they will be set to each unique datapoint, i.e. the MRL will only be evaluated
-where there is data.
+of thresholds the MRL will be evaluated at each unique datapoint.
 
 The missing (\code{NA} and \code{NaN}) and non-finite values are ignored.
 
@@ -107,6 +105,10 @@ mrlplot(x, tlim = c(0, 3), try.thresh = c(0.5, 1, 1.5))
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
 \references{
+Based on MRL plot function in the \code{\link[evd:mrlplot]{evd}} function
+from the \code{\link[evd:gpd]{evd}} package, for which Stuart Coles and Alec Stephenson's
+contributions are gratefully acknowledged.
+
 Scarrott, C.J. and MacDonald, A. (2012). A review of extreme value
 threshold estimation and uncertainty quantification. REVSTAT - Statistical
 Journal 10(1), 33-59. Available from \url{http://www.ine.pt/revstat/pdf/rs120102.pdf}

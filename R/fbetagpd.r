@@ -164,6 +164,7 @@ fbetagpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL
 
   check.quant(x)
   n = length(x)
+  np = 5 # maximum number of parameters
 
   if (any(x > 1)) warning("values greater than one are assumed part of GPD")
 
@@ -176,8 +177,8 @@ fbetagpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL
   # Check if profile likelihood or fixed threshold is being used
   # and determine initial values for parameters in each case
   if (is.null(useq)) { # not profile or fixed
-    profu = FALSE
-    check.nparam(pvector, nparam = 5, allownull = TRUE)
+
+    check.nparam(pvector, nparam = np, allownull = TRUE)
     
     if (is.null(pvector)) {
       bmean = mean(x[x <= 1])
@@ -191,9 +192,8 @@ fbetagpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL
     }
     
   } else { # profile or fixed
-    profu = TRUE
     
-    check.nparam(pvector, nparam = 4, allownull = TRUE)
+    check.nparam(pvector, nparam = np - 1, allownull = TRUE)
 
     # profile likelihood for threshold or scalar given
     if (length(useq) != 1) {
@@ -212,7 +212,7 @@ fbetagpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL
       u = useq
     }
 
-    if (fixedu) { # threshold fixed (4 parameters)
+    if (fixedu) { # threshold fixed
       if (is.null(pvector)) {
         bmean = mean(x[x <= 1])
         bvar = var(x[x <= 1])
@@ -396,8 +396,10 @@ lbetagpd <- function(x, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1, bshape
 # (wrapper for likelihood, inputs and checks designed for optimisation)
 nlbetagpd <- function(pvector, x, phiu = TRUE, finitelik = FALSE) {
 
+  np = 5 # maximum number of parameters
+
   # Check properties of inputs
-  check.nparam(pvector, nparam = 5)
+  check.nparam(pvector, nparam = np)
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
   check.logic(logicarg = finitelik)
@@ -427,9 +429,10 @@ nlbetagpd <- function(pvector, x, phiu = TRUE, finitelik = FALSE) {
 proflubetagpd <- function(u, pvector, x, phiu = TRUE, method = "BFGS",
   control = list(maxit = 10000), finitelik = FALSE, ...) {
 
+  np = 5 # maximum number of parameters
+
   # Check properties of inputs
-  np = 4
-  check.nparam(pvector, nparam = np, allownull = TRUE)
+  check.nparam(pvector, nparam = np - 1, allownull = TRUE)
   check.param(u) # do not check probability in likelihood
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
@@ -493,8 +496,10 @@ proflubetagpd <- function(u, pvector, x, phiu = TRUE, method = "BFGS",
 # (wrapper for likelihood, designed for threshold to be fixed and other parameters optimised)
 nlubetagpd <- function(pvector, u, x, phiu = TRUE, finitelik = FALSE) {
 
+  np = 5 # maximum number of parameters
+
   # Check properties of inputs
-  check.nparam(pvector, nparam = 4)
+  check.nparam(pvector, nparam = np - 1)
   check.param(u) # do not check probability in likelihood
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)

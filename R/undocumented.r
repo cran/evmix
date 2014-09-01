@@ -2,6 +2,8 @@
 #' 
 #' @inheritParams kden
 #' @inheritParams bckden
+#' @inheritParams itmweibullgpd
+#' @inheritParams itmgng
 #' 
 #' @title Internal Functions
 #'
@@ -461,3 +463,68 @@ pbckdenxnn <- function(x, kerncentres, lambda, kernel = "gaussian", nn) {
   p
 }
 
+#' @export
+#' @rdname internal
+qmix <- function(x, u, epsilon) {
+  # Holden and Haug's q mixing function
+  # (negate x and u to get p mixing function)
+  
+  xu = abs(x - u)
+  whichi = which(xu < epsilon)
+  whichu = which(x >= (u + epsilon))
+  
+  qm = x
+  qm[whichi] = (x[whichi] + u - epsilon)/2 + epsilon * cos(pi * (x[whichi] - u)/epsilon/2)/pi
+  qm[whichu] = u # different, but more computationally convenient, definition (was x-epsilon)
+  qm
+}
+
+#' @export
+#' @rdname internal
+qmixprime <- function(x, u, epsilon) {
+  # Holden and Haug's q' mixing function
+  # (negate x and u to get p' mixing function)
+  
+  xu = abs(x - u)
+  whichi = which(xu < epsilon)
+  whichu = which(x >= (u + epsilon))
+  
+  qprime = rep(1, length(x))
+  qprime[whichi] = 1/2 - sin(pi * (x[whichi] - u)/epsilon/2)/2
+  qprime[whichu] = 0  # different, but more computationally convenient, definition (was 1)
+  qprime
+}
+
+#' @export
+#' @rdname internal
+qgbgmix <- function(x, ul, ur, epsilon) {
+  # Holden and Haug's q_i mixing function reformulated for
+  # middle bulk model, with GPD for both tails
+  
+  # Note that intervals must not overlap (not checked)
+  midpoint = (ul + ur)/2
+  whichl = which(x < midpoint)
+  whichu = which(x >= midpoint)
+  
+  qm = x
+  qm[whichl] = -qmix(-x[whichl], -ul, epsilon)
+  qm[whichu] = qmix(x[whichu], ur, epsilon)
+  qm
+}
+
+#' @export
+#' @rdname internal
+qgbgmixprime <- function(x, ul, ur, epsilon) {
+  # Holden and Haug's q'_i mixing function reformulated for
+  # middle bulk model, with GPD for both tails
+  
+  # Note that intervals must not overlap (not checked)  
+  midpoint = (ul + ur)/2
+  whichl = which(x < midpoint)
+  whichu = which(x >= midpoint)
+  
+  qmprime = x
+  qmprime[whichl] = qmixprime(-x[whichl], -ul, epsilon)
+  qmprime[whichu] = qmixprime(x[whichu], ur, epsilon)
+  qmprime
+}

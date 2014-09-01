@@ -78,8 +78,8 @@ values, see below}
 \value{
 Log-likelihood is given by \code{\link[evmix:fgng]{lgng}} and it's
   wrappers for negative log-likelihood from \code{\link[evmix:fgng]{nlgng}}
-  and \code{\link[evmix:fgng]{nlugng}}. Profile likelihood for single
-  threshold given by \code{\link[evmix:fgng]{proflugng}}. Fitting function
+  and \code{\link[evmix:fgng]{nlugng}}. Profile likelihood for both
+  thresholds given by \code{\link[evmix:fgng]{proflugng}}. Fitting function
   \code{\link[evmix:fgng]{fgng}} returns a simple list with the
   following elements
 
@@ -87,8 +87,9 @@ Log-likelihood is given by \code{\link[evmix:fgng]{lgng}} and it's
  \code{call}:      \tab \code{optim} call\cr
  \code{x}:         \tab data vector \code{x}\cr
  \code{init}:      \tab \code{pvector}\cr
- \code{fixedu}:    \tab fixed threshold, logical\cr
- \code{useq}:      \tab threshold vector for profile likelihood or scalar for fixed threshold\cr
+ \code{fixedu}:    \tab fixed thresholds, logical\cr
+ \code{ulseq}:     \tab lower threshold vector for profile likelihood or scalar for fixed threshold\cr
+ \code{urseq}:     \tab upper threshold vector for profile likelihood or scalar for fixed threshold\cr
  \code{optim}:     \tab complete \code{optim} output\cr
  \code{mle}:       \tab vector of MLE of parameters\cr
  \code{cov}:       \tab variance-covariance matrix of MLE of parameters\cr
@@ -127,7 +128,7 @@ Only the different features are outlined below for brevity.
 
 The full parameter vector is
 (\code{nmean}, \code{nsd}, \code{ul}, \code{sigmaul}, \code{xil}, \code{ur}, \code{sigmaur}, \code{xir})
-if threshold is also estimated and
+if thresholds are also estimated and
 (\code{nmean}, \code{nsd}, \code{sigmaul}, \code{xil}, \code{sigmaur}, \code{xir})
 for profile likelihood or fixed threshold approach.
 
@@ -265,44 +266,70 @@ Other normgpd normgpdcon gng gngcon fnormgpd fnormgpdcon fgng fgngcon: \code{\li
   \code{\link{qgng}}, \code{\link{qgng}},
   \code{\link{rgng}}, \code{\link{rgng}},
   \code{\link{rgng}}, \code{\link{rgng}},
-  \code{\link{rgng}}; \code{\link{dnormgpdcon}},
+  \code{\link{rgng}}; \code{\link{ditmgng}},
+  \code{\link{ditmgng}}, \code{\link{ditmgng}},
+  \code{\link{ditmgng}}, \code{\link{ditmgng}},
+  \code{\link{itmgng}}, \code{\link{itmgng}},
+  \code{\link{itmgng}}, \code{\link{itmgng}},
+  \code{\link{itmgng}}, \code{\link{pitmgng}},
+  \code{\link{pitmgng}}, \code{\link{pitmgng}},
+  \code{\link{pitmgng}}, \code{\link{pitmgng}},
+  \code{\link{qitmgng}}, \code{\link{qitmgng}},
+  \code{\link{qitmgng}}, \code{\link{qitmgng}},
+  \code{\link{qitmgng}}, \code{\link{ritmgng}},
+  \code{\link{ritmgng}}, \code{\link{ritmgng}},
+  \code{\link{ritmgng}}, \code{\link{ritmgng}};
   \code{\link{dnormgpdcon}}, \code{\link{dnormgpdcon}},
   \code{\link{dnormgpdcon}}, \code{\link{dnormgpdcon}},
+  \code{\link{dnormgpdcon}}, \code{\link{normgpdcon}},
   \code{\link{normgpdcon}}, \code{\link{normgpdcon}},
   \code{\link{normgpdcon}}, \code{\link{normgpdcon}},
-  \code{\link{normgpdcon}}, \code{\link{pnormgpdcon}},
   \code{\link{pnormgpdcon}}, \code{\link{pnormgpdcon}},
   \code{\link{pnormgpdcon}}, \code{\link{pnormgpdcon}},
+  \code{\link{pnormgpdcon}}, \code{\link{qnormgpdcon}},
   \code{\link{qnormgpdcon}}, \code{\link{qnormgpdcon}},
   \code{\link{qnormgpdcon}}, \code{\link{qnormgpdcon}},
-  \code{\link{qnormgpdcon}}, \code{\link{rnormgpdcon}},
   \code{\link{rnormgpdcon}}, \code{\link{rnormgpdcon}},
-  \code{\link{rnormgpdcon}}, \code{\link{rnormgpdcon}};
+  \code{\link{rnormgpdcon}}, \code{\link{rnormgpdcon}},
+  \code{\link{rnormgpdcon}}; \code{\link{dnormgpd}},
   \code{\link{dnormgpd}}, \code{\link{dnormgpd}},
   \code{\link{dnormgpd}}, \code{\link{dnormgpd}},
-  \code{\link{dnormgpd}}, \code{\link{normgpd}},
   \code{\link{normgpd}}, \code{\link{normgpd}},
   \code{\link{normgpd}}, \code{\link{normgpd}},
+  \code{\link{normgpd}}, \code{\link{pnormgpd}},
   \code{\link{pnormgpd}}, \code{\link{pnormgpd}},
   \code{\link{pnormgpd}}, \code{\link{pnormgpd}},
-  \code{\link{pnormgpd}}, \code{\link{qnormgpd}},
   \code{\link{qnormgpd}}, \code{\link{qnormgpd}},
   \code{\link{qnormgpd}}, \code{\link{qnormgpd}},
+  \code{\link{qnormgpd}}, \code{\link{rnormgpd}},
   \code{\link{rnormgpd}}, \code{\link{rnormgpd}},
-  \code{\link{rnormgpd}}, \code{\link{rnormgpd}},
-  \code{\link{rnormgpd}}; \code{\link{fgngcon}},
+  \code{\link{rnormgpd}}, \code{\link{rnormgpd}};
   \code{\link{fgngcon}}, \code{\link{fgngcon}},
   \code{\link{fgngcon}}, \code{\link{fgngcon}},
+  \code{\link{fgngcon}}, \code{\link{lgngcon}},
   \code{\link{lgngcon}}, \code{\link{lgngcon}},
   \code{\link{lgngcon}}, \code{\link{lgngcon}},
-  \code{\link{lgngcon}}, \code{\link{nlgngcon}},
   \code{\link{nlgngcon}}, \code{\link{nlgngcon}},
   \code{\link{nlgngcon}}, \code{\link{nlgngcon}},
+  \code{\link{nlgngcon}}, \code{\link{nlugngcon}},
   \code{\link{nlugngcon}}, \code{\link{nlugngcon}},
   \code{\link{nlugngcon}}, \code{\link{nlugngcon}},
-  \code{\link{nlugngcon}}, \code{\link{proflugngcon}},
   \code{\link{proflugngcon}}, \code{\link{proflugngcon}},
-  \code{\link{proflugngcon}}, \code{\link{proflugngcon}};
+  \code{\link{proflugngcon}}, \code{\link{proflugngcon}},
+  \code{\link{proflugngcon}}; \code{\link{fitmgng}},
+  \code{\link{fitmgng}}, \code{\link{fitmgng}},
+  \code{\link{fitmgng}}, \code{\link{fitmgng}},
+  \code{\link{litmgng}}, \code{\link{litmgng}},
+  \code{\link{litmgng}}, \code{\link{litmgng}},
+  \code{\link{litmgng}}, \code{\link{nleuitmgng}},
+  \code{\link{nlitmgng}}, \code{\link{nlitmgng}},
+  \code{\link{nlitmgng}}, \code{\link{nlitmgng}},
+  \code{\link{nlitmgng}}, \code{\link{nluitmgng}},
+  \code{\link{nluitmgng}}, \code{\link{nluitmgng}},
+  \code{\link{nluitmgng}}, \code{\link{nluitmgng}},
+  \code{\link{profleuitmgng}}, \code{\link{profluitmgng}},
+  \code{\link{profluitmgng}}, \code{\link{profluitmgng}},
+  \code{\link{profluitmgng}}, \code{\link{profluitmgng}};
   \code{\link{fnormgpdcon}}, \code{\link{fnormgpdcon}},
   \code{\link{fnormgpdcon}}, \code{\link{fnormgpdcon}},
   \code{\link{fnormgpdcon}}, \code{\link{lnormgpdcon}},

@@ -86,7 +86,7 @@ values, see below}
 \value{
 Log-likelihood is given by \code{\link[evmix:fgkgcon]{lgkgcon}} and it's
   wrappers for negative log-likelihood from \code{\link[evmix:fgkgcon]{nlgkgcon}}
-  and \code{\link[evmix:fgkgcon]{nlugkgcon}}. Profile likelihood for single pair of upper and lower
+  and \code{\link[evmix:fgkgcon]{nlugkgcon}}. Profile likelihood for both
   thresholds given by \code{\link[evmix:fgkgcon]{proflugkgcon}}. Fitting function
   \code{\link[evmix:fgkgcon]{fgkgcon}} returns a simple list with the
   following elements
@@ -95,8 +95,9 @@ Log-likelihood is given by \code{\link[evmix:fgkgcon]{lgkgcon}} and it's
  \code{call}:      \tab \code{optim} call\cr
  \code{x}:         \tab data vector \code{x}\cr
  \code{init}:      \tab \code{pvector}\cr
- \code{fixedu}:    \tab fixed threshold, logical\cr
- \code{useq}:      \tab threshold vector for profile likelihood or scalar for fixed threshold\cr
+ \code{fixedu}:    \tab fixed thresholds, logical\cr
+ \code{ulseq}:     \tab lower threshold vector for profile likelihood or scalar for fixed threshold\cr
+ \code{urseq}:     \tab upper threshold vector for profile likelihood or scalar for fixed threshold\cr
  \code{optim}:     \tab complete \code{optim} output\cr
  \code{mle}:       \tab vector of MLE of parameters\cr
  \code{cov}:       \tab variance-covariance matrix of MLE of parameters\cr
@@ -143,7 +144,7 @@ Therefore, \code{sigmaul} and \code{sigmaur} should not be included in the param
 vector if initial values are provided, making the full parameter vector
 The full parameter vector is
 (\code{lambda}, \code{ul}, \code{xil}, \code{ur}, \code{xir})
-if threshold is also estimated and
+if thresholds are also estimated and
 (\code{lambda}, \code{xil}, \code{xir})
 for profile likelihood or fixed threshold approach.
 

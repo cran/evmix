@@ -231,6 +231,7 @@ fbckdengpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NU
   
   check.quant(x)
   n = length(x)
+  np = 4 # maximum number of parameters
 
   if (add.jitter) x = pmax(jitter(x, factor, amount), 0)
 
@@ -320,13 +321,12 @@ fbckdengpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NU
   # Check if profile likelihood or fixed threshold is being used
   # and determine initial values for parameters in each case
   if (is.null(useq)) { # not profile or fixed
-    profu = FALSE
-    check.nparam(pvector, nparam = 4, allownull = TRUE)
+
+    check.nparam(pvector, nparam = np, allownull = TRUE)
         
   } else { # profile or fixed
-    profu = TRUE
     
-    check.nparam(pvector, nparam = 3, allownull = TRUE)
+    check.nparam(pvector, nparam = np - 1, allownull = TRUE)
 
     # profile likelihood for threshold or scalar given
     if (length(useq) != 1) {
@@ -573,8 +573,10 @@ lbckdengpd <- function(x, lambda = NULL, u = 0, sigmau = 1, xi = 0, phiu = TRUE,
 nlbckdengpd <- function(pvector, x, phiu = TRUE, kernel = "gaussian",
   bcmethod = "simple", proper = TRUE, nn = "jf96", offset = NULL, xmax = NULL, finitelik = FALSE) {
 
+  np = 4 # maximum number of parameters
+
   # Check properties of inputs
-  check.nparam(pvector, nparam = 4)
+  check.nparam(pvector, nparam = np)
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
   check.logic(logicarg = finitelik)
@@ -617,9 +619,10 @@ proflubckdengpd <- function(u, pvector, x, phiu = TRUE, kernel = "gaussian",
   bcmethod = "simple", proper = TRUE, nn = "jf96", offset = NULL, xmax = NULL,
   method = "BFGS", control = list(maxit = 10000), finitelik = FALSE, ...) {
 
+  np = 4 # maximum number of parameters
+  
   # Check properties of inputs
-  np = 3
-  check.nparam(pvector, nparam = np, allownull = TRUE)
+  check.nparam(pvector, nparam = np - 1, allownull = TRUE)
   check.param(u) # do not check positivity in likelihood
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
@@ -710,8 +713,10 @@ nlubckdengpd <- function(pvector, u, x, phiu = TRUE, kernel = "gaussian",
   bcmethod = "simple", proper = TRUE, nn = "jf96", offset = NULL, xmax = NULL,
   finitelik = FALSE) {
 
+  np = 4 # maximum number of parameters
+
   # Check properties of inputs
-  check.nparam(pvector, nparam = 3)
+  check.nparam(pvector, nparam = np - 1)
   check.param(u) # do not check positivity in likelihood
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)

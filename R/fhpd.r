@@ -153,9 +153,11 @@ fhpd <- function(x, pvector = NULL, std.err = TRUE, method = "BFGS",
   
   call <- match.call()
   
+  np = 3 # maximum number of parameters
+
   # Check properties of inputs
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.nparam(pvector, nparam = 3, allownull = TRUE)
+  check.nparam(pvector, nparam = np, allownull = TRUE)
   check.logic(logicarg = std.err)
   check.optim(method)
   check.control(control)
@@ -305,8 +307,10 @@ lhpd <- function(x, nmean = 0, nsd = 1, xi = 0, log = TRUE) {
 # (wrapper for likelihood, inputs and checks designed for optimisation)
 nlhpd <- function(pvector, x, finitelik = FALSE) {
   
+  np = 3 # maximum number of parameters
+
   # Check properties of inputs
-  check.nparam(pvector, nparam = 3)
+  check.nparam(pvector, nparam = np)
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.logic(logicarg = finitelik)
   

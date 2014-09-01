@@ -179,11 +179,13 @@ fgpd <- function(x, u = 0, phiu = NULL, pvector = NULL, std.err = TRUE,
 
   call <- match.call()
     
+  np = 2 # maximum number of parameters
+
   # Check properties of inputs
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.param(u)
   check.prob(prob = phiu, allownull = TRUE) # don't use check.phiu as TRUE only valid for mixture models
-  check.nparam(pvector, nparam = 2, allownull = TRUE)
+  check.nparam(pvector, nparam = np, allownull = TRUE)
   check.logic(logicarg = std.err)
   check.optim(method)
   check.control(control)
@@ -321,8 +323,10 @@ lgpd <- function(x, u = 0, sigmau = 1, xi = 0, phiu = 1, log = TRUE) {
 # (wrapper for likelihood, inputs and checks designed for optimisation)
 nlgpd <- function(pvector, x, u = 0, phiu = 1, finitelik = FALSE) {
 
+  np = 2 # maximum number of parameters
+
   # Check properties of inputs
-  check.nparam(pvector, nparam = 2)
+  check.nparam(pvector, nparam = np)
   check.param(param = u)
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.prob(prob = phiu) # don't use check.phiu as TRUE only valid for mixture models

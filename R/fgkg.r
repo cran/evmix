@@ -27,7 +27,7 @@
 #' 
 #' The full parameter vector is
 #' (\code{lambda}, \code{ul}, \code{sigmaul}, \code{xil}, \code{ur}, \code{sigmaur}, \code{xir})
-#' if threshold is also estimated and
+#' if thresholds are also estimated and
 #' (\code{lambda}, \code{sigmaul}, \code{xil}, \code{sigmaur}, \code{xir})
 #' for profile likelihood or fixed threshold approach.
 #' 
@@ -72,7 +72,7 @@
 #' 
 #' @return Log-likelihood is given by \code{\link[evmix:fgkg]{lgkg}} and it's
 #'   wrappers for negative log-likelihood from \code{\link[evmix:fgkg]{nlgkg}}
-#'   and \code{\link[evmix:fgkg]{nlugkg}}. Profile likelihood for single pair of upper and lower
+#'   and \code{\link[evmix:fgkg]{nlugkg}}. Profile likelihood for both
 #'   thresholds given by \code{\link[evmix:fgkg]{proflugkg}}. Fitting function
 #'   \code{\link[evmix:fgkg]{fgkg}} returns a simple list with the
 #'   following elements
@@ -81,8 +81,9 @@
 #'  \code{call}:      \tab \code{optim} call\cr
 #'  \code{x}:         \tab data vector \code{x}\cr
 #'  \code{init}:      \tab \code{pvector}\cr
-#'  \code{fixedu}:    \tab fixed threshold, logical\cr
-#'  \code{useq}:      \tab threshold vector for profile likelihood or scalar for fixed threshold\cr
+#'  \code{fixedu}:    \tab fixed thresholds, logical\cr
+#'  \code{ulseq}:     \tab lower threshold vector for profile likelihood or scalar for fixed threshold\cr
+#'  \code{urseq}:     \tab upper threshold vector for profile likelihood or scalar for fixed threshold\cr
 #'  \code{optim}:     \tab complete \code{optim} output\cr
 #'  \code{mle}:       \tab vector of MLE of parameters\cr
 #'  \code{cov}:       \tab variance-covariance matrix of MLE of parameters\cr
@@ -239,6 +240,7 @@ fgkg <- function(x, phiul = TRUE, phiur = TRUE, ulseq = NULL, urseq = NULL, fixe
 
   check.quant(x)
   n = length(x)
+  np = 7 # maximum number of parameters
 
   if (add.jitter) x = jitter(x, factor, amount)
 
@@ -255,8 +257,8 @@ fgkg <- function(x, phiul = TRUE, phiur = TRUE, ulseq = NULL, urseq = NULL, fixe
   # Check if profile likelihood or fixed threshold is being used
   # and determine initial values for parameters in each case
   if (is.null(ulseq) | is.null(ulseq)) { # not profile or fixed
-    profu = FALSE
-    check.nparam(pvector, nparam = 7, allownull = TRUE)
+
+    check.nparam(pvector, nparam = np, allownull = TRUE)
     
     if (is.null(pvector)) {
       if (n == 1) {
@@ -276,9 +278,8 @@ fgkg <- function(x, phiul = TRUE, phiur = TRUE, ulseq = NULL, urseq = NULL, fixe
     }
     
   } else { # profile or fixed
-    profu = TRUE
     
-    check.nparam(pvector, nparam = 5, allownull = TRUE)
+    check.nparam(pvector, nparam = np - 2, allownull = TRUE)
 
     # profile likelihood for threshold or scalar given
     if ((length(ulseq) != 1) | (length(urseq) != 1)) {
@@ -306,7 +307,7 @@ fgkg <- function(x, phiul = TRUE, phiur = TRUE, ulseq = NULL, urseq = NULL, fixe
       ur = urseq
     }
 
-    if (fixedu) { # threshold fixed (4 parameters)
+    if (fixedu) { # threshold fixed
       if (is.null(pvector)) {
         if (n == 1) {
           stop("Automated bandwidth estimation requires 2 or more kernel centres")
@@ -545,8 +546,10 @@ lgkg <- function(x, lambda = NULL,
 # (wrapper for likelihood, inputs and checks designed for optimisation)
 nlgkg <- function(pvector, x, phiul = TRUE, phiur = TRUE, kernel = "gaussian", finitelik = FALSE) {
 
+  np = 7 # maximum number of parameters
+
   # Check properties of inputs
-  check.nparam(pvector, nparam = 7)
+  check.nparam(pvector, nparam = np)
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.phiu(phiul, allowfalse = TRUE)
   check.phiu(phiur, allowfalse = TRUE)
@@ -584,9 +587,10 @@ nlgkg <- function(pvector, x, phiul = TRUE, phiur = TRUE, kernel = "gaussian", f
 proflugkg <- function(ulr, pvector, x, phiul = TRUE, phiur = TRUE, kernel = "gaussian",
   method = "BFGS", control = list(maxit = 10000), finitelik = FALSE, ...) {
 
+  np = 7 # maximum number of parameters
+
   # Check properties of inputs
-  np = 5
-  check.nparam(pvector, nparam = np, allownull = TRUE)
+  check.nparam(pvector, nparam = np - 2, allownull = TRUE)
   check.param(ulr, allowvec = TRUE)
   check.nparam(ulr, nparam = 2)
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
@@ -661,8 +665,10 @@ proflugkg <- function(ulr, pvector, x, phiul = TRUE, phiur = TRUE, kernel = "gau
 # cross-validation for KDE component
 nlugkg <- function(pvector, ul, ur, x, phiul = TRUE, phiur = TRUE, kernel = "gaussian", finitelik = FALSE) {
 
+  np = 7 # maximum number of parameters
+
   # Check properties of inputs
-  check.nparam(pvector, nparam = 5)
+  check.nparam(pvector, nparam = np - 2)
   check.param(ul)
   check.param(ur)
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)

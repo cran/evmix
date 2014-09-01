@@ -61,7 +61,7 @@ Density, cumulative distribution function, quantile function and
   random number generation for the dynamically weighted mixture model. The
   parameters are the Weibull shape \code{wshape} and scale \code{wscale},
   Cauchy location \code{cmu}, Cauchy scale \code{ctau}, GPD scale
-  \code{sigmau}, shape \code{xi} and  initial value for the quantile
+  \code{sigmau}, shape \code{xi} and initial value for the quantile
   \code{qinit}.
 }
 \details{
@@ -114,7 +114,7 @@ xx = seq(0.001, 5, 0.01)
 f = ddwm(xx, wshape = 2, wscale = 1/gamma(1.5), cmu = 1, ctau = 1, sigmau = 1, xi = 0.5)
 plot(xx, f, ylim = c(0, 1), xlim = c(0, 5), type = 'l', lwd = 2,
   ylab = "density", main = "Plot example in Frigessi et al. (2002)")
-lines(xx, dgpd(xx, xi = 1, sigmau = 0.5), col = "red", lty = 2, lwd = 2)
+lines(xx, dgpd(xx, sigmau = 1, xi = 0.5), col = "red", lty = 2, lwd = 2)
 lines(xx, dweibull(xx, shape = 2, scale = 1/gamma(1.5)), col = "blue", lty = 2, lwd = 2)
 legend('topright', c('DWM', 'Weibull', 'GPD'),
       col = c("black", "blue", "red"), lty = c(1, 2, 2), lwd = 2)
@@ -128,7 +128,7 @@ legend("bottomright", paste("xi =",c(0, 0.3, -0.3)), col=c("black", "red", "blue
 x = rdwm(10000, wshape = 2, wscale = 1/gamma(1.5), cmu = 1, ctau = 1, sigmau = 1, xi = 0.1)
 xx = seq(0, 15, 0.01)
 hist(x, freq = FALSE, breaks = 100)
-lines(xx,ddwm(xx, wshape = 2, wscale = 1/gamma(1.5), cmu = 1, ctau = 1, sigmau = 1, xi = 0.1),
+lines(xx, ddwm(xx, wshape = 2, wscale = 1/gamma(1.5), cmu = 1, ctau = 1, sigmau = 1, xi = 0.1),
   lwd = 2, col = 'black')
 
 plot(xx, pdwm(xx, wshape = 2, wscale = 1/gamma(1.5), cmu = 1, ctau = 1, sigmau = 1, xi = 0.1),

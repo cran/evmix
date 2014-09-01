@@ -27,14 +27,14 @@
 #' vector if initial values are provided, making the full parameter vector 
 #' The full parameter vector is
 #' (\code{nmean}, \code{nsd}, \code{ul}, \code{xil}, \code{ur}, \code{xir})
-#' if threshold is also estimated and
+#' if thresholds are also estimated and
 #' (\code{nmean}, \code{nsd}, \code{xil}, \code{xir})
 #' for profile likelihood or fixed threshold approach.
 #' 
 #' @return Log-likelihood is given by \code{\link[evmix:fgngcon]{lgngcon}} and it's
 #'   wrappers for negative log-likelihood from \code{\link[evmix:fgngcon]{nlgngcon}}
-#'   and \code{\link[evmix:fgngcon]{nlugngcon}}. Profile likelihood for single
-#'   threshold given by \code{\link[evmix:fgngcon]{proflugngcon}}. Fitting function
+#'   and \code{\link[evmix:fgngcon]{nlugngcon}}. Profile likelihood for both
+#'   thresholds given by \code{\link[evmix:fgngcon]{proflugngcon}}. Fitting function
 #'   \code{\link[evmix:fgngcon]{fgngcon}} returns a simple list with the
 #'   following elements
 #'
@@ -42,8 +42,9 @@
 #'  \code{call}:      \tab \code{optim} call\cr
 #'  \code{x}:         \tab data vector \code{x}\cr
 #'  \code{init}:      \tab \code{pvector}\cr
-#'  \code{fixedu}:    \tab fixed threshold, logical\cr
-#'  \code{useq}:      \tab threshold vector for profile likelihood or scalar for fixed threshold\cr
+#'  \code{fixedu}:    \tab fixed thresholds, logical\cr
+#'  \code{ulseq}:     \tab lower threshold vector for profile likelihood or scalar for fixed threshold\cr
+#'  \code{urseq}:     \tab upper threshold vector for profile likelihood or scalar for fixed threshold\cr
 #'  \code{optim}:     \tab complete \code{optim} output\cr
 #'  \code{mle}:       \tab vector of MLE of parameters\cr
 #'  \code{cov}:       \tab variance-covariance matrix of MLE of parameters\cr
@@ -178,6 +179,7 @@ fgngcon <- function(x, phiul = TRUE, phiur = TRUE, ulseq = NULL, urseq = NULL, f
 
   check.quant(x)
   n = length(x)
+  np = 6 # maximum number of parameters
 
   if ((method == "L-BFGS-B") | (method == "BFGS")) finitelik = TRUE
   
@@ -188,8 +190,8 @@ fgngcon <- function(x, phiul = TRUE, phiur = TRUE, ulseq = NULL, urseq = NULL, f
   # Check if profile likelihood or fixed threshold is being used
   # and determine initial values for parameters in each case
   if (is.null(ulseq) | is.null(ulseq)) { # not profile or fixed
-    profu = FALSE
-    check.nparam(pvector, nparam = 6, allownull = TRUE)
+
+    check.nparam(pvector, nparam = np, allownull = TRUE)
     
     if (is.null(pvector)) {
       pvector[1] = mean(x, trim = 0.2)
@@ -203,9 +205,8 @@ fgngcon <- function(x, phiul = TRUE, phiur = TRUE, ulseq = NULL, urseq = NULL, f
     }
     
   } else { # profile or fixed
-    profu = TRUE
     
-    check.nparam(pvector, nparam = 4, allownull = TRUE)
+    check.nparam(pvector, nparam = np - 2, allownull = TRUE)
 
     # profile likelihood for threshold or scalar given
     if ((length(ulseq) != 1) | (length(urseq) != 1)) {
@@ -232,7 +233,7 @@ fgngcon <- function(x, phiul = TRUE, phiur = TRUE, ulseq = NULL, urseq = NULL, f
       ur = urseq
     }
 
-    if (fixedu) { # threshold fixed (4 parameters)
+    if (fixedu) { # threshold fixed
       if (is.null(pvector)) {
         pvector[1] = mean(x, trim = 0.2)
         pvector[2] = sd(x)
@@ -448,8 +449,10 @@ lgngcon <- function(x, nmean = 0, nsd = 1,
 # (wrapper for likelihood, inputs and checks designed for optimisation)
 nlgngcon <- function(pvector, x, phiul = TRUE, phiur = TRUE, finitelik = FALSE) {
 
+  np = 6 # maximum number of parameters
+
   # Check properties of inputs
-  check.nparam(pvector, nparam = 6)
+  check.nparam(pvector, nparam = np)
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.phiu(phiul, allowfalse = TRUE)
   check.phiu(phiur, allowfalse = TRUE)
@@ -481,9 +484,10 @@ nlgngcon <- function(pvector, x, phiul = TRUE, phiur = TRUE, finitelik = FALSE) 
 proflugngcon <- function(ulr, pvector, x, phiul = TRUE, phiur = TRUE,
   method = "BFGS", control = list(maxit = 10000), finitelik = FALSE, ...) {
 
+  np = 6 # maximum number of parameters
+
   # Check properties of inputs
-  np = 4
-  check.nparam(pvector, nparam = np, allownull = TRUE)
+  check.nparam(pvector, nparam = np - 2, allownull = TRUE)
   check.param(ulr, allowvec = TRUE)
   check.nparam(ulr, nparam = 2)
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
@@ -546,8 +550,10 @@ proflugngcon <- function(ulr, pvector, x, phiul = TRUE, phiur = TRUE,
 # (wrapper for likelihood, designed for threshold to be fixed and other parameters optimised)
 nlugngcon <- function(pvector, ul, ur, x, phiul = TRUE, phiur = TRUE, finitelik = FALSE) {
 
+  np = 6 # maximum number of parameters
+
   # Check properties of inputs
-  check.nparam(pvector, nparam = 4)
+  check.nparam(pvector, nparam = np - 2)
   check.param(ul)
   check.param(ur)
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)

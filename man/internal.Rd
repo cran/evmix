@@ -24,6 +24,10 @@
 \alias{pbckdenxsimple}
 \alias{pkdenx}
 \alias{pxb}
+\alias{qgbgmix}
+\alias{qgbgmixprime}
+\alias{qmix}
+\alias{qmixprime}
 \title{Internal Functions}
 \usage{
 kdenx(x, kerncentres, lambda, kernel = "gaussian")
@@ -71,6 +75,14 @@ pbckdenxcopula(x, kerncentres, lambda, xmax)
 pbckdenxlog(x, kerncentres, lambda, offset, kernel = "gaussian")
 
 pbckdenxnn(x, kerncentres, lambda, kernel = "gaussian", nn)
+
+qmix(x, u, epsilon)
+
+qmixprime(x, u, epsilon)
+
+qgbgmix(x, ul, ur, epsilon)
+
+qgbgmixprime(x, ul, ur, epsilon)
 }
 \arguments{
 \item{x}{quantiles}
@@ -86,6 +98,14 @@ pbckdenxnn(x, kerncentres, lambda, kernel = "gaussian", nn)
 \item{offset}{offset added to kernel centres (logtrans only) or \code{NULL}}
 
 \item{nn}{non-negativity correction method (simple boundary correction only)}
+
+\item{u}{threshold}
+
+\item{epsilon}{interval half-width}
+
+\item{ul}{lower tail threshold}
+
+\item{ur}{upper tail threshold}
 }
 \description{
 Internal functions not designed to be used directly, but are all exported

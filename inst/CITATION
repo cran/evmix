@@ -2,11 +2,11 @@ citHeader("To cite the evmix package in publications please use:")
 
 citEntry(entry="Misc",
   title = "evmix: Extreme Value Mixture Modelling, Threshold Estimation and Boundary Corrected Kernel Density Estimation",
-  author = "Y. Hu and C. J. Scarrott", year = 2013,
+  author = "C. J. Scarrott and Y. Hu", year = 2014,
   note = "Available on CRAN",
   url = "http://www.math.canterbury.ac.nz/~c.scarrott/evmix",
   institution = "University of Canterbury, New Zealand",
-  textVersion = paste("Hu, Y. and Scarrott, C.J.", "(2013).",
+  textVersion = paste("Scarrott, C.J. and Hu, Y.", "(2014).",
     "evmix: Extreme Value Mixture Modelling, Threshold Estimation and Boundary Corrected Kernel Density Estimation.",
     "Available on CRAN.", "http://www.math.canterbury.ac.nz/~c.scarrott/evmix")
 )

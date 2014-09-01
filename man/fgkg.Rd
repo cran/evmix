@@ -91,7 +91,7 @@ values, see below}
 \value{
 Log-likelihood is given by \code{\link[evmix:fgkg]{lgkg}} and it's
   wrappers for negative log-likelihood from \code{\link[evmix:fgkg]{nlgkg}}
-  and \code{\link[evmix:fgkg]{nlugkg}}. Profile likelihood for single pair of upper and lower
+  and \code{\link[evmix:fgkg]{nlugkg}}. Profile likelihood for both
   thresholds given by \code{\link[evmix:fgkg]{proflugkg}}. Fitting function
   \code{\link[evmix:fgkg]{fgkg}} returns a simple list with the
   following elements
@@ -100,8 +100,9 @@ Log-likelihood is given by \code{\link[evmix:fgkg]{lgkg}} and it's
  \code{call}:      \tab \code{optim} call\cr
  \code{x}:         \tab data vector \code{x}\cr
  \code{init}:      \tab \code{pvector}\cr
- \code{fixedu}:    \tab fixed threshold, logical\cr
- \code{useq}:      \tab threshold vector for profile likelihood or scalar for fixed threshold\cr
+ \code{fixedu}:    \tab fixed thresholds, logical\cr
+ \code{ulseq}:     \tab lower threshold vector for profile likelihood or scalar for fixed threshold\cr
+ \code{urseq}:     \tab upper threshold vector for profile likelihood or scalar for fixed threshold\cr
  \code{optim}:     \tab complete \code{optim} output\cr
  \code{mle}:       \tab vector of MLE of parameters\cr
  \code{cov}:       \tab variance-covariance matrix of MLE of parameters\cr
@@ -143,7 +144,7 @@ Only the different features are outlined below for brevity.
 
 The full parameter vector is
 (\code{lambda}, \code{ul}, \code{sigmaul}, \code{xil}, \code{ur}, \code{sigmaur}, \code{xir})
-if threshold is also estimated and
+if thresholds are also estimated and
 (\code{lambda}, \code{sigmaul}, \code{xil}, \code{sigmaur}, \code{xir})
 for profile likelihood or fixed threshold approach.
 

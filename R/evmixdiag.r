@@ -8,8 +8,7 @@
 #'
 #' @param modelfit   fitted extreme value mixture model object
 #' @param upperfocus logical, should plot focus on upper tail?
-#' @param ci         logical, should Monte Carlo based CI's be plotted
-#' @param alpha      logical, significance level (0, 1)
+#' @param alpha      significance level over range (0, 1), or \code{NULL} for no CI
 #' @param N          number of Monte Carlo simulation for CI (N>=10)
 #' @param legend     logical, should legend be included
 #' @param ...        further arguments to be passed to the plotting functions
@@ -82,8 +81,10 @@
 #' will either stop or give warning message as appropriate.
 #' 
 #' @references
+#' 
 #' Based on GPD/POT diagnostic functions in the \code{\link[evd:plot.uvevd]{evd}} function
-#' from the \code{\link[evd:gpd]{evd}} package.
+#' from the \code{\link[evd:gpd]{evd}} package, for which Stuart Coles and Alec Stephenson's 
+#' contributions are gratefully acknowledged.
 #' 
 #' \url{http://en.wikipedia.org/wiki/Q-Q_plot}
 #' 
@@ -118,7 +119,7 @@
 #' }
 #' 
 
-evmix.diag <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000,
+evmix.diag <- function(modelfit, upperfocus = TRUE, alpha = 0.05, N = 1000,
   legend = FALSE, ...) {
   
   # Check properties of inputs
@@ -132,7 +133,8 @@ evmix.diag <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N =
 
   allmodelnames = c("gpd", "betagpd", "betagpdcon", 
     "bckden", "bckdengpd", "bckdengpdcon", "dwm", "gammagpd", "gammagpdcon",
-    "gkg", "gkgcon", "gng", "gngcon", "hpd", "hpdcon", "mgammagpd", 
+    "gkg", "gkgcon", "gng", "gngcon", "hpd", "hpdcon", 
+    "itmnormgpd", "itmweibullgpd", "itmgng", "mgammagpd", 
     "kden", "kdengpd", "kdengpdcon", "lognormgpd", "lognormgpdcon",
     "normgpd", "normgpdcon", "weibullgpd", "weibullgpdcon")
 
@@ -145,14 +147,13 @@ evmix.diag <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N =
   if (!is.logical(legend))
     stop("legend must be logical")
   
-  if (!is.logical(ci))
-    stop("ci must be logical")
-  
-  if (!is.numeric(alpha) | length(alpha) != 1)
-    stop("significance level alpha must be single numeric value")
+  if (!is.null(alpha)) {
+    if (!is.numeric(alpha) | length(alpha) != 1)
+      stop("significance level alpha must be single numeric value")
 
-  if (alpha <= 0 | alpha >= 1)
-    stop("significance level alpha must be between (0, 1)")
+    if (alpha <= 0 | alpha >= 1)
+      stop("significance level alpha must be between (0, 1)")
+  }
 
   if (length(N) != 1 | mode(N) != "numeric") 
     stop("number of simulations must be a non-negative integer")
@@ -164,9 +165,9 @@ evmix.diag <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N =
     modelfit$x=sort(modelfit$x)
   
   par(mfrow = c(2, 2))
-  rlplot(modelfit, upperfocus = upperfocus, ci = ci, alpha = alpha, N = N, legend = legend, ...)
-  qplot(modelfit, upperfocus = upperfocus, ci = ci, alpha = alpha, N = N, legend = legend, ...)
-  pplot(modelfit, upperfocus = upperfocus, ci = ci, alpha = alpha, N = N, legend = legend, ...)
+  rlplot(modelfit, upperfocus = upperfocus, alpha = alpha, N = N, legend = legend, ...)
+  qplot(modelfit, upperfocus = upperfocus, alpha = alpha, N = N, legend = legend, ...)
+  pplot(modelfit, upperfocus = upperfocus, alpha = alpha, N = N, legend = legend, ...)
   densplot(modelfit, upperfocus = upperfocus, legend = legend, ...)
 }
 
@@ -174,7 +175,7 @@ evmix.diag <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N =
 #' @aliases evmix.diag rlplot qplot pplot densplot
 #' @rdname evmix.diag
 
-rlplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000,
+rlplot <- function(modelfit, upperfocus = TRUE, alpha = 0.05, N = 1000,
   legend = TRUE, ...) {
   
   # Check properties of inputs
@@ -188,7 +189,8 @@ rlplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 100
 
   allmodelnames = c("gpd", "betagpd", "betagpdcon", 
     "bckden", "bckdengpd", "bckdengpdcon", "dwm", "gammagpd", "gammagpdcon",
-    "gkg", "gkgcon", "gng", "gngcon", "hpd", "hpdcon", "mgammagpd", 
+    "gkg", "gkgcon", "gng", "gngcon", "hpd", "hpdcon", 
+    "itmnormgpd", "itmweibullgpd", "itmgng", "mgammagpd", 
     "kden", "kdengpd", "kdengpdcon", "lognormgpd", "lognormgpdcon",
     "normgpd", "normgpdcon", "weibullgpd", "weibullgpdcon")
 
@@ -201,15 +203,14 @@ rlplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 100
   if (!is.logical(legend))
     stop("legend must be logical")
   
-  if (!is.logical(ci))
-    stop("ci must be logical")
+  if (!is.null(alpha)) {
+    if (!is.numeric(alpha) | length(alpha) != 1)
+      stop("significance level alpha must be single numeric value")
+
+    if (alpha <= 0 | alpha >= 1)
+      stop("significance level alpha must be between (0, 1)")
+  }
   
-  if (!is.numeric(alpha) | length(alpha) != 1)
-    stop("significance level alpha must be single numeric value")
-
-  if (alpha <= 0 | alpha >= 1)
-    stop("significance level alpha must be between (0, 1)")
-
   if (length(N) != 1 | mode(N) != "numeric") 
     stop("number of simulations must be a non-negative integer")
   
@@ -221,6 +222,7 @@ rlplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 100
   
   nothresh = (modelname == "kden") | (modelname =="bckden") | (modelname =="dwm")
   twotail = (modelname == "gng") | (modelname == "gngcon") | (modelname == "gkg") | (modelname == "gkgcon")
+  nophiu = (modelname == "itmnormgpd") | (modelname == "itmweibullgpd") | (modelname == "itmgng")
   
   if (nothresh) {
     upperfocus = FALSE
@@ -236,6 +238,9 @@ rlplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 100
   } else if (nothresh) {
     phiu = -Inf
     u = Inf 
+  } else if (nophiu) {
+    phiu = -Inf
+    u = ifelse(modelname == "itmgng", modelfit$ur, modelfit$u)
   } else {
     phiu = modelfit$phiu
     u = modelfit$u    
@@ -243,7 +248,7 @@ rlplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 100
   
   n = length(modelfit$x)
   emp.prob = ppoints(n)
-  trans.emp.prob = 1/(1-emp.prob)
+  trans.emp.prob = 1/(1 - emp.prob)
 
   min.emp.power = -log10(1 - 1/n/100)
   max.emp.power = ceiling(log10(max(trans.emp.prob))) + 1
@@ -287,6 +292,12 @@ rlplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 100
       modelfit$ul, modelfit$xil, modelfit$phiul, modelfit$ur, modelfit$xir, modelfit$phiur),
     hpd = qhpd(the.prob, modelfit$nmean, modelfit$nsd, modelfit$xi),
     hpdcon = qhpdcon(the.prob, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$xi),
+    itmnormgpd = qitmnormgpd(the.prob, modelfit$nmean, modelfit$nsd, modelfit$epsilon, 
+      modelfit$u, modelfit$sigmau, modelfit$xi),
+    itmweibullgpd = qitmweibullgpd(the.prob, modelfit$wshape, modelfit$wscale, modelfit$epsilon, 
+      modelfit$u, modelfit$sigmau, modelfit$xi),
+    itmgng = qitmgng(the.prob, modelfit$nmean, modelfit$nsd, modelfit$epsilon, 
+      modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$ur, modelfit$sigmaur, modelfit$xir),
     kden = qkden(the.prob, modelfit$kerncentres, modelfit$lambda, bw = NULL, modelfit$kernel),
     kdengpd = qkdengpd(the.prob, modelfit$kerncentres, modelfit$lambda, modelfit$u,
       modelfit$sigmau, modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel),
@@ -318,7 +329,7 @@ rlplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 100
     ylims = range(c(modelfit$x, the.quant), na.rm = TRUE)
   }
 
-  if (ci) {
+  if (!is.null(alpha)) {
     # obtain CI by Monte Carlo simulation (ignores estimation uncertainty)
     simulate.new.quantiles <- function(i, modelfit, modelname) {
       simdata = switch(modelname,
@@ -355,6 +366,12 @@ rlplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 100
           modelfit$ur, modelfit$xir, modelfit$phiur),
         hpd = rhpd(n, modelfit$nmean, modelfit$nsd, modelfit$xi),
         hpdcon = rhpdcon(n, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$xi),
+        itmnormgpd = ritmnormgpd(n, modelfit$nmean, modelfit$nsd, modelfit$epsilon, 
+          modelfit$u, modelfit$sigmau, modelfit$xi),
+        itmweibullgpd = ritmweibullgpd(n, modelfit$wshape, modelfit$wscale, modelfit$epsilon, 
+          modelfit$u, modelfit$sigmau, modelfit$xi),
+        itmgng = ritmgng(n, modelfit$nmean, modelfit$nsd, modelfit$epsilon, 
+          modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$ur, modelfit$sigmaur, modelfit$xir),
         kden = rkden(n, modelfit$kerncentres, modelfit$lambda, bw = NULL, modelfit$kernel),
         kdengpd = rkdengpd(n, modelfit$kerncentres, modelfit$lambda, modelfit$u,
           modelfit$sigmau, modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel),
@@ -388,7 +405,7 @@ rlplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 100
   }
 
   if (is.infinite(ylims[2])) ylims[2] = max(modelfit$x)
-  
+
   plot(trans.emp.prob, modelfit$x, pch = 'x', cex = 0.8, log = "x",
     xlab = "Return Period", ylab = "Return Level",
     xlim = xlims, ylim = ylims, axes = FALSE, ...)
@@ -399,31 +416,51 @@ rlplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 100
   axis(2)
   box()
 
-  if (twotail) {
+
+  if ((twotail) | (modelname == "itmgng")) {
     abline(h = c(modelfit$ul, modelfit$ur), lty = 3)
   } else {
     abline(h = u, lty = 3)
   }
 
-  if (!nothresh)
-    abline(v = 1/phiu, lty = 3)
+  if (!((nothresh) | (nophiu)))  abline(v = 1/phiu, lty = 3)
   
-  if (ci) {
+  if (!is.null(alpha)) {
     lines(trans.emp.prob, ci.q[1, ], lty=2)
     lines(trans.emp.prob, ci.q[2, ], lty=2)
     if (legend) {
-      legend("bottomright", c("Data", paste("Fitted", modelname, "Model"),
-        paste("Simulated Pointwise ", formatC(100 * (1 - alpha), format = "f", digits=1), "% CI", sep=""),
-        ifelse(twotail & !upperfocus, 
-          "Tail Fractions and Thresholds","Upper Tail Fraction and Threshold")),
-        pch = c(4, rep(-1, 3)), lty = c(0, 1, 2, 3), bg = "white", col = c("black", "red", "black"))
+      if (nophiu) {
+        legend("bottomright", c("Data", paste("Fitted", modelname, "Model"),
+          paste("Simulated Pointwise ", formatC(100 * (1 - alpha), format = "f", digits=1), "% CI", sep=""),
+          ifelse((modelname == "itmgng") & !upperfocus, "Thresholds", "Threshold")),
+          pch = c(4, rep(-1, 3)), lty = c(0, 1, 2, 3), bg = "white", col = c("black", "red", "black"))
+      } else if (nothresh) {
+        legend("bottomright", c("Data", paste("Fitted", modelname, "Model"),
+          paste("Simulated Pointwise ", formatC(100 * (1 - alpha), format = "f", digits=1), "% CI", sep="")),
+          pch = c(4, rep(-1, 2)), lty = c(0, 1, 2), bg = "white", col = c("black", "red"))
+      } else {
+        legend("bottomright", c("Data", paste("Fitted", modelname, "Model"),
+          paste("Simulated Pointwise ", formatC(100 * (1 - alpha), format = "f", digits=1), "% CI", sep=""),
+          ifelse(twotail & !upperfocus,
+            "Tail Fractions and Thresholds", "Upper Tail Fraction and Threshold")),
+          pch = c(4, rep(-1, 3)), lty = c(0, 1, 2, 3), bg = "white", col = c("black", "red", "black"))
+      }
     }
   } else {
     if (legend) {
-      legend("bottomright", c("Data", paste("Fitted", modelname, "Model"),
-        ifelse(twotail & !upperfocus,
-          "Tail Fractions and Thresholds","Upper Tail Fraction and Threshold")),
-        pch = c(4, rep(-1, 2)), lty = c(0, 1, 3), bg = "white", col = c("black", "red", "black"))
+      if (nophiu) {
+        legend("bottomright", c("Data", paste("Fitted", modelname, "Model"),
+          ifelse((modelname == "itmgng") & !upperfocus, "Thresholds", "Threshold")),
+          pch = c(4, rep(-1, 2)), lty = c(0, 1, 3), bg = "white", col = c("black", "red", "black"))
+      } else if (nothresh) {
+        legend("bottomright", c("Data", paste("Fitted", modelname, "Model")),
+          pch = c(4, -1), lty = c(0, 1), bg = "white", col = c("black", "red"))
+      } else {
+        legend("bottomright", c("Data", paste("Fitted", modelname, "Model"),
+          ifelse((twotail) & !upperfocus,
+            "Tail Fractions and Thresholds", "Upper Tail Fraction and Threshold")),
+          pch = c(4, rep(-1, 2)), lty = c(0, 1, 3), bg = "white", col = c("black", "red", "black"))
+      }
     }
   }
 }
@@ -432,7 +469,7 @@ rlplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 100
 #' @aliases evmix.diag rlplot qplot pplot densplot
 #' @rdname evmix.diag
 
-qplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000, 
+qplot <- function(modelfit, upperfocus = TRUE, alpha = 0.05, N = 1000, 
   legend = TRUE, ...) {
 
   # Check properties of inputs
@@ -446,7 +483,8 @@ qplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
 
   allmodelnames = c("gpd", "betagpd", "betagpdcon", 
     "bckden", "bckdengpd", "bckdengpdcon", "dwm", "gammagpd", "gammagpdcon",
-    "gkg", "gkgcon", "gng", "gngcon", "hpd", "hpdcon", "mgammagpd", 
+    "gkg", "gkgcon", "gng", "gngcon", "hpd", "hpdcon", 
+    "itmnormgpd", "itmweibullgpd", "itmgng", "mgammagpd", 
     "kden", "kdengpd", "kdengpdcon", "lognormgpd", "lognormgpdcon",
     "normgpd", "normgpdcon", "weibullgpd", "weibullgpdcon")
 
@@ -459,15 +497,14 @@ qplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
   if (!is.logical(legend))
     stop("legend must be logical")
   
-  if (!is.logical(ci))
-    stop("ci must be logical")
+  if (!is.null(alpha)) {
+    if (!is.numeric(alpha) | length(alpha) != 1)
+      stop("significance level alpha must be single numeric value")
+
+    if (alpha <= 0 | alpha >= 1)
+      stop("significance level alpha must be between (0, 1)")
+  }
   
-  if (!is.numeric(alpha) | length(alpha) != 1)
-    stop("significance level alpha must be single numeric value")
-
-  if (alpha <= 0 | alpha >= 1)
-    stop("significance level alpha must be between (0, 1)")
-
   if (length(N) != 1 | mode(N) != "numeric") 
     stop("number of simulations must be a non-negative integer")
   
@@ -479,6 +516,7 @@ qplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
   
   nothresh = (modelname == "kden") | (modelname =="bckden") | (modelname =="dwm")
   twotail = (modelname == "gng") | (modelname == "gngcon") | (modelname == "gkg")| (modelname == "gkgcon")
+  nophiu = (modelname == "itmnormgpd") | (modelname == "itmweibullgpd") | (modelname == "itmgng")
   
   if (nothresh) {
     upperfocus = FALSE
@@ -494,6 +532,9 @@ qplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
   } else if (nothresh) {
     phiu = -Inf
     u = Inf 
+  } else if (nophiu) {
+    phiu = -Inf
+    u = ifelse(modelname == "itmgng", modelfit$ur, modelfit$u)
   } else {
     phiu = modelfit$phiu
     u = modelfit$u    
@@ -538,6 +579,12 @@ qplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
       modelfit$ul, modelfit$xil, modelfit$phiul, modelfit$ur, modelfit$xir, modelfit$phiur),
     hpd = qhpd(emp.prob, modelfit$nmean, modelfit$nsd, modelfit$xi),
     hpdcon = qhpdcon(emp.prob, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$xi),
+    itmnormgpd = qitmnormgpd(emp.prob, modelfit$nmean, modelfit$nsd, modelfit$epsilon, 
+      modelfit$u, modelfit$sigmau, modelfit$xi),
+    itmweibullgpd = qitmweibullgpd(emp.prob, modelfit$wshape, modelfit$wscale, modelfit$epsilon, 
+      modelfit$u, modelfit$sigmau, modelfit$xi),
+    itmgng = qitmgng(emp.prob, modelfit$nmean, modelfit$nsd, modelfit$epsilon, 
+      modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$ur, modelfit$sigmaur, modelfit$xir),
     kden = qkden(emp.prob, modelfit$kerncentres, modelfit$lambda, bw = NULL, modelfit$kernel),
     kdengpd = qkdengpd(emp.prob, modelfit$kerncentres, modelfit$lambda, modelfit$u,
       modelfit$sigmau, modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel),
@@ -560,7 +607,7 @@ qplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
 
   axislims = range(c(modelfit$x, the.quant), na.rm = TRUE)
 
-  if (ci) {
+  if (!is.null(alpha)) {
     # obtain CI by Monte Carlo simulation (ignores estimation uncertainty)
     simulate.new.quantiles <- function(i, modelfit, modelname) {
       simdata = switch(modelname,
@@ -597,6 +644,12 @@ qplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
           modelfit$ur, modelfit$xir, modelfit$phiur),
         hpd = rhpd(n, modelfit$nmean, modelfit$nsd, modelfit$xi),
         hpdcon = rhpdcon(n, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$xi),
+        itmnormgpd = ritmnormgpd(n, modelfit$nmean, modelfit$nsd, modelfit$epsilon, 
+          modelfit$u, modelfit$sigmau, modelfit$xi),
+        itmweibullgpd = ritmweibullgpd(n, modelfit$wshape, modelfit$wscale, modelfit$epsilon, 
+          modelfit$u, modelfit$sigmau, modelfit$xi),
+        itmgng = ritmgng(n, modelfit$nmean, modelfit$nsd, modelfit$epsilon, 
+          modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$ur, modelfit$sigmaur, modelfit$xir),
         kden = rkden(n, modelfit$kerncentres, modelfit$lambda, bw = NULL, modelfit$kernel),
         kdengpd = rkdengpd(n, modelfit$kerncentres, modelfit$lambda, modelfit$u,
           modelfit$sigmau, modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel),
@@ -640,27 +693,39 @@ qplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
     xlim = axislims, ylim = axislims, ...)
   abline(c(0, 1), col = "red")
 
-  if (twotail) {
+  # add threshold indicator lines
+  if ((twotail) | (modelname == "itmgng")) {
     abline(h = modelfit$ul, v = modelfit$ul, lty = 3)
     abline(h = modelfit$ur, v = modelfit$ur, lty = 3)
   } else {
-    abline(h = modelfit$u, v = modelfit$u, lty = 3)
+    abline(h = u, v = u, lty = 3)
   }
   
-  if (ci) {
+  if (!is.null(alpha)) {
     lines(the.quant, ci.q[1, ], lty=2)
     lines(the.quant, ci.q[2, ], lty=2)
     if (legend) {
-      legend("bottomright", c("Data", "Line of Equality",
-        paste("Simulated Pointwise ", formatC(100 * (1 - alpha), format = "f", digits=1), "% CI", sep=""),
-        ifelse(twotail & !upperfocus, "Thresholds", "Threshold")),
-        pch = c(1, rep(-1, 3)), lty = c(0, 1, 2, 3), bg = "white", col = c("black", "red", rep("black", 2)))
+      if (nothresh) {
+        legend("bottomright", c("Data", "Line of Equality",
+          paste("Simulated Pointwise ", formatC(100 * (1 - alpha), format = "f", digits=1), "% CI", sep="")),
+          pch = c(1, rep(-1, 2)), lty = c(0, 1, 2), bg = "white", col = c("black", "red", "black"))        
+      } else {
+        legend("bottomright", c("Data", "Line of Equality",
+          paste("Simulated Pointwise ", formatC(100 * (1 - alpha), format = "f", digits=1), "% CI", sep=""),
+          ifelse(((twotail) | (modelname == "itmgng")) & !upperfocus, "Thresholds", "Threshold")),
+          pch = c(1, rep(-1, 3)), lty = c(0, 1, 2, 3), bg = "white", col = c("black", "red", rep("black", 2)))
+      }
     }
   } else {
     if (legend) {
-      legend("bottomright", c("Data", "Line of Equality",
-        ifelse(twotail & !upperfocus, "Thresholds" ,"Threshold")),
-        pch = c(1, rep(-1, 2)), lty = c(0, 1, 3), bg = "white", col = c("black", "red", "black"))
+      if (nothresh) {
+        legend("bottomright", c("Data", "Line of Equality"),
+          pch = c(1, -1), lty = c(0, 1), bg = "white", col = c("black", "red", "black"))  
+      } else {
+        legend("bottomright", c("Data", "Line of Equality",
+          ifelse(((twotail) | (modelname == "itmgng")) & !upperfocus, "Thresholds" ,"Threshold")),
+          pch = c(1, rep(-1, 2)), lty = c(0, 1, 3), bg = "white", col = c("black", "red", "black"))
+      }
     }
   }
 }
@@ -669,7 +734,7 @@ qplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
 #' @aliases evmix.diag rlplot qplot pplot densplot
 #' @rdname evmix.diag
 
-pplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000,
+pplot <- function(modelfit, upperfocus = TRUE, alpha = 0.05, N = 1000,
   legend = TRUE, ...) {
   
   # Check properties of inputs
@@ -683,7 +748,8 @@ pplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
 
   allmodelnames = c("gpd", "betagpd", "betagpdcon", 
     "bckden", "bckdengpd", "bckdengpdcon", "dwm", "gammagpd", "gammagpdcon",
-    "gkg", "gkgcon", "gng", "gngcon", "hpd", "hpdcon", "mgammagpd", 
+    "gkg", "gkgcon", "gng", "gngcon", "hpd", "hpdcon", 
+    "itmnormgpd", "itmweibullgpd", "itmgng", "mgammagpd", 
     "kden", "kdengpd", "kdengpdcon", "lognormgpd", "lognormgpdcon",
     "normgpd", "normgpdcon", "weibullgpd", "weibullgpdcon")
 
@@ -696,15 +762,14 @@ pplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
   if (!is.logical(legend))
     stop("legend must be logical")
   
-  if (!is.logical(ci))
-    stop("ci must be logical")
+  if (!is.null(alpha)) {
+    if (!is.numeric(alpha) | length(alpha) != 1)
+      stop("significance level alpha must be single numeric value")
+
+    if (alpha <= 0 | alpha >= 1)
+      stop("significance level alpha must be between (0, 1)")
+  }
   
-  if (!is.numeric(alpha) | length(alpha) != 1)
-    stop("significance level alpha must be single numeric value")
-
-  if (alpha <= 0 | alpha >= 1)
-    stop("significance level alpha must be between (0, 1)")
-
   if (length(N) != 1 | mode(N) != "numeric") 
     stop("number of simulations must be a non-negative integer")
   
@@ -716,9 +781,13 @@ pplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
   
   nothresh = (modelname == "kden") | (modelname =="bckden") | (modelname =="dwm")
   twotail = (modelname == "gng") | (modelname == "gngcon") | (modelname == "gkg") | (modelname == "gkgcon")
+  nophiu = (modelname == "itmnormgpd") | (modelname == "itmweibullgpd") | (modelname == "itmgng")
   
   if (nothresh) {
     upperfocus = FALSE
+  }
+  if (modelname == "gpd") {
+    upperfocus = TRUE  
   }
 
   # makes following code easier to read
@@ -727,7 +796,10 @@ pplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
     u = modelfit$ur
   } else if (nothresh) {
     phiu = -Inf
-    u = Inf 
+    u = Inf
+  } else if (nophiu) {
+    phiu = -Inf
+    u = ifelse(modelname == "itmgng", modelfit$ur, modelfit$u)
   } else {
     phiu = modelfit$phiu
     u = modelfit$u    
@@ -735,7 +807,7 @@ pplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
 
   n = length(modelfit$x)
   emp.prob = ppoints(n)
-  
+
   the.prob = switch(modelname,
     gpd = pgpd(modelfit$x, modelfit$u, modelfit$sigmau, modelfit$xi, modelfit$phiu),
     bckden = pbckden(modelfit$x, modelfit$kerncentres, modelfit$lambda, bw = NULL, modelfit$kernel,
@@ -762,13 +834,19 @@ pplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
     gkgcon = pgkgcon(modelfit$x, modelfit$kerncentres, modelfit$lambda, 
       modelfit$ul, modelfit$xil, modelfit$phiul,
       modelfit$ur, modelfit$xir, modelfit$phiur, bw = NULL, modelfit$kernel),
-    gng = pgng(modelfit$x, modelfit$nmean, modelfit$nsd, 
+    gng = pgng(modelfit$x, modelfit$nmean, modelfit$nsd,
       modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$phiul, 
       modelfit$ur, modelfit$sigmaur, modelfit$xir, modelfit$phiur),
     gngcon = pgngcon(modelfit$x, modelfit$nmean, modelfit$nsd, 
       modelfit$ul, modelfit$xil, modelfit$phiul, modelfit$ur, modelfit$xir, modelfit$phiur),
     hpd = phpd(modelfit$x, modelfit$nmean, modelfit$nsd, modelfit$xi),
     hpdcon = phpdcon(modelfit$x, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$xi),
+    itmnormgpd = pitmnormgpd(modelfit$x, modelfit$nmean, modelfit$nsd, modelfit$epsilon, 
+      modelfit$u, modelfit$sigmau, modelfit$xi),
+    itmweibullgpd = pitmweibullgpd(modelfit$x, modelfit$wshape, modelfit$wscale, modelfit$epsilon, 
+      modelfit$u, modelfit$sigmau, modelfit$xi),
+    itmgng = pitmgng(modelfit$x, modelfit$nmean, modelfit$nsd, modelfit$epsilon, 
+      modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$ur, modelfit$sigmaur, modelfit$xir),
     kden = pkden(modelfit$x, modelfit$kerncentres, modelfit$lambda, bw = NULL, modelfit$kernel),
     kdengpd = pkdengpd(modelfit$x, modelfit$kerncentres, modelfit$lambda, modelfit$u,
       modelfit$sigmau, modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel),
@@ -797,7 +875,7 @@ pplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
     axislims = c(0, 1)
   }
 
-  if (ci) {
+  if (!is.null(alpha)) {
     # obtain CI by Monte Carlo simulation (ignores estimation uncertainty)
     simulate.new.probabilities <- function(i, modelfit, modelname) {
       simdata = switch(modelname,
@@ -834,6 +912,12 @@ pplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
           modelfit$ur, modelfit$xir, modelfit$phiur),
         hpd = rhpd(n, modelfit$nmean, modelfit$nsd, modelfit$xi),
         hpdcon = rhpdcon(n, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$xi),
+        itmnormgpd = ritmnormgpd(n, modelfit$nmean, modelfit$nsd, modelfit$epsilon, 
+          modelfit$u, modelfit$sigmau, modelfit$xi),
+        itmweibullgpd = ritmweibullgpd(n, modelfit$wshape, modelfit$wscale, modelfit$epsilon, 
+          modelfit$u, modelfit$sigmau, modelfit$xi),
+        itmgng = ritmgng(n, modelfit$nmean, modelfit$nsd, modelfit$epsilon, 
+          modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$ur, modelfit$sigmaur, modelfit$xir),
         kden = rkden(n, modelfit$kerncentres, modelfit$lambda, bw = NULL, modelfit$kernel),
         kdengpd = rkdengpd(n, modelfit$kerncentres, modelfit$lambda, modelfit$u,
           modelfit$sigmau, modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel),
@@ -853,6 +937,7 @@ pplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
           modelfit$sigmau, modelfit$xi, modelfit$phiu),
         weibullgpdcon = rweibullgpdcon(n, modelfit$wshape, modelfit$wscale, modelfit$u,
           modelfit$xi, modelfit$phiu))
+      
       simdata = sort(simdata, na.last = FALSE)
       simprob = switch(modelname,
         gpd = pgpd(simdata, modelfit$u, modelfit$sigmau, modelfit$xi, modelfit$phiu),
@@ -887,6 +972,12 @@ pplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
           modelfit$ul, modelfit$xil, modelfit$phiul, modelfit$ur, modelfit$xir, modelfit$phiur),
         hpd = phpd(simdata, modelfit$nmean, modelfit$nsd, modelfit$xi),
         hpdcon = phpdcon(simdata, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$xi),
+        itmnormgpd = pitmnormgpd(simdata, modelfit$nmean, modelfit$nsd, modelfit$epsilon, 
+          modelfit$u, modelfit$sigmau, modelfit$xi),
+        itmweibullgpd = pitmweibullgpd(simdata, modelfit$wshape, modelfit$wscale, modelfit$epsilon, 
+          modelfit$u, modelfit$sigmau, modelfit$xi),
+        itmgng = pitmgng(simdata, modelfit$nmean, modelfit$nsd, modelfit$epsilon, 
+          modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$ur, modelfit$sigmaur, modelfit$xir),
         kden = pkden(simdata, modelfit$kerncentres, modelfit$lambda, bw = NULL, modelfit$kernel),
         kdengpd = pkdengpd(simdata, modelfit$kerncentres, modelfit$lambda, modelfit$u,
           modelfit$sigmau, modelfit$xi, modelfit$phiu, bw = NULL, modelfit$kernel),
@@ -911,33 +1002,45 @@ pplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
     sim.p = sapply(1:N, FUN = simulate.new.probabilities, modelfit = modelfit, modelname = modelname)
     ci.p = apply(sim.p, FUN = quantile, MARGIN = 1, probs = c(alpha/2, 1 - alpha/2), na.rm = TRUE)
   }
-  
+
   plot(the.prob, emp.prob, pch = 'x', cex = 0.8,
     xlab = "Theoretical Probability", ylab = "Empirical Probability",
     xlim = axislims, ylim = axislims, ...)
   abline(c(0, 1), col = "red")
 
+  # add tail fraction indicator lines
   if (twotail) {
     abline(h = modelfit$phiul, v = modelfit$phiul, lty = 3)
     abline(h = 1 - modelfit$phiur, v = 1 - modelfit$phiur, lty = 3)
   } else {
-    abline(h = 1 - modelfit$phiu, v = 1 - modelfit$phiu, lty = 3)
+    abline(h = 1 - phiu, v = 1 - phiu, lty = 3)
   }
   
-  if (ci) {
+  if (!is.null(alpha)) {
     lines(the.prob, ci.p[1, ], lty=2)
     lines(the.prob, ci.p[2, ], lty=2)
     if (legend) {
-      legend("bottomright", c("Data", "Line of Equality",
-        paste("Simulated Pointwise ", formatC(100 * (1 - alpha), format = "f", digits=1), "% CI", sep=""),
-        ifelse(twotail & !upperfocus, "Tail Fractions", "Tail Fraction")),
-        pch = c(1, rep(-1, 3)), lty = c(0, 1, 2, 3), bg = "white", col = c("black", "red", rep("black", 2)))
+      if (nophiu) {
+        legend("bottomright", c("Data", "Line of Equality",
+          paste("Simulated Pointwise ", formatC(100 * (1 - alpha), format = "f", digits=1), "% CI", sep="")),
+          pch = c(1, rep(-1, 2)), lty = c(0, 1, 2), bg = "white", col = c("black", "red", "black"))
+      } else {
+        legend("bottomright", c("Data", "Line of Equality",
+          paste("Simulated Pointwise ", formatC(100 * (1 - alpha), format = "f", digits=1), "% CI", sep=""),
+          ifelse(twotail & !upperfocus, "Tail Fractions", "Tail Fraction")),
+          pch = c(1, rep(-1, 3)), lty = c(0, 1, 2, 3), bg = "white", col = c("black", "red", rep("black", 2)))        
+      }
     }
   } else {
     if (legend) {
-      legend("bottomright", c("Data", "Line of Equality",
-        ifelse(twotail & !upperfocus, "Tail Fractions", "Tail Fraction")),
-        pch = c(1, rep(-1, 2)), lty = c(0, 1, 3), bg = "white", col = c("black", "red", "black"))
+      if (nophiu) {
+        legend("bottomright", c("Data", "Line of Equality"),
+          pch = c(1, -1), lty = c(0, 1), bg = "white", col = c("black", "red"))
+      } else {
+        legend("bottomright", c("Data", "Line of Equality",
+          ifelse(twotail & !upperfocus, "Tail Fractions", "Tail Fraction")),
+          pch = c(1, rep(-1, 2)), lty = c(0, 1, 3), bg = "white", col = c("black", "red", "black"))
+      }
     }
   }
 }
@@ -947,7 +1050,7 @@ pplot <- function(modelfit, upperfocus = TRUE, ci = TRUE, alpha = 0.05, N = 1000
 #' @rdname evmix.diag
 
 densplot <- function(modelfit, upperfocus = TRUE, legend = TRUE, ...) {
-  
+    
   # Check properties of inputs
   if (missing(modelfit))
     stop("modelfit from extreme value mixture model must be given")
@@ -959,7 +1062,8 @@ densplot <- function(modelfit, upperfocus = TRUE, legend = TRUE, ...) {
 
   allmodelnames = c("gpd", "betagpd", "betagpdcon", 
     "bckden", "bckdengpd", "bckdengpdcon", "dwm", "gammagpd", "gammagpdcon",
-    "gkg", "gkgcon", "gng", "gngcon", "hpd", "hpdcon", "mgammagpd", 
+    "gkg", "gkgcon", "gng", "gngcon", "hpd", "hpdcon", 
+    "itmnormgpd", "itmweibullgpd", "itmgng", "mgammagpd", 
     "kden", "kdengpd", "kdengpdcon", "lognormgpd", "lognormgpdcon",
     "normgpd", "normgpdcon", "weibullgpd", "weibullgpdcon")
 
@@ -978,24 +1082,32 @@ densplot <- function(modelfit, upperfocus = TRUE, legend = TRUE, ...) {
   nothresh = (modelname == "kden") | (modelname =="bckden") | (modelname =="dwm")
   twotail = (modelname == "gng") | (modelname == "gngcon") | (modelname == "gkg") | (modelname == "gkgcon")
   
+  nophiu = (modelname == "itmnormgpd") | (modelname == "itmweibullgpd") | (modelname == "itmgng")
+  
   if (nothresh) {
     upperfocus = FALSE
   }
-  
+  if (modelname == "gpd") {
+    upperfocus = TRUE  
+  }
+
   # makes following code easier to read
   if (twotail) {
     phiu = modelfit$phiur
     u = modelfit$ur
   } else if (nothresh) {
     phiu = -Inf
-    u = Inf
-  } else {    
+    u = Inf 
+  } else if (nophiu) {
+    phiu = -Inf
+    u = ifelse(modelname == "itmgng", modelfit$ur, modelfit$u)
+  } else {
     phiu = modelfit$phiu
     u = modelfit$u    
   }
-
+  
   xx = seq(min(modelfit$x, na.rm = TRUE), max(modelfit$x, na.rm = TRUE), sd(modelfit$x, na.rm = TRUE)/100)
-
+  
   the.dens = switch(modelname,
     gpd = dgpd(xx, modelfit$u, modelfit$sigmau, modelfit$xi, modelfit$phiu),
     bckden = dbckden(xx, modelfit$kerncentres, modelfit$lambda, bw=NULL, modelfit$kernel,
@@ -1029,6 +1141,12 @@ densplot <- function(modelfit, upperfocus = TRUE, legend = TRUE, ...) {
       modelfit$ul, modelfit$xil, modelfit$phiul, modelfit$ur, modelfit$xir, modelfit$phiur),
     hpd = dhpd(xx, modelfit$nmean, modelfit$nsd, modelfit$xi),
     hpdcon = dhpdcon(xx, modelfit$nmean, modelfit$nsd, modelfit$u, modelfit$xi),
+    itmnormgpd = ditmnormgpd(xx, modelfit$nmean, modelfit$nsd, modelfit$epsilon, 
+      modelfit$u, modelfit$sigmau, modelfit$xi),
+    itmweibullgpd = ditmweibullgpd(xx, modelfit$wshape, modelfit$wscale, modelfit$epsilon, 
+      modelfit$u, modelfit$sigmau, modelfit$xi),
+    itmgng = ditmgng(xx, modelfit$nmean, modelfit$nsd, modelfit$epsilon, 
+      modelfit$ul, modelfit$sigmaul, modelfit$xil, modelfit$ur, modelfit$sigmaur, modelfit$xir),
     kden = dkden(xx, modelfit$kerncentres, modelfit$lambda, bw=NULL, modelfit$kernel),
     kdengpd = dkdengpd(xx, modelfit$kerncentres, modelfit$lambda, modelfit$u,
       modelfit$sigmau, modelfit$xi, modelfit$phiu, bw=NULL, modelfit$kernel),
@@ -1079,14 +1197,21 @@ densplot <- function(modelfit, upperfocus = TRUE, legend = TRUE, ...) {
   lines(xx, the.dens, lwd = 2)
   lines(kde.est, lty = 2, lwd = 1.5, col = "green")
 
-  if (twotail) {
+  # add threshold indicator lines
+  if ((twotail) | (modelname == "itmgng")) {
     abline(v = c(modelfit$ul, modelfit$ur), lty = 3)
   } else {
     abline(v = u, lty = 3)
   }
+  
   if (legend) {
-    legend("topright", c("Fitted Density", 
-    ifelse(modelname == "gng", "Thresholds", "Threshold"), "KDE"),
-    lty = c(1, 3, 2), lwd = c(2, 1, 1.5), bg = "white", col = c(rep("black", 2), "green"))
+    if (nothresh){
+      legend("topright", c("Fitted Density", "KDE"),
+        lty = c(1, 2), lwd = c(2, 1.5), bg = "white", col = c("black", "green"))
+    } else {
+      legend("topright", c("Fitted Density", 
+        ifelse((twotail) | (modelname == "itmgng"), "Thresholds", "Threshold"), "KDE"),
+        lty = c(1, 3, 2), lwd = c(2, 1, 1.5), bg = "white", col = c(rep("black", 2), "green"))      
+    }
   }
 }

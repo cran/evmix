@@ -160,6 +160,7 @@ fgammagpdcon <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = 
 
   check.quant(x)
   n = length(x)
+  np = 4 # maximum number of parameters
 
   if ((method == "L-BFGS-B") | (method == "BFGS")) finitelik = TRUE
   
@@ -170,8 +171,8 @@ fgammagpdcon <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = 
   # Check if profile likelihood or fixed threshold is being used
   # and determine initial values for parameters in each case
   if (is.null(useq)) { # not profile or fixed
-    profu = FALSE
-    check.nparam(pvector, nparam = 4, allownull = TRUE)
+
+    check.nparam(pvector, nparam = np, allownull = TRUE)
     
     if (is.null(pvector)) {
       s = log(mean(x)) - mean(log(x))
@@ -184,9 +185,8 @@ fgammagpdcon <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = 
     }
     
   } else { # profile or fixed
-    profu = TRUE
     
-    check.nparam(pvector, nparam = 3, allownull = TRUE)
+    check.nparam(pvector, nparam = np - 1, allownull = TRUE)
 
     # profile likelihood for threshold or scalar given
     if (length(useq) != 1) {
@@ -205,7 +205,7 @@ fgammagpdcon <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = 
       u = useq
     }
 
-    if (fixedu) { # threshold fixed (4 parameters)
+    if (fixedu) { # threshold fixed
       if (is.null(pvector)) {
         s = log(mean(x)) - mean(log(x))
         k = (3 - s + sqrt( (s-3) ^ 2 + 24 * s)) / 12 / s
@@ -387,8 +387,10 @@ lgammagpdcon <- function(x, gshape = 1, gscale = 1, u = qgamma(0.9, gshape, 1/gs
 # (wrapper for likelihood, inputs and checks designed for optimisation)
 nlgammagpdcon <- function(pvector, x, phiu = TRUE, finitelik = FALSE) {
 
+  np = 4 # maximum number of parameters
+
   # Check properties of inputs
-  check.nparam(pvector, nparam = 4)
+  check.nparam(pvector, nparam = np)
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
   check.logic(logicarg = finitelik)
@@ -417,9 +419,10 @@ nlgammagpdcon <- function(pvector, x, phiu = TRUE, finitelik = FALSE) {
 proflugammagpdcon <- function(u, pvector, x, phiu = TRUE, method = "BFGS",
   control = list(maxit = 10000), finitelik = FALSE, ...) {
 
+  np = 4 # maximum number of parameters
+
   # Check properties of inputs
-  np = 3
-  check.nparam(pvector, nparam = np, allownull = TRUE)
+  check.nparam(pvector, nparam = np - 1, allownull = TRUE)
   check.param(u) # do not check positivity in likelihood
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
@@ -480,8 +483,10 @@ proflugammagpdcon <- function(u, pvector, x, phiu = TRUE, method = "BFGS",
 # (wrapper for likelihood, designed for threshold to be fixed and other parameters optimised)
 nlugammagpdcon <- function(pvector, u, x, phiu = TRUE, finitelik = FALSE) {
 
+  np = 4 # maximum number of parameters
+
   # Check properties of inputs
-  check.nparam(pvector, nparam = 3)
+  check.nparam(pvector, nparam = np - 1)
   check.param(u) # do not check positivity in likelihood
   check.quant(x, allowmiss = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
