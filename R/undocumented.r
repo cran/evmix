@@ -4,6 +4,7 @@
 #' @inheritParams bckden
 #' @inheritParams itmweibullgpd
 #' @inheritParams itmgng
+#' @inheritParams psden
 #' 
 #' @title Internal Functions
 #'
@@ -16,9 +17,11 @@
 #' 
 #' Mostly, these are used in the kernel density estimation functions.
 #' 
-#' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}. Based on code
-#' by Anna MacDonald produced for MATLAB.
+#' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}.
 #'
+#' @section Acknowledgments: Based on code
+#' by Anna MacDonald produced for MATLAB.
+#' 
 #' @seealso \code{\link[stats:density]{density}}, \code{\link[evmix:kden]{kden}}
 #' and \code{\link[evmix:bckden]{bckden}}.
 #' 
@@ -81,7 +84,7 @@ pbckdenxsimple <- function(x, kerncentres, lambda, kernel = "gaussian") {
     # Reuse density function to do numerical integration
     bckdenint = try(integrate(Vectorize(bckdenxsimple, "x"), lower = 0, upper = x,
       kerncentres = kerncentres, lambda = lambda, kernel = kernel,
-      subdivisions = 10000, rel.tol = 1.e-9, stop.on.error = FALSE))
+      subdivisions = 10000, rel.tol = 1e-9, stop.on.error = FALSE))
     
     if (inherits(bckdenint, "try-error")) {
       bckdenint$value = NA
@@ -92,7 +95,7 @@ pbckdenxsimple <- function(x, kerncentres, lambda, kernel = "gaussian") {
     # Reuse density function to do numerical integration upto 5*lambda
     bckdenint = try(integrate(Vectorize(bckdenxsimple, "x"), lower = 0, upper = maxp,
       kerncentres = kerncentres, lambda = lambda, kernel = kernel,
-      subdivisions = 10000, rel.tol = 1.e-9, stop.on.error = FALSE))
+      subdivisions = 10000, rel.tol = 1e-9, stop.on.error = FALSE))
     
     if (inherits(bckdenint, "try-error")) {
       bckdenint$value = NA
@@ -169,7 +172,7 @@ pbckdenxrenorm <- function(x, kerncentres, lambda, kernel = "gaussian") {
     # Reuse density function to do numerical integration
     bckdenint = try(integrate(Vectorize(bckdenxrenorm, "x"), lower = 0, upper = x,
       kerncentres = kerncentres, lambda = lambda, kernel = kernel,
-      subdivisions = 10000, rel.tol = 1.e-9, stop.on.error = FALSE))
+      subdivisions = 10000, rel.tol = 1e-9, stop.on.error = FALSE))
     
     if (inherits(bckdenint, "try-error")) {
       bckdenint$value = NA
@@ -180,7 +183,7 @@ pbckdenxrenorm <- function(x, kerncentres, lambda, kernel = "gaussian") {
     # Reuse density function to do numerical integration upto 5*lambda
     bckdenint = try(integrate(Vectorize(bckdenxrenorm, "x"), lower = 0, upper = maxp,
       kerncentres = kerncentres, lambda = lambda, kernel = kernel,
-      subdivisions = 10000, rel.tol = 1.e-9, stop.on.error = FALSE))
+      subdivisions = 10000, rel.tol = 1e-9, stop.on.error = FALSE))
     
     if (inherits(bckdenint, "try-error")) {
       bckdenint$value = NA
@@ -242,7 +245,7 @@ pbckdenxbeta1 <- function(x, kerncentres, lambda, xmax) {
     # Re-use density function to do numerical integration
     bckdenint = try(integrate(Vectorize(bckdenxbeta1, "x"), lower = 0, upper = x,
       kerncentres = kerncentres, lambda = lambda, xmax = xmax,
-      subdivisions = 10000, rel.tol = 1.e-9, stop.on.error = FALSE))
+      subdivisions = 10000, rel.tol = 1e-9, stop.on.error = FALSE))
     
     if (inherits(bckdenint, "try-error")) {
       bckdenint$value = NA
@@ -286,7 +289,7 @@ pbckdenxbeta2 <- function(x, kerncentres, lambda, xmax) {
     # Reuse density function to do numerical integration
     bckdenint = try(integrate(Vectorize(bckdenxbeta2, "x"), lower = 0, upper = x,
       kerncentres = kerncentres, lambda = lambda, xmax = xmax,
-      subdivisions = 10000, rel.tol = 1.e-9, stop.on.error = FALSE))
+      subdivisions = 10000, rel.tol = 1e-9, stop.on.error = FALSE))
     
     if (inherits(bckdenint, "try-error")) {
       bckdenint$value = NA
@@ -397,7 +400,7 @@ pbckdenxcopula <- function(x, kerncentres, lambda, xmax) {
     # Reuse density function to do numerical integration
     bckdenint = try(integrate(Vectorize(bckdenxcopula, "x"), lower = 0, upper = x,
       kerncentres = kerncentres, lambda = lambda, xmax = xmax,
-      subdivisions = 10000, rel.tol = 1.e-9, stop.on.error = FALSE))
+      subdivisions = 10000, rel.tol = 1e-9, stop.on.error = FALSE))
     
     if (inherits(bckdenint, "try-error")) {
       bckdenint$value = NA
@@ -415,7 +418,7 @@ pbckdenxlog <- function(x, kerncentres, lambda, offset, kernel = "gaussian") {
   # Reuse density function to do numerical integration
   bckdenint = try(integrate(dbckden, lower = 0, upper = x,
     kerncentres = kerncentres, lambda = lambda, kernel = kernel, bcmethod = "logtrans",
-    offset = offset, subdivisions = 10000, rel.tol = 1.e-9, stop.on.error = FALSE))
+    offset = offset, subdivisions = 10000, rel.tol = 1e-9, stop.on.error = FALSE))
   
   if (inherits(bckdenint, "try-error")) {
     bckdenint$value = NA
@@ -435,7 +438,7 @@ pbckdenxnn <- function(x, kerncentres, lambda, kernel = "gaussian", nn) {
     bckdenint = try(integrate(dbckden, lower = 0, upper = x,
       kerncentres = kerncentres, lambda = lambda, kernel = kernel,
       bcmethod = "simple", proper = FALSE, nn = nn,
-      subdivisions = 10000, rel.tol = 1.e-9, stop.on.error = FALSE))
+      subdivisions = 10000, rel.tol = 1e-9, stop.on.error = FALSE))
   
     if (inherits(bckdenint, "try-error")) {
       bckdenint$value = NA
@@ -447,7 +450,7 @@ pbckdenxnn <- function(x, kerncentres, lambda, kernel = "gaussian", nn) {
     bckdenint = try(integrate(dbckden, lower = 0, upper = maxp,
       kerncentres = kerncentres, lambda = lambda, kernel = kernel,
       bcmethod = "simple", proper = FALSE, nn = nn,
-      subdivisions = 10000, rel.tol = 1.e-9, stop.on.error = FALSE))
+      subdivisions = 10000, rel.tol = 1e-9, stop.on.error = FALSE))
   
     if (inherits(bckdenint, "try-error")) {
       bckdenint$value = NA
@@ -528,3 +531,12 @@ qgbgmixprime <- function(x, ul, ur, epsilon) {
   qmprime[whichu] = qmixprime(x[whichu], ur, epsilon)
   qmprime
 }
+
+#' @export
+#' @rdname internal
+pscounts <- function(x, beta, design.knots, degree) {
+  bsplines = splineDesign(design.knots, x, ord = degree + 1)
+  d = exp(bsplines %*% beta)
+  d
+}
+

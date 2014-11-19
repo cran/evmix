@@ -154,6 +154,8 @@
 #' 
 #' @author Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'
+#' @section Acknowledgments: Thanks to Daniela Laas, University of St Gallen, Switzerland for reporting various bugs in these functions.
+#' 
 #' @seealso \code{\link[stats:GammaDist]{dgamma}} and \code{\link[mixtools:gammamixEM]{gammamixEM}}
 #'  in \code{mixtools} package
 #' 
@@ -164,7 +166,9 @@
 #' 
 #' @examples
 #' \dontrun{
-#' par(mfrow=c(2,1))
+#' set.seed(1)
+#' par(mfrow = c(1, 1))
+#' 
 #' x = c(rgamma(1000, shape = 1, scale = 1), rgamma(3000, shape = 6, scale = 2))
 #' xx = seq(-1, 40, 0.01)
 #' y = (dgamma(xx, shape = 1, scale = 1) + 3 * dgamma(xx, shape = 6, scale = 2))/4
@@ -183,15 +187,16 @@ fmgamma <- function(x, M, pvector = NULL, std.err = TRUE,
 
   call <- match.call()
     
-  # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.logic(logicarg = std.err)
-  check.optim(method)
-  check.control(control)
-  check.logic(logicarg = finitelik)
-
   check.n(M)
   if (M == 1) stop("use fitdistr instead")
+  np = 3*M # maximum number of parameters
+
+  # Check properties of inputs
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.logic(std.err)
+  check.optim(method)
+  check.control(control)
+  check.logic(finitelik)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -205,7 +210,6 @@ fmgamma <- function(x, M, pvector = NULL, std.err = TRUE,
 
   check.quant(x)
   n = length(x)
-  np = 3*M # maximum number of parameters
   
   if (is.null(pvector)) {
     if (is.unsorted(x)) x = sort(x)
@@ -334,14 +338,14 @@ fmgamma <- function(x, M, pvector = NULL, std.err = TRUE,
   if (std.err) {
     qrhess = qr(fit$hessian)
     if (qrhess$rank != ncol(qrhess$qr)) {
-      warning("observed information matrix is singular; use std.err = FALSE")
+      warning("observed information matrix is singular")
       se = NULL
       invhess = NULL
     } else {
       invhess = solve(qrhess)
       vars = diag(invhess)
       if (any(vars <= 0)) {
-        warning("observed information matrix is singular; use std.err = FALSE")
+        warning("observed information matrix is singular")
         invhess = NULL
         se = NULL
       } else {
@@ -367,20 +371,20 @@ fmgamma <- function(x, M, pvector = NULL, std.err = TRUE,
 lmgamma <- function(x, mgshape, mgscale, mgweight, log = TRUE) {
   
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.logic(logicarg = log)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.logic(log)
 
   # user may try to input lists for mixture of gammas parameter vectors
   if (is.list(mgshape)) mgshape = unlist(mgshape)
   if (is.list(mgscale)) mgscale = unlist(mgscale)
   if (is.list(mgweight)) mgweight = unlist(mgweight)
 
-  check.param(param = mgshape, allowvec = TRUE) # do not check positivity in likelihood
-  check.param(param = mgscale, allowvec = TRUE) # do not check positivity in likelihood
-  check.param(param = mgweight, allowvec = TRUE) # do not check positivity in likelihood
+  check.param(mgshape, allowvec = TRUE)
+  check.param(mgscale, allowvec = TRUE)
+  check.param(mgweight, allowvec = TRUE)
 
   # How many components in mixture
-  M = check.inputn(c(length(mgshape), length(mgshape), length(mgweight)))
+  M = check.inputn(c(length(mgshape), length(mgshape), length(mgweight)), allowscalar = TRUE)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -418,13 +422,14 @@ lmgamma <- function(x, mgshape, mgscale, mgweight, log = TRUE) {
 # (wrapper for likelihood, inputs and checks designed for optimisation)
 nlmgamma <- function(pvector, x, M, finitelik = FALSE) {
 
+  check.n(M)
+  if (M == 1) stop("use dgamma instead")
   np = 3*M # maximum number of parameters
 
   # Check properties of inputs
   check.nparam(pvector, nparam = np - 1)
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.logic(logicarg = finitelik)
-  check.n(M)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.logic(finitelik)
 
   mgshape = pvector[1:M]
   mgscale = pvector[(M + 1):(2*M)]
@@ -448,16 +453,28 @@ nlmgamma <- function(pvector, x, M, finitelik = FALSE) {
 # with component probabilities separated for EM algorithm
 nlEMmgamma <- function(pvector, tau, mgweight, x, M, finitelik = FALSE) {
 
+  check.n(M)
+  if (M == 1) stop("use dgamma instead")
   np.noweight = 2*M # maximum number of non-weight parameters
 
   # Check properties of inputs
   check.nparam(pvector, nparam = np.noweight)
   check.nparam(mgweight, nparam = M)
   check.prob(mgweight)
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.logic(logicarg = finitelik)
-  check.n(M)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.logic(finitelik)
 
+  if (any(!is.finite(x))) {
+    warning("non-finite cases have been removed")
+    x = x[is.finite(x)] # ignore missing and infinite cases
+  }
+
+  if (any(x <= 0)) {
+    warning("non-positive values have been removed")
+    x = x[x > 0]
+  }
+
+  check.quant(x)
   n = length(x)
 
   if (!is.matrix(tau)) stop("Posterior probabilities (tau) must be nxM probability matrix")

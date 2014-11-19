@@ -57,7 +57,7 @@
 #' \code{\link[evmix:kdengpd]{qkdengpd}} gives the quantile function and 
 #' \code{\link[evmix:kdengpd]{rkdengpd}} gives a random sample.
 #' 
-#' @note Unlike all the other extreme value mixture model functions the 
+#' @note Unlike most of the other extreme value mixture model functions the 
 #' \code{\link[evmix:kdengpd]{kdengpd}} functions have not been vectorised as
 #' this is not appropriate. The main inputs (\code{x}, \code{p} or \code{q})
 #' must be either a scalar or a vector, which also define the output length.
@@ -101,9 +101,11 @@
 #' 
 #' Wand, M. and Jones, M.C. (1995). Kernel Smoothing. Chapman && Hall.
 #' 
-#' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}. Based on code
-#' by Anna MacDonald produced for MATLAB.
+#' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}.
 #'
+#' @section Acknowledgments: Based on code
+#' by Anna MacDonald produced for MATLAB.
+#' 
 #' @seealso \code{\link[evmix:kernels]{kernels}}, \code{\link[evmix:kfun]{kfun}},
 #' \code{\link[stats:density]{density}}, \code{\link[stats:bandwidth]{bw.nrd0}}
 #' and \code{\link[ks:kde.1d]{dkde}} in \code{\link[ks:kde.1d]{ks}} package.
@@ -114,7 +116,9 @@
 #' 
 #' @examples
 #' \dontrun{
-#' par(mfrow=c(2,2))
+#' set.seed(1)
+#' par(mfrow = c(2, 2))
+#' 
 #' kerncentres=rnorm(500, 0, 1)
 #' xx = seq(-4, 4, 0.01)
 #' hist(kerncentres, breaks = 100, freq = FALSE)
@@ -151,15 +155,15 @@ dkdengpd <- function(x, kerncentres, lambda = NULL, u = as.vector(quantile(kernc
   bw = NULL, kernel = "gaussian", log = FALSE) {
   
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.quant(kerncentres, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.quant(kerncentres, allowna = TRUE, allowinf = TRUE)
   check.kbw(lambda, bw, allownull = TRUE)
   check.kernel(kernel)
-  check.param(param = u)
-  check.posparam(param = sigmau)
-  check.param(param = xi)
+  check.param(u)
+  check.posparam(sigmau)
+  check.param(xi)
   check.phiu(phiu)
-  check.logic(logicarg = log)
+  check.logic(log)
 
   kernel = ifelse(kernel == "rectangular", "uniform", kernel)
   kernel = ifelse(kernel == "normal", "gaussian", kernel)
@@ -184,7 +188,7 @@ dkdengpd <- function(x, kerncentres, lambda = NULL, u = as.vector(quantile(kernc
   }
   lambda = klambda(bw, kernel, lambda)
   
-  check.inputn(c(length(lambda), length(u), length(sigmau), length(xi), length(phiu)))
+  check.inputn(c(length(lambda), length(u), length(sigmau), length(xi), length(phiu)), allowscalar = TRUE) # scalar only
      
   pu = pkdenx(u, kerncentres, lambda, kernel)
   if (is.logical(phiu)) {
@@ -220,15 +224,15 @@ pkdengpd <- function(q, kerncentres, lambda = NULL, u = as.vector(quantile(kernc
   bw = NULL, kernel = "gaussian", lower.tail = TRUE) {
   
   # Check properties of inputs
-  check.quant(q, allowmiss = TRUE, allowinf = TRUE)
-  check.quant(kerncentres, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(q, allowna = TRUE, allowinf = TRUE)
+  check.quant(kerncentres, allowna = TRUE, allowinf = TRUE)
   check.kbw(lambda, bw, allownull = TRUE)
   check.kernel(kernel)
-  check.param(param = u)
-  check.posparam(param = sigmau)
-  check.param(param = xi)
+  check.param(u)
+  check.posparam(sigmau)
+  check.param(xi)
   check.phiu(phiu)
-  check.logic(logicarg = lower.tail)
+  check.logic(lower.tail)
 
   kernel = ifelse(kernel == "rectangular", "uniform", kernel)
   kernel = ifelse(kernel == "normal", "gaussian", kernel)
@@ -253,7 +257,7 @@ pkdengpd <- function(q, kerncentres, lambda = NULL, u = as.vector(quantile(kernc
   }
   lambda = klambda(bw, kernel, lambda)
   
-  check.inputn(c(length(lambda), length(u), length(sigmau), length(xi), length(phiu)))
+  check.inputn(c(length(lambda), length(u), length(sigmau), length(xi), length(phiu)), allowscalar = TRUE) # scalar only
 
   pu = pkdenx(u, kerncentres, lambda, kernel)
   if (is.logical(phiu)) {
@@ -289,15 +293,15 @@ qkdengpd <- function(p, kerncentres, lambda = NULL, u = as.vector(quantile(kernc
   bw = NULL, kernel = "gaussian", lower.tail = TRUE) {
   
   # Check properties of inputs
-  check.prob(p, allowmiss = TRUE)
-  check.quant(kerncentres, allowmiss = TRUE, allowinf = TRUE)
+  check.prob(p, allowna = TRUE)
+  check.quant(kerncentres, allowna = TRUE, allowinf = TRUE)
   check.kbw(lambda, bw, allownull = TRUE)
   check.kernel(kernel)
-  check.param(param = u)
-  check.posparam(param = sigmau)
-  check.param(param = xi)
+  check.param(u)
+  check.posparam(sigmau)
+  check.param(xi)
   check.phiu(phiu)
-  check.logic(logicarg = lower.tail)
+  check.logic(lower.tail)
     
   kernel = ifelse(kernel == "rectangular", "uniform", kernel)
   kernel = ifelse(kernel == "normal", "gaussian", kernel)
@@ -318,7 +322,7 @@ qkdengpd <- function(p, kerncentres, lambda = NULL, u = as.vector(quantile(kernc
   }
   lambda = klambda(bw, kernel, lambda)
   
-  check.inputn(c(length(lambda), length(u), length(sigmau), length(xi), length(phiu)))
+  check.inputn(c(length(lambda), length(u), length(sigmau), length(xi), length(phiu)), allowscalar = TRUE) # scalar only
     
   if (!lower.tail) p = 1 - p
   
@@ -355,36 +359,15 @@ rkdengpd <- function(n = 1, kerncentres, lambda = NULL, u = as.vector(quantile(k
   
   # Check properties of inputs
   check.n(n)
-  check.quant(kerncentres, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(kerncentres, allowna = TRUE, allowinf = TRUE)
   check.kbw(lambda, bw, allownull = TRUE)
   check.kernel(kernel)
-  check.param(param = u)
-  check.posparam(param = sigmau)
-  check.param(param = xi)
+  check.param(u)
+  check.posparam(sigmau)
+  check.param(xi)
   check.phiu(phiu)
-  
-  kernel = ifelse(kernel == "rectangular", "uniform", kernel)
-  kernel = ifelse(kernel == "normal", "gaussian", kernel)
 
-  if (any(!is.finite(kerncentres))) warning("non-finite kernel centres are dropped")
-
-  kerncentres = kerncentres[is.finite(kerncentres)]
-  check.quant(kerncentres)
-  nk = length(kerncentres)
-
-  if (is.null(lambda) & is.null(bw)) {
-    if (nk == 1) {
-      stop("Automated bandwidth estimation requires 2 or more kernel centres")
-    } else if (nk < 10) {
-      warning("Automated bandwidth estimation unreliable with less than 10 kernel centres")
-    }
-    bw = bw.nrd0(kerncentres)
-  }
-  lambda = klambda(bw, kernel, lambda)
-  
-  check.inputn(c(length(lambda), length(u), length(sigmau), length(xi), length(phiu)))
-  
   if (any(xi == 1)) stop("shape cannot be 1")
   
-  qkdengpd(runif(n), kerncentres, lambda, u, sigmau, xi, phiu, kernel = kernel)
+  qkdengpd(runif(n), kerncentres, lambda, u, sigmau, xi, phiu, bw, kernel)
 }

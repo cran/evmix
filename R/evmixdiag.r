@@ -82,10 +82,6 @@
 #' 
 #' @references
 #' 
-#' Based on GPD/POT diagnostic functions in the \code{\link[evd:plot.uvevd]{evd}} function
-#' from the \code{\link[evd:gpd]{evd}} package, for which Stuart Coles and Alec Stephenson's 
-#' contributions are gratefully acknowledged.
-#' 
 #' \url{http://en.wikipedia.org/wiki/Q-Q_plot}
 #' 
 #' \url{http://en.wikipedia.org/wiki/P-P_plot}
@@ -99,6 +95,10 @@
 #' 
 #' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'
+#' @section Acknowledgments: Based on the GPD/POT diagnostic function \code{\link[evd:plot.uvevd]{plot.uvevd}} in the \code{\link[evd:plot.uvevd]{evd}} package for which Stuart Coles' and Alec Stephenson's 
+#' contributions are gratefully acknowledged.
+#' They are designed to have similar syntax and functionality to simplify the transition for users of these packages.
+#' 
 #' @seealso \code{\link[stats:ppoints]{ppoints}}, \code{\link[evd:plot.uvevd]{plot.uvevd}} and
 #'   \code{\link[ismev:gpd.diag]{gpd.diag}}.
 #' @aliases  evmix.diag rlplot qplot pplot densplot
@@ -106,6 +106,8 @@
 #' 
 #' @examples
 #' \dontrun{
+#' set.seed(1)
+#' 
 #' x = sort(rnorm(1000))
 #' fit = fnormgpd(x)
 #' evmix.diag(fit)
@@ -141,34 +143,21 @@ evmix.diag <- function(modelfit, upperfocus = TRUE, alpha = 0.05, N = 1000,
   if (!(modelname %in% allmodelnames))
     stop("invalid extreme value mixture model given")
 
-  if (!is.logical(upperfocus))
-    stop("upperfocus must be logical")
-  
-  if (!is.logical(legend))
-    stop("legend must be logical")
-  
-  if (!is.null(alpha)) {
-    if (!is.numeric(alpha) | length(alpha) != 1)
-      stop("significance level alpha must be single numeric value")
-
-    if (alpha <= 0 | alpha >= 1)
-      stop("significance level alpha must be between (0, 1)")
-  }
-
-  if (length(N) != 1 | mode(N) != "numeric") 
-    stop("number of simulations must be a non-negative integer")
-  
-  if (abs(N - round(N)) > sqrt(.Machine$double.eps) | N < 10)
-    stop("simulation size must non-negative integer >= 10")
+  check.logic(upperfocus)
+  check.logic(legend)
+  check.prob(alpha, allownull = TRUE)
+  if (!is.null(alpha)) 
+    if ((alpha == 0) | (alpha == 1)) stop("alpha must be in (0, 1)")
+  check.n(N)
 
   if (is.unsorted(modelfit$x, na.rm = TRUE))
     modelfit$x=sort(modelfit$x)
   
   par(mfrow = c(2, 2))
-  rlplot(modelfit, upperfocus = upperfocus, alpha = alpha, N = N, legend = legend, ...)
-  qplot(modelfit, upperfocus = upperfocus, alpha = alpha, N = N, legend = legend, ...)
-  pplot(modelfit, upperfocus = upperfocus, alpha = alpha, N = N, legend = legend, ...)
-  densplot(modelfit, upperfocus = upperfocus, legend = legend, ...)
+  rlplot(modelfit, upperfocus, alpha, N, legend, ...)
+  qplot(modelfit, upperfocus, alpha, N, legend, ...)
+  pplot(modelfit, upperfocus, alpha, N, legend, ...)
+  densplot(modelfit, upperfocus, legend, ...)
 }
 
 #' @export
@@ -192,35 +181,22 @@ rlplot <- function(modelfit, upperfocus = TRUE, alpha = 0.05, N = 1000,
     "gkg", "gkgcon", "gng", "gngcon", "hpd", "hpdcon", 
     "itmnormgpd", "itmweibullgpd", "itmgng", "mgammagpd", 
     "kden", "kdengpd", "kdengpdcon", "lognormgpd", "lognormgpdcon",
-    "normgpd", "normgpdcon", "weibullgpd", "weibullgpdcon")
+    "normgpd", "normgpdcon", "psden", "psdengpd", "weibullgpd", "weibullgpdcon")
 
   if (!(modelname %in% allmodelnames))
     stop("invalid extreme value mixture model given")
 
-  if (!is.logical(upperfocus))
-    stop("upperfocus must be logical")
-  
-  if (!is.logical(legend))
-    stop("legend must be logical")
-  
-  if (!is.null(alpha)) {
-    if (!is.numeric(alpha) | length(alpha) != 1)
-      stop("significance level alpha must be single numeric value")
-
-    if (alpha <= 0 | alpha >= 1)
-      stop("significance level alpha must be between (0, 1)")
-  }
-  
-  if (length(N) != 1 | mode(N) != "numeric") 
-    stop("number of simulations must be a non-negative integer")
-  
-  if (abs(N - round(N)) > sqrt(.Machine$double.eps) | N < 10)
-    stop("simulation size must non-negative integer >= 10")
+  check.logic(upperfocus)
+  check.logic(legend)
+  check.prob(alpha, allownull = TRUE)
+  if (!is.null(alpha)) 
+    if ((alpha == 0) | (alpha == 1)) stop("alpha must be in (0, 1)")
+  check.n(N)
 
   if (is.unsorted(modelfit$x, na.rm = TRUE))
     modelfit$x=sort(modelfit$x)
   
-  nothresh = (modelname == "kden") | (modelname =="bckden") | (modelname =="dwm")
+  nothresh = (modelname == "kden") | (modelname =="bckden") | (modelname =="dwm") | (modelname == "psden")
   twotail = (modelname == "gng") | (modelname == "gngcon") | (modelname == "gkg") | (modelname == "gkgcon")
   nophiu = (modelname == "itmnormgpd") | (modelname == "itmweibullgpd") | (modelname == "itmgng")
   
@@ -313,6 +289,10 @@ rlplot <- function(modelfit, upperfocus = TRUE, alpha = 0.05, N = 1000,
       modelfit$xi, modelfit$phiu),
     normgpdcon = qnormgpdcon(the.prob, modelfit$nmean, modelfit$nsd, modelfit$u,
       modelfit$xi, modelfit$phiu),
+    psden = qpsden(the.prob, modelfit$beta, modelfit$nbinwidth, modelfit$xrange, modelfit$nseg,
+                   modelfit$degree, modelfit$design.knots),
+    psdengpd = qpsdengpd(the.prob, modelfit$beta, modelfit$nbinwidth, modelfit$xrange, modelfit$nseg,
+                   modelfit$degree, modelfit$u, modelfit$sigmau, modelfit$xi, modelfit$phiu, modelfit$design.knots),
     weibullgpd = qweibullgpd(the.prob, modelfit$wshape, modelfit$wscale, modelfit$u,
       modelfit$sigmau, modelfit$xi, modelfit$phiu),
     weibullgpdcon = qweibullgpdcon(the.prob, modelfit$wshape, modelfit$wscale, modelfit$u,
@@ -387,6 +367,10 @@ rlplot <- function(modelfit, upperfocus = TRUE, alpha = 0.05, N = 1000,
           modelfit$xi, modelfit$phiu),
         normgpdcon = rnormgpdcon(n, modelfit$nmean, modelfit$nsd, modelfit$u,
           modelfit$xi, modelfit$phiu),
+        psden = rpsden(n, modelfit$beta, modelfit$nbinwidth, modelfit$xrange, modelfit$nseg,
+                   modelfit$degree, modelfit$design.knots),
+        psdengpd = rpsdengpd(n, modelfit$beta, modelfit$nbinwidth, modelfit$xrange, modelfit$nseg,
+                   modelfit$degree, modelfit$u, modelfit$sigmau, modelfit$xi, modelfit$phiu, modelfit$design.knots),
         weibullgpd = rweibullgpd(n, modelfit$wshape, modelfit$wscale, modelfit$u,
           modelfit$sigmau, modelfit$xi, modelfit$phiu),
         weibullgpdcon = rweibullgpdcon(n, modelfit$wshape, modelfit$wscale, modelfit$u,
@@ -491,25 +475,12 @@ qplot <- function(modelfit, upperfocus = TRUE, alpha = 0.05, N = 1000,
   if (!(modelname %in% allmodelnames))
     stop("invalid extreme value mixture model given")
 
-  if (!is.logical(upperfocus))
-    stop("upperfocus must be logical")
-  
-  if (!is.logical(legend))
-    stop("legend must be logical")
-  
-  if (!is.null(alpha)) {
-    if (!is.numeric(alpha) | length(alpha) != 1)
-      stop("significance level alpha must be single numeric value")
-
-    if (alpha <= 0 | alpha >= 1)
-      stop("significance level alpha must be between (0, 1)")
-  }
-  
-  if (length(N) != 1 | mode(N) != "numeric") 
-    stop("number of simulations must be a non-negative integer")
-  
-  if (abs(N - round(N)) > sqrt(.Machine$double.eps) | N < 10)
-    stop("simulation size must non-negative integer >= 10")
+  check.logic(upperfocus)
+  check.logic(legend)
+  check.prob(alpha, allownull = TRUE)
+  if (!is.null(alpha)) 
+    if ((alpha == 0) | (alpha == 1)) stop("alpha must be in (0, 1)")
+  check.n(N)
 
   if (is.unsorted(modelfit$x, na.rm = TRUE))
     modelfit$x=sort(modelfit$x)
@@ -756,25 +727,12 @@ pplot <- function(modelfit, upperfocus = TRUE, alpha = 0.05, N = 1000,
   if (!(modelname %in% allmodelnames))
     stop("invalid extreme value mixture model given")
 
-  if (!is.logical(upperfocus))
-    stop("upperfocus must be logical")
-  
-  if (!is.logical(legend))
-    stop("legend must be logical")
-  
-  if (!is.null(alpha)) {
-    if (!is.numeric(alpha) | length(alpha) != 1)
-      stop("significance level alpha must be single numeric value")
-
-    if (alpha <= 0 | alpha >= 1)
-      stop("significance level alpha must be between (0, 1)")
-  }
-  
-  if (length(N) != 1 | mode(N) != "numeric") 
-    stop("number of simulations must be a non-negative integer")
-  
-  if (abs(N - round(N)) > sqrt(.Machine$double.eps) | N < 10)
-    stop("simulation size must non-negative integer >= 10")
+  check.logic(upperfocus)
+  check.logic(legend)
+  check.prob(alpha, allownull = TRUE)
+  if (!is.null(alpha)) 
+    if ((alpha == 0) | (alpha == 1)) stop("alpha must be in (0, 1)")
+  check.n(N)
 
   if (is.unsorted(modelfit$x, na.rm = TRUE))
     modelfit$x=sort(modelfit$x)
@@ -1070,11 +1028,8 @@ densplot <- function(modelfit, upperfocus = TRUE, legend = TRUE, ...) {
   if (!(modelname %in% allmodelnames))
     stop("invalid extreme value mixture model given")
 
-  if (!is.logical(upperfocus))
-    stop("upperfocus must be logical")
-  
-  if (!is.logical(legend))
-    stop("legend must be logical")
+  check.logic(upperfocus)
+  check.logic(legend)
   
   if (is.unsorted(modelfit$x, na.rm = TRUE))
     modelfit$x=sort(modelfit$x)

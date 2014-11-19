@@ -52,29 +52,29 @@
 #' \code{\link[evmix:fdwm]{fdwm}} returns a simple list with the following elements
 #'
 #' \tabular{ll}{
-#' \code{call}: \tab \code{optim} call\cr
-#' \code{x}: \tab data vector \code{x}\cr
-#' \code{init}: \tab \code{pvector}\cr
-#' \code{optim}: \tab complete \code{optim} output\cr
-#' \code{mle}: \tab vector of MLE of parameters\cr
-#' \code{cov}: \tab variance-covariance matrix of MLE of parameters\cr
-#' \code{se}: \tab vector of standard errors of MLE of parameters\cr
-#' \code{rate}: \tab \code{phiu} to be consistent with \code{\link[evd:fpot]{evd}}\cr
-#' \code{nllh}: \tab minimum negative log-likelihood\cr
-#' \code{n}: \tab total sample size\cr
+#' \code{call}:   \tab \code{optim} call\cr
+#' \code{x}:      \tab data vector \code{x}\cr
+#' \code{init}:   \tab \code{pvector}\cr
+#' \code{optim}:  \tab complete \code{optim} output\cr
+#' \code{mle}:    \tab vector of MLE of parameters\cr
+#' \code{cov}:    \tab variance-covariance matrix of MLE of parameters\cr
+#' \code{se}:     \tab vector of standard errors of MLE of parameters\cr
+#' \code{rate}:   \tab \code{phiu} to be consistent with \code{\link[evd:fpot]{evd}}\cr
+#' \code{nllh}:   \tab minimum negative log-likelihood\cr
+#' \code{n}:      \tab total sample size\cr
 #' \code{wshape}: \tab MLE of Weibull shape\cr
 #' \code{wscale}: \tab MLE of Weibull scale\cr
-#' \code{mu}: \tab MLE of Cauchy location\cr
-#' \code{tau}: \tab MLE of Cauchy scale\cr
+#' \code{mu}:     \tab MLE of Cauchy location\cr
+#' \code{tau}:    \tab MLE of Cauchy scale\cr
 #' \code{sigmau}: \tab MLE of GPD scale\cr
-#' \code{xi}: \tab MLE of GPD shape\cr
+#' \code{xi}:     \tab MLE of GPD shape\cr
 #' }
 #' 
 #' The output list has some duplicate entries and repeats some of the inputs to both 
 #' provide similar items to those from \code{\link[evd:fpot]{fpot}} and to make it 
 #' as useable as possible.
 #'  
-#' @note Unlike all the distribution functions for the extreme value mixture models,
+#' @note Unlike most of the distribution functions for the extreme value mixture models,
 #' the MLE fitting only permits single scalar values for each parameter and 
 #' \code{phiu}. Only the data is a vector.
 #' 
@@ -105,12 +105,18 @@
 #' 
 #' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'
+#' @section Acknowledgments: See Acknowledgments in
+#'   \code{\link[evmix:fnormgpd]{fnormgpd}}, type \code{help fnormgpd}.
+#'   
 #' @seealso \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
 #' @aliases fdwm ldwm nldwm
 #' @family  dwm fdwm
 #' 
 #' @examples
 #' \dontrun{
+#' set.seed(1)
+#' par(mfrow = c(1, 1))
+#' 
 #' x = rweibull(1000, shape = 2)
 #' xx = seq(-0.1, 4, 0.01)
 #' y = dweibull(xx, shape = 2)
@@ -118,8 +124,7 @@
 #' fit = fdwm(x, std.err = FALSE)
 #' hist(x, breaks = 100, freq = FALSE, xlim = c(-0.1, 4))
 #' lines(xx, y)
-#' lines(xx, ddwm(xx, wshape = fit$wshape, wscale = fit$wscale, cmu = fit$cmu, ctau = fit$ctau,
-#'   sigmau = fit$sigmau, xi = fit$xi), col="red")
+#' with(fit, lines(xx, ddwm(xx, wshape, wscale, cmu, ctau, sigmau, xi), col="red"))
 #' }
 #' 
 
@@ -132,12 +137,12 @@ fdwm = function(x, pvector = NULL, std.err = TRUE, method = "BFGS",
   np = 6 # maximum number of parameters
   
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
   check.nparam(pvector, nparam = np, allownull = TRUE)
-  check.logic(logicarg = std.err)
+  check.logic(std.err)
   check.optim(method)
   check.control(control)
-  check.logic(logicarg = finitelik)
+  check.logic(finitelik)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -150,6 +155,7 @@ fdwm = function(x, pvector = NULL, std.err = TRUE, method = "BFGS",
   }
 
   check.quant(x)
+  n = length(x)
 
   if ((method == "L-BFGS-B") | (method == "BFGS")) finitelik = TRUE
     
@@ -175,7 +181,6 @@ fdwm = function(x, pvector = NULL, std.err = TRUE, method = "BFGS",
     warning("check convergence")
   }
   
-  n = length(x)
   wshape = fit$par[1]
   wscale = fit$par[2]
   cmu = fit$par[3]
@@ -186,14 +191,14 @@ fdwm = function(x, pvector = NULL, std.err = TRUE, method = "BFGS",
   if (conv & std.err) {
     qrhess = qr(fit$hessian)
     if (qrhess$rank != ncol(qrhess$qr)) {
-      warning("observed information matrix is singular; use std.err = FALSE")
+      warning("observed information matrix is singular")
       se = NULL
       invhess = NULL
     } else {
       invhess = solve(qrhess)
       vars = diag(invhess)
       if (any(vars <= 0)) {
-        warning("observed information matrix is singular; use std.err = FALSE")
+        warning("observed information matrix is singular")
         invhess = NULL
         se = NULL
       } else {
@@ -221,14 +226,14 @@ ldwm = function(x,  wshape = 1, wscale = 1, cmu = 1, ctau = 1,
   xi = 0, log = TRUE) {
   
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.param(param = wshape) # do not check positivity in likelihood
-  check.param(param = wscale) # do not check positivity in likelihood
-  check.param(param = cmu)
-  check.param(param = ctau)   # do not check positivity in likelihood
-  check.param(param = sigmau) # do not check positivity in likelihood
-  check.param(param = xi)
-  check.logic(logicarg = log)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.param(wshape)
+  check.param(wscale)
+  check.param(cmu)
+  check.param(ctau)
+  check.param(sigmau)
+  check.param(xi)
+  check.logic(log)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -240,14 +245,16 @@ ldwm = function(x,  wshape = 1, wscale = 1, cmu = 1, ctau = 1,
     x = x[x >= 0]
   }
 
-  check.inputn(c(length(wshape), length(wscale), length(cmu), length(ctau), length(sigmau), length(xi)))
+  check.quant(x)
+  n = length(x)
+  
+  check.inputn(c(length(wshape), length(wscale), length(cmu), length(ctau), length(sigmau), length(xi)),
+               allowscalar = TRUE)
 
   # assume NA or NaN are irrelevant as entire lower tail is now modelled
   # inconsistent with evd library definition
   # hence use which() to ignore these
 
-  n = length(x)
-  
   rx <- function(x, wshape, wscale, cmu, ctau, sigmau, xi) {
     (dgpd(x, 0, sigmau, xi) - dweibull(x, wshape, wscale))*atan((x - cmu)/ctau)
   }
@@ -295,8 +302,8 @@ nldwm = function(pvector, x, finitelik = FALSE) {
 
   # Check properties of inputs
   check.nparam(pvector, nparam = np)
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.logic(logicarg = finitelik)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.logic(finitelik)
   
   wshape = pvector[1]
   wscale = pvector[2]

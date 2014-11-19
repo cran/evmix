@@ -49,6 +49,7 @@
 #'  \code{init}:    \tab \code{pvector}\cr
 #'  \code{fixedu}:  \tab fixed threshold, logical\cr
 #'  \code{useq}:    \tab threshold vector for profile likelihood or scalar for fixed threshold\cr
+#'  \code{nllhuseq}:  \tab profile negative log-likelihood at each threshold in useq\cr
 #'  \code{optim}:   \tab complete \code{optim} output\cr
 #'  \code{mle}:     \tab vector of MLE of parameters\cr
 #'  \code{cov}:     \tab variance-covariance matrix of MLE of parameters\cr
@@ -111,7 +112,9 @@
 #' 
 #' @examples
 #' \dontrun{
-#' par(mfrow=c(2,1))
+#' set.seed(1)
+#' par(mfrow = c(2, 1))
+#' 
 #' x = rnorm(1000)
 #' xx = seq(-4, 4, 0.01)
 #' y = dnorm(xx)
@@ -152,6 +155,7 @@
 #' # Notice that if tail fraction is included a better fit is obtained
 #' fittailfrac = fnormgpdcon(x)
 #' 
+#' par(mfrow = c(1, 1))
 #' hist(x, breaks = 100, freq = FALSE, xlim = c(-4, 4))
 #' lines(xx, y)
 #' with(fit, lines(xx, dhpdcon(xx, nmean, nsd, u, xi), col="red"))
@@ -169,14 +173,16 @@ fhpdcon <- function(x, useq = NULL, fixedu = FALSE, pvector = NULL,
 
   call <- match.call()
     
+  np = 4 # maximum number of parameters
+
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
   check.param(useq, allowvec = TRUE, allownull = TRUE)
-  check.logic(logicarg = fixedu)
-  check.logic(logicarg = std.err)
+  check.logic(fixedu)
+  check.logic(std.err)
   check.optim(method)
   check.control(control)
-  check.logic(logicarg = finitelik)
+  check.logic(finitelik)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -185,7 +191,6 @@ fhpdcon <- function(x, useq = NULL, fixedu = FALSE, pvector = NULL,
 
   check.quant(x)
   n = length(x)
-  np = 4 # maximum number of parameters
 
   if ((method == "L-BFGS-B") | (method == "BFGS")) finitelik = TRUE
   
@@ -250,6 +255,10 @@ fhpdcon <- function(x, useq = NULL, fixedu = FALSE, pvector = NULL,
 
   if (fixedu) { # fixed threshold (separable) likelihood
     nllh = nluhpdcon(pvector, u, x)
+    if (is.infinite(nllh)) {
+      pvector[3] = 0.1
+      nllh = nluhpdcon(pvector, u, x)    
+    }
     if (is.infinite(nllh)) stop("initial parameter values are invalid")
   
     fit = optim(par = as.vector(pvector), fn = nluhpdcon, u = u, x = x,
@@ -262,6 +271,10 @@ fhpdcon <- function(x, useq = NULL, fixedu = FALSE, pvector = NULL,
   } else { # complete (non-separable) likelihood
 
     nllh = nlhpdcon(pvector, x)
+    if (is.infinite(nllh)) {
+      pvector[4] = 0.1
+      nllh = nlhpdcon(pvector, x)    
+    }
     if (is.infinite(nllh)) stop("initial parameter values are invalid")
 
     fit = optim(par = as.vector(pvector), fn = nlhpdcon, x = x,
@@ -288,14 +301,14 @@ fhpdcon <- function(x, useq = NULL, fixedu = FALSE, pvector = NULL,
   if (std.err) {
     qrhess = qr(fit$hessian)
     if (qrhess$rank != ncol(qrhess$qr)) {
-      warning("observed information matrix is singular; use std.err = FALSE")
+      warning("observed information matrix is singular")
       se = NULL
       invhess = NULL
     } else {
       invhess = solve(qrhess)
       vars = diag(invhess)
       if (any(vars <= 0)) {
-        warning("observed information matrix is singular; use std.err = FALSE")
+        warning("observed information matrix is singular")
         invhess = NULL
         se = NULL
       } else {
@@ -307,8 +320,10 @@ fhpdcon <- function(x, useq = NULL, fixedu = FALSE, pvector = NULL,
     se = NULL
   }
   
+  if (!exists("nllhu")) nllhu = NULL
+
   list(call = call, x = as.vector(x), 
-    init = as.vector(pvector), fixedu = fixedu, useq = useq,
+    init = as.vector(pvector), fixedu = fixedu, useq = useq, nllhuseq = nllhu,
     optim = fit, conv = conv, cov = invhess, mle = fit$par, se = se, rate = phiu,
     nllh = fit$value, n = n,
     nmean = nmean, nsd = nsd, u = u, sigmau = sigmau, xi = xi, phiu = phiu)
@@ -323,25 +338,27 @@ lhpdcon <- function(x, nmean = 0, nsd = 1, u = qnorm(0.9, nmean, nsd),
   xi = 0, log = TRUE) {
 
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.param(param = nmean)
-  check.param(param = nsd)    # do not check positivity in likelihood
-  check.param(param = u)
-  check.param(param = xi)
-  check.logic(logicarg = log)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.param(nmean)
+  check.param(nsd)
+  check.param(u)
+  check.param(xi)
+  check.logic(log)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
     x = x[is.finite(x)] # ignore missing and infinite cases
   }
 
-  check.inputn(c(length(nmean), length(nsd), length(u), length(xi)))
+  check.quant(x)
+  n = length(x)
+
+  check.inputn(c(length(nmean), length(nsd), length(u), length(xi)), allowscalar = TRUE)
 
   # assume NA or NaN are irrelevant as entire lower tail is now modelled
   # inconsistent with evd library definition
   # hence use which() to ignore these
 
-  n = length(x)
   xu = x[which(x > u)]
   nu = length(xu)
   xb = x[which(x <= u)]
@@ -388,8 +405,8 @@ nlhpdcon <- function(pvector, x, finitelik = FALSE) {
 
   # Check properties of inputs
   check.nparam(pvector, nparam = np)
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.logic(logicarg = finitelik)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.logic(finitelik)
 
   nmean = pvector[1]
   nsd = pvector[2]
@@ -420,9 +437,20 @@ profluhpdcon <- function(u, pvector, x,
   # Check properties of inputs
   check.nparam(pvector, nparam = np - 1, allownull = TRUE)
   check.param(u)
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.logic(logicarg = finitelik)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.optim(method)
+  check.control(control)
+  check.optim(method)
+  check.control(control)
+  check.logic(finitelik)
 
+  if (any(!is.finite(x))) {
+    warning("non-finite cases have been removed")
+    x = x[is.finite(x)] # ignore missing and infinite cases
+  }
+
+  check.quant(x)  
+  
   # check initial values for other parameters, try usual alternative
   if (!is.null(pvector)) {
     nllh = nluhpdcon(pvector, u, x)
@@ -437,6 +465,11 @@ profluhpdcon <- function(u, pvector, x,
     pvector[3] = initfgpd$xi
     nllh = nluhpdcon(pvector, u, x)
   }  
+
+  if (is.infinite(nllh)) {
+    pvector[3] = 0.1
+    nllh = nluhpdcon(pvector, u, x)    
+  }
 
   # if still invalid then output cleanly
   if (is.infinite(nllh)) {
@@ -469,8 +502,8 @@ nluhpdcon <- function(pvector, u, x, finitelik = FALSE) {
   # Check properties of inputs
   check.nparam(pvector, nparam = np - 1)
   check.param(u)
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.logic(logicarg = finitelik)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.logic(finitelik)
     
   nmean = pvector[1]
   nsd = pvector[2]

@@ -74,7 +74,7 @@
 #' @references
 #' \url{http://en.wikipedia.org/wiki/Kernel_density_estimation}
 #' 
-#' \url{http://http://en.wikipedia.org/wiki/Kernel_(statistics)}
+#' \url{http://en.wikipedia.org/wiki/Kernel_(statistics)}
 #' 
 #' Wand, M. and Jones, M.C. (1995). Kernel Smoothing. Chapman && Hall.
 #' 
@@ -113,6 +113,7 @@ NULL
 #'  kpgaussian kpuniform kptriangular kpepanechnikov kpbiweight kptriweight kptricube kpparzen kpcosine kpoptcosine
 #' @rdname kernels
 kdgaussian <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
+  
   check.kinputs(x, lambda, bw, kerncentres, allownull = TRUE)
 
   lambda = klambda(bw, "gaussian", lambda)
@@ -127,6 +128,7 @@ kdgaussian <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
 #'  kpgaussian kpuniform kptriangular kpepanechnikov kpbiweight kptriweight kptricube kpparzen kpcosine kpoptcosine
 #' @rdname kernels
 kduniform <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
+  
   check.kinputs(x, lambda, bw, kerncentres, allownull = TRUE)
   
   lambda = klambda(bw, "uniform", lambda)
@@ -141,6 +143,7 @@ kduniform <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
 #'  kpgaussian kpuniform kptriangular kpepanechnikov kpbiweight kptriweight kptricube kpparzen kpcosine kpoptcosine
 #' @rdname kernels
 kdtriangular <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
+  
   check.kinputs(x, lambda, bw, kerncentres, allownull = TRUE)
   
   lambda = klambda(bw, "triangular", lambda)
@@ -155,6 +158,7 @@ kdtriangular <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
 #'  kpgaussian kpuniform kptriangular kpepanechnikov kpbiweight kptriweight kptricube kpparzen kpcosine kpoptcosine
 #' @rdname kernels
 kdepanechnikov <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
+  
   check.kinputs(x, lambda, bw, kerncentres, allownull = TRUE)
   
   lambda = klambda(bw, "epanechnikov", lambda)
@@ -169,6 +173,7 @@ kdepanechnikov <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
 #'  kpgaussian kpuniform kptriangular kpepanechnikov kpbiweight kptriweight kptricube kpparzen kpcosine kpoptcosine
 #' @rdname kernels
 kdbiweight <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
+  
   check.kinputs(x, lambda, bw, kerncentres, allownull = TRUE)
   
   lambda = klambda(bw, "biweight", lambda)
@@ -183,6 +188,7 @@ kdbiweight <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
 #'  kpgaussian kpuniform kptriangular kpepanechnikov kpbiweight kptriweight kptricube kpparzen kpcosine kpoptcosine
 #' @rdname kernels
 kdtriweight <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
+  
   check.kinputs(x, lambda, bw, kerncentres, allownull = TRUE)
   
   lambda = klambda(bw, "triweight", lambda)
@@ -197,6 +203,7 @@ kdtriweight <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
 #'  kpgaussian kpuniform kptriangular kpepanechnikov kpbiweight kptriweight kptricube kpparzen kpcosine kpoptcosine
 #' @rdname kernels
 kdtricube <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
+  
   check.kinputs(x, lambda, bw, kerncentres, allownull = TRUE)
   
   lambda = klambda(bw, "tricube", lambda)
@@ -211,6 +218,7 @@ kdtricube <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
 #'  kpgaussian kpuniform kptriangular kpepanechnikov kpbiweight kptriweight kptricube kpparzen kpcosine kpoptcosine
 #' @rdname kernels
 kdparzen <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
+  
   check.kinputs(x, lambda, bw, kerncentres, allownull = TRUE)
   
   lambda = klambda(bw, "parzen", lambda)
@@ -226,6 +234,7 @@ kdparzen <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
 #'  kpgaussian kpuniform kptriangular kpepanechnikov kpbiweight kptriweight kptricube kpparzen kpcosine kpoptcosine
 #' @rdname kernels
 kdcosine <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
+  
   check.kinputs(x, lambda, bw, kerncentres, allownull = TRUE)
   
   lambda = klambda(bw, "cosine", lambda)
@@ -240,6 +249,7 @@ kdcosine <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
 #'  kpgaussian kpuniform kptriangular kpepanechnikov kpbiweight kptriweight kptricube kpparzen kpcosine kpoptcosine
 #' @rdname kernels
 kdoptcosine <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
+  
   check.kinputs(x, lambda, bw, kerncentres, allownull = TRUE)
   
   lambda = klambda(bw, "optcosine", lambda)
@@ -254,6 +264,7 @@ kdoptcosine <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
 #'  kpgaussian kpuniform kptriangular kpepanechnikov kpbiweight kptriweight kptricube kpparzen kpcosine kpoptcosine
 #' @rdname kernels
 kpgaussian <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
+  
   check.kinputs(x, lambda, bw, kerncentres, allownull = TRUE)
 
   lambda = klambda(bw, "gaussian", lambda)
@@ -268,6 +279,7 @@ kpgaussian <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
 #'  kpgaussian kpuniform kptriangular kpepanechnikov kpbiweight kptriweight kptricube kpparzen kpcosine kpoptcosine
 #' @rdname kernels
 kpuniform <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
+  
   check.kinputs(x, lambda, bw, kerncentres, allownull = TRUE)
   
   lambda = klambda(bw, "uniform", lambda)
@@ -282,6 +294,7 @@ kpuniform <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
 #'  kpgaussian kpuniform kptriangular kpepanechnikov kpbiweight kptriweight kptricube kpparzen kpcosine kpoptcosine
 #' @rdname kernels
 kptriangular <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
+  
   check.kinputs(x, lambda, bw, kerncentres, allownull = TRUE)
   
   lambda = klambda(bw, "triangular", lambda)
@@ -296,6 +309,7 @@ kptriangular <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
 #'  kpgaussian kpuniform kptriangular kpepanechnikov kpbiweight kptriweight kptricube kpparzen kpcosine kpoptcosine
 #' @rdname kernels
 kpepanechnikov <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
+  
   check.kinputs(x, lambda, bw, kerncentres, allownull = TRUE)
   
   lambda = klambda(bw, "epanechnikov", lambda)
@@ -310,6 +324,7 @@ kpepanechnikov <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
 #'  kpgaussian kpuniform kptriangular kpepanechnikov kpbiweight kptriweight kptricube kpparzen kpcosine kpoptcosine
 #' @rdname kernels
 kpbiweight <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
+  
   check.kinputs(x, lambda, bw, kerncentres, allownull = TRUE)
   
   lambda = klambda(bw, "biweight", lambda)
@@ -324,6 +339,7 @@ kpbiweight <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
 #'  kpgaussian kpuniform kptriangular kpepanechnikov kpbiweight kptriweight kptricube kpparzen kpcosine kpoptcosine
 #' @rdname kernels
 kptriweight <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
+  
   check.kinputs(x, lambda, bw, kerncentres, allownull = TRUE)
   
   lambda = klambda(bw, "triweight", lambda)
@@ -338,6 +354,7 @@ kptriweight <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
 #'  kpgaussian kpuniform kptriangular kpepanechnikov kpbiweight kptriweight kptricube kpparzen kpcosine kpoptcosine
 #' @rdname kernels
 kptricube <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
+  
   check.kinputs(x, lambda, bw, kerncentres, allownull = TRUE)
   
   lambda = klambda(bw, "tricube", lambda)
@@ -354,6 +371,7 @@ kptricube <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
 #'  kpgaussian kpuniform kptriangular kpepanechnikov kpbiweight kptriweight kptricube kpparzen kpcosine kpoptcosine
 #' @rdname kernels
 kpparzen <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
+  
   check.kinputs(x, lambda, bw, kerncentres, allownull = TRUE)
   
   lambda = klambda(bw, "parzen", lambda)
@@ -371,6 +389,7 @@ kpparzen <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
 #'  kpgaussian kpuniform kptriangular kpepanechnikov kpbiweight kptriweight kptricube kpparzen kpcosine kpoptcosine
 #' @rdname kernels
 kpcosine <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
+  
   check.kinputs(x, lambda, bw, kerncentres, allownull = TRUE)
   
   lambda = klambda(bw, "cosine", lambda)
@@ -385,6 +404,7 @@ kpcosine <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
 #'  kpgaussian kpuniform kptriangular kpepanechnikov kpbiweight kptriweight kptricube kpparzen kpcosine kpoptcosine
 #' @rdname kernels
 kpoptcosine <- function(x = 0, lambda = NULL, bw = NULL, kerncentres = 0) {
+  
   check.kinputs(x, lambda, bw, kerncentres, allownull = TRUE)
   
   lambda = klambda(bw, "optcosine", lambda)

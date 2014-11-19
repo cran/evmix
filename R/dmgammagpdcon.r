@@ -111,6 +111,8 @@
 #' 
 #' @author Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'
+#' @section Acknowledgments: Thanks to Daniela Laas, University of St Gallen, Switzerland for reporting various bugs in these functions.
+#' 
 #' @seealso \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:GammaDist]{dgamma}}
 #' 
 #' @aliases mgammagpdcon dmgammagpdcon pmgammagpdcon qmgammagpdcon rmgammagpdcon
@@ -120,6 +122,9 @@
 #'
 #' @examples
 #' \dontrun{
+#' set.seed(1)
+#' par(mfrow = c(1, 1))
+#' 
 #' x = rmgammagpdcon(1000, mgshape = c(1, 6), mgscale = c(1, 2), mgweight = c(1, 2), u = 15, xi = 0)
 #' xx = seq(-1, 40, 0.01)
 #' hist(x, breaks = 100, freq = FALSE, xlim = c(-1, 40))
@@ -139,28 +144,31 @@ dmgammagpdcon <- function(x, mgshape = 1, mgscale = 1,  mgweight = NULL,
   u = qgamma(0.9, mgshape[[1]], 1/mgscale[[1]]), xi = 0, phiu = TRUE, log = FALSE) {
 
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.posparam(u, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
+  check.phiu(phiu, allowvec = TRUE)
 
   # user may try to input parameters as vectors if only scalar for each component
   if (!is.list(mgshape) & is.vector(mgshape)) {
-    check.posparam(param = mgshape, allowvec = TRUE)
+    check.posparam(mgshape, allowvec = TRUE)
     mgshape = as.list(mgshape)    
   }
   if (!is.list(mgscale) & is.vector(mgscale)) {
-    check.posparam(param = mgscale, allowvec = TRUE)
+    check.posparam(mgscale, allowvec = TRUE)
     mgscale = as.list(mgscale)    
   }
   
   if (!is.list(mgshape) | !is.list(mgshape))
-    stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
+    stop("gamma mixture parameters must be either a vector (if scalar parameters) or lists of same length (i.e. one object in list per component)")  
 
   if (!is.null(mgweight)) {
     if (!is.list(mgweight) & is.vector(mgweight)) {
-      check.posparam(param = mgweight, allowvec = TRUE)
+      check.posparam(mgweight, allowvec = TRUE)
       mgweight = as.list(mgweight)    
     }
     if (!is.list(mgweight))
-      stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")    
+      stop("gamma mixture parameters must be either a vector (if scalar parameters) or lists of same length (i.e. one object in list per component)")  
   }
   
   # How many components in mixture
@@ -169,24 +177,21 @@ dmgammagpdcon <- function(x, mgshape = 1, mgscale = 1,  mgweight = NULL,
   
   M = unique(allM)
   if (length(M) != 1)
-    stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
+    stop("gamma mixture parameters must be either a vector (if scalar parameters) or lists of same length (i.e. one object in list per component)")  
   
   if (is.null(mgweight)) mgweight = as.list(rep(1/M, M))
 
   linputs = c(length(x), length(u), length(xi), length(phiu))
   for (i in 1:M) {
-    check.posparam(param = mgshape[[i]], allowvec = TRUE)
-    check.posparam(param = mgscale[[i]], allowvec = TRUE)
-    check.posparam(param = mgweight[[i]], allowvec = TRUE)
+    check.posparam(mgshape[[i]], allowvec = TRUE)
+    check.posparam(mgscale[[i]], allowvec = TRUE)
+    check.posparam(mgweight[[i]], allowvec = TRUE)
     linputs = c(linputs, length(mgshape[[i]]), length(mgscale[[i]]), length(mgweight[[i]]))
   }
   
-  check.posparam(param = u, allowvec = TRUE) # threshold also positive for gamma
-  check.param(param = xi, allowvec = TRUE)
-  check.phiu(phiu, allowvec = TRUE)
-  check.logic(logicarg = log)
+  check.logic(log)
 
-  n = check.inputn(linputs)
+  n = check.inputn(linputs, allowscalar = TRUE)
 
   # vectors of parameters or scalars? Latter simplifies calculations
   scalar.params = all(linputs[-1] == 1)
@@ -209,7 +214,7 @@ dmgammagpdcon <- function(x, mgshape = 1, mgscale = 1,  mgweight = NULL,
     mgweight = lapply(mgweight, FUN = function(x, y) x/y,
       y = sum(sapply(mgweight, FUN = function(x) x[1])))
     
-    # Calculate CDF of mixture of gamma upto threshold (to get phiu)
+    # Calculate CDF of mixture of gammas upto threshold (to get phiu)
     pu = pmgamma(u[1], sapply(mgshape, FUN = function(x) x[1]),
       sapply(mgscale, FUN = function(x) x[1]), sapply(mgweight, FUN = function(x) x[1]))
     du = dmgamma(u[1], sapply(mgshape, FUN = function(x) x[1]),
@@ -218,7 +223,7 @@ dmgammagpdcon <- function(x, mgshape = 1, mgscale = 1,  mgweight = NULL,
   } else {
     mgweight = lapply(mgweight, FUN = function(x, y) x/y, y = rowSums(simplify2array(mgweight)))
 
-    # Calculate CDF of mixture of gamma upto threshold (to get phiu)
+    # Calculate CDF of mixture of gammas upto threshold (to get phiu)
     pu = pmgamma(u, mgshape, mgscale, mgweight)
     du = dmgamma(u, mgshape, mgscale, mgweight)
   }
@@ -232,7 +237,7 @@ dmgammagpdcon <- function(x, mgshape = 1, mgscale = 1,  mgweight = NULL,
 
   sigmau = phiu / (phib * du)
   
-  check.posparam(param = sigmau, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
 
   if (scalar.params) {
     dmgammagpd(x, sapply(mgshape, FUN = function(x) x[1]), sapply(mgscale, FUN = function(x) x[1]),
@@ -251,28 +256,31 @@ pmgammagpdcon <- function(q, mgshape = 1, mgscale = 1,  mgweight = NULL,
   u = qgamma(0.9, mgshape[[1]], 1/mgscale[[1]]), xi = 0, phiu = TRUE, lower.tail = TRUE) {
 
   # Check properties of inputs
-  check.quant(q, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(q, allowna = TRUE, allowinf = TRUE)
+  check.posparam(u, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
+  check.phiu(phiu, allowvec = TRUE)
 
   # user may try to input parameters as vectors if only scalar for each component
   if (!is.list(mgshape) & is.vector(mgshape)) {
-    check.posparam(param = mgshape, allowvec = TRUE)
+    check.posparam(mgshape, allowvec = TRUE)
     mgshape = as.list(mgshape)    
   }
   if (!is.list(mgscale) & is.vector(mgscale)) {
-    check.posparam(param = mgscale, allowvec = TRUE)
+    check.posparam(mgscale, allowvec = TRUE)
     mgscale = as.list(mgscale)    
   }
   
   if (!is.list(mgshape) | !is.list(mgshape))
-    stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
+    stop("gamma mixture parameters must be either a vector (if scalar parameters) or lists of same length (i.e. one object in list per component)")  
 
   if (!is.null(mgweight)) {
     if (!is.list(mgweight) & is.vector(mgweight)) {
-      check.posparam(param = mgweight, allowvec = TRUE)
+      check.posparam(mgweight, allowvec = TRUE)
       mgweight = as.list(mgweight)    
     }
     if (!is.list(mgweight))
-      stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")    
+      stop("gamma mixture parameters must be either a vector (if scalar parameters) or lists of same length (i.e. one object in list per component)")  
   }
   
   # How many components in mixture
@@ -281,24 +289,21 @@ pmgammagpdcon <- function(q, mgshape = 1, mgscale = 1,  mgweight = NULL,
   
   M = unique(allM)
   if (length(M) != 1)
-    stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
+    stop("gamma mixture parameters must be either a vector (if scalar parameters) or lists of same length (i.e. one object in list per component)")  
   
   if (is.null(mgweight)) mgweight = as.list(rep(1/M, M))
 
   linputs = c(length(q), length(u), length(xi), length(phiu))
   for (i in 1:M) {
-    check.posparam(param = mgshape[[i]], allowvec = TRUE)
-    check.posparam(param = mgscale[[i]], allowvec = TRUE)
-    check.posparam(param = mgweight[[i]], allowvec = TRUE)
+    check.posparam(mgshape[[i]], allowvec = TRUE)
+    check.posparam(mgscale[[i]], allowvec = TRUE)
+    check.posparam(mgweight[[i]], allowvec = TRUE)
     linputs = c(linputs, length(mgshape[[i]]), length(mgscale[[i]]), length(mgweight[[i]]))
   }
   
-  check.posparam(param = u, allowvec = TRUE) # threshold also positive for gamma
-  check.param(param = xi, allowvec = TRUE)
-  check.phiu(phiu, allowvec = TRUE)
-  check.logic(logicarg = lower.tail)
+  check.logic(lower.tail)
 
-  n = check.inputn(linputs)
+  n = check.inputn(linputs, allowscalar = TRUE)
 
   # vectors of parameters or scalars? Latter simplifies calculations
   scalar.params = all(linputs[-1] == 1)
@@ -321,7 +326,7 @@ pmgammagpdcon <- function(q, mgshape = 1, mgscale = 1,  mgweight = NULL,
     mgweight = lapply(mgweight, FUN = function(x, y) x/y,
       y = sum(sapply(mgweight, FUN = function(x) x[1])))
     
-    # Calculate CDF of mixture of gamma upto threshold (to get phiu)
+    # Calculate CDF of mixture of gammas upto threshold (to get phiu)
     pu = pmgamma(u[1], sapply(mgshape, FUN = function(x) x[1]),
       sapply(mgscale, FUN = function(x) x[1]), sapply(mgweight, FUN = function(x) x[1]))
     du = dmgamma(u[1], sapply(mgshape, FUN = function(x) x[1]),
@@ -330,7 +335,7 @@ pmgammagpdcon <- function(q, mgshape = 1, mgscale = 1,  mgweight = NULL,
   } else {
     mgweight = lapply(mgweight, FUN = function(x, y) x/y, y = rowSums(simplify2array(mgweight)))
 
-    # Calculate CDF of mixture of gamma upto threshold (to get phiu)
+    # Calculate CDF of mixture of gammas upto threshold (to get phiu)
     pu = pmgamma(u, mgshape, mgscale, mgweight)
     du = dmgamma(u, mgshape, mgscale, mgweight)
   }
@@ -344,7 +349,7 @@ pmgammagpdcon <- function(q, mgshape = 1, mgscale = 1,  mgweight = NULL,
 
   sigmau = phiu / (phib * du)
   
-  check.posparam(param = sigmau, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
 
   if (scalar.params) {
     pmgammagpd(q, sapply(mgshape, FUN = function(x) x[1]), sapply(mgscale, FUN = function(x) x[1]),
@@ -363,28 +368,31 @@ qmgammagpdcon <- function(p, mgshape = 1, mgscale = 1, mgweight = NULL,
   u = qgamma(0.9, mgshape[[1]], 1/mgscale[[1]]), xi = 0, phiu = TRUE, lower.tail = TRUE) {
 
   # Check properties of inputs
-  check.prob(p, allowmiss = TRUE)
+  check.prob(p, allowna = TRUE)
+  check.posparam(u, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
+  check.phiu(phiu, allowvec = TRUE)
 
   # user may try to input parameters as vectors if only scalar for each component
   if (!is.list(mgshape) & is.vector(mgshape)) {
-    check.posparam(param = mgshape, allowvec = TRUE)
+    check.posparam(mgshape, allowvec = TRUE)
     mgshape = as.list(mgshape)    
   }
   if (!is.list(mgscale) & is.vector(mgscale)) {
-    check.posparam(param = mgscale, allowvec = TRUE)
+    check.posparam(mgscale, allowvec = TRUE)
     mgscale = as.list(mgscale)    
   }
   
   if (!is.list(mgshape) | !is.list(mgshape))
-    stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
+    stop("gamma mixture parameters must be either a vector (if scalar parameters) or lists of same length (i.e. one object in list per component)")  
 
   if (!is.null(mgweight)) {
     if (!is.list(mgweight) & is.vector(mgweight)) {
-      check.posparam(param = mgweight, allowvec = TRUE)
+      check.posparam(mgweight, allowvec = TRUE)
       mgweight = as.list(mgweight)    
     }
     if (!is.list(mgweight))
-      stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")    
+      stop("gamma mixture parameters must be either a vector (if scalar parameters) or lists of same length (i.e. one object in list per component)")  
   }
   
   # How many components in mixture
@@ -393,24 +401,21 @@ qmgammagpdcon <- function(p, mgshape = 1, mgscale = 1, mgweight = NULL,
   
   M = unique(allM)
   if (length(M) != 1)
-    stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
+     stop("gamma mixture parameters must be either a vector (if scalar parameters) or lists of same length (i.e. one object in list per component)")  
   
   if (is.null(mgweight)) mgweight = as.list(rep(1/M, M))
 
   linputs = c(length(p), length(u), length(xi), length(phiu))
   for (i in 1:M) {
-    check.posparam(param = mgshape[[i]], allowvec = TRUE)
-    check.posparam(param = mgscale[[i]], allowvec = TRUE)
-    check.posparam(param = mgweight[[i]], allowvec = TRUE)
+    check.posparam(mgshape[[i]], allowvec = TRUE)
+    check.posparam(mgscale[[i]], allowvec = TRUE)
+    check.posparam(mgweight[[i]], allowvec = TRUE)
     linputs = c(linputs, length(mgshape[[i]]), length(mgscale[[i]]), length(mgweight[[i]]))
   }
   
-  check.posparam(param = u, allowvec = TRUE) # threshold also positive for gamma
-  check.param(param = xi, allowvec = TRUE)
-  check.phiu(phiu, allowvec = TRUE)
-  check.logic(logicarg = lower.tail)
+  check.logic(lower.tail)
   
-  n = check.inputn(linputs)
+  n = check.inputn(linputs, allowscalar = TRUE)
 
   if (!lower.tail) p = 1 - p
 
@@ -431,7 +436,7 @@ qmgammagpdcon <- function(p, mgshape = 1, mgscale = 1, mgweight = NULL,
     mgweight = lapply(mgweight, FUN = function(x, y) x/y,
       y = sum(sapply(mgweight, FUN = function(x) x[1])))
     
-    # Calculate CDF of mixture of gamma upto threshold (to get phiu)
+    # Calculate CDF of mixture of gammas upto threshold (to get phiu)
     pu = pmgamma(u[1], sapply(mgshape, FUN = function(x) x[1]),
       sapply(mgscale, FUN = function(x) x[1]), sapply(mgweight, FUN = function(x) x[1]))
     du = dmgamma(u[1], sapply(mgshape, FUN = function(x) x[1]),
@@ -440,7 +445,7 @@ qmgammagpdcon <- function(p, mgshape = 1, mgscale = 1, mgweight = NULL,
   } else {
     mgweight = lapply(mgweight, FUN = function(x, y) x/y, y = rowSums(simplify2array(mgweight)))
 
-    # Calculate CDF of mixture of gamma upto threshold (to get phiu)
+    # Calculate CDF of mixture of gammas upto threshold (to get phiu)
     pu = pmgamma(u, mgshape, mgscale, mgweight)
     du = dmgamma(u, mgshape, mgscale, mgweight)
   }
@@ -454,7 +459,7 @@ qmgammagpdcon <- function(p, mgshape = 1, mgscale = 1, mgweight = NULL,
   
   sigmau = phiu / (phib * du)
   
-  check.posparam(param = sigmau, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
 
   # for efficiency only want to pass scalar parameters, if they are input as scalar
   if (scalar.params) {
@@ -475,27 +480,30 @@ rmgammagpdcon <- function(n = 1, mgshape = 1, mgscale = 1, mgweight = NULL,
 
   # Check properties of inputs
   check.n(n)
+  check.posparam(u, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
+  check.phiu(phiu, allowvec = TRUE)
 
   # user may try to input parameters as vectors if only scalar for each component
   if (!is.list(mgshape) & is.vector(mgshape)) {
-    check.posparam(param = mgshape, allowvec = TRUE)
+    check.posparam(mgshape, allowvec = TRUE)
     mgshape = as.list(mgshape)    
   }
   if (!is.list(mgscale) & is.vector(mgscale)) {
-    check.posparam(param = mgscale, allowvec = TRUE)
+    check.posparam(mgscale, allowvec = TRUE)
     mgscale = as.list(mgscale)    
   }
   
   if (!is.list(mgshape) | !is.list(mgshape))
-    stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
+    stop("gamma mixture parameters must be either a vector (if scalar parameters) or lists of same length (i.e. one object in list per component)")  
 
   if (!is.null(mgweight)) {
     if (!is.list(mgweight) & is.vector(mgweight)) {
-      check.posparam(param = mgweight, allowvec = TRUE)
+      check.posparam(mgweight, allowvec = TRUE)
       mgweight = as.list(mgweight)    
     }
     if (!is.list(mgweight))
-      stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")    
+      stop("gamma mixture parameters must be either a vector (if scalar parameters) or lists of same length (i.e. one object in list per component)")  
   }
   
   # How many components in mixture
@@ -504,22 +512,8 @@ rmgammagpdcon <- function(n = 1, mgshape = 1, mgscale = 1, mgweight = NULL,
   
   M = unique(allM)
   if (length(M) != 1)
-    stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
+    stop("gamma mixture parameters must be either a vector (if scalar parameters) or lists of same length (i.e. one object in list per component)")  
   
-  if (is.null(mgweight)) mgweight = as.list(rep(1/M, M))
-
-  linputs = c(n, length(u), length(xi), length(phiu))
-  for (i in 1:M) {
-    check.posparam(param = mgshape[[i]], allowvec = TRUE)
-    check.posparam(param = mgscale[[i]], allowvec = TRUE)
-    check.posparam(param = mgweight[[i]], allowvec = TRUE)
-    linputs = c(linputs, length(mgshape[[i]]), length(mgscale[[i]]), length(mgweight[[i]]))
-  }
-  
-  check.posparam(param = u, allowvec = TRUE) # threshold also positive for gamma
-  check.param(param = xi, allowvec = TRUE)
-  check.phiu(phiu, allowvec = TRUE)
-
   if (any(xi == 1)) stop("shape cannot be 1")
 
   qmgammagpdcon(runif(n), mgshape, mgscale, mgweight, u, xi, phiu)

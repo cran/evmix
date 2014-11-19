@@ -36,25 +36,26 @@
 #'   following elements
 #'
 #' \tabular{ll}{
-#'  \code{call}:    \tab \code{optim} call\cr
-#'  \code{x}:       \tab data vector \code{x}\cr
-#'  \code{init}:    \tab \code{pvector}\cr
-#'  \code{fixedu}:  \tab fixed threshold, logical\cr
-#'  \code{useq}:    \tab threshold vector for profile likelihood or scalar for fixed threshold\cr
-#'  \code{optim}:   \tab complete \code{optim} output\cr
-#'  \code{mle}:     \tab vector of MLE of parameters\cr
-#'  \code{cov}:     \tab variance-covariance matrix of MLE of parameters\cr
-#'  \code{se}:      \tab vector of standard errors of MLE of parameters\cr
-#'  \code{rate}:    \tab \code{phiu} to be consistent with \code{\link[evd:fpot]{evd}}\cr
-#'  \code{nllh}:    \tab minimum negative log-likelihood\cr
-#'  \code{n}:       \tab total sample size\cr
-#'  \code{bshape1}:  \tab MLE of beta shape1\cr
-#'  \code{bshape2}:  \tab MLE of beta shape2\cr
-#'  \code{u}:       \tab threshold (fixed or MLE)\cr
-#'  \code{sigmau}:  \tab MLE of GPD scale\cr
-#'  \code{xi}:      \tab MLE of GPD shape\cr
-#'  \code{phiu}:    \tab MLE of tail fraction (bulk model or parameterised approach)\cr
-#'  \code{se.phiu}: \tab standard error of MLE of tail fraction\cr
+#'  \code{call}:      \tab \code{optim} call\cr
+#'  \code{x}:         \tab data vector \code{x}\cr
+#'  \code{init}:      \tab \code{pvector}\cr
+#'  \code{fixedu}:    \tab fixed threshold, logical\cr
+#'  \code{useq}:      \tab threshold vector for profile likelihood or scalar for fixed threshold\cr
+#'  \code{nllhuseq}:  \tab profile negative log-likelihood at each threshold in useq\cr
+#'  \code{optim}:     \tab complete \code{optim} output\cr
+#'  \code{mle}:       \tab vector of MLE of parameters\cr
+#'  \code{cov}:       \tab variance-covariance matrix of MLE of parameters\cr
+#'  \code{se}:        \tab vector of standard errors of MLE of parameters\cr
+#'  \code{rate}:      \tab \code{phiu} to be consistent with \code{\link[evd:fpot]{evd}}\cr
+#'  \code{nllh}:      \tab minimum negative log-likelihood\cr
+#'  \code{n}:         \tab total sample size\cr
+#'  \code{bshape1}:   \tab MLE of beta shape1\cr
+#'  \code{bshape2}:   \tab MLE of beta shape2\cr
+#'  \code{u}:         \tab threshold (fixed or MLE)\cr
+#'  \code{sigmau}:    \tab MLE of GPD scale\cr
+#'  \code{xi}:        \tab MLE of GPD shape\cr
+#'  \code{phiu}:      \tab MLE of tail fraction (bulk model or parameterised approach)\cr
+#'  \code{se.phiu}:   \tab standard error of MLE of tail fraction\cr
 #' }
 #' 
 #' @note When \code{pvector=NULL} then the initial values are:
@@ -86,9 +87,9 @@
 #' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'
 #' @section Acknowledgments: See Acknowledgments in
-#'   \code{\link[evmix:fnormgpd]{fnormgpd}}, type \code{help fnormgpd}. Based on MATLAB
-#'   code written by Anna MacDonald.
-#' 
+#'   \code{\link[evmix:fnormgpd]{fnormgpd}}, type \code{help fnormgpd}. Based on code
+#' by Anna MacDonald produced for MATLAB.
+#'   
 #' @seealso \code{\link[stats:Beta]{dbeta}},
 #'  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
 #'  
@@ -97,7 +98,9 @@
 #' 
 #' @examples
 #' \dontrun{
-#' par(mfrow=c(2,1))
+#' set.seed(1)
+#' par(mfrow = c(2, 1))
+#' 
 #' x = rbeta(1000, shape1 = 2, shape2 = 4)
 #' xx = seq(-0.1, 2, 0.01)
 #' y = dbeta(xx, shape1 = 2, shape2 = 4)
@@ -117,9 +120,8 @@
 #'   col=c("black", "red", "blue"), lty = 1)
 #'   
 #' # Profile likelihood for initial value of threshold and fixed threshold approach
-#' fitu = fbetagpd(x, useq = seq(0.5, 0.95, length = 20))
-#' fitfix = fbetagpd(x, useq = seq(0.5, 0.95
-#' , length = 20), fixedu = TRUE)
+#' fitu = fbetagpd(x, useq = seq(0.3, 0.7, length = 20))
+#' fitfix = fbetagpd(x, useq = seq(0.3, 0.7, length = 20), fixedu = TRUE)
 #' 
 #' hist(x, breaks = 100, freq = FALSE, xlim = c(-0.1, 2))
 #' lines(xx, y)
@@ -141,16 +143,17 @@ fbetagpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL
 
   call <- match.call()
     
+  np = 5 # maximum number of parameters
+
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.logic(logicarg = phiu) # only logical
-  check.posparam(useq, allowvec = TRUE, allownull = TRUE)
-  check.prob(useq, allowvec = TRUE, allownull = TRUE)
-  check.logic(logicarg = fixedu)
-  check.logic(logicarg = std.err)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.logic(phiu)
+  check.prob(useq, allownull = TRUE)
+  check.logic(fixedu)
+  check.logic(std.err)
   check.optim(method)
   check.control(control)
-  check.logic(logicarg = finitelik)
+  check.logic(finitelik)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -164,7 +167,6 @@ fbetagpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL
 
   check.quant(x)
   n = length(x)
-  np = 5 # maximum number of parameters
 
   if (any(x > 1)) warning("values greater than one are assumed part of GPD")
 
@@ -193,6 +195,12 @@ fbetagpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL
     
   } else { # profile or fixed
     
+    if ((min(useq) <= 0) | (max(useq) >= 1)) {
+      warning("thresholds outside of 0 and 1 (exclusive) are ignored")
+      useq = useq[useq > 0]
+      useq = useq[useq < 1]
+    }
+
     check.nparam(pvector, nparam = np - 1, allownull = TRUE)
 
     # profile likelihood for threshold or scalar given
@@ -200,7 +208,7 @@ fbetagpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL
       
       # remove thresholds with less than 5 excesses
       useq = useq[sapply(useq, FUN = function(u, x) sum(x > u) > 5, x = x)]
-      check.param(useq, allowvec = TRUE)
+      check.prob(useq)
       
       nllhu = sapply(useq, proflubetagpd, pvector = pvector, x = x, phiu = phiu,
         method = method, control = control, finitelik = finitelik, ...)
@@ -242,6 +250,10 @@ fbetagpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL
 
   if (fixedu) { # fixed threshold (separable) likelihood
     nllh = nlubetagpd(pvector, u, x, phiu)
+    if (is.infinite(nllh)) {
+      pvector[4] = 0.1
+      nllh = nlubetagpd(pvector, u, x, phiu)
+    }
     if (is.infinite(nllh)) stop("initial parameter values are invalid")
   
     fit = optim(par = as.vector(pvector), fn = nlubetagpd, u = u, x = x, phiu = phiu,
@@ -255,6 +267,10 @@ fbetagpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL
   } else { # complete (non-separable) likelihood
     
     nllh = nlbetagpd(pvector, x, phiu)
+    if (is.infinite(nllh)) {
+      pvector[5] = 0.1
+      nllh = nlbetagpd(pvector, x, phiu)
+    }
     if (is.infinite(nllh)) stop("initial parameter values are invalid")
   
     fit = optim(par = as.vector(pvector), fn = nlbetagpd, x = x, phiu = phiu,
@@ -285,14 +301,14 @@ fbetagpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL
   if (std.err) {
     qrhess = qr(fit$hessian)
     if (qrhess$rank != ncol(qrhess$qr)) {
-      warning("observed information matrix is singular; use std.err = FALSE")
+      warning("observed information matrix is singular")
       se = NULL
       invhess = NULL
     } else {
       invhess = solve(qrhess)
       vars = diag(invhess)
       if (any(vars <= 0)) {
-        warning("observed information matrix is singular; use std.err = FALSE")
+        warning("observed information matrix is singular")
         invhess = NULL
         se = NULL
       } else {
@@ -304,8 +320,10 @@ fbetagpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL
     se = NULL
   }
   
+  if (!exists("nllhu")) nllhu = NULL
+
   list(call = call, x = as.vector(x), 
-    init = as.vector(pvector), fixedu = fixedu, useq = useq,
+    init = as.vector(pvector), fixedu = fixedu, useq = useq, nllhuseq = nllhu,
     optim = fit, conv = conv, cov = invhess, mle = fit$par, se = se, rate = phiu,
     nllh = fit$value, n = n,
     bshape1 = bshape1, bshape2 = bshape2, u = u, sigmau = sigmau, xi = xi, phiu = phiu, se.phiu = se.phiu)
@@ -321,14 +339,14 @@ lbetagpd <- function(x, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1, bshape
   xi = 0, phiu = TRUE, log = TRUE) {
 
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.param(param = bshape1) # do not check positivity in likelihood
-  check.param(param = bshape2) # do not check positivity in likelihood
-  check.param(param = u)       # do not check probability in likelihood
-  check.param(param = sigmau)  # do not check positivity in likelihood
-  check.param(param = xi)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.param(bshape1)
+  check.param(bshape2)
+  check.param(u)
+  check.param(sigmau)
+  check.param(xi)
   check.phiu(phiu, allowfalse = TRUE)
-  check.logic(logicarg = log)
+  check.logic(log)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -343,14 +361,15 @@ lbetagpd <- function(x, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1, bshape
   if (any(x > 1)) warning("values greater than one are assumed part of GPD")
 
   check.quant(x)
+  n = length(x)
 
-  check.inputn(c(length(bshape1), length(bshape2), length(u), length(sigmau), length(xi), length(phiu)))
+  check.inputn(c(length(bshape1), length(bshape2), length(u), length(sigmau), length(xi), length(phiu)),
+               allowscalar = TRUE)
 
   # assume NA or NaN are irrelevant as entire lower tail is now modelled
   # inconsistent with evd library definition
   # hence use which() to ignore these
 
-  n = length(x)
   xu = x[which(x > u)]
   nu = length(xu)
   xb = x[which(x <= u)]
@@ -400,9 +419,9 @@ nlbetagpd <- function(pvector, x, phiu = TRUE, finitelik = FALSE) {
 
   # Check properties of inputs
   check.nparam(pvector, nparam = np)
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
-  check.logic(logicarg = finitelik)
+  check.logic(finitelik)
 
   bshape1 = pvector[1]
   bshape2 = pvector[2]
@@ -433,10 +452,13 @@ proflubetagpd <- function(u, pvector, x, phiu = TRUE, method = "BFGS",
 
   # Check properties of inputs
   check.nparam(pvector, nparam = np - 1, allownull = TRUE)
-  check.param(u) # do not check probability in likelihood
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.posparam(u)
+  check.prob(u)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
-  check.logic(logicarg = finitelik)
+  check.optim(method)
+  check.control(control)
+  check.logic(finitelik)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -451,6 +473,9 @@ proflubetagpd <- function(u, pvector, x, phiu = TRUE, method = "BFGS",
   if (any(x > 1)) warning("values greater than one are assumed part of GPD")
 
   check.quant(x)
+  
+  if ((u <= 0) | (u >= 1))
+    stop("threshold must be between 0 and 1 (exclusive)")
 
   # check initial values for other parameters, try usual alternative
   if (!is.null(pvector)) {
@@ -470,6 +495,11 @@ proflubetagpd <- function(u, pvector, x, phiu = TRUE, method = "BFGS",
     nllh = nlubetagpd(pvector, u, x, phiu)
   }  
 
+  if (is.infinite(nllh)) {
+    pvector[4] = 0.1
+    nllh = nlubetagpd(pvector, u, x, phiu)
+  }
+  
   # if still invalid then output cleanly
   if (is.infinite(nllh)) {
     warning(paste("initial parameter values for threshold u =", u, "are invalid"))
@@ -500,11 +530,15 @@ nlubetagpd <- function(pvector, u, x, phiu = TRUE, finitelik = FALSE) {
 
   # Check properties of inputs
   check.nparam(pvector, nparam = np - 1)
-  check.param(u) # do not check probability in likelihood
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.posparam(u)
+  check.prob(u)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
-  check.logic(logicarg = finitelik)
+  check.logic(finitelik)
     
+  if ((u <= 0) | (u >= 1))
+    stop("threshold must be between 0 and 1 (exclusive)")
+
   bshape1 = pvector[1]
   bshape2 = pvector[2]
   sigmau = pvector[3]

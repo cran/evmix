@@ -36,10 +36,9 @@
 #' (\code{nmean}, \code{nsd}, \code{sigmaul}, \code{xil}, \code{sigmaur}, \code{xir})
 #' for profile likelihood or fixed threshold approach.
 #' 
-#' If the profile likelihood approach is used, then it is applied to both the thresholds and
-#' epsilon parameters together. A grid search over all combinations of epsilons and both thresholds
-#' are considered. The combinations which lead to less than 5 in any component outside of the
-#' intervals arenot considered.
+#' If the profile likelihood approach is used, then a grid search over all combinations of epsilons and both thresholds
+#' are carried out. The combinations which lead to less than 5 in any component outside of the
+#' intervals are not considered.
 #' 
 #' A fixed pair of thresholds and epsilon approach is acheived by setting a single
 #' scalar value to each in \code{ulseq}, \code{urseq} and \code{eseq} respectively.
@@ -59,6 +58,7 @@
 #'  \code{ulseq}:     \tab lower threshold vector for profile likelihood or scalar for fixed threshold\cr
 #'  \code{urseq}:     \tab upper threshold vector for profile likelihood or scalar for fixed threshold\cr
 #'  \code{eseq}:      \tab interval half-width vector for profile likelihood or scalar for fixed threshold\cr
+#'  \code{nllheuseq}: \tab profile negative log-likelihood at each combination in (eseq, ulseq, urseq)\cr
 #'  \code{optim}:     \tab complete \code{optim} output\cr
 #'  \code{mle}:       \tab vector of MLE of parameters\cr
 #'  \code{cov}:       \tab variance-covariance matrix of MLE of parameters\cr
@@ -67,7 +67,7 @@
 #'  \code{n}:         \tab total sample size\cr
 #'  \code{nmean}:     \tab MLE of normal mean\cr
 #'  \code{nsd}:       \tab MLE of normal standard deviation\cr
-#'  \code{epsilon}: \tab MLE of transition half-width\cr
+#'  \code{epsilon}:   \tab MLE of transition half-width\cr
 #'  \code{ul}:        \tab lower threshold (fixed or MLE)\cr
 #'  \code{sigmaul}:   \tab MLE of lower tail GPD scale\cr
 #'  \code{xil}:       \tab MLE of lower tail GPD shape\cr
@@ -101,8 +101,8 @@
 #' @author Alfadino Akbar and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'
 #' @section Acknowledgments: See Acknowledgments in
-#'   \code{\link[evmix:fnormgpd]{fnormgpd}}, type \code{help fnormgpd}. Based on MATLAB
-#'   code written by Xin Zhao.
+#'   \code{\link[evmix:fnormgpd]{fnormgpd}}, type \code{help fnormgpd}. Based on code
+#' by Xin Zhao produced for MATLAB.
 #' 
 #' @seealso \code{\link[evmix:fgng]{fgng}}, \code{\link[stats:Normal]{dnorm}},
 #'  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
@@ -112,11 +112,14 @@
 #' 
 #' @examples
 #' \dontrun{
+#' set.seed(1)
+#' par(mfrow = c(1, 1))
+#' 
 #' x = rnorm(1000)
 #' xx = seq(-4, 4, 0.01)
 #' y = dnorm(xx)
 #' 
-#' # MLE for complete parameter set
+#' # MLE for complete parameter set (not recommended!)
 #' fit = fitmgng(x)
 #' hist(x, breaks = seq(-6, 6, 0.1), freq = FALSE, xlim = c(-4, 4))
 #' lines(xx, y)
@@ -126,12 +129,12 @@
 #' abline(v = fit$ur + fit$epsilon * seq(-1, 1), col = "darkred")
 #'   
 #' # Profile likelihood for threshold which is then fixed
-#' fitu = fitmgng(x, eseq = seq(0, 2, 0.1), ulseq = seq(-2.5, 0, 0.25), 
-#'                                          urseq = seq(0, 2.5, 0.25), fixedeu = T)
-#' with(fitu, lines(xx, ditmgng(xx, nmean, nsd, epsilon, ul, sigmaul, xil,
+#' fitfix = fitmgng(x, eseq = seq(0, 2, 0.1), ulseq = seq(-2.5, 0, 0.25), 
+#'                                          urseq = seq(0, 2.5, 0.25), fixedeu = TRUE)
+#' with(fitfix, lines(xx, ditmgng(xx, nmean, nsd, epsilon, ul, sigmaul, xil,
 #'                                                       ur, sigmaur, xir), col="blue"))
-#' abline(v = fitu$ul + fitu$epsilon * seq(-1, 1), col = "blue")
-#' abline(v = fitu$ur + fitu$epsilon * seq(-1, 1), col = "darkblue")
+#' abline(v = fitfix$ul + fitfix$epsilon * seq(-1, 1), col = "blue")
+#' abline(v = fitfix$ur + fitfix$epsilon * seq(-1, 1), col = "darkblue")
 #' legend("topright", c("True Density", "GPD-normal-GPD ITM", "Profile likelihood"),
 #'   col=c("black", "red", "blue"), lty = 1)
 #' }
@@ -144,16 +147,18 @@ fitmgng <- function(x, eseq = NULL, ulseq = NULL, urseq = NULL, fixedeu = FALSE,
 
   call <- match.call()
     
+  np = 9 # maximum number of parameters
+
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.posparam(eseq, allowvec = TRUE, allownull = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.posparam(eseq, allowvec = TRUE, allownull = TRUE, allowzero = TRUE)
   check.param(ulseq, allowvec = TRUE, allownull = TRUE)
   check.param(urseq, allowvec = TRUE, allownull = TRUE)
-  check.logic(logicarg = fixedeu)
-  check.logic(logicarg = std.err)
+  check.logic(fixedeu)
+  check.logic(std.err)
   check.optim(method)
   check.control(control)
-  check.logic(logicarg = finitelik)
+  check.logic(finitelik)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -162,7 +167,6 @@ fitmgng <- function(x, eseq = NULL, ulseq = NULL, urseq = NULL, fixedeu = FALSE,
 
   check.quant(x)
   n = length(x)
-  np = 9 # maximum number of parameters
 
   if ((method == "L-BFGS-B") | (method == "BFGS")) finitelik = TRUE
   
@@ -209,16 +213,16 @@ fitmgng <- function(x, eseq = NULL, ulseq = NULL, urseq = NULL, fixedeu = FALSE,
       # remove combinations where interval is beyond range of data (must be at least 5 above upper interval)
       eugrid = eugrid[sapply(eugrid[, 3] + eugrid[, 1], FUN = function(u, x) sum(x > u) >= 5, x = x),]
 
-      # remove combinations where bulk has some data (must be at least 5 in between intervals)
+      # remove combinations where bulk has too little data (must be at least 5 in between intervals)
       eugrid = eugrid[apply(cbind(eugrid[, 2] + eugrid[, 1], eugrid[, 3] - eugrid[, 1]), 1,
                              FUN = function(interval, x) sum((x > interval[1]) & (x < interval[2])) >= 5, x = x),]
 
-      check.posparam(eugrid[, 1], allowvec = TRUE)
+      check.posparam(eugrid[, 1], allowvec = TRUE, allowzero = TRUE)
       check.param(eugrid[, 2], allowvec = TRUE)
       check.param(eugrid[, 3], allowvec = TRUE)
       
       nllheu = apply(eugrid, 1, profleuitmgng, pvector = pvector, x = x,
-        method = method, control = control, finitelik = finitelik, ...)
+                     method = method, control = control, finitelik = finitelik, ...)
       
       if (all(!is.finite(nllheu))) stop("thresholds and epsilon combinations are all invalid")
 
@@ -227,6 +231,7 @@ fitmgng <- function(x, eseq = NULL, ulseq = NULL, urseq = NULL, fixedeu = FALSE,
       ur = eugrid[which.min(nllheu), 3]
 
     } else {
+      if ((ulseq + epsilon) >= (urseq - epsilon)) stop("lower transition range cannot overlap the upper transition range")
       epsilon = eseq
       ul = ulseq
       ur = urseq
@@ -257,11 +262,11 @@ fitmgng <- function(x, eseq = NULL, ulseq = NULL, urseq = NULL, fixedeu = FALSE,
         pvector[8] = initfgpd$sigmau
         pvector[9] = initfgpd$xi
       } else {
-        pvector[9] = pvector[8] # shift upper tail GPD scale and shape to add in ur
-        pvector[8] = pvector[6]
+        pvector[9] = pvector[6] # shift upper tail GPD scale and shape to add in ur
+        pvector[8] = pvector[5]
         pvector[7] = ur
-        pvector[6] = pvector[5] # shift lower tail GPD scale and shape to add in ul
-        pvector[5] = pvector[4]
+        pvector[6] = pvector[4] # shift lower tail GPD scale and shape to add in ul
+        pvector[5] = pvector[3]
         pvector[4] = ul
         pvector[3] = epsilon
       }
@@ -269,11 +274,13 @@ fitmgng <- function(x, eseq = NULL, ulseq = NULL, urseq = NULL, fixedeu = FALSE,
   }
   if (fixedeu) { # fixed threshold (separable) likelihood
     nllh = nleuitmgng(pvector, epsilon, ul, ur, x)
+    
     if (is.infinite(nllh)) {
       pvector[4] = 0.1
       pvector[6] = 0.1
+      nllh = nleuitmgng(pvector, epsilon, ul, ur, x)
     }
-    nllh = nleuitmgng(pvector, epsilon, ul, ur, x)
+    
     if (is.infinite(nllh)) stop("initial parameter values are invalid")
   
     fit = optim(par = as.vector(pvector), fn = nleuitmgng, epsilon = epsilon, ul = ul, ur = ur, x = x,
@@ -289,11 +296,13 @@ fitmgng <- function(x, eseq = NULL, ulseq = NULL, urseq = NULL, fixedeu = FALSE,
   } else { # complete (non-separable) likelihood
     
     nllh = nlitmgng(pvector, x)
+    
     if (is.infinite(nllh)) {
       pvector[6] = 0.1
       pvector[9] = 0.1
+      nllh = nlitmgng(pvector, x)
     }
-    nllh = nlitmgng(pvector, x)
+    
     if (is.infinite(nllh)) stop("initial parameter values are invalid")
   
     fit = optim(par = as.vector(pvector), fn = nlitmgng, x = x,
@@ -321,14 +330,14 @@ fitmgng <- function(x, eseq = NULL, ulseq = NULL, urseq = NULL, fixedeu = FALSE,
   if (std.err) {
     qrhess = qr(fit$hessian)
     if (qrhess$rank != ncol(qrhess$qr)) {
-      warning("observed information matrix is singular; use std.err = FALSE")
+      warning("observed information matrix is singular")
       se = NULL
       invhess = NULL
     } else {
       invhess = solve(qrhess)
       vars = diag(invhess)
       if (any(vars <= 0)) {
-        warning("observed information matrix is singular; use std.err = FALSE")
+        warning("observed information matrix is singular")
         invhess = NULL
         se = NULL
       } else {
@@ -340,8 +349,10 @@ fitmgng <- function(x, eseq = NULL, ulseq = NULL, urseq = NULL, fixedeu = FALSE,
     se = NULL
   }
   
+  if (!exists("nllheu")) nllheu = NULL
+
   list(call = call, x = as.vector(x),
-    init = as.vector(pvector), fixedeu = fixedeu, ulseq = ulseq, urseq = urseq, eseq = eseq,
+    init = as.vector(pvector), fixedeu = fixedeu, ulseq = ulseq, urseq = urseq, eseq = eseq, nllheuseq = nllheu,
     optim = fit, conv = conv, cov = invhess, mle = fit$par, se = se,
     nllh = fit$value, n = n, nmean = nmean, nsd = nsd, epsilon = epsilon,
     ul = ul, sigmaul = sigmaul, xil = xil, ur = ur, sigmaur = sigmaur, xir = xir, kappa = kappa)
@@ -357,17 +368,17 @@ litmgng <- function(x, nmean = 0, nsd = 1, epsilon = nsd,
   ul = 0, sigmaul = 1, xil = 0, ur = 0, sigmaur = 1, xir = 0, log = TRUE) {
 
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.param(param = nmean)
-  check.param(param = nsd)     # do not check positivity in likelihood
-  check.param(param = epsilon) # do not check positivity in likelihood
-  check.param(param = ul)                       
-  check.param(param = sigmaul) # do not check positivity in likelihood
-  check.param(param = xil)
-  check.param(param = ur)                       
-  check.param(param = sigmaur) # do not check positivity in likelihood
-  check.param(param = xir)
-  check.logic(logicarg = log)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.param(nmean)
+  check.param(nsd)
+  check.param(epsilon)
+  check.param(ul)                       
+  check.param(sigmaul)
+  check.param(xil)
+  check.param(ur)                       
+  check.param(sigmaur)
+  check.param(xir)
+  check.logic(log)
   
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -378,7 +389,7 @@ litmgng <- function(x, nmean = 0, nsd = 1, epsilon = nsd,
   n = length(x)
   
   check.inputn(c(length(nmean), length(nsd), length(epsilon), 
-    length(ul), length(sigmaul), length(xil), length(ur), length(sigmaur), length(xir)))
+    length(ul), length(sigmaul), length(xil), length(ur), length(sigmaur), length(xir)), allowscalar = TRUE)
 
   # assume NA or NaN are irrelevant as entire lower tail is now modelled
   # inconsistent with evd library definition
@@ -443,8 +454,8 @@ nlitmgng <- function(pvector, x, finitelik = FALSE) {
 
   # Check properties of inputs
   check.nparam(pvector, nparam = np)
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.logic(logicarg = finitelik)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.logic(finitelik)
 
   nmean = pvector[1]
   nsd = pvector[2]
@@ -481,8 +492,13 @@ profleuitmgng <- function(eulr, pvector, x,
   check.nparam(pvector, nparam = np - 3, allownull = TRUE)
   check.param(eulr, allowvec = TRUE)
   check.nparam(eulr, nparam = 3)
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.logic(logicarg = finitelik)
+  check.posparam(eulr[1], allowzero = TRUE)
+  check.param(eulr[2])
+  check.param(eulr[3])
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.optim(method)
+  check.control(control)
+  check.logic(finitelik)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -490,7 +506,6 @@ profleuitmgng <- function(eulr, pvector, x,
   }
 
   check.quant(x)
-  n = length(x)
   
   # check initial values for other parameters, try usual alternative
   if (!is.null(pvector)) {
@@ -514,8 +529,8 @@ profleuitmgng <- function(eulr, pvector, x,
   if (is.infinite(nllh)) {
     pvector[4] = 0.1
     pvector[6] = 0.1
+    nllh = nleuitmgng(pvector, eulr[1], eulr[2], eulr[3], x)
   }
-  nllh = nleuitmgng(pvector, eulr[1], eulr[2], eulr[3], x)
 
   # if still invalid then output cleanly
   if (is.infinite(nllh)) {
@@ -549,11 +564,11 @@ nleuitmgng <- function(pvector, epsilon, ul, ur, x, finitelik = FALSE) {
 
   # Check properties of inputs
   check.nparam(pvector, nparam = np - 3)
-  check.param(epsilon) # do not check positivity in likelihood
+  check.posparam(epsilon, allowzero = TRUE)
   check.param(ul)
   check.param(ur)
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.logic(logicarg = finitelik)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.logic(finitelik)
     
   nmean = pvector[1]
   nsd = pvector[2]

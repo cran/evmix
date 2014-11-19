@@ -89,21 +89,21 @@
 #'   elements
 #'   
 #' \tabular{ll}{
-#' \code{call}: \tab \code{optim} call\cr
-#' \code{x}: \tab data vector \code{x}\cr
-#' \code{init}: \tab \code{pvector}\cr
-#' \code{optim}: \tab complete \code{optim} output\cr
-#' \code{mle}: \tab vector of MLE of parameters\cr
-#' \code{cov}: \tab variance-covariance matrix of MLE of parameters\cr
-#' \code{se}: \tab vector of standard errors of MLE of parameters\cr
-#' \code{rate}: \tab \code{phiu} to be consistent with \code{\link[evd:fpot]{evd}}\cr
-#' \code{nllh}: \tab minimum negative log-likelihood\cr
-#' \code{n}: \tab total sample size\cr
-#' \code{u}: \tab threshold\cr
-#' \code{sigmau}: \tab MLE of GPD scale\cr
-#' \code{xi}: \tab MLE of GPD shape\cr
-#' \code{phiu}: \tab MLE of tail fraction\cr
-#'  \code{se.phiu}: \tab standard error of MLE of tail fraction (parameterised approach using sample proportion)\cr
+#' \code{call}:     \tab \code{optim} call\cr
+#' \code{x}:        \tab data vector \code{x}\cr
+#' \code{init}:     \tab \code{pvector}\cr
+#' \code{optim}:    \tab complete \code{optim} output\cr
+#' \code{mle}:      \tab vector of MLE of parameters\cr
+#' \code{cov}:      \tab variance-covariance matrix of MLE of parameters\cr
+#' \code{se}:       \tab vector of standard errors of MLE of parameters\cr
+#' \code{rate}:     \tab \code{phiu} to be consistent with \code{\link[evd:fpot]{evd}}\cr
+#' \code{nllh}:     \tab minimum negative log-likelihood\cr
+#' \code{n}:        \tab total sample size\cr
+#' \code{u}:        \tab threshold\cr
+#' \code{sigmau}:   \tab MLE of GPD scale\cr
+#' \code{xi}:       \tab MLE of GPD shape\cr
+#' \code{phiu}:     \tab MLE of tail fraction\cr
+#' \code{se.phiu}:  \tab standard error of MLE of tail fraction (parameterised approach using sample proportion)\cr
 #' }
 #'   
 #' The output list has some duplicate entries and repeats some of the inputs to both 
@@ -141,11 +141,15 @@
 #'   
 #' @references
 #' 
-#' Based on GPD fitting function in the \code{\link[evd:fpot]{evd}} package.
-#' 
 #' \url{http://en.wikipedia.org/wiki/Generalized_Pareto_distribution}
 #' 
 #' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
+#'   
+#' @section Acknowledgments: Based on the \code{\link[ismev:gpd.fit]{gpd.fit}} and
+#' \code{\link[evd:fpot]{fpot}} functions in the 
+#' \code{\link[ismev:gpd.fit]{ismev}} and
+#' \code{\link[evd:fpot]{evd}} packages for which their author's contributions are gratefully acknowledged.
+#' They are designed to have similar syntax and functionality to simplify the transition for users of these packages.
 #'   
 #' @seealso \code{\link[evd:gpd]{dgpd}}, \code{\link[evd:fpot]{fpot}} and
 #'   \code{\link[MASS:fitdistr]{fitdistr}}
@@ -154,20 +158,24 @@
 #' @family  gpd fgpd
 #'   
 #' @examples
-#' par(mfrow=c(2,1))
+#' set.seed(1)
+#' par(mfrow = c(2, 1))
+#' 
+#' # GPD is conditional model for threshold exceedances
+#' # so tail fraction phiu not relevant when only have exceedances
 #' x = rgpd(1000, u = 10, sigmau = 5, xi = 0.2)
 #' xx = seq(0, 100, 0.1)
 #' hist(x, breaks = 100, freq = FALSE, xlim = c(0, 100))
 #' lines(xx, dgpd(xx, u = 10, sigmau = 5, xi = 0.2))
-#' fit = fgpd(x, u = 10, phiu = NULL, std.err = FALSE)
+#' fit = fgpd(x, u = 10)
 #' lines(xx, dgpd(xx, u = fit$u, sigmau = fit$sigmau, xi = fit$xi), col="red")
 #' 
-#' # This time with phiu
+#' # but tail fraction phiu is needed for conditional modelling of population tail
 #' x = rnorm(10000)
 #' xx = seq(-4, 4, 0.01)
 #' hist(x, breaks = 200, freq = FALSE, xlim = c(0, 4))
 #' lines(xx, dnorm(xx), lwd = 2)
-#' fit = fgpd(x, u = 1, phiu = NULL, std.err = FALSE)
+#' fit = fgpd(x, u = 1)
 #' lines(xx, dgpd(xx, u = fit$u, sigmau = fit$sigmau, xi = fit$xi, phiu = fit$phiu),
 #'   col = "red", lwd = 2)
 #' legend("topright", c("True Density","Fitted Density"), col=c("black", "red"), lty = 1)
@@ -182,30 +190,30 @@ fgpd <- function(x, u = 0, phiu = NULL, pvector = NULL, std.err = TRUE,
   np = 2 # maximum number of parameters
 
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
   check.param(u)
-  check.prob(prob = phiu, allownull = TRUE) # don't use check.phiu as TRUE only valid for mixture models
+  check.prob(phiu, allownull = TRUE) # don't use check.phiu as TRUE only valid for mixture models
   check.nparam(pvector, nparam = np, allownull = TRUE)
-  check.logic(logicarg = std.err)
+  check.logic(std.err)
   check.optim(method)
   check.control(control)
-  check.logic(logicarg = finitelik)
+  check.logic(finitelik)
 
   if (any(is.infinite(x))) warning("infinite cases have been removed")
   
   x = x[!is.infinite(x)] # ignore infinite cases only (all mixture models also ignore missing)
-
-  check.quant(x, allowmiss = TRUE)
-
-  if ((method == "L-BFGS-B") | (method == "BFGS")) finitelik = TRUE
   
   if (any(is.na(x)))
     warning("missing values are treated as below threshold when estimating tail fraction")
 
+  check.quant(x, allowna = TRUE)
+  n = length(x)
+
+  if ((method == "L-BFGS-B") | (method == "BFGS")) finitelik = TRUE
+
   # assume NA or NaN are below threshold consistent with evd library
   # hence use which() to ignore these
 
-  n = length(x)
   xu = x[which(x > u)]
   nu = length(xu)
   
@@ -220,8 +228,6 @@ fgpd <- function(x, u = 0, phiu = NULL, pvector = NULL, std.err = TRUE,
   }
   
   if (is.null(phiu)) {
-    # assume NA or NaN are below threshold consistent with evd library
-    # hence use which() to ignore these when estimating phiu
     phiu = nu / n
     se.phiu = sqrt(phiu * (1 - phiu) / n)
   } else {
@@ -229,7 +235,13 @@ fgpd <- function(x, u = 0, phiu = NULL, pvector = NULL, std.err = TRUE,
     se.phiu = NA
   }
   
+  # check initial parameter vector and try different shape
   nllh = nlgpd(pvector, xu, u, phiu)
+  if (is.infinite(nllh)) {
+    pvector[2] = 0.1
+    nllh = nlgpd(pvector, xu, u, phiu)
+  }
+
   if (is.infinite(nllh)) stop("initial parameter values are invalid")
 
   fit = optim(par = as.vector(pvector), fn = nlgpd, x = xu, u = u, phiu = phiu,
@@ -244,14 +256,14 @@ fgpd <- function(x, u = 0, phiu = NULL, pvector = NULL, std.err = TRUE,
   if (conv & std.err) {
     qrhess = qr(fit$hessian)
     if (qrhess$rank != ncol(qrhess$qr)) {
-      warning("observed information matrix is singular; use std.err = FALSE")
+      warning("observed information matrix is singular")
       se = NULL
       invhess = NULL
     } else {
       invhess = solve(qrhess)
       vars = diag(invhess)
       if (any(vars <= 0)) {
-        warning("observed information matrix is singular; use std.err = FALSE")
+        warning("observed information matrix is singular")
         invhess = NULL
         se = NULL
       } else {
@@ -273,18 +285,17 @@ fgpd <- function(x, u = 0, phiu = NULL, pvector = NULL, std.err = TRUE,
 #' @rdname  fgpd
 
 # log-likelihood function for GPD
-# will not stop evaluation unless it has to
 lgpd <- function(x, u = 0, sigmau = 1, xi = 0, phiu = 1, log = TRUE) {
 
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.param(param = u)
-  check.param(param = sigmau) # do not check positivity in likelihood
-  check.param(param = xi)
-  check.prob(prob = phiu) # don't use check.phiu as TRUE only valid for mixture models
-  check.logic(logicarg = log)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.param(u)
+  check.param(sigmau)
+  check.param(xi)
+  check.prob(phiu) # don't use check.phiu as TRUE only valid for mixture models
+  check.logic(log)
 
-  check.inputn(c(length(u), length(sigmau), length(xi), length(phiu)))
+  check.inputn(c(length(u), length(sigmau), length(xi), length(phiu)), allowscalar = TRUE)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -299,8 +310,8 @@ lgpd <- function(x, u = 0, sigmau = 1, xi = 0, phiu = 1, log = TRUE) {
   
   yu = (xu - u) / sigmau # used when shape is zero
   syu = 1 + xi * yu      # used when shape non-zero  
-    
-  if ((min(syu) <= 0) | (sigmau <= 0) | (phiu < 0)  | (phiu > 1)) {
+  
+  if ((min(syu) <= 0) | (sigmau <= 0) | (phiu <= 0)  | (phiu > 1)) { # phiu = 1 is conditional likelihood
     l = -Inf
   } else {
     if (abs(xi) < 1e-6) {
@@ -326,11 +337,11 @@ nlgpd <- function(pvector, x, u = 0, phiu = 1, finitelik = FALSE) {
   np = 2 # maximum number of parameters
 
   # Check properties of inputs
-  check.nparam(pvector, nparam = np)
-  check.param(param = u)
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.prob(prob = phiu) # don't use check.phiu as TRUE only valid for mixture models
-  check.logic(logicarg = finitelik)
+  check.nparam(pvector, nparam = np) # must be provided
+  check.param(u)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.prob(phiu) # don't use check.phiu as TRUE only valid for mixture models
+  check.logic(finitelik)
   
   sigmau = pvector[1]
   xi = pvector[2]

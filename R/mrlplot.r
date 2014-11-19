@@ -73,10 +73,6 @@
 #' 
 #' @references
 #' 
-#' Based on MRL plot function in the \code{\link[evd:mrlplot]{evd}} function
-#' from the \code{\link[evd:gpd]{evd}} package, for which Stuart Coles and Alec Stephenson's 
-#' contributions are gratefully acknowledged.
-#' 
 #' Scarrott, C.J. and MacDonald, A. (2012). A review of extreme value
 #' threshold estimation and uncertainty quantification. REVSTAT - Statistical
 #' Journal 10(1), 33-59. Available from \url{http://www.ine.pt/revstat/pdf/rs120102.pdf}
@@ -86,6 +82,11 @@
 #' 
 #' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'
+#' @section Acknowledgments: Based on the 
+#' \code{\link[evd:mrlplot]{mrlplot}} function in the 
+#' \code{\link[evd:mrlplot]{evd}} package for which Stuart Coles' and Alec Stephenson's contributions are gratefully acknowledged.
+#' They are designed to have similar syntax and functionality to simplify the transition for users of these packages.
+#' 
 #' @seealso \code{\link[evmix:gpd]{gpd}} and \code{\link[evd:mrlplot]{mrlplot}} from 
 #' \code{\link[evd:mrlplot]{evd}} library
 #' 
@@ -95,6 +96,7 @@
 #' mrlplot(x, tlim = c(0, 2.2))
 #' mrlplot(x, tlim = c(0, 2), try.thresh = c(0.5, 1, 1.5))
 #' mrlplot(x, tlim = c(0, 3), try.thresh = c(0.5, 1, 1.5))
+#' 
 
 mrlplot <- function(data, tlim = NULL, nt = min(100, length(data)), p.or.n = FALSE,
   alpha = 0.05, ylim = NULL, legend.loc = "bottomleft",
@@ -104,66 +106,51 @@ mrlplot <- function(data, tlim = NULL, nt = min(100, length(data)), p.or.n = FAL
   # make sure defaults which result from function evaluations are obtained
   invisible(nt)
   invisible(try.thresh)
+  check.quant(data, allowna = TRUE, allowinf = TRUE)
   
-  # Check properties of inputs
-  if (missing(data))
-    stop("data must be a non-empty numeric vector")
-    
-  if (length(data) == 0 | mode(data) != "numeric") 
-    stop("data must be a non-empty numeric vector of data")
-
-  if (any(is.infinite(data)))
-    stop("infinite cases must be removed")
-
-  if (any(is.na(data)))
-    warning("missing values have been removed")
-
+  check.param(tlim, allowvec = TRUE, allownull = TRUE)
   if (!is.null(tlim)) {
-    if (length(tlim) != 2 | mode(tlim) != "numeric") 
+    if (length(tlim) != 2) 
       stop("threshold range tlim must be a numeric vector of length 2")
 
     if (tlim[2] <= tlim[1])
       stop("a range of thresholds must be specified by tlim")
   }
   
-  if (length(p.or.n) != 1 | !is.logical(p.or.n))
-    stop("p.or.n must be logical")
-  
-  if (length(nt) != 1 | mode(nt) != "numeric") 
-    stop("number of thresholds must be a non-negative integer >= 2")
-  
-  if (abs(nt - round(nt)) > sqrt(.Machine$double.eps) | nt < 10)
+  check.logic(p.or.n)
+  check.n(nt)
+  if (nt == 1)
     stop("number of thresholds must be a non-negative integer >= 2")
 
+  check.prob(alpha, allownull = TRUE)
   if (!is.null(alpha)){
-    if (!is.numeric(alpha) | length(alpha) != 1)
-      stop("significance level alpha must be single numeric value")
-
     if (alpha <= 0 | alpha >= 1)
       stop("significance level alpha must be between (0, 1)")
   }
   
+  check.param(ylim, allowvec = TRUE, allownull = TRUE)
   if (!is.null(ylim)) {
-    if (length(ylim) != 2 | mode(ylim) != "numeric") 
+    if (length(ylim) != 2) 
       stop("ylim must be a numeric vector of length 2")
 
     if (ylim[2] <= ylim[1])
       stop("a range of y axis limits must be specified by ylim")
   }
   
+  check.text(legend.loc, allownull = TRUE)
   if (!is.null(legend.loc)) {
     if (!(legend.loc %in% c("bottomright", "bottom", "bottomleft", "left",
       "topleft", "top", "topright", "right", "center")))
       stop("legend location not correct, see help(legend)")
   }
   
-  if (any(is.na(data)))
-    warning("missing values have been removed")
+  if (any(!is.finite(data))) warning("non-finite data values have been removed")
 
-  data = data[which(!is.na(data))]
+  data = data[which(is.finite(data))]
   if (is.unsorted(data)) {
     data = sort(data)
   }
+  check.quant(data)
 
   if (is.null(tlim)) {
     thresholds = seq(median(data) - 2*.Machine$double.eps, data[length(data) - 6], length.out = nt)

@@ -49,26 +49,27 @@
 #'   following elements
 #'
 #' \tabular{ll}{
-#'  \code{call}:    \tab \code{optim} call\cr
-#'  \code{x}:       \tab data vector \code{x}\cr
-#'  \code{init}:    \tab \code{pvector}\cr
-#'  \code{fixedu}:  \tab fixed threshold, logical\cr
-#'  \code{useq}:    \tab threshold vector for profile likelihood or scalar for fixed threshold\cr
-#'  \code{optim}:   \tab complete \code{optim} output\cr
-#'  \code{mle}:     \tab vector of MLE of parameters\cr
-#'  \code{cov}:     \tab variance-covariance matrix of MLE of parameters\cr
-#'  \code{se}:      \tab vector of standard errors of MLE of parameters\cr
-#'  \code{rate}:    \tab \code{phiu} to be consistent with \code{\link[evd:fpot]{evd}}\cr
-#'  \code{nllh}:    \tab minimum negative log-likelihood\cr
-#'  \code{n}:       \tab total sample size\cr
-#'  \code{lambda}:  \tab MLE of lambda (kernel half-width)\cr
-#'  \code{u}:       \tab threshold (fixed or MLE)\cr
-#'  \code{sigmau}:  \tab MLE of GPD scale\cr
-#'  \code{xi}:      \tab MLE of GPD shape\cr
-#'  \code{phiu}:    \tab MLE of tail fraction (bulk model or parameterised approach)\cr
-#'  \code{se.phiu}: \tab standard error of MLE of tail fraction\cr
-#'  \code{bw}:      \tab MLE of bw (kernel standard deviations)\cr
-#'  \code{kernel}:  \tab kernel name\cr
+#'  \code{call}:      \tab \code{optim} call\cr
+#'  \code{x}:         \tab data vector \code{x}\cr
+#'  \code{init}:      \tab \code{pvector}\cr
+#'  \code{fixedu}:    \tab fixed threshold, logical\cr
+#'  \code{useq}:      \tab threshold vector for profile likelihood or scalar for fixed threshold\cr
+#'  \code{nllhuseq}:  \tab profile negative log-likelihood at each threshold in useq\cr
+#'  \code{optim}:     \tab complete \code{optim} output\cr
+#'  \code{mle}:       \tab vector of MLE of parameters\cr
+#'  \code{cov}:       \tab variance-covariance matrix of MLE of parameters\cr
+#'  \code{se}:        \tab vector of standard errors of MLE of parameters\cr
+#'  \code{rate}:      \tab \code{phiu} to be consistent with \code{\link[evd:fpot]{evd}}\cr
+#'  \code{nllh}:      \tab minimum negative log-likelihood\cr
+#'  \code{n}:         \tab total sample size\cr
+#'  \code{lambda}:    \tab MLE of lambda (kernel half-width)\cr
+#'  \code{u}:         \tab threshold (fixed or MLE)\cr
+#'  \code{sigmau}:    \tab MLE of GPD scale\cr
+#'  \code{xi}:        \tab MLE of GPD shape\cr
+#'  \code{phiu}:      \tab MLE of tail fraction (bulk model or parameterised approach)\cr
+#'  \code{se.phiu}:   \tab standard error of MLE of tail fraction\cr
+#'  \code{bw}:        \tab MLE of bw (kernel standard deviations)\cr
+#'  \code{kernel}:    \tab kernel name\cr
 #' }
 #' 
 #' @note The data and kernel centres are both vectors. Infinite and missing sample values
@@ -115,8 +116,8 @@
 #' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'
 #' @section Acknowledgments: See Acknowledgments in
-#'   \code{\link[evmix:fnormgpd]{fnormgpd}}, type \code{help fnormgpd}. Based on MATLAB
-#'   code written by Anna MacDonald.
+#'   \code{\link[evmix:fnormgpd]{fnormgpd}}, type \code{help fnormgpd}. Based on code
+#' by Anna MacDonald produced for MATLAB.
 #' 
 #' @seealso \code{\link[evmix:kernels]{kernels}}, \code{\link[evmix:kfun]{kfun}},
 #'  \code{\link[stats:density]{density}}, \code{\link[stats:bandwidth]{bw.nrd0}}
@@ -129,7 +130,9 @@
 #' 
 #' @examples
 #' \dontrun{
-#' par(mfrow=c(2,1))
+#' set.seed(1)
+#' par(mfrow = c(2, 1))
+#' 
 #' x = rnorm(1000)
 #' xx = seq(-4, 4, 0.01)
 #' y = dnorm(xx)
@@ -173,20 +176,22 @@ fkdengpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL
 
   call <- match.call()
     
+  np = 4 # maximum number of parameters
+
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.logic(logicarg = phiu) # only logical
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.logic(phiu)
   check.param(useq, allowvec = TRUE, allownull = TRUE)
-  check.logic(logicarg = fixedu)
-  check.logic(logicarg = std.err)
+  check.logic(fixedu)
+  check.logic(std.err)
   check.optim(method)
   check.control(control)
-  check.logic(logicarg = finitelik)
+  check.logic(finitelik)
 
   check.kernel(kernel)
-  check.posparam(param = factor)
-  check.posparam(param = amount, allownull = TRUE)
-  check.logic(logicarg = add.jitter)
+  check.posparam(factor)
+  check.posparam(amount, allownull = TRUE)
+  check.logic(add.jitter)
   
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -195,7 +200,6 @@ fkdengpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL
 
   check.quant(x)
   n = length(x)
-  np = 4 # maximum number of parameters
 
   if (add.jitter) x = jitter(x, factor, amount)
 
@@ -283,6 +287,11 @@ fkdengpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL
 
   if (fixedu) { # fixed threshold (separable) likelihood
     nllh = nlukdengpd(pvector, u, x, phiu, kernel = kernel)
+    if (is.infinite(nllh)) {
+      pvector[3] = 0.1
+      nllh = nlukdengpd(pvector, u, x, phiu, kernel = kernel)    
+    }
+    
     if (is.infinite(nllh)) stop("initial parameter values are invalid")
   
     fit = optim(par = as.vector(pvector), fn = nlukdengpd, u = u, x = x, phiu = phiu, kernel = kernel,
@@ -295,6 +304,10 @@ fkdengpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL
   } else { # complete (non-separable) likelihood
     
     nllh = nlkdengpd(pvector, x, phiu, kernel = kernel)
+    if (is.infinite(nllh)) {
+      pvector[4] = 0.1
+      nllh = nlkdengpd(pvector, x, phiu, kernel = kernel)    
+    }
     if (is.infinite(nllh)) stop("initial parameter values are invalid")
   
     fit = optim(par = as.vector(pvector), fn = nlkdengpd, x = x, phiu = phiu, kernel = kernel,
@@ -326,14 +339,14 @@ fkdengpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL
   if (std.err) {
     qrhess = qr(fit$hessian)
     if (qrhess$rank != ncol(qrhess$qr)) {
-      warning("observed information matrix is singular; use std.err = FALSE")
+      warning("observed information matrix is singular")
       se = NULL
       invhess = NULL
     } else {
       invhess = solve(qrhess)
       vars = diag(invhess)
       if (any(vars <= 0)) {
-        warning("observed information matrix is singular; use std.err = FALSE")
+        warning("observed information matrix is singular")
         invhess = NULL
         se = NULL
       } else {
@@ -345,8 +358,10 @@ fkdengpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL
     se = NULL
   }
   
+  if (!exists("nllhu")) nllhu = NULL
+
   list(call = call, x = as.vector(x),
-    init = as.vector(pvector), fixedu = fixedu, useq = useq,
+    init = as.vector(pvector), fixedu = fixedu, useq = useq, nllhuseq = nllhu,
     optim = fit, conv = conv, cov = invhess, mle = fit$par, se = se, rate = phiu,
     nllh = fit$value, n = n,
     lambda = lambda, u = u, sigmau = sigmau, xi = xi, phiu = phiu, se.phiu = se.phiu, bw = bw, kernel = kernel)
@@ -362,14 +377,14 @@ lkdengpd <- function(x, lambda = NULL, u = 0, sigmau = 1, xi = 0, phiu = TRUE,
   bw = NULL, kernel = "gaussian", log = TRUE) {
 
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.param(param = lambda, allownull = TRUE) # do not check positivity in likelihood
-  check.param(param = bw, allownull = TRUE)     # do not check positivity in likelihood
-  check.param(param = u)                        
-  check.param(param = sigmau)                   # do not check positivity in likelihood
-  check.param(param = xi)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.param(lambda, allownull = TRUE)
+  check.param(bw, allownull = TRUE)
+  check.param(u)                        
+  check.param(sigmau)
+  check.param(xi)
   check.phiu(phiu, allowfalse = TRUE)
-  check.logic(logicarg = log)
+  check.logic(log)
 
   check.kernel(kernel)
 
@@ -395,7 +410,7 @@ lkdengpd <- function(x, lambda = NULL, u = 0, sigmau = 1, xi = 0, phiu = TRUE,
 
   if (is.null(lambda)) lambda = klambda(bw, kernel, lambda)
   
-  check.inputn(c(length(lambda), length(u), length(sigmau), length(xi), length(phiu)))
+  check.inputn(c(length(lambda), length(u), length(sigmau), length(xi), length(phiu)), allowscalar = TRUE)
 
   # assume NA or NaN are irrelevant as entire lower tail is now modelled
   # inconsistent with evd library definition
@@ -451,9 +466,9 @@ nlkdengpd <- function(pvector, x, phiu = TRUE, kernel = "gaussian", finitelik = 
 
   # Check properties of inputs
   check.nparam(pvector, nparam = np)
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
-  check.logic(logicarg = finitelik)
+  check.logic(finitelik)
 
   check.kernel(kernel)
   kernel = ifelse(kernel == "rectangular", "uniform", kernel)
@@ -489,9 +504,11 @@ proflukdengpd <- function(u, pvector, x, phiu = TRUE, kernel = "gaussian",
   # Check properties of inputs
   check.nparam(pvector, nparam = np - 1, allownull = TRUE)
   check.param(u)
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
-  check.logic(logicarg = finitelik)
+  check.optim(method)
+  check.control(control)
+  check.logic(finitelik)
 
   check.kernel(kernel)
 
@@ -526,6 +543,11 @@ proflukdengpd <- function(u, pvector, x, phiu = TRUE, kernel = "gaussian",
     nllh = nlukdengpd(pvector, u, x, phiu, kernel = kernel)
   }
 
+  if (is.infinite(nllh)) {
+    pvector[3] = 0.1
+    nllh = nlukdengpd(pvector, u, x, phiu, kernel = kernel)    
+  }
+  
   # if still invalid then output cleanly
   if (is.infinite(nllh)) {
     warning(paste("initial parameter values for threshold u =", u, "are invalid"))
@@ -558,9 +580,9 @@ nlukdengpd <- function(pvector, u, x, phiu = TRUE, kernel = "gaussian", finiteli
   # Check properties of inputs
   check.nparam(pvector, nparam = np - 1)
   check.param(u)
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
-  check.logic(logicarg = finitelik)
+  check.logic(finitelik)
 
   check.kernel(kernel)
   kernel = ifelse(kernel == "rectangular", "uniform", kernel)

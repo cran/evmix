@@ -75,10 +75,6 @@
 #' 
 #' @references
 #' 
-#' Based on threshold stability plot function in the \code{\link[evd:tcplot]{evd}} function
-#' from the \code{\link[evd:gpd]{evd}} package, for which Stuart Coles and Alec Stephenson's 
-#' contributions are gratefully acknowledged.
-#' 
 #' Scarrott, C.J. and MacDonald, A. (2012). A review of extreme value
 #' threshold estimation and uncertainty quantification. REVSTAT - Statistical
 #' Journal 10(1), 33-59. Available from \url{http://www.ine.pt/revstat/pdf/rs120102.pdf}
@@ -88,6 +84,11 @@
 #' 
 #' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'
+#' @section Acknowledgments: Based on the threshold stability plot function \code{\link[evd:tcplot]{tcplot}} in the 
+#' \code{\link[evd:fpot]{evd}} package for which Stuart Coles' and Alec Stephenson's 
+#' contributions are gratefully acknowledged.
+#' They are designed to have similar syntax and functionality to simplify the transition for users of these packages.
+#'   
 #' @seealso \code{\link[evmix:mrlplot]{mrlplot}} and \code{\link[evd:tcplot]{tcplot}} from 
 #' \code{\link[evd:mrlplot]{evd}} library
 #' @aliases tcplot tshapeplot tscaleplot
@@ -103,7 +104,7 @@
 #' }
 
 tcplot <- function(data, tlim = NULL, nt = min(100, length(data)), p.or.n = FALSE,
-  alpha = 0.05, ylim.xi = NULL, ylim.sigmau = NULL, legend.loc = NULL,
+  alpha = 0.05, ylim.xi = NULL, ylim.sigmau = NULL, legend.loc = "bottomright",
   try.thresh = quantile(data, 0.9, na.rm = TRUE), ...) {
   
   # make sure defaults which result from function evaluations are obtained
@@ -111,61 +112,56 @@ tcplot <- function(data, tlim = NULL, nt = min(100, length(data)), p.or.n = FALS
   invisible(try.thresh)
   
   # Check properties of inputs
-  if (missing(data))
-    stop("data must be a non-empty numeric vector")
-    
-  if (length(data) == 0 | mode(data) != "numeric") 
-    stop("data must be a non-empty numeric vector of data")
+  check.quant(data, allowna = TRUE, allowinf = TRUE)
 
-  if (any(is.infinite(data))) stop("infinite cases must be removed")
+  if (any(!is.finite(data))) warning("non-finite data valueshave been removed")
 
-  if (any(is.na(data))) warning("missing values have been removed")
-
-  data = data[which(!is.na(data))]
+  data = data[which(is.finite(data))]
   if (is.unsorted(data)) {
     data = sort(data)
   }
+  check.quant(data)
 
+  check.param(tlim, allowvec = TRUE, allownull = TRUE)
   if (!is.null(tlim)) {
-    if (length(tlim) != 2 | mode(tlim) != "numeric") 
+    if (length(tlim) != 2)
       stop("threshold range tlim must be a numeric vector of length 2")
 
     if (tlim[2] <= tlim[1])
       stop("a range of thresholds must be specified by tlim")
   }
   
-  if (length(p.or.n) != 1 | !is.logical(p.or.n)) stop("p.or.n must be logical")
+  check.logic(p.or.n)
   
-  if (length(nt) != 1 | mode(nt) != "numeric") 
+  check.n(nt) 
+  if (nt == 1)
     stop("number of thresholds must be a non-negative integer >= 2")
   
-  if (abs(nt - round(nt)) > sqrt(.Machine$double.eps) | nt < 2)
-    stop("number of thresholds must be a non-negative integer >= 2")
-
+  check.prob(alpha, allownull = TRUE)
   if (!is.null(alpha)) {
-    if (!is.numeric(alpha) | length(alpha) != 1)
-      stop("significance level alpha must be single numeric value")
-
     if (alpha <= 0 | alpha >= 1)
       stop("significance level alpha must be between (0, 1)")
   }
 
+  check.param(ylim.xi, allowvec = TRUE, allownull = TRUE)
   if (!is.null(ylim.xi)) {
-    if (length(ylim.xi) != 2 | mode(ylim.xi) != "numeric") 
+    if (length(ylim.xi) != 2) 
       stop("ylim must be a numeric vector of length 2")
 
     if (ylim.xi[2] <= ylim.xi[1])
       stop("a range of shape y axis limits must be specified by ylim.xi")
   }
 
+  check.param(ylim.sigmau, allowvec = TRUE, allownull = TRUE)
   if (!is.null(ylim.sigmau)) {
-    if (length(ylim.sigmau) != 2 | mode(ylim.sigmau) != "numeric") 
+    if (length(ylim.sigmau) != 2) 
       stop("ylim must be a numeric vector of length 2")
 
     if (ylim.sigmau[2] <= ylim.sigmau[1])
       stop("a range of scale y axis limits must be specified by ylim.sigmau")
   }
   
+  check.text(legend.loc, allownull = TRUE)
   if (!is.null(legend.loc)) {
     if (!(legend.loc %in% c("bottomright", "bottom", "bottomleft", "left",
       "topleft", "top", "topright", "right", "center")))
@@ -188,7 +184,7 @@ tcplot <- function(data, tlim = NULL, nt = min(100, length(data)), p.or.n = FALS
 #' @rdname tcplot
 
 tshapeplot <- function(data, tlim = NULL, nt = min(100, length(data)), p.or.n = FALSE,
-  alpha = 0.05, ylim = NULL, legend.loc = "bottomleft",
+  alpha = 0.05, ylim = NULL, legend.loc = "bottomright",
   try.thresh = quantile(data, 0.9, na.rm = TRUE), main = "Shape Threshold Stability Plot", 
   xlab = "Threshold u", ylab = "Shape Parameter", ...) {
 
@@ -197,53 +193,47 @@ tshapeplot <- function(data, tlim = NULL, nt = min(100, length(data)), p.or.n = 
   invisible(try.thresh)
   
   # Check properties of inputs
-  if (missing(data))
-    stop("data must be a non-empty numeric vector")
-    
-  if (length(data) == 0 | mode(data) != "numeric") 
-    stop("data must be a non-empty numeric vector of data")
+  check.quant(data, allowna = TRUE, allowinf = TRUE)
 
-  if (any(is.infinite(data))) stop("infinite cases must be removed")
+  if (any(!is.finite(data))) warning("non-finite data values have been removed")
 
-  if (any(is.na(data))) warning("missing values have been removed")
-
-  data = data[which(!is.na(data))]
+  data = data[which(is.finite(data))]
   if (is.unsorted(data)) {
     data = sort(data)
   }
+  check.quant(data)
 
+  check.param(tlim, allowvec = TRUE, allownull = TRUE)
   if (!is.null(tlim)) {
-    if (length(tlim) != 2 | mode(tlim) != "numeric") 
+    if (length(tlim) != 2)
       stop("threshold range tlim must be a numeric vector of length 2")
 
     if (tlim[2] <= tlim[1])
       stop("a range of thresholds must be specified by tlim")
   }
   
-  if (length(p.or.n) != 1 | !is.logical(p.or.n)) stop("p.or.n must be logical")
+  check.logic(p.or.n)
   
-  if (length(nt) != 1 | mode(nt) != "numeric") 
-    stop("number of thresholds must be a non-negative integer >= 2")
-  
-  if (abs(nt - round(nt)) > sqrt(.Machine$double.eps) | nt < 2)
+  check.n(nt)
+  if (nt < 2)
     stop("number of thresholds must be a non-negative integer >= 2")
 
+  check.prob(alpha, allownull = alpha)
   if (!is.null(alpha)) {
-    if (!is.numeric(alpha) | length(alpha) != 1)
-      stop("significance level alpha must be single numeric value")
-
     if (alpha <= 0 | alpha >= 1)
       stop("significance level alpha must be between (0, 1)")
   }
   
+  check.param(ylim, allowvec = TRUE, allownull = TRUE)
   if (!is.null(ylim)) {
-    if (length(ylim) != 2 | mode(ylim) != "numeric") 
+    if (length(ylim) != 2)
       stop("ylim must be a numeric vector of length 2")
 
     if (ylim[2] <= ylim[1])
       stop("a range of y axis limits must be specified by ylim")
   }
   
+  check.text(legend.loc, allownull = TRUE)
   if (!is.null(legend.loc)) {
     if (!(legend.loc %in% c("bottomright", "bottom", "bottomleft", "left",
       "topleft", "top", "topright", "right", "center")))
@@ -422,7 +412,7 @@ tshapeplot <- function(data, tlim = NULL, nt = min(100, length(data)), p.or.n = 
 #' @rdname tcplot
 
 tscaleplot <- function(data, tlim = NULL, nt = min(100, length(data)), p.or.n = FALSE,
-  alpha = 0.05, ylim = NULL, legend.loc = "bottomleft",
+  alpha = 0.05, ylim = NULL, legend.loc = "bottomright",
   try.thresh = quantile(data, 0.9, na.rm = TRUE), main = "Modified Scale Threshold Stability Plot", 
   xlab = "Threshold u", ylab = "Modified Scale Parameter", ...) {
 
@@ -431,53 +421,47 @@ tscaleplot <- function(data, tlim = NULL, nt = min(100, length(data)), p.or.n = 
   invisible(try.thresh)
   
   # Check properties of inputs
-  if (missing(data))
-    stop("data must be a non-empty numeric vector")
-    
-  if (length(data) == 0 | mode(data) != "numeric") 
-    stop("data must be a non-empty numeric vector of data")
+  check.quant(data, allowna = TRUE, allowinf = TRUE)
 
-  if (any(is.infinite(data))) stop("infinite cases must be removed")
+  if (any(!is.finite(data))) warning("non-finite data values have been removed")
 
-  if (any(is.na(data))) warning("missing values have been removed")
-
-  data = data[which(!is.na(data))]
+  data = data[which(is.finite(data))]
   if (is.unsorted(data)) {
     data = sort(data)
   }
+  check.quant(data)
 
+  check.param(tlim, allowvec = TRUE, allownull = TRUE)
   if (!is.null(tlim)) {
-    if (length(tlim) != 2 | mode(tlim) != "numeric") 
+    if (length(tlim) != 2)
       stop("threshold range tlim must be a numeric vector of length 2")
 
     if (tlim[2] <= tlim[1])
       stop("a range of thresholds must be specified by tlim")
   }
   
-  if (length(p.or.n) != 1 | !is.logical(p.or.n)) stop("p.or.n must be logical")
+  check.logic(p.or.n)
   
-  if (length(nt) != 1 | mode(nt) != "numeric") 
-    stop("number of thresholds must be a non-negative integer >= 2")
-  
-  if (abs(nt - round(nt)) > sqrt(.Machine$double.eps) | nt < 2)
+  check.n(nt)
+  if (nt < 2)
     stop("number of thresholds must be a non-negative integer >= 2")
 
+  check.prob(alpha, allownull = TRUE)
   if (!is.null(alpha)) {
-    if (!is.numeric(alpha) | length(alpha) != 1)
-      stop("significance level alpha must be single numeric value")
-
     if (alpha <= 0 | alpha >= 1)
       stop("significance level alpha must be between (0, 1)")
   }
   
+  check.param(ylim, allowvec = TRUE, allownull = TRUE)
   if (!is.null(ylim)) {
-    if (length(ylim) != 2 | mode(ylim) != "numeric") 
+    if (length(ylim) != 2)
       stop("ylim must be a numeric vector of length 2")
 
     if (ylim[2] <= ylim[1])
       stop("a range of y axis limits must be specified by ylim")
   }
   
+  check.text(legend.loc, allownull = TRUE)
   if (!is.null(legend.loc)) {
     if (!(legend.loc %in% c("bottomright", "bottom", "bottomleft", "left",
       "topleft", "top", "topright", "right", "center")))

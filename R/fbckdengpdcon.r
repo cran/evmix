@@ -66,31 +66,32 @@
 #' \code{\link[evmix:fbckdengpdcon]{fbckdengpdcon}} returns a simple list with the following elements
 #'
 #' \tabular{ll}{
-#'  \code{call}:    \tab \code{optim} call\cr
-#'  \code{x}:       \tab data vector \code{x}\cr
-#'  \code{init}:    \tab \code{pvector}\cr
-#'  \code{fixedu}:  \tab fixed threshold, logical\cr
-#'  \code{useq}:    \tab threshold vector for profile likelihood or scalar for fixed threshold\cr
-#'  \code{optim}:   \tab complete \code{optim} output\cr
-#'  \code{mle}:     \tab vector of MLE of parameters\cr
-#'  \code{cov}:     \tab variance-covariance matrix of MLE of parameters\cr
-#'  \code{se}:      \tab vector of standard errors of MLE of parameters\cr
-#'  \code{rate}:    \tab \code{phiu} to be consistent with \code{\link[evd:fpot]{evd}}\cr
-#'  \code{nllh}:    \tab minimum negative log-likelihood\cr
-#'  \code{n}:       \tab total sample size\cr
-#'  \code{lambda}:  \tab MLE of lambda (kernel half-width)\cr
-#'  \code{u}:       \tab threshold (fixed or MLE)\cr
-#'  \code{sigmau}:  \tab MLE of GPD scale(estimated from other parameters)\cr
-#'  \code{xi}:      \tab MLE of GPD shape\cr
-#'  \code{phiu}:    \tab MLE of tail fraction (bulk model or parameterised approach)\cr
-#'  \code{se.phiu}: \tab standard error of MLE of tail fraction\cr
-#'  \code{bw}:      \tab MLE of bw (kernel standard deviations)\cr
-#'  \code{kernel}:  \tab kernel name\cr
-#'  \code{bcmethod}:\tab boundary correction method\cr
-#'  \code{proper}:  \tab logical, whether renormalisation is requested\cr
-#'  \code{nn}:      \tab non-negative correction method\cr
-#'  \code{offset}:  \tab offset for log transformation method\cr
-#'  \code{xmax}:    \tab maximum value of scaled beta or copula
+#'  \code{call}:      \tab \code{optim} call\cr
+#'  \code{x}:         \tab data vector \code{x}\cr
+#'  \code{init}:      \tab \code{pvector}\cr
+#'  \code{fixedu}:    \tab fixed threshold, logical\cr
+#'  \code{useq}:      \tab threshold vector for profile likelihood or scalar for fixed threshold\cr
+#'  \code{nllhuseq}:  \tab profile negative log-likelihood at each threshold in useq\cr
+#'  \code{optim}:     \tab complete \code{optim} output\cr
+#'  \code{mle}:       \tab vector of MLE of parameters\cr
+#'  \code{cov}:       \tab variance-covariance matrix of MLE of parameters\cr
+#'  \code{se}:        \tab vector of standard errors of MLE of parameters\cr
+#'  \code{rate}:      \tab \code{phiu} to be consistent with \code{\link[evd:fpot]{evd}}\cr
+#'  \code{nllh}:      \tab minimum negative log-likelihood\cr
+#'  \code{n}:         \tab total sample size\cr
+#'  \code{lambda}:    \tab MLE of lambda (kernel half-width)\cr
+#'  \code{u}:         \tab threshold (fixed or MLE)\cr
+#'  \code{sigmau}:    \tab MLE of GPD scale(estimated from other parameters)\cr
+#'  \code{xi}:        \tab MLE of GPD shape\cr
+#'  \code{phiu}:      \tab MLE of tail fraction (bulk model or parameterised approach)\cr
+#'  \code{se.phiu}:   \tab standard error of MLE of tail fraction\cr
+#'  \code{bw}:        \tab MLE of bw (kernel standard deviations)\cr
+#'  \code{kernel}:    \tab kernel name\cr
+#'  \code{bcmethod}:  \tab boundary correction method\cr
+#'  \code{proper}:    \tab logical, whether renormalisation is requested\cr
+#'  \code{nn}:        \tab non-negative correction method\cr
+#'  \code{offset}:    \tab offset for log transformation method\cr
+#'  \code{xmax}:      \tab maximum value of scaled beta or copula
 #' }
 #' 
 #' @note 
@@ -140,8 +141,8 @@
 #' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'
 #' @section Acknowledgments: See Acknowledgments in
-#'   \code{\link[evmix:fnormgpd]{fnormgpd}}, type \code{help fnormgpd}. Based on MATLAB
-#'   code written by Anna MacDonald.
+#'   \code{\link[evmix:fnormgpd]{fnormgpd}}, type \code{help fnormgpd}. Based on code
+#' by Anna MacDonald produced for MATLAB.
 #' 
 #' @seealso \code{\link[evmix:kernels]{kernels}}, \code{\link[evmix:kfun]{kfun}},
 #'  \code{\link[stats:density]{density}}, \code{\link[stats:bandwidth]{bw.nrd0}}
@@ -153,7 +154,9 @@
 #' 
 #' @examples
 #' \dontrun{
-#' par(mfrow=c(2,1))
+#' set.seed(1)
+#' par(mfrow = c(2, 1))
+#' 
 #' x = rgamma(500, 2, 1)
 #' xx = seq(-0.1, 10, 0.01)
 #' y = dgamma(xx, 2, 1)
@@ -202,26 +205,27 @@ fbckdengpdcon <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector =
 
   call <- match.call()
     
+  np = 3 # maximum number of parameters
+
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.logic(logicarg = phiu) # only logical
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.logic(phiu)
   check.posparam(useq, allowvec = TRUE, allownull = TRUE)
-  check.logic(logicarg = fixedu)
-  check.logic(logicarg = std.err)
+  check.logic(fixedu)
+  check.logic(std.err)
   check.optim(method)
   check.control(control)
-  check.logic(logicarg = finitelik)
+  check.logic(finitelik)
 
   check.kernel(kernel)
   check.bcmethod(bcmethod)
-  check.logic(logicarg = proper)
+  check.logic(proper)
   check.nn(nn)
-  check.posparam(offset, allownull = TRUE)  
-  check.offset(offset, bcmethod)
+  check.offset(offset, bcmethod, allowzero = TRUE)
   check.posparam(xmax, allownull = TRUE)  
-  check.posparam(param = factor)
-  check.posparam(param = amount, allownull = TRUE)
-  check.logic(logicarg = add.jitter)
+  check.posparam(factor)
+  check.posparam(amount, allownull = TRUE)
+  check.logic(add.jitter)
   
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -235,7 +239,6 @@ fbckdengpdcon <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector =
   
   check.quant(x)
   n = length(x)
-  np = 3 # maximum number of parameters
 
   if (add.jitter) x = pmax(jitter(x, factor, amount), 0)
 
@@ -275,6 +278,7 @@ fbckdengpdcon <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector =
     }
     # need to recheck there are some valid kernel centres after these exclusions
     check.quant(x)
+    n = length(x)
 
     if (max(x) > xmax) stop("largest kernel centre must be below xmax")   
   }
@@ -337,7 +341,7 @@ fbckdengpdcon <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector =
       
       # remove thresholds with less than 5 excesses
       useq = useq[sapply(useq, FUN = function(u, x) sum(x > u) > 5, x = x)]
-      check.param(useq, allowvec = TRUE)
+      check.posparam(useq, allowvec = TRUE)
       
       nllhu = sapply(useq, proflubckdengpdcon, pvector = pvector, x = x, phiu = phiu, kernel = kernel,
         bcmethod = bcmethod, proper = proper, nn = nn, offset = offset, xmax = xmax,
@@ -358,7 +362,12 @@ fbckdengpdcon <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector =
 
   if (fixedu) { # fixed threshold (separable) likelihood
     nllh = nlubckdengpdcon(pvector, u, x, phiu, kernel = kernel,
-      bcmethod = bcmethod, proper = proper, nn = nn, offset = offset, xmax = xmax)
+                           bcmethod = bcmethod, proper = proper, nn = nn, offset = offset, xmax = xmax)
+    if (is.infinite(nllh)) {
+      pvector[2] = 0.1
+      nllh = nlubckdengpdcon(pvector, u, x, phiu, kernel = kernel,
+                             bcmethod = bcmethod, proper = proper, nn = nn, offset = offset, xmax = xmax)
+    }
     if (is.infinite(nllh)) stop("initial parameter values are invalid")
   
     fit = optim(par = as.vector(pvector), fn = nlubckdengpdcon, u = u, x = x, phiu = phiu, kernel = kernel,
@@ -371,7 +380,12 @@ fbckdengpdcon <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector =
   } else { # complete (non-separable) likelihood
     
     nllh = nlbckdengpdcon(pvector, x, phiu, kernel = kernel,
-      bcmethod = bcmethod, proper = proper, nn = nn, offset = offset, xmax = xmax)
+                          bcmethod = bcmethod, proper = proper, nn = nn, offset = offset, xmax = xmax)
+    if (is.infinite(nllh)) {
+      pvector[3] = 0.1
+      nllh = nlbckdengpdcon(pvector, x, phiu, kernel = kernel,
+                             bcmethod = bcmethod, proper = proper, nn = nn, offset = offset, xmax = xmax)
+    }
     if (is.infinite(nllh)) stop("initial parameter values are invalid")
   
     fit = optim(par = as.vector(pvector), fn = nlbckdengpdcon, x = x, phiu = phiu, kernel = kernel,
@@ -408,20 +422,20 @@ fbckdengpdcon <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector =
   phib = (1 - phiu) / pu
 
   du = dbckden(u, x, lambda, kernel = kernel,
-    bcmethod = bcmethod, proper = proper, nn = nn, offset = offset, xmax = xmax)
+               bcmethod = bcmethod, proper = proper, nn = nn, offset = offset, xmax = xmax)
   sigmau = phiu / (phib * du)
   
   if (std.err) {
     qrhess = qr(fit$hessian)
     if (qrhess$rank != ncol(qrhess$qr)) {
-      warning("observed information matrix is singular; use std.err = FALSE")
+      warning("observed information matrix is singular")
       se = NULL
       invhess = NULL
     } else {
       invhess = solve(qrhess)
       vars = diag(invhess)
       if (any(vars <= 0)) {
-        warning("observed information matrix is singular; use std.err = FALSE")
+        warning("observed information matrix is singular")
         invhess = NULL
         se = NULL
       } else {
@@ -433,8 +447,10 @@ fbckdengpdcon <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector =
     se = NULL
   }
   
+  if (!exists("nllhu")) nllhu = NULL
+
   list(call = call, x = as.vector(x),
-    init = as.vector(pvector), fixedu = fixedu, useq = useq,
+    init = as.vector(pvector), fixedu = fixedu, useq = useq, nllhuseq = nllhu,
     optim = fit, conv = conv, cov = invhess, mle = fit$par, se = se, rate = phiu,
     nllh = fit$value, n = n,
     lambda = lambda, u = u, sigmau = sigmau, xi = xi, phiu = phiu, se.phiu = se.phiu, bw = bw, kernel = kernel,
@@ -453,20 +469,19 @@ lbckdengpdcon <- function(x, lambda = NULL, u = 0, xi = 0, phiu = TRUE,
   bcmethod = "simple", proper = TRUE, nn = "jf96", offset = NULL, xmax = NULL, log = TRUE) {
 
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.param(param = lambda, allownull = TRUE) # do not check positivity in likelihood
-  check.param(param = bw, allownull = TRUE)     # do not check positivity in likelihood
-  check.param(param = u)                        # do not check positivity in likelihood
-  check.param(param = xi)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.param(lambda, allownull = TRUE)
+  check.param(bw, allownull = TRUE)
+  check.param(u)
+  check.param(xi)
   check.phiu(phiu, allowfalse = TRUE)
-  check.logic(logicarg = log)
+  check.logic(log)
 
   check.kernel(kernel)
   check.bcmethod(bcmethod)
-  check.logic(logicarg = proper)
+  check.logic(proper)
   check.nn(nn)
-  check.posparam(offset, allownull = TRUE)  
-  check.offset(offset, bcmethod)
+  check.offset(offset, bcmethod, allowzero = TRUE)
   check.posparam(xmax, allownull = TRUE)  
 
   kernel = ifelse(kernel == "rectangular", "uniform", kernel)
@@ -497,7 +512,7 @@ lbckdengpdcon <- function(x, lambda = NULL, u = 0, xi = 0, phiu = TRUE,
     if (is.null(lambda)) lambda = klambda(bw, kernel)
   }
   
-  check.inputn(c(length(lambda), length(u), length(xi), length(phiu)))
+  check.inputn(c(length(lambda), length(u), length(xi), length(phiu)), allowscalar = TRUE)
 
   upboundmethods = c("beta1", "beta2", "copula")
   if (!is.null(xmax) & !(bcmethod %in% upboundmethods))
@@ -521,6 +536,7 @@ lbckdengpdcon <- function(x, lambda = NULL, u = 0, xi = 0, phiu = TRUE,
     }
     # need to recheck there are some valid kernel centres after these exclusions
     check.quant(x)
+    n = length(x)
   }
 
   # assume NA or NaN are irrelevant as entire lower tail is now modelled
@@ -588,16 +604,15 @@ nlbckdengpdcon <- function(pvector, x, phiu = TRUE, kernel = "gaussian",
 
   # Check properties of inputs
   check.nparam(pvector, nparam = np)
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
-  check.logic(logicarg = finitelik)
+  check.logic(finitelik)
 
   check.kernel(kernel)
   check.bcmethod(bcmethod)
-  check.logic(logicarg = proper)
+  check.logic(proper)
   check.nn(nn)
-  check.posparam(offset, allownull = TRUE)  
-  check.offset(offset, bcmethod)
+  check.offset(offset, bcmethod, allowzero = TRUE)
   check.posparam(xmax, allownull = TRUE)  
 
   kernel = ifelse(kernel == "rectangular", "uniform", kernel)
@@ -634,17 +649,18 @@ proflubckdengpdcon <- function(u, pvector, x, phiu = TRUE, kernel = "gaussian",
 
   # Check properties of inputs
   check.nparam(pvector, nparam = np - 1, allownull = TRUE)
-  check.param(u) # do not check positivity in likelihood
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.posparam(u)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
-  check.logic(logicarg = finitelik)
+  check.optim(method)
+  check.control(control)
+  check.logic(finitelik)
 
   check.kernel(kernel)
   check.bcmethod(bcmethod)
-  check.logic(logicarg = proper)
+  check.logic(proper)
   check.nn(nn)
-  check.posparam(offset, allownull = TRUE)  
-  check.offset(offset, bcmethod)
+  check.offset(offset, bcmethod, allowzero = TRUE)
   check.posparam(xmax, allownull = TRUE)  
   
   kernel = ifelse(kernel == "rectangular", "uniform", kernel)
@@ -661,7 +677,6 @@ proflubckdengpdcon <- function(u, pvector, x, phiu = TRUE, kernel = "gaussian",
   }
 
   check.quant(x)
-  n = length(x)
   
   upboundmethods = c("beta1", "beta2", "copula")
   if (!is.null(xmax) & !(bcmethod %in% upboundmethods))
@@ -696,6 +711,13 @@ proflubckdengpdcon <- function(u, pvector, x, phiu = TRUE, kernel = "gaussian",
     bcmethod = bcmethod, proper = proper, nn = nn, offset = offset, xmax = xmax)
 
   if (is.infinite(nllh)) {
+    pvector[2] = 0.1
+    nllh = nlubckdengpdcon(pvector, u, x, phiu, kernel = kernel,
+                           bcmethod = bcmethod, proper = proper, nn = nn, offset = offset, xmax = xmax)
+  }
+
+  # if still invalid then output cleanly
+  if (is.infinite(nllh)) {
     warning(paste("initial parameter values for threshold u =", u, "are invalid"))
     fit = list(par = rep(NA, np), value = Inf, counts = 0, convergence = NA, 
       message = "initial values invalid", hessian = rep(NA, np))
@@ -729,17 +751,16 @@ nlubckdengpdcon <- function(pvector, u, x, phiu = TRUE, kernel = "gaussian",
 
   # Check properties of inputs
   check.nparam(pvector, nparam = np - 1)
-  check.param(u) # do not check positivity in likelihood
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.posparam(u)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
-  check.logic(logicarg = finitelik)
+  check.logic(finitelik)
 
   check.kernel(kernel)
   check.bcmethod(bcmethod)
-  check.logic(logicarg = proper)
+  check.logic(proper)
   check.nn(nn)
-  check.posparam(offset, allownull = TRUE)  
-  check.offset(offset, bcmethod)
+  check.offset(offset, bcmethod, allowzero = TRUE)
   check.posparam(xmax, allownull = TRUE)  
 
   kernel = ifelse(kernel == "rectangular", "uniform", kernel)

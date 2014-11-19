@@ -73,7 +73,7 @@
 #'   SmooHill estimates are appended.
 #' 
 #' @note 
-#' Warning: the Hill plots are not location invariant.
+#' Warning: Hill plots are not location invariant.
 #' 
 #' Asymptotic Wald type CI's are estimated for non-\code{NULL} signficance level \code{alpha}
 #' for the shape parameter, assuming exactly Pareto tails. When plotting on the tail index scale,
@@ -98,6 +98,8 @@
 #' \dontrun{
 #' # Reproduce graphs from Figure 2.4 of Resnick (1997)
 #' data(danish, package="evir")
+#' par(mfrow = c(2, 2))
+#' 
 #' # Hill plot
 #' hillplot(danish, y.alpha=TRUE, ylim=c(1.1, 2))
 #' 
@@ -127,34 +129,28 @@ hillplot <- function(data, orderlim = NULL, tlim = NULL, hill.type = "Hill", r =
   invisible(try.thresh)
   
   # Check properties of inputs
-  if (missing(data))
-    stop("data must be a non-empty numeric vector")
-    
-  if (length(data) == 0 | mode(data) != "numeric") 
-    stop("data must be a non-empty numeric vector of data")
+  check.quant(data, allowna = TRUE, allowinf = TRUE)
 
-  if (any(is.infinite(data)))
-    stop("infinite cases must be removed")
-
-  if (any(is.na(data)))
-    warning("missing values have been removed")
+  if (any(!is.finite(data))) warning("non-finite have been removed")
   
-  # remove missing values and sort into descending order if needed
-  data = data[which(!is.na(data))]
-  if (is.unsorted(data)) {
-    data = sort(data, decreasing = TRUE)
-  }
+  # remove missing values
+  data = data[which(is.finite(data))]
 
   if (any(data <= 0)) {
     warning("non-positive values have been removed")
     data = data[data > 0]
   }
+  check.quant(data)
+
+  # sort into descending order if needed
+  if (is.unsorted(data)) {
+    data = sort(data, decreasing = TRUE)
+  }
   n = length(data)
   
-  if (!is.null(hill.type)) {
-    if (!(hill.type %in% c("Hill", "SmooHill")))
-      stop("Hill plot type must be Hill or SmooHill, see help(hillplot)")
-  }
+  check.text(hill.type)
+  if (!(hill.type %in% c("Hill", "SmooHill")))
+    stop("Hill plot type must be Hill or SmooHill, see help(hillplot)")
   
   # check r if smoothing Hill plot
   if (hill.type == "SmooHill") {
@@ -164,8 +160,9 @@ hillplot <- function(data, orderlim = NULL, tlim = NULL, hill.type = "Hill", r =
   }
 
   # Check threshold limits if provided and set order limits if not provided
+  check.posparam(tlim, allowvec = TRUE, allownull = TRUE)
   if (!is.null(tlim)) {
-    if (length(tlim) != 2 | mode(tlim) != "numeric") 
+    if (length(tlim) != 2)
       stop("threshold range tlim must be a numeric vector of length 2")
     
     if (tlim[2] <= tlim[1])
@@ -178,7 +175,7 @@ hillplot <- function(data, orderlim = NULL, tlim = NULL, hill.type = "Hill", r =
 
   # Check threshold limits if provided and set order limits if not provided
   if (!is.null(orderlim)) {
-    if (length(orderlim) != 2 | mode(orderlim) != "numeric")
+    if (length(orderlim) != 2)
       stop("order statistic range orderlim must be an integer vector of length 2")
 
     check.n(orderlim[1])
@@ -194,20 +191,26 @@ hillplot <- function(data, orderlim = NULL, tlim = NULL, hill.type = "Hill", r =
       stop("maximum order statistic in orderlim must be less then floor(n/r)")
   } else {
     orderlim = c(3, ifelse(hill.type == "SmooHill", floor(n/r), n - 1))
-  } 
-    
+  }
+  
   check.logic(x.theta)
   check.logic(y.alpha)
-  check.prob(alpha, allowvec = FALSE)
-  
+  check.prob(alpha, allownull = TRUE)
+  if (!is.null(alpha)){
+    if (alpha <= 0 | alpha >= 1)
+      stop("significance level alpha must be between (0, 1)")
+  }
+    
+  check.param(ylim, allowvec = TRUE, allownull = TRUE)
   if (!is.null(ylim)) {
-    if (length(ylim) != 2 | mode(ylim) != "numeric") 
+    if (length(ylim) != 2) 
       stop("ylim must be a numeric vector of length 2")
 
     if (ylim[2] <= ylim[1])
       stop("a range of y axis limits must be specified by ylim")
   }
   
+  check.text(legend.loc, allownull = TRUE)
   if (!is.null(legend.loc)) {
     if (!(legend.loc %in% c("bottomright", "bottom", "bottomleft", "left",
       "topleft", "top", "topright", "right", "center")))
@@ -222,10 +225,8 @@ hillplot <- function(data, orderlim = NULL, tlim = NULL, hill.type = "Hill", r =
   if (norder < 2)
     stop("must be more than 2 order statistics considered")
 
+  check.posparam(try.thresh, allowvec = TRUE, allownull = TRUE)
   if (!is.null(try.thresh)) {
-    if (length(try.thresh) == 0 | mode(try.thresh) != "numeric") 
-      stop("threshold to fit GPD to must be numeric scalar or vector")
-
     if (any((try.thresh > data[orderlim[1]]) | (try.thresh < data[orderlim[2]])))
       stop("potential thresholds must be within range specifed by orderlim")
   }

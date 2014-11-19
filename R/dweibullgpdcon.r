@@ -84,13 +84,17 @@
 #' 
 #' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'
+#' @section Acknowledgments: Thanks to Ben Youngman, Exeter University, UK for reporting a bug in the \code{\link[evmix:weibullgpdcon]{rweibullgpdcon}} function.
+#' 
 #' @seealso \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:Weibull]{dweibull}}
 #' @aliases weibullgpdcon dweibullgpdcon pweibullgpdcon qweibullgpdcon rweibullgpdcon
 #' @family  weibullgpd weibullgpdcon fweibullgpd fweibullgpdcon
 #' 
 #' @examples
 #' \dontrun{
-#' par(mfrow=c(2,2))
+#' set.seed(1)
+#' par(mfrow = c(2, 2))
+#' 
 #' x = rweibullgpdcon(1000)
 #' xx = seq(-0.1, 6, 0.01)
 #' hist(x, breaks = 100, freq = FALSE, xlim = c(-1, 6))
@@ -126,16 +130,16 @@ dweibullgpdcon <- function(x, wshape = 1, wscale = 1, u = qweibull(0.9, wshape, 
   xi = 0, phiu = TRUE, log = FALSE) {
   
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.posparam(param = wshape, allowvec = TRUE)
-  check.posparam(param = wscale, allowvec = TRUE)
-  check.posparam(param = u, allowvec = TRUE) # threshold also positive for Weibull
-  check.param(param = xi, allowvec = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.posparam(wshape, allowvec = TRUE)
+  check.posparam(wscale, allowvec = TRUE)
+  check.posparam(u, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
   check.phiu(phiu, allowvec = TRUE)
-  check.logic(logicarg = log)
+  check.logic(log)
 
   n = check.inputn(c(length(x), length(wshape), length(wscale),
-    length(u), length(xi), length(phiu)))
+    length(u), length(xi), length(phiu)), allowscalar = TRUE)
 
   if (any(is.infinite(x))) warning("infinite quantiles set to NA")
 
@@ -159,7 +163,7 @@ dweibullgpdcon <- function(x, wshape = 1, wscale = 1, u = qweibull(0.9, wshape, 
   
   sigmau = phiu / (phib * dweibull(u, wshape, wscale))
   
-  check.posparam(param = sigmau, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
   
   dweibullgpd(x, wshape, wscale, u, sigmau, xi, phiu, log)
 }
@@ -174,16 +178,16 @@ pweibullgpdcon <- function(q, wshape = 1, wscale = 1, u = qweibull(0.9, wshape, 
   xi = 0, phiu = TRUE, lower.tail = TRUE) {
 
   # Check properties of inputs
-  check.quant(q, allowmiss = TRUE, allowinf = TRUE)
-  check.posparam(param = wshape, allowvec = TRUE)
-  check.posparam(param = wscale, allowvec = TRUE)
-  check.posparam(param = u, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
+  check.quant(q, allowna = TRUE, allowinf = TRUE)
+  check.posparam(wshape, allowvec = TRUE)
+  check.posparam(wscale, allowvec = TRUE)
+  check.posparam(u, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
   check.phiu(phiu, allowvec = TRUE)
-  check.logic(logicarg = lower.tail)
+  check.logic(lower.tail)
 
   n = check.inputn(c(length(q), length(wshape), length(wscale),
-    length(u), length(xi), length(phiu)))
+    length(u), length(xi), length(phiu)), allowscalar = TRUE)
 
   if (any(is.infinite(q))) warning("infinite quantiles set to NA")
 
@@ -205,7 +209,7 @@ pweibullgpdcon <- function(q, wshape = 1, wscale = 1, u = qweibull(0.9, wshape, 
     
   sigmau = phiu / (phib * dweibull(u, wshape, wscale))
   
-  check.posparam(param = sigmau, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
 
   pweibullgpd(q, wshape, wscale, u, sigmau, xi, phiu, lower.tail)
 }
@@ -220,16 +224,16 @@ qweibullgpdcon <- function(p, wshape = 1, wscale = 1, u = qweibull(0.9, wshape, 
   xi = 0, phiu = TRUE, lower.tail = TRUE) {
 
   # Check properties of inputs
-  check.prob(p, allowmiss = TRUE)
-  check.posparam(param = wshape, allowvec = TRUE)
-  check.posparam(param = wscale, allowvec = TRUE)
-  check.posparam(param = u, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
+  check.prob(p, allowna = TRUE)
+  check.posparam(wshape, allowvec = TRUE)
+  check.posparam(wscale, allowvec = TRUE)
+  check.posparam(u, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
   check.phiu(phiu, allowvec = TRUE)
-  check.logic(logicarg = lower.tail)
+  check.logic(lower.tail)
 
   n = check.inputn(c(length(p), length(wshape), length(wscale),
-    length(u), length(xi), length(phiu)))
+    length(u), length(xi), length(phiu)), allowscalar = TRUE)
 
   p = rep(p, length.out = n)
   wshape = rep(wshape, length.out = n)
@@ -247,7 +251,7 @@ qweibullgpdcon <- function(p, wshape = 1, wscale = 1, u = qweibull(0.9, wshape, 
     
   sigmau = phiu / (phib * dweibull(u, wshape, wscale))
   
-  check.posparam(param = sigmau, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
     
   qweibullgpd(p, wshape, wscale, u, sigmau, xi, phiu, lower.tail)
 }
@@ -259,19 +263,18 @@ qweibullgpdcon <- function(p, wshape = 1, wscale = 1, u = qweibull(0.9, wshape, 
 # random number generation for weibull bulk with GPD for upper tail
 # with continuity at threshold
 rweibullgpdcon <- function(n = 1, wshape = 1, wscale = 1, u = qweibull(0.9, wshape, wscale),
-  sigmau = sqrt(wscale^2 * gamma(1 + 2/wshape) - (wscale * gamma(1 + 1/wshape))^2),
   xi = 0, phiu = TRUE) {
 
   # Check properties of inputs
   check.n(n)
-  check.param(param = wshape, allowvec = TRUE)
-  check.posparam(param = wscale, allowvec = TRUE)
-  check.posparam(param = u, allowvec = TRUE)
-  check.posparam(param = sigmau, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
+  check.posparam(wshape, allowvec = TRUE)
+  check.posparam(wscale, allowvec = TRUE)
+  check.posparam(u, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
   check.phiu(phiu, allowvec = TRUE)
 
-  n = check.inputn(c(n, length(wshape), length(wscale), length(u), length(sigmau), length(xi), length(phiu)))
+  n = check.inputn(c(n, length(wshape), length(wscale), length(u), length(xi), length(phiu)),
+                   allowscalar = TRUE)
 
   if (any(xi == 1)) stop("shape cannot be 1")
 

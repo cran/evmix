@@ -93,7 +93,9 @@
 #' 
 #' @examples
 #' \dontrun{
+#' set.seed(1)
 #' par(mfrow = c(2, 2))
+#' 
 #' xx = seq(-5, 20, 0.01)
 #' f1 = dhpd(xx, nmean = 0, nsd = 1, xi = 0.4)
 #' plot(xx, f1, type = "l")
@@ -127,13 +129,13 @@ NULL
 dhpd <- function(x, nmean = 0, nsd = 1, xi = 0, log = FALSE) {
   
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.param(param = nmean, allowvec = TRUE)
-  check.posparam(param = nsd, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
-  check.logic(logicarg = log)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.param(nmean, allowvec = TRUE)
+  check.posparam(nsd, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
+  check.logic(log)
 
-  n = check.inputn(c(length(x), length(nmean), length(nsd), length(xi)))
+  n = check.inputn(c(length(x), length(nmean), length(nsd), length(xi)), allowscalar = TRUE)
 
   if (any(is.infinite(x))) warning("infinite quantiles set to NA")
 
@@ -150,8 +152,8 @@ dhpd <- function(x, nmean = 0, nsd = 1, xi = 0, log = FALSE) {
   u = nmean + nsd * sqrt(wz) * sign(1 + xi)
   sigmau = nsd * abs(1 + xi) / sqrt(wz)
   
-  check.posparam(param = sigmau, allowvec = TRUE)
-  check.param(param = u, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
+  check.param(u, allowvec = TRUE)
   
   r = 1 + pnorm(u, nmean, nsd)
   
@@ -178,13 +180,13 @@ dhpd <- function(x, nmean = 0, nsd = 1, xi = 0, log = FALSE) {
 phpd <- function(q, nmean = 0, nsd = 1, xi = 0, lower.tail = TRUE) {
   
   # Check properties of inputs
-  check.quant(q, allowmiss = TRUE, allowinf = TRUE)
-  check.param(param = nmean, allowvec = TRUE)
-  check.posparam(param = nsd, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
-  check.logic(logicarg = lower.tail)
+  check.quant(q, allowna = TRUE, allowinf = TRUE)
+  check.param(nmean, allowvec = TRUE)
+  check.posparam(nsd, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
+  check.logic(lower.tail)
 
-  n = check.inputn(c(length(q), length(nmean), length(nsd), length(xi)))
+  n = check.inputn(c(length(q), length(nmean), length(nsd), length(xi)), allowscalar = TRUE)
 
   if (any(is.infinite(q))) warning("infinite quantiles set to NA")
 
@@ -201,8 +203,8 @@ phpd <- function(q, nmean = 0, nsd = 1, xi = 0, lower.tail = TRUE) {
   u = nmean + nsd * sqrt(wz) * sign(1 + xi)
   sigmau = nsd * abs(1 + xi) / sqrt(wz)
   
-  check.posparam(param = sigmau, allowvec = TRUE)
-  check.param(param = u, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
+  check.param(u, allowvec = TRUE)
 
   r = 1 + pnorm(u, nmean, nsd)
     
@@ -229,13 +231,13 @@ phpd <- function(q, nmean = 0, nsd = 1, xi = 0, lower.tail = TRUE) {
 qhpd <- function(p, nmean = 0, nsd = 1, xi = 0, lower.tail = TRUE) {
   
   # Check properties of inputs
-  check.prob(p, allowmiss = TRUE)
-  check.param(param = nmean, allowvec = TRUE)
-  check.posparam(param = nsd, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
-  check.logic(logicarg = lower.tail)
+  check.prob(p, allowna = TRUE)
+  check.param(nmean, allowvec = TRUE)
+  check.posparam(nsd, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
+  check.logic(lower.tail)
 
-  n = check.inputn(c(length(p), length(nmean), length(nsd), length(xi)))
+  n = check.inputn(c(length(p), length(nmean), length(nsd), length(xi)), allowscalar = TRUE)
 
   if (!lower.tail) p = 1 - p
   
@@ -250,8 +252,8 @@ qhpd <- function(p, nmean = 0, nsd = 1, xi = 0, lower.tail = TRUE) {
   u = nmean + nsd * sqrt(wz) * sign(1 + xi)
   sigmau = nsd * abs(1 + xi) / sqrt(wz)
   
-  check.posparam(param = sigmau, allowvec = TRUE)
-  check.param(param = u, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
+  check.param(u, allowvec = TRUE)
     
   r = 1 + pnorm(u, nmean, nsd)
   
@@ -280,11 +282,11 @@ rhpd <- function(n = 1, nmean = 0, nsd = 1, xi = 0) {
   
   # Check properties of inputs
   check.n(n)
-  check.param(param = nmean, allowvec = TRUE)
-  check.posparam(param = nsd, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
+  check.param(nmean, allowvec = TRUE)
+  check.posparam(nsd, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
 
-  n = check.inputn(c(n, length(nmean), length(nsd), length(xi)))
+  n = check.inputn(c(n, length(nmean), length(nsd), length(xi)), allowscalar = TRUE)
 
   if (any(xi == 1)) stop("shape cannot be 1")
     

@@ -110,6 +110,9 @@
 #' 
 #' @examples
 #' \dontrun{
+#' set.seed(1)
+#' par(mfrow = c(2, 2))
+#' 
 #' xx = seq(-5, 5, 0.01)
 #' ul = -1.5;ur = 2
 #' epsilon = 0.8
@@ -117,10 +120,10 @@
 #' 
 #' f = ditmgng(xx, nmean = 0, nsd = 1, epsilon, ul, sigmaul = 1, xil = 0.5, ur, sigmaur = 1, xir = 0.5)
 #' plot(xx, f, ylim = c(0, 0.5), xlim = c(-5, 5), type = 'l', lwd = 2, xlab = "x", ylab = "density")
-#' lines(xx, kappa * dgpd(-xx, -ul, sigmau = 1, xi = 0.5), col = "red", lty = 2, lwd = 2)
-#' lines(xx, kappa * dnorm(xx, 0, 1), col = "blue", lty = 2, lwd = 2)
+#' lines(xx, kappa * dgpd(-xx, -ul, sigmau = 1, xi = 0.5), col = "blue", lty = 2, lwd = 2)
+#' lines(xx, kappa * dnorm(xx, 0, 1), col = "red", lty = 2, lwd = 2)
 #' lines(xx, kappa * dgpd(xx, ur, sigmau = 1, xi = 0.5), col = "green", lty = 2, lwd = 2)
-#' abline(v = ul + epsilon * seq(-1, 1), lty = c(2, 1, 2), col = "red")
+#' abline(v = ul + epsilon * seq(-1, 1), lty = c(2, 1, 2), col = "blue")
 #' abline(v = ur + epsilon * seq(-1, 1), lty = c(2, 1, 2), col = "green")
 #' legend('topright', c('Normal-GPD ITM', 'kappa*GPD Lower', 'kappa*Normal', 'kappa*GPD Upper'),
 #'       col = c("black", "blue", "red", "green"), lty = c(1, 2, 2, 2), lwd = 2)
@@ -128,12 +131,12 @@
 #' # cdf contributions
 #' F = pitmgng(xx, nmean = 0, nsd = 1, epsilon, ul, sigmaul = 1, xil = 0.5, ur, sigmaur = 1, xir = 0.5)
 #' plot(xx, F, ylim = c(0, 1), xlim = c(-5, 5), type = 'l', lwd = 2, xlab = "x", ylab = "cdf")
-#' lines(xx[xx < ul], kappa * (1 - pgpd(-xx[xx < ul], -ul, 1, 0.5)), col = "red", lty = 2, lwd = 2)
+#' lines(xx[xx < ul], kappa * (1 - pgpd(-xx[xx < ul], -ul, 1, 0.5)), col = "blue", lty = 2, lwd = 2)
 #' lines(xx[(xx >= ul) & (xx <= ur)], kappa * (1 + pnorm(xx[(xx >= ul) & (xx <= ur)], 0, 1) -
-#'       pnorm(ul, 0, 1)), col = "blue", lty = 2, lwd = 2)
+#'       pnorm(ul, 0, 1)), col = "red", lty = 2, lwd = 2)
 #' lines(xx[xx > ur], kappa * (1 + (pnorm(ur, 0, 1) - pnorm(ul, 0, 1)) +
 #'       pgpd(xx[xx > ur], ur, sigmau = 1, xi = 0.5)), col = "green", lty = 2, lwd = 2)
-#' abline(v = ul + epsilon * seq(-1, 1), lty = c(2, 1, 2), col = "red")
+#' abline(v = ul + epsilon * seq(-1, 1), lty = c(2, 1, 2), col = "blue")
 #' abline(v = ur + epsilon * seq(-1, 1), lty = c(2, 1, 2), col = "green")
 #' legend('topleft', c('Normal-GPD ITM', 'kappa*GPD Lower', 'kappa*Normal', 'kappa*GPD Upper'),
 #'       col = c("black", "blue", "red", "green"), lty = c(1, 2, 2, 2), lwd = 2)
@@ -159,22 +162,22 @@ ditmgng <- function(x, nmean = 0, nsd = 1, epsilon = nsd,
   ur = qnorm(0.9, nmean, nsd), sigmaur = nsd, xir = 0, log = FALSE) {
 
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.param(param = nmean, allowvec = TRUE)
-  check.posparam(param = nsd, allowvec = TRUE)
-  check.posparam(param = epsilon, allowvec = TRUE)
-  check.param(param = ul, allowvec = TRUE)
-  check.posparam(param = sigmaul, allowvec = TRUE)
-  check.param(param = xil, allowvec = TRUE)
-  check.param(param = ur, allowvec = TRUE)
-  check.posparam(param = sigmaur, allowvec = TRUE)
-  check.param(param = xir, allowvec = TRUE)
-  check.logic(logicarg = log)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.param(nmean, allowvec = TRUE)
+  check.posparam(nsd, allowvec = TRUE)
+  check.posparam(epsilon, allowvec = TRUE, allowzero = TRUE)
+  check.param(ul, allowvec = TRUE)
+  check.posparam(sigmaul, allowvec = TRUE)
+  check.param(xil, allowvec = TRUE)
+  check.param(ur, allowvec = TRUE)
+  check.posparam(sigmaur, allowvec = TRUE)
+  check.param(xir, allowvec = TRUE)
+  check.logic(log)
 
   n = check.inputn(c(length(x), length(nmean), length(nsd), length(epsilon),
-    length(ul), length(sigmaul), length(xil), length(ur), length(sigmaur), length(xir)))
+    length(ul), length(sigmaul), length(xil), length(ur), length(sigmaur), length(xir)), allowscalar = TRUE)
   oneparam = (check.inputn(c(length(nmean), length(nsd), length(epsilon),
-    length(ul), length(sigmaul), length(xil), length(ur), length(sigmaur), length(xir))) == 1)
+    length(ul), length(sigmaul), length(xil), length(ur), length(sigmaur), length(xir)), allowscalar = TRUE) == 1)
 
   if (any(is.infinite(x))) warning("infinite quantiles set to NA")
 
@@ -235,22 +238,22 @@ pitmgng <- function(q, nmean = 0, nsd = 1, epsilon = nsd,
   ur = qnorm(0.9, nmean, nsd), sigmaur = nsd, xir = 0, lower.tail = TRUE) {
 
   # Check properties of inputs
-  check.quant(q, allowmiss = TRUE, allowinf = TRUE)
-  check.param(param = nmean, allowvec = TRUE)
-  check.posparam(param = nsd, allowvec = TRUE)
-  check.posparam(param = epsilon, allowvec = TRUE)
-  check.param(param = ul, allowvec = TRUE)
-  check.posparam(param = sigmaul, allowvec = TRUE)
-  check.param(param = xil, allowvec = TRUE)
-  check.param(param = ur, allowvec = TRUE)
-  check.posparam(param = sigmaur, allowvec = TRUE)
-  check.param(param = xir, allowvec = TRUE)
-  check.logic(logicarg = lower.tail)
+  check.quant(q, allowna = TRUE, allowinf = TRUE)
+  check.param(nmean, allowvec = TRUE)
+  check.posparam(nsd, allowvec = TRUE)
+  check.posparam(epsilon, allowvec = TRUE, allowzero = TRUE)
+  check.param(ul, allowvec = TRUE)
+  check.posparam(sigmaul, allowvec = TRUE)
+  check.param(xil, allowvec = TRUE)
+  check.param(ur, allowvec = TRUE)
+  check.posparam(sigmaur, allowvec = TRUE)
+  check.param(xir, allowvec = TRUE)
+  check.logic(lower.tail)
 
   n = check.inputn(c(length(q), length(nmean), length(nsd), length(epsilon),
-    length(ul), length(sigmaul), length(xil), length(ur), length(sigmaur), length(xir)))
+    length(ul), length(sigmaul), length(xil), length(ur), length(sigmaur), length(xir)), allowscalar = TRUE)
   oneparam = (check.inputn(c(length(nmean), length(nsd), length(epsilon),
-    length(ul), length(sigmaul), length(xil), length(ur), length(sigmaur), length(xir))) == 1)
+    length(ul), length(sigmaul), length(xil), length(ur), length(sigmaur), length(xir)), allowscalar = TRUE) == 1)
 
   if (any(is.infinite(q))) warning("infinite quantiles set to NA")
 
@@ -310,22 +313,22 @@ qitmgng <- function(p, nmean = 0, nsd = 1, epsilon,
   ur = qnorm(0.9, nmean, nsd), sigmaur = nsd, xir = 0, lower.tail = TRUE) {
 
   # Check properties of inputs
-  check.prob(p, allowmiss = TRUE)
-  check.param(param = nmean, allowvec = TRUE)
-  check.posparam(param = nsd, allowvec = TRUE)
-  check.posparam(param = epsilon, allowvec = TRUE)
-  check.param(param = ul, allowvec = TRUE)
-  check.posparam(param = sigmaul, allowvec = TRUE)
-  check.param(param = xil, allowvec = TRUE)
-  check.param(param = ur, allowvec = TRUE)
-  check.posparam(param = sigmaur, allowvec = TRUE)
-  check.param(param = xir, allowvec = TRUE)
-  check.logic(logicarg = lower.tail)
+  check.prob(p, allowna = TRUE)
+  check.param(nmean, allowvec = TRUE)
+  check.posparam(nsd, allowvec = TRUE)
+  check.posparam(epsilon, allowvec = TRUE, allowzero = TRUE)
+  check.param(ul, allowvec = TRUE)
+  check.posparam(sigmaul, allowvec = TRUE)
+  check.param(xil, allowvec = TRUE)
+  check.param(ur, allowvec = TRUE)
+  check.posparam(sigmaur, allowvec = TRUE)
+  check.param(xir, allowvec = TRUE)
+  check.logic(lower.tail)
 
   n = check.inputn(c(length(p), length(nmean), length(nsd), length(epsilon),
-    length(ul), length(sigmaul), length(xil), length(ur), length(sigmaur), length(xir)))
+    length(ul), length(sigmaul), length(xil), length(ur), length(sigmaur), length(xir)), allowscalar = TRUE)
   oneparam = (check.inputn(c(length(nmean), length(nsd), length(epsilon),
-    length(ul), length(sigmaul), length(xil), length(ur), length(sigmaur), length(xir))) == 1)
+    length(ul), length(sigmaul), length(xil), length(ur), length(sigmaur), length(xir)), allowscalar = TRUE) == 1)
 
   if (any((ul + epsilon) >= (ur - epsilon))) stop("intervals must not overlap")
 
@@ -434,20 +437,18 @@ ritmgng <- function(n = 1, nmean = 0, nsd = 1, epsilon = sd,
   
   # Check properties of inputs
   check.n(n)
-  check.param(param = nmean, allowvec = TRUE)
-  check.posparam(param = nsd, allowvec = TRUE)
-  check.posparam(param = epsilon, allowvec = TRUE)
-  check.param(param = ul, allowvec = TRUE)
-  check.posparam(param = sigmaul, allowvec = TRUE)
-  check.param(param = xil, allowvec = TRUE)
-  check.param(param = ur, allowvec = TRUE)
-  check.posparam(param = sigmaur, allowvec = TRUE)
-  check.param(param = xir, allowvec = TRUE)
+  check.param(nmean, allowvec = TRUE)
+  check.posparam(nsd, allowvec = TRUE)
+  check.posparam(epsilon, allowvec = TRUE, allowzero = TRUE)
+  check.param(ul, allowvec = TRUE)
+  check.posparam(sigmaul, allowvec = TRUE)
+  check.param(xil, allowvec = TRUE)
+  check.param(ur, allowvec = TRUE)
+  check.posparam(sigmaur, allowvec = TRUE)
+  check.param(xir, allowvec = TRUE)
   
   check.inputn(c(length(nmean), length(nsd), length(epsilon),
     length(ul), length(sigmaul), length(xil), length(ur), length(sigmaur), length(xir)))
-
-  if (any((ul + epsilon) >= (ur - epsilon))) stop("intervals must not overlap")
 
   if (any(xil == 1) | any(xir == 1)) stop("shape cannot be 1")
 

@@ -181,9 +181,11 @@
 #' 
 #' Wand, M. and Jones, M.C. (1995). Kernel Smoothing. Chapman && Hall.
 #' 
-#' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}. Based on code
-#' by Anna MacDonald produced for MATLAB.
+#' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}.
 #'
+#' @section Acknowledgments: Based on code
+#' by Anna MacDonald produced for MATLAB.
+#' 
 #' @seealso \code{\link[evmix:kernels]{kernels}}, \code{\link[evmix:kfun]{kfun}},
 #' \code{\link[base:jitter]{jitter}}, \code{\link[stats:density]{density}} and
 #' \code{\link[stats:bandwidth]{bw.nrd0}}
@@ -194,9 +196,13 @@
 #' 
 #' @examples
 #' \dontrun{
+#' set.seed(1)
+#' par(mfrow = c(1, 1))
+#' 
 #' nk=500
 #' x = rgamma(nk, shape = 1, scale = 2)
 #' xx = seq(-1, 10, 0.01)
+#' 
 #' # cut and normalize is very quick 
 #' fit = fbckden(x, linit = 0.2, bcmethod = "cutnorm")
 #' hist(x, nk/5, freq = FALSE) 
@@ -241,23 +247,22 @@ fbckden <- function(x, linit = NULL, bwinit = NULL, kernel = "gaussian", extrace
   call <- match.call()
     
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.quant(extracentres, allownull = TRUE, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.quant(extracentres, allownull = TRUE, allowna = TRUE, allowinf = TRUE)
   check.kbw(linit, bwinit)
   check.kernel(kernel)
   check.bcmethod(bcmethod)
-  check.logic(logicarg = proper)
+  check.logic(proper)
   check.nn(nn)
-  check.posparam(offset, allownull = TRUE)  
-  check.offset(offset, bcmethod)
+  check.offset(offset, bcmethod, allowzero = TRUE)
   check.posparam(xmax, allownull = TRUE)  
-  check.posparam(param = factor)
-  check.posparam(param = amount, allownull = TRUE)
-  check.logic(logicarg = add.jitter)
-  check.logic(logicarg = std.err)
+  check.posparam(factor)
+  check.posparam(amount, allownull = TRUE)
+  check.logic(add.jitter)
+  check.logic(std.err)
   check.optim(method)
   check.control(control)
-  check.logic(logicarg = finitelik)
+  check.logic(finitelik)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -322,6 +327,7 @@ fbckden <- function(x, linit = NULL, bwinit = NULL, kernel = "gaussian", extrace
     }
     # need to recheck there are some valid kernel centres after these exclusions
     check.quant(x)
+    n = length(x)
 
     if (!is.null(extracentres)) {
       if (max(extracentres) > xmax) stop("largest kernel centre must be below xmax")   
@@ -401,18 +407,17 @@ lbckden <- function(x, lambda = NULL, bw = NULL, kernel = "gaussian", extracentr
   bcmethod = "simple", proper = TRUE, nn = "jf96", offset = NULL, xmax = NULL, log = TRUE) {
 
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.quant(extracentres, allownull = TRUE, allowmiss = TRUE, allowinf = TRUE)
-  check.param(param = lambda, allownull = TRUE) # do not check positivity in likelihood
-  check.param(param = bw, allownull = TRUE)     # do not check positivity in likelihood
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.quant(extracentres, allownull = TRUE, allowna = TRUE, allowinf = TRUE)
+  check.param(lambda, allownull = TRUE)
+  check.param(bw, allownull = TRUE)
   check.kernel(kernel)
   check.bcmethod(bcmethod)
-  check.logic(logicarg = proper)
+  check.logic(proper)
   check.nn(nn)
-  check.posparam(offset, allownull = TRUE)  
-  check.offset(offset, bcmethod)
+  check.offset(offset, bcmethod, allowzero = TRUE)
   check.posparam(xmax, allownull = TRUE)  
-  check.logic(logicarg = log)
+  check.logic(log)
   
   kernel = ifelse(kernel == "rectangular", "uniform", kernel)
   kernel = ifelse(kernel == "normal", "gaussian", kernel)
@@ -423,6 +428,7 @@ lbckden <- function(x, lambda = NULL, bw = NULL, kernel = "gaussian", extracentr
   }
 
   check.quant(x)
+  n = length(x)
 
   if (any(x < 0)) stop("data must be non-negative")
   
@@ -436,7 +442,6 @@ lbckden <- function(x, lambda = NULL, bw = NULL, kernel = "gaussian", extracentr
   kerncentres = c(x, extracentres)
   check.quant(kerncentres)
 
-  n = length(x)
   nk = length(kerncentres)
   
   # if bcmethod does not use standard kernels then lambda must be specified
@@ -508,18 +513,17 @@ nlbckden <- function(lambda, x, bw = NULL, kernel = "gaussian", extracentres = N
   bcmethod = "simple", proper = TRUE, nn = "jf96", offset = NULL, xmax = NULL, finitelik = FALSE) {
 
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.quant(extracentres, allownull = TRUE, allowmiss = TRUE, allowinf = TRUE)
-  check.param(lambda, allownull = TRUE) # do not check positivity in likelihood
-  check.param(bw, allownull = TRUE)     # do not check positivity in likelihood
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.quant(extracentres, allownull = TRUE, allowna = TRUE, allowinf = TRUE)
+  check.param(lambda, allownull = TRUE)
+  check.param(bw, allownull = TRUE)
   check.kernel(kernel)
   check.bcmethod(bcmethod)
-  check.logic(logicarg = proper)
+  check.logic(proper)
   check.nn(nn)
-  check.posparam(offset, allownull = TRUE)  
-  check.offset(offset, bcmethod)
+  check.offset(offset, bcmethod, allowzero = TRUE)
   check.posparam(xmax, allownull = TRUE)  
-  check.logic(logicarg = finitelik)
+  check.logic(finitelik)
   
   kernel = ifelse(kernel == "rectangular", "uniform", kernel)
   kernel = ifelse(kernel == "normal", "gaussian", kernel)

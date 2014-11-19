@@ -69,6 +69,8 @@
 #' 
 #' @examples
 #' \dontrun{
+#' par(mfrow = c(2, 1))
+#' 
 #' # Reproduce graphs from Figure 4.7 of Resnick (2007)
 #' data(danish, package="evir")
 #' 
@@ -90,28 +92,23 @@ pickandsplot <- function(data, orderlim = NULL, tlim = NULL,
   invisible(try.thresh)
   
   # Check properties of inputs
-  if (missing(data))
-    stop("data must be a non-empty numeric vector")
-    
-  if (length(data) == 0 | mode(data) != "numeric") 
-    stop("data must be a non-empty numeric vector of data")
+  check.quant(data, allowna = TRUE)
 
-  if (any(is.infinite(data)))
-    stop("infinite cases must be removed")
-
-  if (any(is.na(data)))
-    warning("missing values have been removed")
+  if (any(!is.finite(data))) warning("non-finite data values have been removed")
   
   # remove missing values and sort into descending order if needed
-  data = data[which(!is.na(data))]
+  data = data[which(is.finite(data))]
   if (is.unsorted(data)) {
     data = sort(data, decreasing = TRUE)
   }
+  check.quant(data)
+
   n = length(data)
   
   # Check threshold limits if provided and set order limits if not provided
+  check.param(tlim, allowvec = TRUE, allownull = TRUE)
   if (!is.null(tlim)) {
-    if (length(tlim) != 2 | mode(tlim) != "numeric") 
+    if (length(tlim) != 2)
       stop("threshold range tlim must be a numeric vector of length 2")
     
     if (tlim[2] <= tlim[1])
@@ -140,16 +137,22 @@ pickandsplot <- function(data, orderlim = NULL, tlim = NULL,
   }
   
   check.logic(y.alpha)
-  check.prob(alpha, allowvec = FALSE)
+  check.prob(alpha, allownull = TRUE)
+  if (!is.null(alpha)){
+    if (alpha <= 0 | alpha >= 1)
+      stop("significance level alpha must be between (0, 1)")
+  }
   
+  check.param(ylim, allowvec = TRUE, allownull = TRUE)
   if (!is.null(ylim)) {
-    if (length(ylim) != 2 | mode(ylim) != "numeric") 
+    if (length(ylim) != 2) 
       stop("ylim must be a numeric vector of length 2")
 
     if (ylim[2] <= ylim[1])
       stop("a range of y axis limits must be specified by ylim")
   }
   
+  check.text(legend.loc, allownull = TRUE)
   if (!is.null(legend.loc)) {
     if (!(legend.loc %in% c("bottomright", "bottom", "bottomleft", "left",
       "topleft", "top", "topright", "right", "center")))
@@ -164,10 +167,8 @@ pickandsplot <- function(data, orderlim = NULL, tlim = NULL,
   if (norder < 2)
     stop("must be more than 2 order statistics considered")
 
+  check.param(try.thresh, allowvec = TRUE, allownull = TRUE)
   if (!is.null(try.thresh)) {
-    if (length(try.thresh) == 0 | mode(try.thresh) != "numeric") 
-      stop("threshold to fit GPD to must be numeric scalar or vector")
-
     if (any((try.thresh > data[orderlim[1]]) | (try.thresh < data[orderlim[2]])))
       stop("potential thresholds must be within range specifed by orderlim")
   }

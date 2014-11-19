@@ -104,6 +104,7 @@
 #'  \code{init}:      \tab \code{pvector}\cr
 #'  \code{fixedu}:    \tab fixed threshold, logical\cr
 #'  \code{useq}:      \tab threshold vector for profile likelihood or scalar for fixed threshold\cr
+#'  \code{nllhuseq}:  \tab profile negative log-likelihood at each threshold in useq\cr
 #'  \code{optim}:     \tab complete \code{optim} output\cr
 #'  \code{mle}:       \tab vector of MLE of parameters\cr
 #'  \code{cov}:       \tab variance-covariance matrix of MLE of parameters\cr
@@ -165,7 +166,9 @@
 #' 
 #' @author Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'
-#' @section Acknowledgments: See Acknowledgments in
+#' @section Acknowledgments: Thanks to Daniela Laas, University of St Gallen, Switzerland for reporting various bugs in these functions.
+#' 
+#' See Acknowledgments in
 #'   \code{\link[evmix:fnormgpd]{fnormgpd}}, type \code{help fnormgpd}.
 #' 
 #' @seealso \code{\link[stats:GammaDist]{dgamma}},
@@ -178,7 +181,9 @@
 #' 
 #' @examples
 #' \dontrun{
-#' par(mfrow=c(2,1))
+#' set.seed(1)
+#' par(mfrow = c(2, 1))
+#' 
 #' n=1000
 #' x = c(rgamma(n*0.25, shape = 1, scale = 1), rgamma(n*0.75, shape = 6, scale = 2))
 #' xx = seq(-1, 40, 0.01)
@@ -225,18 +230,19 @@ fmgammagpd <- function(x, M, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector =
 
   call <- match.call()
     
-  # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.logic(logicarg = phiu)
-  check.posparam(useq, allowvec = TRUE, allownull = TRUE)
-  check.logic(logicarg = fixedu)
-  check.logic(logicarg = std.err)
-  check.optim(method)
-  check.control(control)
-  check.logic(logicarg = finitelik)
-
   check.n(M)
   if (M == 1) stop("use fgammagpd instead")
+  np = 3*M + 3 # maximum number of parameters
+
+  # Check properties of inputs
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.logic(phiu)
+  check.posparam(useq, allowvec = TRUE, allownull = TRUE)
+  check.logic(fixedu)
+  check.logic(std.err)
+  check.optim(method)
+  check.control(control)
+  check.logic(finitelik)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -250,7 +256,6 @@ fmgammagpd <- function(x, M, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector =
 
   check.quant(x)
   n = length(x)
-  np = 3*M + 3 # maximum number of parameters
 
   if (is.unsorted(x)) x = sort(x)
 
@@ -307,7 +312,7 @@ fmgammagpd <- function(x, M, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector =
       
       # remove thresholds with less than 5 excesses
       useq = useq[sapply(useq, FUN = function(u, x) sum(x > u) > 5, x = x)]
-      check.param(useq, allowvec = TRUE)
+      check.posparam(useq, allowvec = TRUE)
       
       nllhu = sapply(useq, proflumgammagpd, pvector = pvector, x = x, M = M, phiu = phiu,
         method = method, control = control, finitelik = finitelik, ...)
@@ -429,7 +434,7 @@ fmgammagpd <- function(x, M, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector =
       
       # Reapply relative scaling phiu and phib
       i.pu = pmgamma(u, mgshape, mgscale, mgweight)
-      if (is.logical(phiu)) {
+      if (phiu) {
         i.phiu = 1 - i.pu
       }
       else {
@@ -521,7 +526,7 @@ fmgammagpd <- function(x, M, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector =
       
       # Reapply relative scaling phiu and phib
       i.pu = pmgamma(u, mgshape, mgscale, mgweight)
-      if (is.logical(phiu)) {
+      if (phiu) {
         i.phiu = 1 - i.pu
       }
       else {
@@ -602,14 +607,14 @@ fmgammagpd <- function(x, M, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector =
   if (std.err) {
     qrhess = qr(fit$hessian)
     if (qrhess$rank != ncol(qrhess$qr)) {
-      warning("observed information matrix is singular; use std.err = FALSE")
+      warning("observed information matrix is singular")
       se = NULL
       invhess = NULL
     } else {
       invhess = solve(qrhess)
       vars = diag(invhess)
       if (any(vars <= 0)) {
-        warning("observed information matrix is singular; use std.err = FALSE")
+        warning("observed information matrix is singular")
         invhess = NULL
         se = NULL
       } else {
@@ -621,7 +626,9 @@ fmgammagpd <- function(x, M, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector =
     se = NULL
   }
   
-  list(call = call, x = as.vector(x), init = as.vector(pvector), fixedu = fixedu, useq = useq,
+  if (!exists("nllhu")) nllhu = NULL
+  
+  list(call = call, x = as.vector(x), init = as.vector(pvector), fixedu = fixedu, useq = useq, nllhuseq = nllhu,
     optim = fit, conv = conv, cov = invhess, mle = fit$par, se = se, rate = phiu,
     nllh = nllh[i + 1], n = n, M = M, mgshape = mgshape, mgscale = mgscale, mgweight = mgweight,
     u = u, sigmau = sigmau, xi = xi, phiu = phiu, se.phiu = se.phiu, EMresults = EMresults, posterior = tau)
@@ -635,24 +642,24 @@ fmgammagpd <- function(x, M, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector =
 lmgammagpd <- function(x, mgshape, mgscale, mgweight, u, sigmau, xi, phiu = TRUE, log = TRUE) {
   
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.param(param = u)      # do not check positivity in likelihood
-  check.param(param = sigmau) # do not check positivity in likelihood
-  check.param(param = xi)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.param(u)
+  check.param(sigmau)
+  check.param(xi)
   check.phiu(phiu, allowfalse = TRUE)
-  check.logic(logicarg = log)
+  check.logic(log)
 
   # user may try to input lists for mixture of gammas parameter vectors
   if (is.list(mgshape)) mgshape = unlist(mgshape)
   if (is.list(mgscale)) mgscale = unlist(mgscale)
   if (is.list(mgweight)) mgweight = unlist(mgweight)
 
-  check.param(param = mgshape, allowvec = TRUE) # do not check positivity in likelihood
-  check.param(param = mgscale, allowvec = TRUE) # do not check positivity in likelihood
-  check.param(param = mgweight, allowvec = TRUE) # do not check positivity in likelihood
+  check.param(mgshape, allowvec = TRUE)
+  check.param(mgscale, allowvec = TRUE)
+  check.param(mgweight, allowvec = TRUE)
 
   # How many components in mixture
-  M = check.inputn(c(length(mgshape), length(mgscale), length(mgweight)))
+  M = check.inputn(c(length(mgshape), length(mgscale), length(mgweight)), allowscalar = TRUE)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -717,15 +724,16 @@ lmgammagpd <- function(x, mgshape, mgscale, mgweight, u, sigmau, xi, phiu = TRUE
 # (wrapper for likelihood, inputs and checks designed for optimisation)
 nlmgammagpd <- function(pvector, x, M, phiu = TRUE, finitelik = FALSE) {
 
+  check.n(M)
+  if (M == 1) stop("use nlgammagpd instead")
   np = 3*M + 3 # maximum number of parameters
 
   # Check properties of inputs
   check.param(pvector, allowvec = TRUE)
   check.nparam(pvector, nparam = np - 1)
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
-  check.logic(logicarg = finitelik)
-  check.n(M)
+  check.logic(finitelik)
 
   mgshape = pvector[1:M]
   mgscale = pvector[(M + 1):(2*M)]
@@ -752,16 +760,17 @@ nlmgammagpd <- function(pvector, x, M, phiu = TRUE, finitelik = FALSE) {
 # (wrapper for likelihood, designed for threshold to be fixed and other parameters optimised)
 nlumgammagpd <- function(pvector, u, x, M, phiu = TRUE, finitelik = FALSE) {
 
+  check.n(M)
+  if (M == 1) stop("use nlugammagpd instead")
   np = 3*M + 3 # maximum number of parameters
 
   # Check properties of inputs
   check.param(pvector, allowvec = TRUE)
   check.nparam(pvector, nparam = np - 2)
   check.posparam(u)
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
-  check.logic(logicarg = finitelik)
-  check.n(M)
+  check.logic(finitelik)
 
   mgshape = pvector[1:M]
   mgscale = pvector[(M + 1):(2*M)]
@@ -787,6 +796,8 @@ nlumgammagpd <- function(pvector, u, x, M, phiu = TRUE, finitelik = FALSE) {
 # with component probabilities separated for EM algorithm
 nlEMmgammagpd <- function(pvector, tau, mgweight, x, M, phiu = TRUE, finitelik = FALSE) {
 
+  check.n(M)
+  if (M == 1) stop("use nlgammagpd instead")
   np.noweight = 2*M + 3 # maximum number of non-weight parameters
 
   # Check properties of inputs
@@ -797,10 +808,9 @@ nlEMmgammagpd <- function(pvector, tau, mgweight, x, M, phiu = TRUE, finitelik =
   
   if (abs(sum(mgweight) - 1) > 1e-6) stop("component weights must sum to one")
 
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
-  check.logic(logicarg = finitelik)
-  check.n(M)
+  check.logic(finitelik)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -871,19 +881,20 @@ nlEMmgammagpd <- function(pvector, tau, mgweight, x, M, phiu = TRUE, finitelik =
 proflumgammagpd <- function(u, pvector, x, M, phiu = TRUE,
   method = "BFGS", control = list(maxit = 10000), finitelik = FALSE, ...) {
 
+  check.n(M)
+  if (M == 1) stop("use proflugammagpd instead")
   np = 3*M + 3 # maximum number of parameters
 
   # Check properties of inputs
   check.param(pvector, allowvec = TRUE)
   check.nparam(pvector, nparam = np - 2, allownull = TRUE)
-  check.posparam(param = u)
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.posparam(u)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
-  check.logic(logicarg = finitelik)
-  check.n(M)
+  check.logic(finitelik)
   check.optim(method)
   check.control(control)
-  check.logic(logicarg = finitelik)
+  check.logic(finitelik)
     
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -1052,6 +1063,8 @@ proflumgammagpd <- function(u, pvector, x, M, phiu = TRUE,
 # (wrapper for likelihood, designed for threshold to be fixed and other parameters optimised)
 nluEMmgammagpd <- function(pvector, u, tau, mgweight, x, M, phiu = TRUE, finitelik = FALSE) {
 
+  check.n(M)
+  if (M == 1) stop("use nlugammagpd instead")
   np.noweight = 2*M + 3 # maximum number of non-weight parameters
 
   # Check properties of inputs
@@ -1063,10 +1076,9 @@ nluEMmgammagpd <- function(pvector, u, tau, mgweight, x, M, phiu = TRUE, finitel
   
   if (abs(sum(mgweight) - 1) > 1e-6) stop("component weights must sum to one")
     
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
-  check.logic(logicarg = finitelik)
-  check.n(M)
+  check.logic(finitelik)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")

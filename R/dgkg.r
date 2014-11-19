@@ -76,7 +76,7 @@
 #' \code{\link[evmix:gkg]{qgkg}} gives the quantile function and 
 #' \code{\link[evmix:gkg]{rgkg}} gives a random sample.
 #' 
-#' @note Unlike all the other extreme value mixture model functions the 
+#' @note Unlike most of the other extreme value mixture model functions the 
 #' \code{\link[evmix:gkg]{gkg}} functions have not been vectorised as
 #' this is not appropriate. The main inputs (\code{x}, \code{p} or \code{q})
 #' must be either a scalar or a vector, which also define the output length.
@@ -120,9 +120,11 @@
 #' 
 #' Wand, M. and Jones, M.C. (1995). Kernel Smoothing. Chapman && Hall.
 #' 
-#' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}. Based on code
-#' by Anna MacDonald produced for MATLAB.
+#' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}. 
 #'
+#' @section Acknowledgments: Based on code
+#' by Anna MacDonald produced for MATLAB.
+#' 
 #' @seealso \code{\link[evmix:kernels]{kernels}}, \code{\link[evmix:kfun]{kfun}},
 #' \code{\link[stats:density]{density}}, \code{\link[stats:bandwidth]{bw.nrd0}}
 #' and \code{\link[ks:kde.1d]{dkde}} in \code{\link[ks:kde.1d]{ks}} package.
@@ -133,7 +135,9 @@
 #' 
 #' @examples
 #' \dontrun{
-#' par(mfrow=c(2,2))
+#' set.seed(1)
+#' par(mfrow = c(2, 2))
+#' 
 #' kerncentres=rnorm(1000,0,1)
 #' x = rgkg(1000, kerncentres, phiul = 0.15, phiur = 0.15)
 #' xx = seq(-6, 6, 0.01)
@@ -177,19 +181,19 @@ dgkg <- function(x, kerncentres, lambda = NULL,
   bw = NULL, kernel = "gaussian", log = FALSE) {
   
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.quant(kerncentres, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.quant(kerncentres, allowna = TRUE, allowinf = TRUE)
   check.kbw(lambda, bw, allownull = TRUE)
   check.kernel(kernel)
-  check.param(param = ul)
-  check.posparam(param = sigmaul)
-  check.param(param = xil)
+  check.param(ul)
+  check.posparam(sigmaul)
+  check.param(xil)
   check.phiu(phiul)
-  check.param(param = ur)
-  check.posparam(param = sigmaur)
-  check.param(param = xir)
+  check.param(ur)
+  check.posparam(sigmaur)
+  check.param(xir)
   check.phiu(phiur)
-  check.logic(logicarg = log)
+  check.logic(log)
 
   kernel = ifelse(kernel == "rectangular", "uniform", kernel)
   kernel = ifelse(kernel == "normal", "gaussian", kernel)
@@ -222,7 +226,7 @@ dgkg <- function(x, kerncentres, lambda = NULL,
   
   check.inputn(c(length(lambda),
     length(ul), length(sigmaul), length(xil),
-    length(ur), length(sigmaur), length(xir), length(phiul), length(phiur)))
+    length(ur), length(sigmaur), length(xir), length(phiul), length(phiur)), allowscalar = TRUE) # scalar only
      
   if (is.logical(phiul)) {
     phiul = pkdenx(ul, kerncentres, lambda, kernel)
@@ -267,19 +271,19 @@ pgkg <- function(q, kerncentres, lambda = NULL,
   bw = NULL, kernel = "gaussian", lower.tail = TRUE) {
   
   # Check properties of inputs
-  check.quant(q, allowmiss = TRUE, allowinf = TRUE)
-  check.quant(kerncentres, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(q, allowna = TRUE, allowinf = TRUE)
+  check.quant(kerncentres, allowna = TRUE, allowinf = TRUE)
   check.kbw(lambda, bw, allownull = TRUE)
   check.kernel(kernel)
-  check.param(param = ul)
-  check.posparam(param = sigmaul)
-  check.param(param = xil)
+  check.param(ul)
+  check.posparam(sigmaul)
+  check.param(xil)
   check.phiu(phiul)
-  check.param(param = ur)
-  check.posparam(param = sigmaur)
-  check.param(param = xir)
+  check.param(ur)
+  check.posparam(sigmaur)
+  check.param(xir)
   check.phiu(phiur)
-  check.logic(logicarg = lower.tail)
+  check.logic(lower.tail)
 
   kernel = ifelse(kernel == "rectangular", "uniform", kernel)
   kernel = ifelse(kernel == "normal", "gaussian", kernel)
@@ -312,7 +316,7 @@ pgkg <- function(q, kerncentres, lambda = NULL,
   
   check.inputn(c(length(lambda),
     length(ul), length(sigmaul), length(xil),
-    length(ur), length(sigmaur), length(xir), length(phiul), length(phiur)))
+    length(ur), length(sigmaur), length(xir), length(phiul), length(phiur)), allowscalar = TRUE) # scalar only
      
   if (is.logical(phiul)) {
     phiul = pkdenx(ul, kerncentres, lambda, kernel)
@@ -357,19 +361,19 @@ qgkg <- function(p, kerncentres, lambda = NULL,
   bw = NULL, kernel = "gaussian", lower.tail = TRUE) {
   
   # Check properties of inputs
-  check.prob(p, allowmiss = TRUE)
-  check.quant(kerncentres, allowmiss = TRUE, allowinf = TRUE)
+  check.prob(p, allowna = TRUE)
+  check.quant(kerncentres, allowna = TRUE, allowinf = TRUE)
   check.kbw(lambda, bw, allownull = TRUE)
   check.kernel(kernel)
-  check.param(param = ul)
-  check.posparam(param = sigmaul)
-  check.param(param = xil)
+  check.param(ul)
+  check.posparam(sigmaul)
+  check.param(xil)
   check.phiu(phiul)
-  check.param(param = ur)
-  check.posparam(param = sigmaur)
-  check.param(param = xir)
+  check.param(ur)
+  check.posparam(sigmaur)
+  check.param(xir)
   check.phiu(phiur)
-  check.logic(logicarg = lower.tail)
+  check.logic(lower.tail)
     
   kernel = ifelse(kernel == "rectangular", "uniform", kernel)
   kernel = ifelse(kernel == "normal", "gaussian", kernel)
@@ -398,7 +402,7 @@ qgkg <- function(p, kerncentres, lambda = NULL,
   
   check.inputn(c(length(lambda),
     length(ul), length(sigmaul), length(xil),
-    length(ur), length(sigmaur), length(xir), length(phiul), length(phiur)))
+    length(ur), length(sigmaur), length(xir), length(phiul), length(phiur)), allowscalar = TRUE) # scalar only
      
   if (is.logical(phiul)) {
     phiul = pkdenx(ul, kerncentres, lambda, kernel)
@@ -442,59 +446,19 @@ rgkg <- function(n = 1, kerncentres, lambda = NULL,
   
   # Check properties of inputs
   check.n(n)
-  check.quant(kerncentres, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(kerncentres, allowna = TRUE, allowinf = TRUE)
   check.kbw(lambda, bw, allownull = TRUE)
   check.kernel(kernel)
-  check.param(param = ul)
-  check.posparam(param = sigmaul)
-  check.param(param = xil)
+  check.param(ul)
+  check.posparam(sigmaul)
+  check.param(xil)
   check.phiu(phiul)
-  check.param(param = ur)
-  check.posparam(param = sigmaur)
-  check.param(param = xir)
+  check.param(ur)
+  check.posparam(sigmaur)
+  check.param(xir)
   check.phiu(phiur)
-
-  kernel = ifelse(kernel == "rectangular", "uniform", kernel)
-  kernel = ifelse(kernel == "normal", "gaussian", kernel)
-
-  if (any(ul >= ur)) stop("lower threshold must be below upper threshold")
-  
-  if (!is.logical(phiul) & !is.logical(phiur)) {
-    if ((phiul + phiur) > 1) stop("phiu + phiur must be less than 1")
-  }
-
-  if (any(!is.finite(kerncentres))) warning("non-finite kernel centres are dropped")
-
-  kerncentres = kerncentres[is.finite(kerncentres)]
-  check.quant(kerncentres)
-  nk = length(kerncentres)
-
-  if (is.null(lambda) & is.null(bw)) {
-    if (nk == 1) {
-      stop("Automated bandwidth estimation requires 2 or more kernel centres")
-    } else if (nk < 10) {
-      warning("Automated bandwidth estimation unreliable with less than 10 kernel centres")
-    }
-    bw = bw.nrd0(kerncentres)
-  }
-  lambda = klambda(bw, kernel, lambda)
-  
-  check.inputn(c(length(lambda),
-    length(ul), length(sigmaul), length(xil),
-    length(ur), length(sigmaur), length(xir), length(phiul), length(phiur)))
      
   if (any(xil == 1) | any(xir == 1)) stop("shape cannot be 1")
 
-  if (is.logical(phiul)) {
-    phiul = pkdenx(ul, kerncentres, lambda, kernel)
-  } else {
-    phiul = phiul
-  }
-  if (is.logical(phiur)) {
-    phiur = 1 - pkdenx(ur, kerncentres, lambda, kernel)
-  } else {
-    phiur = phiur
-  }
-  
-  qgkg(runif(n), kerncentres, lambda, ul, sigmaul, xil, phiul, ur, sigmaur, xir, phiur, kernel = kernel)
+  qgkg(runif(n), kerncentres, lambda, ul, sigmaul, xil, phiul, ur, sigmaur, xir, phiur, bw, kernel)
 }

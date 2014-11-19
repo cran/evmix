@@ -76,6 +76,8 @@
 #' 
 #' @author Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'
+#' @section Acknowledgments: Thanks to Daniela Laas, University of St Gallen, Switzerland for reporting various bugs in these functions.
+#'
 #' @seealso \code{\link[evmix:gammagpd]{gammagpd}}, \code{\link[evmix:gpd]{gpd}}
 #' and \code{\link[stats:GammaDist]{dgamma}}
 #' 
@@ -86,19 +88,22 @@
 #'
 #' @examples
 #' \dontrun{
+#' set.seed(1)
+#' par(mfrow = c(2, 1))
+#' 
 #' n = 1000
 #' x = rmgamma(n, mgshape = c(1, 6), mgscale = c(1,2), mgweight = c(1, 2))
 #' xx = seq(-1, 40, 0.01)
 #' 
 #' hist(x, breaks = 100, freq = FALSE, xlim = c(-1, 40))
-#' lines(xx, dmgamma(xx, mgshape = c(1, 6), mgscale = c(1, 2), mgweight = c(1, 2))
+#' lines(xx, dmgamma(xx, mgshape = c(1, 6), mgscale = c(1, 2), mgweight = c(1, 2)))
 #' 
 #' # By direct simulation
 #' n1 = rbinom(1, n, 1/3) # sample size from population 1
 #' x = c(rgamma(n1, shape = 1, scale = 1), rgamma(n - n1, shape = 6, scale = 2))
 #' 
 #' hist(x, breaks = 100, freq = FALSE, xlim = c(-1, 40))
-#' lines(xx, dmgamma(xx, mgshape = c(1, 6), mgscale = c(1, 2), mgweight = c(1, 2))
+#' lines(xx, dmgamma(xx, mgshape = c(1, 6), mgscale = c(1, 2), mgweight = c(1, 2)))
 #' }
 #'
 NULL
@@ -111,28 +116,28 @@ NULL
 dmgamma <- function(x, mgshape = 1, mgscale = 1,  mgweight = NULL, log = FALSE) {
 
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
 
   # user may try to input parameters as vectors if only scalar for each component
   if (!is.list(mgshape) & is.vector(mgshape)) {
-    check.posparam(param = mgshape, allowvec = TRUE)
+    check.posparam(mgshape, allowvec = TRUE)
     mgshape = as.list(mgshape)    
   }
   if (!is.list(mgscale) & is.vector(mgscale)) {
-    check.posparam(param = mgscale, allowvec = TRUE)
+    check.posparam(mgscale, allowvec = TRUE)
     mgscale = as.list(mgscale)    
   }
   
   if (!is.list(mgscale) | !is.list(mgshape))
-    stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
+    stop("gamma mixture parameters must be either a vector (if scalar parameters) or lists of same length (i.e. one object in list per component)")
 
   if (!is.null(mgweight)) {
     if (!is.list(mgweight) & is.vector(mgweight)) {
-      check.posparam(param = mgweight, allowvec = TRUE)
-      mgweight = as.list(mgweight)    
+      check.posparam(mgweight, allowvec = TRUE)
+      mgweight = as.list(mgweight)
     }
     if (!is.list(mgweight))
-      stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
+      stop("gamma mixture parameters must be either a vector (if scalar parameters) or lists of same length (i.e. one object in list per component)")
   }
   
   # How many components in mixture
@@ -141,20 +146,20 @@ dmgamma <- function(x, mgshape = 1, mgscale = 1,  mgweight = NULL, log = FALSE) 
   
   M = unique(allM)
   if (length(M) != 1)
-    stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
+    stop("gamma mixture parameters must be either a vector (if scalar parameters) or lists of same length (i.e. one object in list per component)")
   
   if (is.null(mgweight)) mgweight = as.list(rep(1/M, M))
 
   linputs = length(x)
   for (i in 1:M) {
-    check.posparam(param = mgshape[[i]], allowvec = TRUE)
-    check.posparam(param = mgscale[[i]], allowvec = TRUE)
-    check.posparam(param = mgweight[[i]], allowvec = TRUE)
+    check.posparam(mgshape[[i]], allowvec = TRUE)
+    check.posparam(mgscale[[i]], allowvec = TRUE)
+    check.posparam(mgweight[[i]], allowvec = TRUE)
     linputs = c(linputs, length(mgshape[[i]]), length(mgscale[[i]]), length(mgweight[[i]]))
   }
   
-  check.logic(logicarg = log)
-  n = check.inputn(linputs)
+  check.logic(log)
+  n = check.inputn(linputs, allowscalar = TRUE)
 
   if (any(is.infinite(x))) warning("infinite quantiles set to NA")
 
@@ -200,28 +205,28 @@ dmgamma <- function(x, mgshape = 1, mgscale = 1,  mgweight = NULL, log = FALSE) 
 pmgamma <- function(q, mgshape = 1, mgscale = 1,  mgweight = NULL, lower.tail = TRUE) {
 
   # Check properties of inputs
-  check.quant(q, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(q, allowna = TRUE, allowinf = TRUE)
 
   # user may try to input parameters as vectors if only scalar for each component
   if (!is.list(mgshape) & is.vector(mgshape)) {
-    check.posparam(param = mgshape, allowvec = TRUE)
+    check.posparam(mgshape, allowvec = TRUE)
     mgshape = as.list(mgshape)    
   }
   if (!is.list(mgscale) & is.vector(mgscale)) {
-    check.posparam(param = mgscale, allowvec = TRUE)
+    check.posparam(mgscale, allowvec = TRUE)
     mgscale = as.list(mgscale)    
   }
   
   if (!is.list(mgscale) | !is.list(mgshape))
-    stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
+    stop("gamma mixture parameters must be either a vector (if scalar parameters) or lists of same length (i.e. one object in list per component)")
 
   if (!is.null(mgweight)) {
     if (!is.list(mgweight) & is.vector(mgweight)) {
-      check.posparam(param = mgweight, allowvec = TRUE)
+      check.posparam(mgweight, allowvec = TRUE)
       mgweight = as.list(mgweight)    
     }
     if (!is.list(mgweight))
-      stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
+      stop("gamma mixture parameters must be either a vector (if scalar parameters) or lists of same length (i.e. one object in list per component)")
   }
   
   # How many components in mixture
@@ -230,20 +235,20 @@ pmgamma <- function(q, mgshape = 1, mgscale = 1,  mgweight = NULL, lower.tail = 
   
   M = unique(allM)
   if (length(M) != 1)
-    stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
+    stop("gamma mixture parameters must be either a vector (if scalar parameters) or lists of same length (i.e. one object in list per component)")
   
   if (is.null(mgweight)) mgweight = as.list(rep(1/M, M))
 
   linputs = length(q)
   for (i in 1:M) {
-    check.posparam(param = mgshape[[i]], allowvec = TRUE)
-    check.posparam(param = mgscale[[i]], allowvec = TRUE)
-    check.posparam(param = mgweight[[i]], allowvec = TRUE)
+    check.posparam(mgshape[[i]], allowvec = TRUE)
+    check.posparam(mgscale[[i]], allowvec = TRUE)
+    check.posparam(mgweight[[i]], allowvec = TRUE)
     linputs = c(linputs, length(mgshape[[i]]), length(mgscale[[i]]), length(mgweight[[i]]))
   }
   
-  check.logic(logicarg = lower.tail)
-  n = check.inputn(linputs)
+  check.logic(lower.tail)
+  n = check.inputn(linputs, allowscalar = TRUE)
 
   if (any(is.infinite(q))) warning("infinite quantiles set to NA")
 
@@ -289,29 +294,28 @@ pmgamma <- function(q, mgshape = 1, mgscale = 1,  mgweight = NULL, lower.tail = 
 qmgamma <- function(p, mgshape = 1, mgscale = 1,  mgweight = NULL, lower.tail = TRUE) {
 
   # Check properties of inputs
-  check.prob(p, allowmiss = TRUE)
+  check.prob(p, allowna = TRUE)
 
   # user may try to input parameters as vectors if only scalar for each component
   if (!is.list(mgshape) & is.vector(mgshape)) {
-    check.posparam(param = mgshape, allowvec = TRUE)
+    check.posparam(mgshape, allowvec = TRUE)
     mgshape = as.list(mgshape)    
   }
   if (!is.list(mgscale) & is.vector(mgscale)) {
-    check.posparam(param = mgscale, allowvec = TRUE)
+    check.posparam(mgscale, allowvec = TRUE)
     mgscale = as.list(mgscale)    
   }
   
   if (!is.list(mgscale) | !is.list(mgshape))
-    stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
+    stop("gamma mixture parameters must be either a vector (if scalar parameters) or lists of same length (i.e. one object in list per component)")
 
   if (!is.null(mgweight)) {
     if (!is.list(mgweight) & is.vector(mgweight)) {
-      check.posparam(param = mgweight, allowvec = TRUE)
+      check.posparam(mgweight, allowvec = TRUE)
       mgweight = as.list(mgweight)    
     }
     if (!is.list(mgweight))
-      stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
-    
+      stop("gamma mixture parameters must be either a vector (if scalar parameters) or lists of same length (i.e. one object in list per component)")
   }
   
   # How many components in mixture
@@ -320,20 +324,20 @@ qmgamma <- function(p, mgshape = 1, mgscale = 1,  mgweight = NULL, lower.tail = 
   
   M = unique(allM)
   if (length(M) != 1)
-    stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
+    stop("gamma mixture parameters must be either a vector (if scalar parameters) or lists of same length (i.e. one object in list per component)")
   
   if (is.null(mgweight)) mgweight = as.list(rep(1/M, M))
 
   linputs = length(p)
   for (i in 1:M) {
-    check.posparam(param = mgshape[[i]], allowvec = TRUE)
-    check.posparam(param = mgscale[[i]], allowvec = TRUE)
-    check.posparam(param = mgweight[[i]], allowvec = TRUE)
+    check.posparam(mgshape[[i]], allowvec = TRUE)
+    check.posparam(mgscale[[i]], allowvec = TRUE)
+    check.posparam(mgweight[[i]], allowvec = TRUE)
     linputs = c(linputs, length(mgshape[[i]]), length(mgscale[[i]]), length(mgweight[[i]]))
   }
   
-  check.logic(logicarg = lower.tail)
-  n = check.inputn(linputs)
+  check.logic(lower.tail)
+  n = check.inputn(linputs, allowscalar = TRUE)
 
   if (!lower.tail) p = 1 - p
 
@@ -416,25 +420,24 @@ rmgamma <- function(n = 1, mgshape = 1, mgscale = 1,  mgweight = NULL) {
 
   # user may try to input parameters as vectors if only scalar for each component
   if (!is.list(mgshape) & is.vector(mgshape)) {
-    check.posparam(param = mgshape, allowvec = TRUE)
+    check.posparam(mgshape, allowvec = TRUE)
     mgshape = as.list(mgshape)    
   }
   if (!is.list(mgscale) & is.vector(mgscale)) {
-    check.posparam(param = mgscale, allowvec = TRUE)
+    check.posparam(mgscale, allowvec = TRUE)
     mgscale = as.list(mgscale)    
   }
   
   if (!is.list(mgscale) | !is.list(mgshape))
-    stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
+    stop("gamma mixture parameters must be either a vector (if scalar parameters) or lists of same length (i.e. one object in list per component)")
 
   if (!is.null(mgweight)) {
     if (!is.list(mgweight) & is.vector(mgweight)) {
-      check.posparam(param = mgweight, allowvec = TRUE)
+      check.posparam(mgweight, allowvec = TRUE)
       mgweight = as.list(mgweight)    
     }
     if (!is.list(mgweight))
-      stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
-    
+      stop("gamma mixture parameters must be either a vector (if scalar parameters) or lists of same length (i.e. one object in list per component)")
   }
   
   # How many components in mixture
@@ -443,19 +446,19 @@ rmgamma <- function(n = 1, mgshape = 1, mgscale = 1,  mgweight = NULL) {
   
   M = unique(allM)
   if (length(M) != 1)
-    stop("gamma mixture parameters must be lists of same length (i.e. one object in list per component)")
+    stop("gamma mixture parameters must be either a vector (if scalar parameters) or lists of same length (i.e. one object in list per component)")
   
   if (is.null(mgweight)) mgweight = as.list(rep(1/M, M))
 
   linputs = n
   for (i in 1:M) {
-    check.posparam(param = mgshape[[i]], allowvec = TRUE)
-    check.posparam(param = mgscale[[i]], allowvec = TRUE)
-    check.posparam(param = mgweight[[i]], allowvec = TRUE)
+    check.posparam(mgshape[[i]], allowvec = TRUE)
+    check.posparam(mgscale[[i]], allowvec = TRUE)
+    check.posparam(mgweight[[i]], allowvec = TRUE)
     linputs = c(linputs, length(mgshape[[i]]), length(mgscale[[i]]), length(mgweight[[i]]))
   }
 
-  check.inputn(linputs)
+  check.inputn(linputs, allowscalar = TRUE)
 
   for (i in 1:M) {
     mgshape[[i]] = rep(mgshape[[i]], length.out = n)

@@ -96,6 +96,9 @@
 #' 
 #' @examples
 #' \dontrun{
+#' set.seed(1)
+#' par(mfrow = c(2, 2))
+#' 
 #' xx = seq(0.001, 5, 0.01)
 #' u = 1.5
 #' epsilon = 0.4
@@ -123,8 +126,7 @@
 #' x = ritmweibullgpd(10000, wshape = 2, wscale = 1, epsilon, u, sigmau = 1, xi = 0.5)
 #' hist(x, freq = FALSE, breaks = seq(0, 1000, 0.1), xlim = c(0, 5))
 #' lines(xx, ditmweibullgpd(xx, wshape = 2, wscale = 1, epsilon, u, sigmau = 1, xi = 0.5),
-#'   lwd = 2, col = 'black')
-#'   
+#'   lwd = 2, col = 'black')  
 #' }
 #' 
 NULL
@@ -142,19 +144,19 @@ ditmweibullgpd = function(x, wshape = 1, wscale = 1,
                 xi = 0, log = FALSE) {
   
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.posparam(param = wshape, allowvec = TRUE)
-  check.posparam(param = wscale, allowvec = TRUE)
-  check.posparam(param = epsilon, allowvec = TRUE)
-  check.posparam(param = u, allowvec = TRUE) # threshold also positive for Weibull
-  check.posparam(param = sigmau, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
-  check.logic(logicarg = log)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.posparam(wshape, allowvec = TRUE)
+  check.posparam(wscale, allowvec = TRUE)
+  check.posparam(epsilon, allowvec = TRUE, allowzero = TRUE)
+  check.posparam(u, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
+  check.logic(log)
   
   n = check.inputn(c(length(x), length(wshape), length(wscale), length(epsilon),
-                     length(u), length(sigmau), length(xi)))
+                     length(u), length(sigmau), length(xi)), allowscalar = TRUE)
   oneparam = (check.inputn(c(length(wshape), length(wscale), length(epsilon),
-                             length(u), length(sigmau), length(xi))) == 1)
+                             length(u), length(sigmau), length(xi)), allowscalar = TRUE) == 1)
   
   if (any(is.infinite(x))) warning("infinite quantiles set to NA")
 
@@ -208,19 +210,19 @@ pitmweibullgpd = function(q, wshape = 1, wscale = 1,
                 xi = 0, lower.tail = TRUE) {
   
   # Check properties of inputs
-  check.quant(q, allowmiss = TRUE, allowinf = TRUE)
-  check.posparam(param = wshape, allowvec = TRUE)
-  check.posparam(param = wscale, allowvec = TRUE)
-  check.posparam(param = epsilon, allowvec = TRUE)
-  check.posparam(param = u, allowvec = TRUE) # threshold also positive for Weibull
-  check.posparam(param = sigmau, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
-  check.logic(logicarg = lower.tail)
+  check.quant(q, allowna = TRUE, allowinf = TRUE)
+  check.posparam(wshape, allowvec = TRUE)
+  check.posparam(wscale, allowvec = TRUE)
+  check.posparam(epsilon, allowvec = TRUE, allowzero = TRUE)
+  check.posparam(u, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
+  check.logic(lower.tail)
   
   n = check.inputn(c(length(q), length(wshape), length(wscale), length(epsilon),
-                     length(u), length(sigmau), length(xi)))
+                     length(u), length(sigmau), length(xi)), allowscalar = TRUE)
   oneparam = (check.inputn(c(length(wshape), length(wscale), length(epsilon),
-                             length(u), length(sigmau), length(xi))) == 1)
+                             length(u), length(sigmau), length(xi)), allowscalar = TRUE) == 1)
   
   if (any(is.infinite(q))) warning("infinite quantiles set to NA")
   
@@ -271,17 +273,17 @@ qitmweibullgpd = function(p, wshape = 1, wscale = 1,
                 xi = 0, lower.tail = TRUE) {
   
   # Check properties of inputs
-  check.prob(p, allowmiss = TRUE)
-  check.posparam(param = wshape, allowvec = TRUE)
-  check.posparam(param = wscale, allowvec = TRUE)
-  check.posparam(param = epsilon, allowvec = TRUE)
-  check.posparam(param = u, allowvec = TRUE) # threshold also positive for Weibull
-  check.posparam(param = sigmau, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
-  check.logic(logicarg = lower.tail)
+  check.prob(p, allowna = TRUE)
+  check.posparam(wshape, allowvec = TRUE)
+  check.posparam(wscale, allowvec = TRUE)
+  check.posparam(epsilon, allowvec = TRUE, allowzero = TRUE)
+  check.posparam(u, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
+  check.logic(lower.tail)
   
   n = check.inputn(c(length(p), length(wshape), length(wscale), length(epsilon),
-                     length(u), length(sigmau), length(xi)))
+                     length(u), length(sigmau), length(xi)), allowscalar = TRUE)
   
   if (!lower.tail) p = 1 - p
     
@@ -364,15 +366,15 @@ ritmweibullgpd = function(n = 1, wshape = 1, wscale = 1,
   
   # Check properties of inputs
   check.n(n)
-  check.posparam(param = wshape, allowvec = TRUE)
-  check.posparam(param = wscale, allowvec = TRUE)
-  check.posparam(param = epsilon, allowvec = TRUE)
-  check.posparam(param = u, allowvec = TRUE) # threshold also positive for Weibull
-  check.posparam(param = sigmau, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
+  check.posparam(wshape, allowvec = TRUE)
+  check.posparam(wscale, allowvec = TRUE)
+  check.posparam(epsilon, allowvec = TRUE, allowzero = TRUE)
+  check.posparam(u, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
   
   check.inputn(c(n, length(wshape), length(wscale), length(epsilon), 
-                 length(u), length(sigmau), length(xi)))
+                 length(u), length(sigmau), length(xi)), allowscalar = TRUE)
   
   if (any(xi == 1)) stop("shape cannot be 1")
   

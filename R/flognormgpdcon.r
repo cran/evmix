@@ -34,25 +34,26 @@
 #'   following elements
 #'
 #' \tabular{ll}{
-#'  \code{call}:    \tab \code{optim} call\cr
-#'  \code{x}:       \tab data vector \code{x}\cr
-#'  \code{init}:    \tab \code{pvector}\cr
-#'  \code{fixedu}:  \tab fixed threshold, logical\cr
-#'  \code{useq}:    \tab threshold vector for profile likelihood or scalar for fixed threshold\cr
-#'  \code{optim}:   \tab complete \code{optim} output\cr
-#'  \code{mle}:     \tab vector of MLE of parameters\cr
-#'  \code{cov}:     \tab variance-covariance matrix of MLE of parameters\cr
-#'  \code{se}:      \tab vector of standard errors of MLE of parameters\cr
-#'  \code{rate}:    \tab \code{phiu} to be consistent with \code{\link[evd:fpot]{evd}}\cr
-#'  \code{nllh}:    \tab minimum negative log-likelihood\cr
-#'  \code{n}:       \tab total sample size\cr
-#'  \code{lnmean}:  \tab MLE of log-normal mean\cr
-#'  \code{lnsd}:    \tab MLE of log-normal standard deviation\cr
-#'  \code{u}:       \tab threshold (fixed or MLE)\cr
-#'  \code{sigmau}:  \tab MLE of GPD scale (estimated from other parameters)\cr
-#'  \code{xi}:      \tab MLE of GPD shape\cr
-#'  \code{phiu}:    \tab MLE of tail fraction (bulk model or parameterised approach)\cr
-#'  \code{se.phiu}: \tab standard error of MLE of tail fraction\cr
+#'  \code{call}:      \tab \code{optim} call\cr
+#'  \code{x}:         \tab data vector \code{x}\cr
+#'  \code{init}:      \tab \code{pvector}\cr
+#'  \code{fixedu}:    \tab fixed threshold, logical\cr
+#'  \code{useq}:      \tab threshold vector for profile likelihood or scalar for fixed threshold\cr
+#'  \code{nllhuseq}:  \tab profile negative log-likelihood at each threshold in useq\cr
+#'  \code{optim}:     \tab complete \code{optim} output\cr
+#'  \code{mle}:       \tab vector of MLE of parameters\cr
+#'  \code{cov}:       \tab variance-covariance matrix of MLE of parameters\cr
+#'  \code{se}:        \tab vector of standard errors of MLE of parameters\cr
+#'  \code{rate}:      \tab \code{phiu} to be consistent with \code{\link[evd:fpot]{evd}}\cr
+#'  \code{nllh}:      \tab minimum negative log-likelihood\cr
+#'  \code{n}:         \tab total sample size\cr
+#'  \code{lnmean}:    \tab MLE of log-normal mean\cr
+#'  \code{lnsd}:      \tab MLE of log-normal standard deviation\cr
+#'  \code{u}:         \tab threshold (fixed or MLE)\cr
+#'  \code{sigmau}:    \tab MLE of GPD scale (estimated from other parameters)\cr
+#'  \code{xi}:        \tab MLE of GPD shape\cr
+#'  \code{phiu}:      \tab MLE of tail fraction (bulk model or parameterised approach)\cr
+#'  \code{se.phiu}:   \tab standard error of MLE of tail fraction\cr
 #' }
 #' 
 #' @note When \code{pvector=NULL} then the initial values are:
@@ -94,7 +95,9 @@
 #' 
 #' @examples
 #' \dontrun{
-#' par(mfrow=c(2,1))
+#' set.seed(1)
+#' par(mfrow = c(2, 1))
+#' 
 #' x = rlnorm(1000)
 #' xx = seq(-0.1, 10, 0.01)
 #' y = dlnorm(xx)
@@ -137,15 +140,17 @@ flognormgpdcon <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector 
 
   call <- match.call()
     
+  np = 4 # maximum number of parameters
+
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.logic(logicarg = phiu) # only logical
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.logic(phiu)
   check.posparam(useq, allowvec = TRUE, allownull = TRUE)
-  check.logic(logicarg = fixedu)
-  check.logic(logicarg = std.err)
+  check.logic(fixedu)
+  check.logic(std.err)
   check.optim(method)
   check.control(control)
-  check.logic(logicarg = finitelik)
+  check.logic(finitelik)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -159,7 +164,6 @@ flognormgpdcon <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector 
 
   check.quant(x)
   n = length(x)
-  np = 4 # maximum number of parameters
 
   if ((method == "L-BFGS-B") | (method == "BFGS")) finitelik = TRUE
   
@@ -190,7 +194,7 @@ flognormgpdcon <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector 
       
       # remove thresholds with less than 5 excesses
       useq = useq[sapply(useq, FUN = function(u, x) sum(x > u) > 5, x = x)]
-      check.param(useq, allowvec = TRUE)
+      check.posparam(useq, allowvec = TRUE)
       
       nllhu = sapply(useq, proflulognormgpdcon, pvector = pvector, x = x, phiu = phiu,
         method = method, control = control, finitelik = finitelik, ...)
@@ -225,6 +229,10 @@ flognormgpdcon <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector 
 
   if (fixedu) { # fixed threshold (separable) likelihood
     nllh = nlulognormgpdcon(pvector, u, x, phiu)
+    if (is.infinite(nllh)) {
+      pvector[3] = 0.1
+      nllh = nlulognormgpdcon(pvector, u, x, phiu)    
+    }
     if (is.infinite(nllh)) stop("initial parameter values are invalid")
   
     fit = optim(par = as.vector(pvector), fn = nlulognormgpdcon, u = u, x = x, phiu = phiu,
@@ -237,6 +245,10 @@ flognormgpdcon <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector 
   } else { # complete (non-separable) likelihood
     
     nllh = nllognormgpdcon(pvector, x, phiu)
+    if (is.infinite(nllh)) {
+      pvector[4] = 0.1
+      nllh = nllognormgpdcon(pvector, x, phiu)    
+    }
     if (is.infinite(nllh)) stop("initial parameter values are invalid")
   
     fit = optim(par = as.vector(pvector), fn = nllognormgpdcon, x = x, phiu = phiu,
@@ -270,14 +282,14 @@ flognormgpdcon <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector 
   if (std.err) {
     qrhess = qr(fit$hessian)
     if (qrhess$rank != ncol(qrhess$qr)) {
-      warning("observed information matrix is singular; use std.err = FALSE")
+      warning("observed information matrix is singular")
       se = NULL
       invhess = NULL
     } else {
       invhess = solve(qrhess)
       vars = diag(invhess)
       if (any(vars <= 0)) {
-        warning("observed information matrix is singular; use std.err = FALSE")
+        warning("observed information matrix is singular")
         invhess = NULL
         se = NULL
       } else {
@@ -289,8 +301,10 @@ flognormgpdcon <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector 
     se = NULL
   }
   
+  if (!exists("nllhu")) nllhu = NULL
+  
   list(call = call, x = as.vector(x), 
-    init = as.vector(pvector), fixedu = fixedu, useq = useq,
+    init = as.vector(pvector), fixedu = fixedu, useq = useq, nllhuseq = nllhu,
     optim = fit, conv = conv, cov = invhess, mle = fit$par, se = se, rate = phiu,
     nllh = fit$value, n = n,
     lnmean = lnmean, lnsd = lnsd, u = u, sigmau = sigmau, xi = xi, phiu = phiu, se.phiu = se.phiu)
@@ -305,13 +319,13 @@ llognormgpdcon <- function(x, lnmean = 0, lnsd = 1, u = qlnorm(0.9, lnmean, lnsd
   xi = 0, phiu = TRUE, log = TRUE) {
 
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.param(param = lnmean)
-  check.param(param = lnsd)   # do not check positivity in likelihood
-  check.param(param = u)      # do not check positivity in likelihood
-  check.param(param = xi)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.param(lnmean)
+  check.param(lnsd)
+  check.param(u)
+  check.param(xi)
   check.phiu(phiu, allowfalse = TRUE)
-  check.logic(logicarg = log)
+  check.logic(log)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -324,14 +338,14 @@ llognormgpdcon <- function(x, lnmean = 0, lnsd = 1, u = qlnorm(0.9, lnmean, lnsd
   }
 
   check.quant(x)
+  n = length(x)
 
-  check.inputn(c(length(lnmean), length(lnsd), length(u), length(xi), length(phiu)))
+  check.inputn(c(length(lnmean), length(lnsd), length(u), length(xi), length(phiu)), allowscalar = TRUE)
 
   # assume NA or NaN are irrelevant as entire lower tail is now modelled
   # inconsistent with evd library definition
   # hence use which() to ignore these
 
-  n = length(x)
   xu = x[which(x > u)]
   nu = length(xu)
   xb = x[which(x <= u)]
@@ -385,9 +399,9 @@ nllognormgpdcon <- function(pvector, x, phiu = TRUE, finitelik = FALSE) {
 
   # Check properties of inputs
   check.nparam(pvector, nparam = np)
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
-  check.logic(logicarg = finitelik)
+  check.logic(finitelik)
 
   lnmean = pvector[1]
   lnsd = pvector[2]
@@ -417,10 +431,12 @@ proflulognormgpdcon <- function(u, pvector, x, phiu = TRUE, method = "BFGS",
 
   # Check properties of inputs
   check.nparam(pvector, nparam = np - 1, allownull = TRUE)
-  check.param(u) # do not check positivity in likelihood
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.posparam(u)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
-  check.logic(logicarg = finitelik)
+  check.optim(method)
+  check.control(control)
+  check.logic(finitelik)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -448,6 +464,11 @@ proflulognormgpdcon <- function(u, pvector, x, phiu = TRUE, method = "BFGS",
     pvector[3] = initfgpd$xi
     nllh = nlulognormgpdcon(pvector, u, x, phiu)
   }  
+
+  if (is.infinite(nllh)) {
+    pvector[3] = 0.1
+    nllh = nlulognormgpdcon(pvector, u, x, phiu)    
+  }
 
   # if still invalid then output cleanly
   if (is.infinite(nllh)) {
@@ -479,10 +500,10 @@ nlulognormgpdcon <- function(pvector, u, x, phiu = TRUE, finitelik = FALSE) {
 
   # Check properties of inputs
   check.nparam(pvector, nparam = np - 1)
-  check.param(u) # do not check positivity in likelihood
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.posparam(u)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
   check.phiu(phiu, allowfalse = TRUE)
-  check.logic(logicarg = finitelik)
+  check.logic(finitelik)
     
   lnmean = pvector[1]
   lnsd = pvector[2]

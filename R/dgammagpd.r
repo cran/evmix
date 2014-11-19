@@ -94,7 +94,9 @@
 #' 
 #' @examples
 #' \dontrun{
-#' par(mfrow=c(2,2))
+#' set.seed(1)
+#' par(mfrow = c(2, 2))
+#' 
 #' x = rgammagpd(1000, gshape = 2)
 #' xx = seq(-1, 10, 0.01)
 #' hist(x, breaks = 100, freq = FALSE, xlim = c(-1, 10))
@@ -129,17 +131,17 @@ dgammagpd <- function(x, gshape = 1, gscale = 1, u = qgamma(0.9, gshape, 1/gscal
   sigmau = sqrt(gshape) * gscale, xi = 0, phiu = TRUE, log = FALSE) {
 
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.posparam(param = gshape, allowvec = TRUE)
-  check.posparam(param = gscale, allowvec = TRUE)
-  check.posparam(param = u, allowvec = TRUE) # threshold also positive for gamma
-  check.posparam(param = sigmau, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.posparam(gshape, allowvec = TRUE)
+  check.posparam(gscale, allowvec = TRUE)
+  check.posparam(u, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
   check.phiu(phiu, allowvec = TRUE)
-  check.logic(logicarg = log)
+  check.logic(log)
 
   n = check.inputn(c(length(x), length(gshape), length(gscale),
-    length(u), length(sigmau), length(xi), length(phiu)))
+    length(u), length(sigmau), length(xi), length(phiu)), allowscalar = TRUE)
 
   if (any(is.infinite(x))) warning("infinite quantiles set to NA")
 
@@ -184,17 +186,17 @@ pgammagpd <- function(q, gshape = 1, gscale = 1, u = qgamma(0.9, gshape, 1/gscal
   sigmau = sqrt(gshape) * gscale, xi = 0, phiu = TRUE, lower.tail = TRUE) {
 
   # Check properties of inputs
-  check.quant(q, allowmiss = TRUE, allowinf = TRUE)
-  check.posparam(param = gshape, allowvec = TRUE)
-  check.posparam(param = gscale, allowvec = TRUE)
-  check.posparam(param = u, allowvec = TRUE)
-  check.posparam(param = sigmau, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
+  check.quant(q, allowna = TRUE, allowinf = TRUE)
+  check.posparam(gshape, allowvec = TRUE)
+  check.posparam(gscale, allowvec = TRUE)
+  check.posparam(u, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
   check.phiu(phiu, allowvec = TRUE)
-  check.logic(logicarg = lower.tail)
+  check.logic(lower.tail)
 
   n = check.inputn(c(length(q), length(gshape), length(gscale),
-    length(u), length(sigmau), length(xi), length(phiu)))
+    length(u), length(sigmau), length(xi), length(phiu)), allowscalar = TRUE)
 
   if (any(is.infinite(q))) warning("infinite quantiles set to NA")
 
@@ -239,17 +241,17 @@ qgammagpd <- function(p, gshape = 1, gscale = 1, u = qgamma(0.9, gshape, 1/gscal
   sigmau = sqrt(gshape) * gscale, xi = 0, phiu = TRUE, lower.tail = TRUE) {
 
   # Check properties of inputs
-  check.prob(p, allowmiss = TRUE)
-  check.param(param = gshape, allowvec = TRUE)
-  check.posparam(param = gscale, allowvec = TRUE)
-  check.posparam(param = u, allowvec = TRUE)
-  check.posparam(param = sigmau, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
+  check.prob(p, allowna = TRUE)
+  check.posparam(gshape, allowvec = TRUE)
+  check.posparam(gscale, allowvec = TRUE)
+  check.posparam(u, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
   check.phiu(phiu, allowvec = TRUE)
-  check.logic(logicarg = lower.tail)
+  check.logic(lower.tail)
 
   n = check.inputn(c(length(p), length(gshape), length(gscale),
-    length(u), length(sigmau), length(xi), length(phiu)))
+    length(u), length(sigmau), length(xi), length(phiu)), allowscalar = TRUE)
   
   if (!lower.tail) p = 1 - p
 
@@ -291,14 +293,15 @@ rgammagpd <- function(n = 1, gshape = 1, gscale = 1, u = qgamma(0.9, gshape, 1/g
 
   # Check properties of inputs
   check.n(n)
-  check.posparam(param = gshape, allowvec = TRUE)
-  check.posparam(param = gscale, allowvec = TRUE)
-  check.posparam(param = u, allowvec = TRUE)
-  check.posparam(param = sigmau, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
+  check.posparam(gshape, allowvec = TRUE)
+  check.posparam(gscale, allowvec = TRUE)
+  check.posparam(u, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
   check.phiu(phiu, allowvec = TRUE)
 
-  n = check.inputn(c(n, length(gshape), length(gscale), length(u), length(sigmau), length(xi), length(phiu)))
+  n = check.inputn(c(n, length(gshape), length(gscale), length(u), length(sigmau), length(xi), length(phiu)),
+                   allowscalar = TRUE)
 
   if (any(xi == 1)) stop("shape cannot be 1")
 

@@ -38,6 +38,9 @@
 #' A fixed threshold and epsilon approach is acheived by setting a single scalar value to each in 
 #' \code{useq} and \code{eseq} respectively.
 #' 
+#' If the profile likelihood approach is used, then a grid search over all combinations of epsilon and threshold
+#' are carried out. The combinations which lead to less than 5 in any any interval are not considered.
+#' 
 #' Negative data are ignored.
 #' 
 #' @return Log-likelihood is given by \code{\link[evmix:fitmweibullgpd]{litmweibullgpd}} and it's
@@ -48,24 +51,25 @@
 #'   with the following elements
 #'
 #' \tabular{ll}{
-#'  \code{call}:    \tab \code{optim} call\cr
-#'  \code{x}:       \tab data vector \code{x}\cr
-#'  \code{init}:    \tab \code{pvector}\cr
-#'  \code{fixedeu}: \tab fixed epsilon and threshold, logical\cr
-#'  \code{useq}:    \tab threshold vector for profile likelihood or scalar for fixed threshold\cr
-#'  \code{eseq}:    \tab epsilon vector for profile likelihood or scalar for fixed epsilon\cr
-#'  \code{optim}:   \tab complete \code{optim} output\cr
-#'  \code{mle}:     \tab vector of MLE of parameters\cr
-#'  \code{cov}:     \tab variance-covariance matrix of MLE of parameters\cr
-#'  \code{se}:      \tab vector of standard errors of MLE of parameters\cr
-#'  \code{nllh}:    \tab minimum negative log-likelihood\cr
-#'  \code{n}:       \tab total sample size\cr
-#'  \code{wshape}:  \tab MLE of Weibull shape\cr
-#'  \code{wscale}:  \tab MLE of Weibull scale\cr
-#'  \code{epsilon}: \tab MLE of transition half-width\cr
-#'  \code{u}:       \tab threshold (fixed or MLE)\cr
-#'  \code{sigmau}:  \tab MLE of GPD scale\cr
-#'  \code{xi}:      \tab MLE of GPD shape\cr
+#'  \code{call}:      \tab \code{optim} call\cr
+#'  \code{x}:         \tab data vector \code{x}\cr
+#'  \code{init}:      \tab \code{pvector}\cr
+#'  \code{fixedeu}:   \tab fixed epsilon and threshold, logical\cr
+#'  \code{useq}:      \tab threshold vector for profile likelihood or scalar for fixed threshold\cr
+#'  \code{eseq}:      \tab epsilon vector for profile likelihood or scalar for fixed epsilon\cr
+#'  \code{nllheuseq}: \tab profile negative log-likelihood at each combination in (eseq, useq)\cr
+#'  \code{optim}:     \tab complete \code{optim} output\cr
+#'  \code{mle}:       \tab vector of MLE of parameters\cr
+#'  \code{cov}:       \tab variance-covariance matrix of MLE of parameters\cr
+#'  \code{se}:        \tab vector of standard errors of MLE of parameters\cr
+#'  \code{nllh}:      \tab minimum negative log-likelihood\cr
+#'  \code{n}:         \tab total sample size\cr
+#'  \code{wshape}:    \tab MLE of Weibull shape\cr
+#'  \code{wscale}:    \tab MLE of Weibull scale\cr
+#'  \code{epsilon}:   \tab MLE of transition half-width\cr
+#'  \code{u}:         \tab threshold (fixed or MLE)\cr
+#'  \code{sigmau}:    \tab MLE of GPD scale\cr
+#'  \code{xi}:        \tab MLE of GPD shape\cr
 #' }
 #' 
 #' @note When \code{pvector=NULL} then the initial values are:
@@ -99,6 +103,9 @@
 #' 
 #' @examples
 #' \dontrun{
+#' set.seed(1)
+#' par(mfrow = c(1, 1))
+#' 
 #' x = rweibull(1000, shape = 1, scale = 2)
 #' xx = seq(-0.2, 10, 0.01)
 #' y = dweibull(xx, shape = 1, scale = 2)
@@ -111,9 +118,9 @@
 #' abline(v = fit$u + fit$epsilon * seq(-1, 1), col = "red")
 #'   
 #' # Profile likelihood for threshold which is then fixed
-#' fitu = fitmweibullgpd(x, eseq = seq(0, 2, 0.1), useq = seq(0.5, 4, 0.1), fixedeu = T)
-#' with(fitu, lines(xx, ditmweibullgpd(xx, wshape, wscale, epsilon, u, sigmau, xi), col="blue"))
-#' abline(v = fitu$u + fitu$epsilon * seq(-1, 1), col = "blue")
+#' fitfix = fitmweibullgpd(x, eseq = seq(0, 2, 0.1), useq = seq(0.5, 4, 0.1), fixedeu = TRUE)
+#' with(fitfix, lines(xx, ditmweibullgpd(xx, wshape, wscale, epsilon, u, sigmau, xi), col="blue"))
+#' abline(v = fitfix$u + fitfix$epsilon * seq(-1, 1), col = "blue")
 #' legend("topright", c("True Density", "Weibull-GPD ITM", "Profile likelihood"),
 #'   col=c("black", "red", "blue"), lty = 1)
 #' }
@@ -126,15 +133,17 @@ fitmweibullgpd <- function(x, eseq = NULL, useq = NULL, fixedeu = FALSE, pvector
 
   call <- match.call()
     
+  np = 6 # maximum number of parameters
+
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.posparam(eseq, allowvec = TRUE, allownull = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.posparam(eseq, allowvec = TRUE, allownull = TRUE, allowzero = TRUE)
   check.posparam(useq, allowvec = TRUE, allownull = TRUE)
-  check.logic(logicarg = fixedeu)
-  check.logic(logicarg = std.err)
+  check.logic(fixedeu)
+  check.logic(std.err)
   check.optim(method)
   check.control(control)
-  check.logic(logicarg = finitelik)
+  check.logic(finitelik)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -148,7 +157,6 @@ fitmweibullgpd <- function(x, eseq = NULL, useq = NULL, fixedeu = FALSE, pvector
 
   check.quant(x)
   n = length(x)
-  np = 6 # maximum number of parameters
 
   if ((method == "L-BFGS-B") | (method == "BFGS")) finitelik = TRUE
   
@@ -190,8 +198,8 @@ fitmweibullgpd <- function(x, eseq = NULL, useq = NULL, fixedeu = FALSE, pvector
       eugrid = eugrid[sapply(eugrid[, 2] + eugrid[, 1], FUN = function(u, x) sum(x > u) >= 5, x = x),]
       eugrid = eugrid[sapply(eugrid[, 2] - eugrid[, 1], FUN = function(u, x) sum(x < u) >= 5, x = x),]
       
-      check.posparam(eugrid[, 1], allowvec = TRUE)
-      check.param(eugrid[, 2], allowvec = TRUE)
+      check.posparam(eugrid[, 1], allowvec = TRUE, allowzero = TRUE)
+      check.posparam(eugrid[, 2], allowvec = TRUE)
       
       nllheu = apply(eugrid, 1, profleuitmweibullgpd, pvector = pvector, x = x,
         method = method, control = control, finitelik = finitelik, ...)
@@ -236,6 +244,12 @@ fitmweibullgpd <- function(x, eseq = NULL, useq = NULL, fixedeu = FALSE, pvector
 
   if (fixedeu) { # fixed threshold and epsilon likelihood
     nllh = nleuitmweibullgpd(pvector, epsilon, u, x)
+    
+    if (is.infinite(nllh)) {
+      pvector[4] = 0.1
+      nllh = nleuitmweibullgpd(pvector, epsilon, u, x)
+    }
+    
     if (is.infinite(nllh)) stop("initial parameter values are invalid")
   
     fit = optim(par = as.vector(pvector), fn = nleuitmweibullgpd, epsilon = epsilon, u = u, x = x,
@@ -249,6 +263,12 @@ fitmweibullgpd <- function(x, eseq = NULL, useq = NULL, fixedeu = FALSE, pvector
   } else { # complete (non-separable) likelihood
     
     nllh = nlitmweibullgpd(pvector, x)
+    
+    if (is.infinite(nllh)) {
+      pvector[6] = 0.1
+      nllh = nlitmweibullgpd(pvector, x)
+    }
+    
     if (is.infinite(nllh)) stop("initial parameter values are invalid")
   
     fit = optim(par = as.vector(pvector), fn = nlitmweibullgpd, x = x,
@@ -273,14 +293,14 @@ fitmweibullgpd <- function(x, eseq = NULL, useq = NULL, fixedeu = FALSE, pvector
   if (std.err) {
     qrhess = qr(fit$hessian)
     if (qrhess$rank != ncol(qrhess$qr)) {
-      warning("observed information matrix is singular; use std.err = FALSE")
+      warning("observed information matrix is singular")
       se = NULL
       invhess = NULL
     } else {
       invhess = solve(qrhess)
       vars = diag(invhess)
       if (any(vars <= 0)) {
-        warning("observed information matrix is singular; use std.err = FALSE")
+        warning("observed information matrix is singular")
         invhess = NULL
         se = NULL
       } else {
@@ -292,8 +312,10 @@ fitmweibullgpd <- function(x, eseq = NULL, useq = NULL, fixedeu = FALSE, pvector
     se = NULL
   }
   
+  if (!exists("nllheu")) nllheu = NULL
+
   list(call = call, x = as.vector(x), 
-    init = as.vector(pvector), fixedeu = fixedeu, useq = useq, eseq = eseq,
+    init = as.vector(pvector), fixedeu = fixedeu, useq = useq, eseq = eseq, nllheuseq = nllheu,
     optim = fit, conv = conv, cov = invhess, mle = fit$par, se = se,
     nllh = fit$value, n = n,
     wshape = wshape, wscale = wscale, epsilon = epsilon, u = u, sigmau = sigmau, xi = xi, kappa = kappa)
@@ -312,14 +334,14 @@ litmweibullgpd <- function(x, wshape = 1, wscale = 1,
   xi = 0, log = TRUE) {
 
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.param(param = wshape)  # do not check positivity in likelihood
-  check.param(param = wscale)  # do not check positivity in likelihood
-  check.param(param = epsilon) # do not check positivity in likelihood
-  check.param(param = u)       # do not check positivity in likelihood
-  check.param(param = sigmau)  # do not check positivity in likelihood
-  check.param(param = xi)
-  check.logic(logicarg = log)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.param(wshape)
+  check.param(wscale)
+  check.param(epsilon)
+  check.param(u)
+  check.param(sigmau)
+  check.param(xi)
+  check.logic(log)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -334,7 +356,8 @@ litmweibullgpd <- function(x, wshape = 1, wscale = 1,
   check.quant(x)
   n = length(x)
 
-  check.inputn(c(length(wshape), length(wscale), length(epsilon), length(u), length(sigmau), length(xi)))
+  check.inputn(c(length(wshape), length(wscale), length(epsilon), length(u), length(sigmau), length(xi)),
+               allowscalar = TRUE)
 
   # assume NA or NaN are irrelevant as entire lower tail is now modelled
   # inconsistent with evd library definition
@@ -387,8 +410,8 @@ nlitmweibullgpd <- function(pvector, x, finitelik = FALSE) {
 
   # Check properties of inputs
   check.nparam(pvector, nparam = np)
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.logic(logicarg = finitelik)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.logic(finitelik)
 
   wshape = pvector[1]
   wscale = pvector[2]
@@ -422,10 +445,12 @@ profleuitmweibullgpd <- function(eu, pvector, x, method = "BFGS",
   # Check properties of inputs
   check.nparam(pvector, nparam = np - 2, allownull = TRUE)
   check.nparam(eu, nparam = 2);
-  check.param(eu[1]) # do not check positivity in likelihood
-  check.param(eu[2]) # do not check positivity in likelihood
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.logic(logicarg = finitelik)
+  check.posparam(eu[1], allowzero = TRUE)
+  check.posparam(eu[2])
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.optim(method)
+  check.control(control)
+  check.logic(finitelik)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -455,7 +480,12 @@ profleuitmweibullgpd <- function(eu, pvector, x, method = "BFGS",
     pvector[4] = initfgpd$xi
     nllh = nleuitmweibullgpd(pvector, eu[1], eu[2], x)
   }
-
+    
+  if (is.infinite(nllh)) {
+    pvector[4] = 0.1
+    nllh = nleuitmweibullgpd(pvector, eu[1], eu[2], x)
+  }
+  
   # if still invalid then output cleanly
   if (is.infinite(nllh)) {
     warning(paste("initial parameter values for threshold u =", eu[2], "and epsilon=", eu[1], "are invalid"))
@@ -487,10 +517,10 @@ nleuitmweibullgpd <- function(pvector, epsilon, u, x, finitelik = FALSE) {
 
   # Check properties of inputs
   check.nparam(pvector, nparam = np - 2)
-  check.param(epsilon) # do not check positivity in likelihood
-  check.param(u) # do not check positivity in likelihood
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.logic(logicarg = finitelik)
+  check.posparam(epsilon, allowzero = TRUE)
+  check.posparam(u)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.logic(finitelik)
     
   wshape = pvector[1]
   wscale = pvector[2]

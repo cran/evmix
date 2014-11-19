@@ -96,6 +96,9 @@
 #' 
 #' @examples
 #' \dontrun{
+#' set.seed(1)
+#' par(mfrow = c(2, 2))
+#' 
 #' xx = seq(-4, 5, 0.01)
 #' u = 1.5
 #' epsilon = 0.4
@@ -123,8 +126,7 @@
 #' x = ritmnormgpd(10000, nmean = 0, nsd = 1, epsilon, u, sigmau = 1, xi = 0.5)
 #' hist(x, freq = FALSE, breaks = seq(-4, 1000, 0.1), xlim = c(-4, 5))
 #' lines(xx, ditmnormgpd(xx, nmean = 0, nsd = 1, epsilon, u, sigmau = 1, xi = 0.5),
-#'   lwd = 2, col = 'black')
-#'   
+#'   lwd = 2, col = 'black')  
 #' }
 #' 
 NULL
@@ -139,19 +141,19 @@ ditmnormgpd = function(x, nmean = 0, nsd = 1, epsilon = nsd, u = qnorm(0.9, nmea
                 sigmau = nsd, xi = 0, log = FALSE) {
   
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.param(param = nmean, allowvec = TRUE)
-  check.posparam(param = nsd, allowvec = TRUE)
-  check.posparam(param = epsilon, allowvec = TRUE)
-  check.param(param = u, allowvec = TRUE)
-  check.posparam(param = sigmau, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
-  check.logic(logicarg = log)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.param(nmean, allowvec = TRUE)
+  check.posparam(nsd, allowvec = TRUE)
+  check.posparam(epsilon, allowvec = TRUE, allowzero = TRUE)
+  check.param(u, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
+  check.logic(log)
   
   n = check.inputn(c(length(x), length(nmean), length(nsd), length(epsilon),
-                     length(u), length(sigmau), length(xi)))
+                     length(u), length(sigmau), length(xi)), allowscalar = TRUE)
   oneparam = (check.inputn(c(length(nmean), length(nsd), length(epsilon),
-                             length(u), length(sigmau), length(xi))) == 1)
+                             length(u), length(sigmau), length(xi)), allowscalar = TRUE) == 1)
   
   if (any(is.infinite(x))) warning("infinite quantiles set to NA")
 
@@ -202,19 +204,19 @@ pitmnormgpd = function(q, nmean = 0, nsd = 1, epsilon = nsd, u = qnorm(0.9, nmea
                 sigmau = nsd, xi = 0, lower.tail = TRUE) {
   
   # Check properties of inputs
-  check.quant(q, allowmiss = TRUE, allowinf = TRUE)
-  check.param(param = nmean, allowvec = TRUE)
-  check.posparam(param = nsd, allowvec = TRUE)
-  check.posparam(param = epsilon, allowvec = TRUE)
-  check.param(param = u, allowvec = TRUE)
-  check.posparam(param = sigmau, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
-  check.logic(logicarg = lower.tail)
+  check.quant(q, allowna = TRUE, allowinf = TRUE)
+  check.param(nmean, allowvec = TRUE)
+  check.posparam(nsd, allowvec = TRUE)
+  check.posparam(epsilon, allowvec = TRUE, allowzero = TRUE)
+  check.param(u, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
+  check.logic(lower.tail)
   
   n = check.inputn(c(length(q), length(nmean), length(nsd), length(epsilon),
-                     length(u), length(sigmau), length(xi)))
+                     length(u), length(sigmau), length(xi)), allowscalar = TRUE)
   oneparam = (check.inputn(c(length(nmean), length(nsd), length(epsilon),
-                             length(u), length(sigmau), length(xi))) == 1)
+                             length(u), length(sigmau), length(xi)), allowscalar = TRUE) == 1)
   
   if (any(is.infinite(q))) warning("infinite quantiles set to NA")
   
@@ -262,17 +264,17 @@ qitmnormgpd = function(p, nmean = 0, nsd = 1, epsilon = nsd, u = qnorm(0.9, nmea
                 sigmau = nsd, xi = 0, lower.tail = TRUE) {
   
   # Check properties of inputs
-  check.prob(p, allowmiss = TRUE)
-  check.param(param = nmean, allowvec = TRUE)
-  check.posparam(param = nsd, allowvec = TRUE)
-  check.posparam(param = epsilon, allowvec = TRUE)
-  check.param(param = u, allowvec = TRUE)
-  check.posparam(param = sigmau, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
-  check.logic(logicarg = lower.tail)
+  check.prob(p, allowna = TRUE)
+  check.param(nmean, allowvec = TRUE)
+  check.posparam(nsd, allowvec = TRUE)
+  check.posparam(epsilon, allowvec = TRUE, allowzero = TRUE)
+  check.param(u, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
+  check.logic(lower.tail)
   
   n = check.inputn(c(length(p), length(nmean), length(nsd), length(epsilon),
-                     length(u), length(sigmau), length(xi)))
+                     length(u), length(sigmau), length(xi)), allowscalar = TRUE)
   
   if (!lower.tail) p = 1 - p
     
@@ -352,15 +354,15 @@ ritmnormgpd = function(n = 1, nmean = 0, nsd = 1, epsilon = nsd, u = qnorm(0.9, 
   
   # Check properties of inputs
   check.n(n)
-  check.param(param = nmean, allowvec = TRUE)
-  check.posparam(param = nsd, allowvec = TRUE)
-  check.posparam(param = epsilon, allowvec = TRUE)
-  check.param(param = u, allowvec = TRUE)
-  check.posparam(param = sigmau, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
+  check.param(nmean, allowvec = TRUE)
+  check.posparam(nsd, allowvec = TRUE)
+  check.posparam(epsilon, allowvec = TRUE, allowzero = TRUE)
+  check.param(u, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
   
   check.inputn(c(n, length(nmean), length(nsd), length(epsilon), 
-                 length(u), length(sigmau), length(xi)))
+                 length(u), length(sigmau), length(xi)), allowscalar = TRUE)
   
   if (any(xi == 1)) stop("shape cannot be 1")
   

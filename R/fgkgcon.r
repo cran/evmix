@@ -66,6 +66,9 @@
 #'    \code{phiul+phiur<1} as bulk must contribute.
 #' }
 #' 
+#' If the profile likelihood approach is used, then a grid search over all combinations of both thresholds
+#' is carried out. The combinations which lead to less than 5 in any datapoints beyond the thresholds are not considered.
+#' 
 #' @section Warning:
 #' See important warnings about cross-validation likelihood estimation in 
 #' \code{\link[evmix:fkden]{fkden}}, type \code{help fkden}.
@@ -84,6 +87,7 @@
 #'  \code{fixedu}:    \tab fixed thresholds, logical\cr
 #'  \code{ulseq}:     \tab lower threshold vector for profile likelihood or scalar for fixed threshold\cr
 #'  \code{urseq}:     \tab upper threshold vector for profile likelihood or scalar for fixed threshold\cr
+#'  \code{nllhuseq}:  \tab profile negative log-likelihood at each threshold pair in (ulseq, urseq)\cr
 #'  \code{optim}:     \tab complete \code{optim} output\cr
 #'  \code{mle}:       \tab vector of MLE of parameters\cr
 #'  \code{cov}:       \tab variance-covariance matrix of MLE of parameters\cr
@@ -151,8 +155,8 @@
 #' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'
 #' @section Acknowledgments: See Acknowledgments in
-#'   \code{\link[evmix:fnormgpd]{fnormgpd}}, type \code{help fnormgpd}. Based on MATLAB
-#'   code written by Anna MacDonald.
+#'   \code{\link[evmix:fnormgpd]{fnormgpd}}, type \code{help fnormgpd}. Based on code
+#' by Anna MacDonald produced for MATLAB.
 #' 
 #' @seealso \code{\link[evmix:kernels]{kernels}}, \code{\link[evmix:kfun]{kfun}},
 #'  \code{\link[stats:density]{density}}, \code{\link[stats:bandwidth]{bw.nrd0}}
@@ -165,7 +169,9 @@
 #' 
 #' @examples
 #' \dontrun{
-#' par(mfrow=c(2,1))
+#' set.seed(1)
+#' par(mfrow = c(2, 1))
+#' 
 #' x = rnorm(1000)
 #' xx = seq(-4, 4, 0.01)
 #' y = dnorm(xx)
@@ -187,10 +193,10 @@
 #'   col=c("black", "blue", "red"), lty = 1)
 #'   
 #' # Profile likelihood for initial value of threshold and fixed threshold approach
-#' fitu = fgkgcon(x, ulseq = rep(seq(-2, -0.2, length = 10), times = 10), 
-#'  urseq = rep(seq(0.2, 2, length = 10), each = 10))
-#' fitfix = fgkgcon(x, ulseq = rep(seq(-2, -0.2, length = 10), times = 10), 
-#'  urseq = rep(seq(0.2, 2, length = 10), each = 10), fixedu = TRUE)
+#' fitu = fgkgcon(x, ulseq = seq(-2, -0.2, length = 10), 
+#'  urseq = seq(0.2, 2, length = 10))
+#' fitfix = fgkgcon(x, ulseq = seq(-2, -0.2, length = 10), 
+#'  urseq = seq(0.2, 2, length = 10), fixedu = TRUE)
 #' 
 #' hist(x, breaks = 100, freq = FALSE, xlim = c(-4, 4))
 #' lines(xx, y)
@@ -217,22 +223,24 @@ fgkgcon <- function(x, phiul = TRUE, phiur = TRUE, ulseq = NULL, urseq = NULL, f
 
   call <- match.call()
     
+  np = 5 # maximum number of parameters
+
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.logic(logicarg = phiul) # only logical
-  check.logic(logicarg = phiur) # only logical
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.logic(phiul)
+  check.logic(phiur)
   check.param(ulseq, allowvec = TRUE, allownull = TRUE)
   check.param(urseq, allowvec = TRUE, allownull = TRUE)
-  check.logic(logicarg = fixedu)
-  check.logic(logicarg = std.err)
+  check.logic(fixedu)
+  check.logic(std.err)
   check.optim(method)
   check.control(control)
-  check.logic(logicarg = finitelik)
+  check.logic(finitelik)
 
   check.kernel(kernel)
-  check.posparam(param = factor)
-  check.posparam(param = amount, allownull = TRUE)
-  check.logic(logicarg = add.jitter)
+  check.posparam(factor)
+  check.posparam(amount, allownull = TRUE)
+  check.logic(add.jitter)
   
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -241,7 +249,6 @@ fgkgcon <- function(x, phiul = TRUE, phiur = TRUE, ulseq = NULL, urseq = NULL, f
 
   check.quant(x)
   n = length(x)
-  np = 5 # maximum number of parameters
 
   if (add.jitter) x = jitter(x, factor, amount)
 
@@ -287,21 +294,26 @@ fgkgcon <- function(x, phiul = TRUE, phiur = TRUE, ulseq = NULL, urseq = NULL, f
       ulseq = ulseq[sapply(ulseq, FUN = function(u, x) sum(x < u) > 5, x = x)]
       check.param(ulseq, allowvec = TRUE)
       urseq = urseq[sapply(urseq, FUN = function(u, x) sum(x > u) > 5, x = x)]
-      check.param(ulseq, allowvec = TRUE)
+      check.param(urseq, allowvec = TRUE)
 
-      nuseq = max(length(ulseq), length(urseq))
-      ulseq = rep(ulseq, length.out = nuseq)
-      urseq = rep(urseq, length.out = nuseq)
+      ulrseq = expand.grid(ulseq, urseq)
       
-      nllhu = apply(cbind(ulseq, urseq), 1, proflugkgcon, pvector = pvector, x = x,
+      # remove those where ulseq >= urseq
+      if (any(ulrseq[1] >= ulrseq[2])) {
+        warning("lower thresholds above or equal to upper threshold are ignored")
+        ulrseq = ulrseq[ulrseq[1] < ulrseq[2],]
+      }
+
+      nllhu = apply(ulrseq, 1, proflugkgcon, pvector = pvector, x = x,
         phiul = phiul, phiur = phiur, kernel = kernel,
         method = method, control = control, finitelik = finitelik, ...)
       
       if (all(!is.finite(nllhu))) stop("thresholds are all invalid")
-      ul = ulseq[which.min(nllhu)]
-      ur = urseq[which.min(nllhu)]
+      ul = ulrseq[which.min(nllhu), 1]
+      ur = ulrseq[which.min(nllhu), 2]
 
     } else {
+      if (ulseq >= urseq) stop("lower threshold cannot be above or equal to upper threshold")
       ul = ulseq
       ur = urseq
     }
@@ -344,6 +356,10 @@ fgkgcon <- function(x, phiul = TRUE, phiur = TRUE, ulseq = NULL, urseq = NULL, f
 
   if (fixedu) { # fixed threshold (separable) likelihood
     nllh = nlugkgcon(pvector, ul, ur, x, phiul, phiur, kernel = kernel)
+    if (is.infinite(nllh)) {
+      pvector[c(2, 3)] = 0.1
+      nllh = nlugkgcon(pvector, ul, ur, x, phiul, phiur, kernel = kernel)    
+    }
     if (is.infinite(nllh)) stop("initial parameter values are invalid")
   
     fit = optim(par = as.vector(pvector), fn = nlugkgcon, ul = ul, ur = ur, x = x,
@@ -357,6 +373,10 @@ fgkgcon <- function(x, phiul = TRUE, phiur = TRUE, ulseq = NULL, urseq = NULL, f
   } else { # complete (non-separable) likelihood
     
     nllh = nlgkgcon(pvector, x, phiul, phiur, kernel = kernel)
+    if (is.infinite(nllh)) {
+      pvector[c(3, 5)] = 0.1
+      nllh = nlgkgcon(pvector, x, phiul, phiur, kernel = kernel)    
+    }
     if (is.infinite(nllh)) stop("initial parameter values are invalid")
   
     fit = optim(par = as.vector(pvector), fn = nlgkgcon, x = x, phiul = phiul, phiur = phiur, kernel = kernel,
@@ -404,14 +424,14 @@ fgkgcon <- function(x, phiul = TRUE, phiur = TRUE, ulseq = NULL, urseq = NULL, f
   if (std.err) {
     qrhess = qr(fit$hessian)
     if (qrhess$rank != ncol(qrhess$qr)) {
-      warning("observed information matrix is singular; use std.err = FALSE")
+      warning("observed information matrix is singular")
       se = NULL
       invhess = NULL
     } else {
       invhess = solve(qrhess)
       vars = diag(invhess)
       if (any(vars <= 0)) {
-        warning("observed information matrix is singular; use std.err = FALSE")
+        warning("observed information matrix is singular")
         invhess = NULL
         se = NULL
       } else {
@@ -423,8 +443,10 @@ fgkgcon <- function(x, phiul = TRUE, phiur = TRUE, ulseq = NULL, urseq = NULL, f
     se = NULL
   }
   
+  if (!exists("nllhu")) nllhu = NULL
+
   list(call = call, x = as.vector(x),
-    init = as.vector(pvector), fixedu = fixedu, ulseq = ulseq, urseq = urseq,
+    init = as.vector(pvector), fixedu = fixedu, ulseq = ulseq, urseq = urseq, nllhuseq = nllhu,
     optim = fit, conv = conv, cov = invhess, mle = fit$par, se = se, ratel = phiul, rater = phiur,
     nllh = fit$value, n = n, lambda = lambda, 
     ul = ul, sigmaul = sigmaul, xil = xil, phiul = phiul, se.phiul = se.phiul, 
@@ -442,16 +464,16 @@ lgkgcon <- function(x, lambda = NULL, ul = 0, xil = 0, phiul = TRUE,
   ur = 0, xir = 0, phiur = TRUE, bw = NULL, kernel = "gaussian", log = TRUE) {
 
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.param(param = lambda, allownull = TRUE) # do not check positivity in likelihood
-  check.param(param = bw, allownull = TRUE)     # do not check positivity in likelihood
-  check.param(param = ul)                       
-  check.param(param = xil)
-  check.param(param = ur)                       
-  check.param(param = xir)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.param(lambda, allownull = TRUE)
+  check.param(bw, allownull = TRUE)
+  check.param(ul)                       
+  check.param(xil)
+  check.param(ur)                       
+  check.param(xir)
   check.phiu(phiul, allowfalse = TRUE)
   check.phiu(phiur, allowfalse = TRUE)
-  check.logic(logicarg = log)
+  check.logic(log)
 
   check.kernel(kernel)
 
@@ -478,7 +500,7 @@ lgkgcon <- function(x, lambda = NULL, ul = 0, xil = 0, phiul = TRUE,
   if (is.null(lambda)) lambda = klambda(bw, kernel, lambda)
   
   check.inputn(c(length(lambda), length(ul), length(xil), length(phiul), 
-    length(ur), length(xir), length(phiur)))
+    length(ur), length(xir), length(phiur)), allowscalar = TRUE)
 
   # assume NA or NaN are irrelevant as entire lower tail is now modelled
   # inconsistent with evd library definition
@@ -553,10 +575,10 @@ nlgkgcon <- function(pvector, x, phiul = TRUE, phiur = TRUE, kernel = "gaussian"
 
   # Check properties of inputs
   check.nparam(pvector, nparam = np)
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
   check.phiu(phiul, allowfalse = TRUE)
   check.phiu(phiur, allowfalse = TRUE)
-  check.logic(logicarg = finitelik)
+  check.logic(finitelik)
 
   check.kernel(kernel)
   kernel = ifelse(kernel == "rectangular", "uniform", kernel)
@@ -594,10 +616,12 @@ proflugkgcon <- function(ulr, pvector, x, phiul = TRUE, phiur = TRUE, kernel = "
   check.nparam(pvector, nparam = np - 2, allownull = TRUE)
   check.param(ulr, allowvec = TRUE)
   check.nparam(ulr, nparam = 2)
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
   check.phiu(phiul, allowfalse = TRUE)
   check.phiu(phiur, allowfalse = TRUE)
-  check.logic(logicarg = finitelik)
+  check.optim(method)
+  check.control(control)
+  check.logic(finitelik)
 
   check.kernel(kernel)
 
@@ -614,6 +638,8 @@ proflugkgcon <- function(ulr, pvector, x, phiul = TRUE, phiur = TRUE, kernel = "
   
   ul = ulr[1]
   ur = ulr[2]
+
+  if (ul >= ur) stop("lower threshold cannot be above or equal to upper threshold")
 
   # check initial values for other parameters, try usual alternative
   if (!is.null(pvector)) {
@@ -634,6 +660,11 @@ proflugkgcon <- function(ulr, pvector, x, phiul = TRUE, phiur = TRUE, kernel = "
     initfgpd = fgpd(x, ur, std.err = FALSE)
     pvector[3] = initfgpd$xi
     nllh = nlugkgcon(pvector, ul, ur, x, phiul, phiur, kernel = kernel)
+  }
+
+  if (is.infinite(nllh)) {
+    pvector[c(2, 3)] = 0.1
+    nllh = nlugkgcon(pvector, ul, ur, x, phiul, phiur, kernel = kernel)    
   }
 
   # if still invalid then output cleanly
@@ -671,15 +702,17 @@ nlugkgcon <- function(pvector, ul, ur, x, phiul = TRUE, phiur = TRUE, kernel = "
   check.nparam(pvector, nparam = np - 2)
   check.param(ul)
   check.param(ur)
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
   check.phiu(phiul, allowfalse = TRUE)
   check.phiu(phiur, allowfalse = TRUE)
-  check.logic(logicarg = finitelik)
+  check.logic(finitelik)
 
   check.kernel(kernel)
   kernel = ifelse(kernel == "rectangular", "uniform", kernel)
   kernel = ifelse(kernel == "normal", "gaussian", kernel)
     
+  if (ul >= ur) stop("lower threshold cannot be above or equal to upper threshold")
+
   lambda = pvector[1]
   xil = pvector[2]
   xir = pvector[3]

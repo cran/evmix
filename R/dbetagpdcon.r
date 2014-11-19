@@ -94,7 +94,9 @@
 #' 
 #' @examples
 #' \dontrun{
-#' par(mfrow=c(2,2))
+#' set.seed(1)
+#' par(mfrow = c(2, 2))
+#' 
 #' x = rbetagpdcon(1000, bshape1 = 1.5, bshape2 = 2, u = 0.7, phiu = 0.2)
 #' xx = seq(-0.1, 2, 0.01)
 #' hist(x, breaks = 100, freq = FALSE, xlim = c(-0.1, 2))
@@ -130,21 +132,22 @@ dbetagpdcon <- function(x, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1, bsh
   xi = 0, phiu = TRUE, log = FALSE) {
     
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.posparam(param = bshape1, allowvec = TRUE)
-  check.posparam(param = bshape2, allowvec = TRUE)
-  check.posparam(param = u, allowvec = TRUE) # threshold also positive for beta
-  check.param(param = xi, allowvec = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.posparam(bshape1, allowvec = TRUE)
+  check.posparam(bshape2, allowvec = TRUE)
+  check.prob(u)
+  check.param(xi, allowvec = TRUE)
   check.phiu(phiu, allowvec = TRUE)
-  check.logic(logicarg = log)
+  check.logic(log)
 
-  n = check.inputn(c(length(x), length(bshape1), length(bshape2), length(u), length(xi), length(phiu)))
+  n = check.inputn(c(length(x), length(bshape1), length(bshape2), length(u), length(xi), length(phiu)),
+                   allowscalar = TRUE)
 
   if (any(is.infinite(x))) warning("infinite quantiles set to NA")
 
   x[is.infinite(x)] = NA # user will have to deal with infinite cases
   
-  if (min(u) <= 0 | max(u) >= 1)
+  if ((min(u) <= 0) | (max(u) >= 1))
     stop("threshold must be between 0 and 1 (exclusive)")
 
   x = rep(x, length.out = n)
@@ -163,7 +166,7 @@ dbetagpdcon <- function(x, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1, bsh
 
   sigmau = phiu / (phib * dbeta(u, bshape1, bshape2))
   
-  check.posparam(param = sigmau, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
   
   dbetagpd(x, bshape1, bshape2, u, sigmau, xi, phiu, log)
 }
@@ -178,21 +181,22 @@ pbetagpdcon <- function(q, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1, bsh
   xi = 0, phiu = TRUE, lower.tail = TRUE) {
 
   # Check properties of inputs
-  check.quant(q, allowmiss = TRUE, allowinf = TRUE)
-  check.posparam(param = bshape1, allowvec = TRUE)
-  check.posparam(param = bshape2, allowvec = TRUE)
-  check.posparam(param = u, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
+  check.quant(q, allowna = TRUE, allowinf = TRUE)
+  check.posparam(bshape1, allowvec = TRUE)
+  check.posparam(bshape2, allowvec = TRUE)
+  check.prob(u)
+  check.param(xi, allowvec = TRUE)
   check.phiu(phiu, allowvec = TRUE)
-  check.logic(logicarg = lower.tail)
+  check.logic(lower.tail)
 
-  n = check.inputn(c(length(q), length(bshape1), length(bshape2), length(u), length(xi), length(phiu)))
+  n = check.inputn(c(length(q), length(bshape1), length(bshape2), length(u), length(xi), length(phiu)),
+                   allowscalar = TRUE)
 
   if (any(is.infinite(q))) warning("infinite quantiles are dropped")
 
   q[is.infinite(q)] = NA # user will have to deal with infinite cases
   
-  if (min(u) <= 0 | max(u) >= 1)
+  if ((min(u) <= 0) | (max(u) >= 1))
     stop("threshold must be between 0 and 1 (exclusive)")
 
   q = rep(q, length.out = n)
@@ -211,7 +215,7 @@ pbetagpdcon <- function(q, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1, bsh
     
   sigmau = phiu / (phib * dbeta(u, bshape1, bshape2))
   
-  check.posparam(param = sigmau, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
 
   pbetagpd(q, bshape1, bshape2, u, sigmau, xi, phiu, lower.tail)
 }
@@ -227,17 +231,18 @@ qbetagpdcon <- function(p, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1, bsh
 
   # Check properties of inputs
   # Check properties of inputs
-  check.prob(p, allowmiss = TRUE)
-  check.posparam(param = bshape1, allowvec = TRUE)
-  check.posparam(param = bshape2, allowvec = TRUE)
-  check.posparam(param = u, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
+  check.prob(p, allowna = TRUE)
+  check.posparam(bshape1, allowvec = TRUE)
+  check.posparam(bshape2, allowvec = TRUE)
+  check.prob(u)
+  check.param(xi, allowvec = TRUE)
   check.phiu(phiu, allowvec = TRUE)
-  check.logic(logicarg = lower.tail)
+  check.logic(lower.tail)
 
-  n = check.inputn(c(length(p), length(bshape1), length(bshape2), length(u), length(xi), length(phiu)))
+  n = check.inputn(c(length(p), length(bshape1), length(bshape2), length(u), length(xi), length(phiu)),
+                   allowscalar = TRUE)
   
-  if (min(u) <= 0 | max(u) >= 1)
+  if ((min(u) <= 0) | (max(u) >= 1))
     stop("threshold must be between 0 and 1 (exclusive)")
 
   p = rep(p, length.out = n)
@@ -256,7 +261,7 @@ qbetagpdcon <- function(p, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1, bsh
     
   sigmau = phiu / (phib * dbeta(u, bshape1, bshape2))
   
-  check.posparam(param = sigmau, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
     
   qbetagpd(p, bshape1, bshape2, u, sigmau, xi, phiu, lower.tail)
 }
@@ -272,16 +277,14 @@ rbetagpdcon <- function(n = 1, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1,
 
   # Check properties of inputs
   check.n(n)
-  check.param(param = bshape1, allowvec = TRUE)
-  check.posparam(param = bshape2, allowvec = TRUE)
-  check.posparam(param = u, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
+  check.posparam(bshape1, allowvec = TRUE)
+  check.posparam(bshape2, allowvec = TRUE)
+  check.prob(u)
+  check.param(xi, allowvec = TRUE)
   check.phiu(phiu, allowvec = TRUE)
 
-  n = check.inputn(c(n, length(bshape1), length(bshape2), length(u), length(xi), length(phiu)))
-
-  if (min(u) <= 0 | max(u) >= 1)
-    stop("threshold must be between 0 and 1 (exclusive)")
+  n = check.inputn(c(n, length(bshape1), length(bshape2), length(u), length(xi), length(phiu)),
+                   allowscalar = TRUE)
 
   if (any(xi == 1)) stop("shape cannot be 1")
 

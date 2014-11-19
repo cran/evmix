@@ -61,7 +61,7 @@
 #' @references
 #' \url{http://en.wikipedia.org/wiki/Kernel_density_estimation}
 #' 
-#' \url{http://http://en.wikipedia.org/wiki/Kernel_(statistics)}
+#' \url{http://en.wikipedia.org/wiki/Kernel_(statistics)}
 #' 
 #' Wand and Jones (1995). Kernel Smoothing. Chapman & Hall.
 #' 
@@ -96,10 +96,9 @@ NULL
 #' @rdname kfun
 check.kinputs <- function(x, lambda, bw, kerncentres, allownull = FALSE) {
 
-  check.logic(logicarg = allownull)
-  
   check.quant(x)
   check.quant(kerncentres)
+  check.logic(allownull)
 
   if (all(c(length(x), length(kerncentres)) != 1))
     warnings("Check that both x and kerncentres are supposed to be vectors")
@@ -111,15 +110,11 @@ check.kinputs <- function(x, lambda, bw, kerncentres, allownull = FALSE) {
 #' @rdname kfun
 check.kernel <- function(kernel) {
 
+  check.text(kernel)
+
   allkernels = c("gaussian", "normal", "uniform", "rectangular",
     "triangular", "epanechnikov", "biweight", "triweight", "tricube",
     "parzen", "cosine", "optcosine")
-
-  if (length(kernel) != 1)
-    stop(paste(c("kernel must be one of", allkernels), collapse = " "))
-
-  if ((mode(kernel) != "character"))
-    stop(paste(c("kernel must be one of", allkernels), collapse = " "))
   
   if (!(kernel %in% allkernels))
     stop(paste(c("kernel must be one of", allkernels), collapse = " "))
@@ -129,7 +124,7 @@ check.kernel <- function(kernel) {
 #' @rdname kfun
 check.kbw <- function(lambda, bw, allownull = FALSE) {
 
-  check.logic(logicarg = allownull)
+  check.logic(allownull)
 
   if (!allownull & is.null(lambda) & is.null(bw)) stop("lambda and bw cannot both be NULL")
   
@@ -223,6 +218,7 @@ kbw <- function(lambda = NULL, kernel = "gaussian", bw = NULL) {
 #' @export
 #' @rdname kfun
 ka0 <- function(truncpoint, kernel = "gaussian") {
+
   check.kernel(kernel)
   
   kernel = ifelse(kernel == "rectangular", "uniform", kernel)
@@ -244,6 +240,7 @@ ka0 <- function(truncpoint, kernel = "gaussian") {
 #' @export
 #' @rdname kfun
 ka1 <- function(truncpoint, kernel = "gaussian") {
+  
   check.kernel(kernel)
   
   kernel = ifelse(kernel == "rectangular", "uniform", kernel)
@@ -271,6 +268,7 @@ ka1 <- function(truncpoint, kernel = "gaussian") {
 #' @export
 #' @rdname kfun
 ka2 <- function(truncpoint, kernel = "gaussian") {
+  
   check.kernel(kernel)
   
   kernel = ifelse(kernel == "rectangular", "uniform", kernel)

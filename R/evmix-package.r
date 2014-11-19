@@ -43,5 +43,6 @@
 #' 
 #' @seealso \code{\link[evd:gpd]{evd}}, \code{\link[ismev:ismev]{ismev}} and 
 #' \code{\link[condmixt:condmixt-package]{condmixt}}
-#' @import stats graphics MASS gsl
+#' @import stats graphics MASS splines gsl
+#' @importFrom SparseM as.matrix.csr rbind.matrix.csr slm.wfit is.matrix.csr
 NULL

@@ -105,7 +105,9 @@
 #' 
 #' @examples
 #' \dontrun{
-#' par(mfrow=c(2,2))
+#' set.seed(1)
+#' par(mfrow = c(2, 2))
+#' 
 #' x = rgng(1000, phiul = 0.15, phiur = 0.15)
 #' xx = seq(-6, 6, 0.01)
 #' hist(x, breaks = 100, freq = FALSE, xlim = c(-6, 6))
@@ -142,22 +144,22 @@ dgng <- function(x, nmean = 0, nsd = 1,
   ur = qnorm(0.9, nmean, nsd), sigmaur = nsd, xir = 0, phiur = TRUE, log = FALSE) {
 
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.param(param = nmean, allowvec = TRUE)
-  check.posparam(param = nsd, allowvec = TRUE)
-  check.param(param = ul, allowvec = TRUE)
-  check.posparam(param = sigmaul, allowvec = TRUE)
-  check.param(param = xil, allowvec = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.param(nmean, allowvec = TRUE)
+  check.posparam(nsd, allowvec = TRUE)
+  check.param(ul, allowvec = TRUE)
+  check.posparam(sigmaul, allowvec = TRUE)
+  check.param(xil, allowvec = TRUE)
   check.phiu(phiul, allowvec = TRUE)
-  check.param(param = ur, allowvec = TRUE)
-  check.posparam(param = sigmaur, allowvec = TRUE)
-  check.param(param = xir, allowvec = TRUE)
+  check.param(ur, allowvec = TRUE)
+  check.posparam(sigmaur, allowvec = TRUE)
+  check.param(xir, allowvec = TRUE)
   check.phiu(phiur, allowvec = TRUE)
-  check.logic(logicarg = log)
+  check.logic(log)
 
   n = check.inputn(c(length(x), length(nmean), length(nsd),
     length(ul), length(sigmaul), length(xil), length(phiul),
-    length(ur), length(sigmaur), length(xir), length(phiur)))
+    length(ur), length(sigmaur), length(xir), length(phiur)), allowscalar = TRUE)
 
   if (any(is.infinite(x))) warning("infinite quantiles set to NA")
 
@@ -219,22 +221,22 @@ pgng <- function(q, nmean = 0, nsd = 1,
   ur = qnorm(0.9, nmean, nsd), sigmaur = nsd, xir = 0, phiur = TRUE, lower.tail = TRUE) {
 
   # Check properties of inputs
-  check.quant(q, allowmiss = TRUE, allowinf = TRUE)
-  check.param(param = nmean, allowvec = TRUE)
-  check.posparam(param = nsd, allowvec = TRUE)
-  check.param(param = ul, allowvec = TRUE)
-  check.posparam(param = sigmaul, allowvec = TRUE)
-  check.param(param = xil, allowvec = TRUE)
+  check.quant(q, allowna = TRUE, allowinf = TRUE)
+  check.param(nmean, allowvec = TRUE)
+  check.posparam(nsd, allowvec = TRUE)
+  check.param(ul, allowvec = TRUE)
+  check.posparam(sigmaul, allowvec = TRUE)
+  check.param(xil, allowvec = TRUE)
   check.phiu(phiul, allowvec = TRUE)
-  check.param(param = ur, allowvec = TRUE)
-  check.posparam(param = sigmaur, allowvec = TRUE)
-  check.param(param = xir, allowvec = TRUE)
+  check.param(ur, allowvec = TRUE)
+  check.posparam(sigmaur, allowvec = TRUE)
+  check.param(xir, allowvec = TRUE)
   check.phiu(phiur, allowvec = TRUE)
-  check.logic(logicarg = lower.tail)
+  check.logic(lower.tail)
 
   n = check.inputn(c(length(q), length(nmean), length(nsd),
     length(ul), length(sigmaul), length(xil), length(phiul),
-    length(ur), length(sigmaur), length(xir), length(phiur)))
+    length(ur), length(sigmaur), length(xir), length(phiur)), allowscalar = TRUE)
 
   if (any(is.infinite(q))) warning("infinite quantiles set to NA")
 
@@ -296,22 +298,22 @@ qgng <- function(p, nmean = 0, nsd = 1,
   ur = qnorm(0.9, nmean, nsd), sigmaur = nsd, xir = 0, phiur = TRUE, lower.tail = TRUE) {
 
   # Check properties of inputs
-  check.prob(p, allowmiss = TRUE)
-  check.param(param = nmean, allowvec = TRUE)
-  check.posparam(param = nsd, allowvec = TRUE)
-  check.param(param = ul, allowvec = TRUE)
-  check.posparam(param = sigmaul, allowvec = TRUE)
-  check.param(param = xil, allowvec = TRUE)
+  check.prob(p, allowna = TRUE)
+  check.param(nmean, allowvec = TRUE)
+  check.posparam(nsd, allowvec = TRUE)
+  check.param(ul, allowvec = TRUE)
+  check.posparam(sigmaul, allowvec = TRUE)
+  check.param(xil, allowvec = TRUE)
   check.phiu(phiul, allowvec = TRUE)
-  check.param(param = ur, allowvec = TRUE)
-  check.posparam(param = sigmaur, allowvec = TRUE)
-  check.param(param = xir, allowvec = TRUE)
+  check.param(ur, allowvec = TRUE)
+  check.posparam(sigmaur, allowvec = TRUE)
+  check.param(xir, allowvec = TRUE)
   check.phiu(phiur, allowvec = TRUE)
-  check.logic(logicarg = lower.tail)
+  check.logic(lower.tail)
 
   n = check.inputn(c(length(p), length(nmean), length(nsd),
     length(ul), length(xil), length(phiul),
-    length(ur), length(xir), length(phiur)))
+    length(ur), length(xir), length(phiur)), allowscalar = TRUE)
 
   if (any(ul >= ur)) stop("lower threshold must be below upper threshold")
 
@@ -370,28 +372,22 @@ rgng <- function(n = 1, nmean = 0, nsd = 1,
   
   # Check properties of inputs
   check.n(n)
-  check.param(param = nmean, allowvec = TRUE)
-  check.posparam(param = nsd, allowvec = TRUE)
-  check.param(param = ul, allowvec = TRUE)
-  check.posparam(param = sigmaul, allowvec = TRUE)
-  check.param(param = xil, allowvec = TRUE)
+  check.param(nmean, allowvec = TRUE)
+  check.posparam(nsd, allowvec = TRUE)
+  check.param(ul, allowvec = TRUE)
+  check.posparam(sigmaul, allowvec = TRUE)
+  check.param(xil, allowvec = TRUE)
   check.phiu(phiul, allowvec = TRUE)
-  check.param(param = ur, allowvec = TRUE)
-  check.posparam(param = sigmaur, allowvec = TRUE)
-  check.param(param = xir, allowvec = TRUE)
+  check.param(ur, allowvec = TRUE)
+  check.posparam(sigmaur, allowvec = TRUE)
+  check.param(xir, allowvec = TRUE)
   check.phiu(phiur, allowvec = TRUE)
   
   n = check.inputn(c(n, length(nmean), length(nsd),
     length(ul), length(sigmaul), length(xil), length(phiul),
-    length(ur), length(sigmaur), length(xir), length(phiur)))
+    length(ur), length(sigmaur), length(xir), length(phiur)), allowscalar = TRUE)
 
   if (any(xil == 1) | any(xir == 1)) stop("shape cannot be 1")
-
-  if (any(ul >= ur)) stop("lower threshold must be below upper threshold")
-
-  if (!is.logical(phiul) & !is.logical(phiur)) {
-    if (any((phiul + phiur) > 1)) stop("phiu + phiur must be less than 1")
-  }
   
   qgng(runif(n), nmean, nsd, ul, sigmaul, xil, phiul, ur, sigmaur, xir, phiur)
 }

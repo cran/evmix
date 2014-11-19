@@ -14,7 +14,7 @@
 #' @param fixedeu logical, should threshold and epsilon be fixed
 #'                (at either scalar value in \code{useq} and \code{eseq},
 #'                or estimated from maximum of profile likelihood evaluated at
-#'                grid of thresholds and epsilons in \code{useq})
+#'                grid of thresholds and epsilons in \code{useq} and \code{eseq})
 #' @param eu      vector of epsilon and threshold pair considered in profile likelihood
 #' @inheritParams fnormgpd
 #' @inheritParams fnormgpd
@@ -46,6 +46,9 @@
 #' A fixed threshold and epsilon approach is acheived by setting a single scalar value to each in 
 #' \code{useq} and \code{eseq} respectively.
 #' 
+#' If the profile likelihood approach is used, then a grid search over all combinations of epsilon and threshold
+#' are carried out. The combinations which lead to less than 5 in any any interval are not considered.
+#' 
 #' @return Log-likelihood is given by \code{\link[evmix:fitmnormgpd]{litmnormgpd}} and it's
 #'   wrappers for negative log-likelihood from \code{\link[evmix:fitmnormgpd]{nlitmnormgpd}}
 #'   and \code{\link[evmix:fitmnormgpd]{nluitmnormgpd}}. Profile likelihood for
@@ -54,24 +57,25 @@
 #'   with the following elements
 #'
 #' \tabular{ll}{
-#'  \code{call}:    \tab \code{optim} call\cr
-#'  \code{x}:       \tab data vector \code{x}\cr
-#'  \code{init}:    \tab \code{pvector}\cr
-#'  \code{fixedeu}: \tab fixed epsilon and threshold, logical\cr
-#'  \code{useq}:    \tab threshold vector for profile likelihood or scalar for fixed threshold\cr
-#'  \code{eseq}:    \tab epsilon vector for profile likelihood or scalar for fixed epsilon\cr
-#'  \code{optim}:   \tab complete \code{optim} output\cr
-#'  \code{mle}:     \tab vector of MLE of parameters\cr
-#'  \code{cov}:     \tab variance-covariance matrix of MLE of parameters\cr
-#'  \code{se}:      \tab vector of standard errors of MLE of parameters\cr
-#'  \code{nllh}:    \tab minimum negative log-likelihood\cr
-#'  \code{n}:       \tab total sample size\cr
-#'  \code{nmean}:   \tab MLE of normal shape\cr
-#'  \code{nsd}:     \tab MLE of normal scale\cr
-#'  \code{epsilon}: \tab MLE of transition half-width\cr
-#'  \code{u}:       \tab threshold (fixed or MLE)\cr
-#'  \code{sigmau}:  \tab MLE of GPD scale\cr
-#'  \code{xi}:      \tab MLE of GPD shape\cr
+#'  \code{call}:      \tab \code{optim} call\cr
+#'  \code{x}:         \tab data vector \code{x}\cr
+#'  \code{init}:      \tab \code{pvector}\cr
+#'  \code{fixedeu}:   \tab fixed epsilon and threshold, logical\cr
+#'  \code{useq}:      \tab threshold vector for profile likelihood or scalar for fixed threshold\cr
+#'  \code{eseq}:      \tab epsilon vector for profile likelihood or scalar for fixed epsilon\cr
+#'  \code{nllheuseq}: \tab profile negative log-likelihood at each combination in (eseq, useq)\cr
+#'  \code{optim}:     \tab complete \code{optim} output\cr
+#'  \code{mle}:       \tab vector of MLE of parameters\cr
+#'  \code{cov}:       \tab variance-covariance matrix of MLE of parameters\cr
+#'  \code{se}:        \tab vector of standard errors of MLE of parameters\cr
+#'  \code{nllh}:      \tab minimum negative log-likelihood\cr
+#'  \code{n}:         \tab total sample size\cr
+#'  \code{nmean}:     \tab MLE of normal shape\cr
+#'  \code{nsd}:       \tab MLE of normal scale\cr
+#'  \code{epsilon}:   \tab MLE of transition half-width\cr
+#'  \code{u}:         \tab threshold (fixed or MLE)\cr
+#'  \code{sigmau}:    \tab MLE of GPD scale\cr
+#'  \code{xi}:        \tab MLE of GPD shape\cr
 #' }
 #' 
 #' @note When \code{pvector=NULL} then the initial values are:
@@ -105,6 +109,9 @@
 #' 
 #' @examples
 #' \dontrun{
+#' set.seed(1)
+#' par(mfrow = c(1, 1))
+#' 
 #' x = rnorm(1000)
 #' xx = seq(-4, 4, 0.01)
 #' y = dnorm(xx)
@@ -117,9 +124,9 @@
 #' abline(v = fit$u + fit$epsilon * seq(-1, 1), col = "red")
 #'   
 #' # Profile likelihood for threshold which is then fixed
-#' fitu = fitmnormgpd(x, eseq = seq(0, 2, 0.1), useq = seq(0, 2.5, 0.1), fixedeu = T)
-#' with(fitu, lines(xx, ditmnormgpd(xx, nmean, nsd, epsilon, u, sigmau, xi), col="blue"))
-#' abline(v = fitu$u + fitu$epsilon * seq(-1, 1), col = "blue")
+#' fitfix = fitmnormgpd(x, eseq = seq(0, 2, 0.1), useq = seq(0, 2.5, 0.1), fixedeu = TRUE)
+#' with(fitfix, lines(xx, ditmnormgpd(xx, nmean, nsd, epsilon, u, sigmau, xi), col="blue"))
+#' abline(v = fitfix$u + fitfix$epsilon * seq(-1, 1), col = "blue")
 #' legend("topright", c("True Density", "normal-GPD ITM", "Profile likelihood"),
 #'   col=c("black", "red", "blue"), lty = 1)
 #' }
@@ -132,15 +139,17 @@ fitmnormgpd <- function(x, eseq = NULL, useq = NULL, fixedeu = FALSE, pvector = 
 
   call <- match.call()
     
+  np = 6 # maximum number of parameters
+
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.posparam(eseq, allowvec = TRUE, allownull = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.posparam(eseq, allowvec = TRUE, allownull = TRUE, allowzero = TRUE)
   check.param(useq, allowvec = TRUE, allownull = TRUE)
-  check.logic(logicarg = fixedeu)
-  check.logic(logicarg = std.err)
+  check.logic(fixedeu)
+  check.logic(std.err)
   check.optim(method)
   check.control(control)
-  check.logic(logicarg = finitelik)
+  check.logic(finitelik)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -149,7 +158,6 @@ fitmnormgpd <- function(x, eseq = NULL, useq = NULL, fixedeu = FALSE, pvector = 
 
   check.quant(x)
   n = length(x)
-  np = 6 # maximum number of parameters
 
   if ((method == "L-BFGS-B") | (method == "BFGS")) finitelik = TRUE
   
@@ -190,7 +198,7 @@ fitmnormgpd <- function(x, eseq = NULL, useq = NULL, fixedeu = FALSE, pvector = 
       eugrid = eugrid[sapply(eugrid[, 2] + eugrid[, 1], FUN = function(u, x) sum(x > u) >= 5, x = x),]
       eugrid = eugrid[sapply(eugrid[, 2] - eugrid[, 1], FUN = function(u, x) sum(x < u) >= 5, x = x),]
       
-      check.posparam(eugrid[, 1], allowvec = TRUE)
+      check.posparam(eugrid[, 1], allowvec = TRUE, allowzero = TRUE)
       check.param(eugrid[, 2], allowvec = TRUE)
 
       nllheu = apply(eugrid, 1, profleuitmnormgpd, pvector = pvector, x = x,
@@ -234,8 +242,12 @@ fitmnormgpd <- function(x, eseq = NULL, useq = NULL, fixedeu = FALSE, pvector = 
 
   if (fixedeu) { # fixed threshold and epsilon likelihood
     nllh = nleuitmnormgpd(pvector, epsilon, u, x)
-    if (is.infinite(nllh)) pvector[4] = 0.1
-    nllh = nleuitmnormgpd(pvector, epsilon, u, x)
+    
+    if (is.infinite(nllh)) {
+      pvector[4] = 0.1
+      nllh = nleuitmnormgpd(pvector, epsilon, u, x)
+    }
+    
     if (is.infinite(nllh)) stop("initial parameter values are invalid")
   
     fit = optim(par = as.vector(pvector), fn = nleuitmnormgpd, epsilon = epsilon, u = u, x = x,
@@ -249,8 +261,12 @@ fitmnormgpd <- function(x, eseq = NULL, useq = NULL, fixedeu = FALSE, pvector = 
   } else { # complete (non-separable) likelihood
     
     nllh = nlitmnormgpd(pvector, x)
-    if (is.infinite(nllh)) pvector[6] = 0.1
-    nllh = nlitmnormgpd(pvector, x)
+    
+    if (is.infinite(nllh)) {
+      pvector[6] = 0.1
+      nllh = nlitmnormgpd(pvector, x)
+    }
+    
     if (is.infinite(nllh)) stop("initial parameter values are invalid")
   
     fit = optim(par = as.vector(pvector), fn = nlitmnormgpd, x = x,
@@ -275,14 +291,14 @@ fitmnormgpd <- function(x, eseq = NULL, useq = NULL, fixedeu = FALSE, pvector = 
   if (std.err) {
     qrhess = qr(fit$hessian)
     if (qrhess$rank != ncol(qrhess$qr)) {
-      warning("observed information matrix is singular; use std.err = FALSE")
+      warning("observed information matrix is singular")
       se = NULL
       invhess = NULL
     } else {
       invhess = solve(qrhess)
       vars = diag(invhess)
       if (any(vars <= 0)) {
-        warning("observed information matrix is singular; use std.err = FALSE")
+        warning("observed information matrix is singular")
         invhess = NULL
         se = NULL
       } else {
@@ -294,8 +310,10 @@ fitmnormgpd <- function(x, eseq = NULL, useq = NULL, fixedeu = FALSE, pvector = 
     se = NULL
   }
   
+  if (!exists("nllheu")) nllheu = NULL
+
   list(call = call, x = as.vector(x), 
-    init = as.vector(pvector), fixedeu = fixedeu, useq = useq, eseq = eseq,
+    init = as.vector(pvector), fixedeu = fixedeu, useq = useq, eseq = eseq, nllheuseq = nllheu,
     optim = fit, conv = conv, cov = invhess, mle = fit$par, se = se,
     nllh = fit$value, n = n,
     nmean = nmean, nsd = nsd, epsilon = epsilon, u = u, sigmau = sigmau, xi = xi, kappa = kappa)
@@ -311,14 +329,14 @@ litmnormgpd <- function(x, nmean = 0, nsd = 1, epsilon = nsd,  u = qnorm(0.9, nm
   sigmau = nsd, xi = 0, log = TRUE) {
 
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.param(param = nmean)
-  check.param(param = nsd)  # do not check positivity in likelihood
-  check.param(param = epsilon) # do not check positivity in likelihood
-  check.param(param = u)
-  check.param(param = sigmau)  # do not check positivity in likelihood
-  check.param(param = xi)
-  check.logic(logicarg = log)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.param(nmean)
+  check.param(nsd)
+  check.param(epsilon)
+  check.param(u)
+  check.param(sigmau)
+  check.param(xi)
+  check.logic(log)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -328,7 +346,8 @@ litmnormgpd <- function(x, nmean = 0, nsd = 1, epsilon = nsd,  u = qnorm(0.9, nm
   check.quant(x)
   n = length(x)
 
-  check.inputn(c(length(nmean), length(nsd), length(epsilon), length(u), length(sigmau), length(xi)))
+  check.inputn(c(length(nmean), length(nsd), length(epsilon), length(u), length(sigmau), length(xi)),
+               allowscalar = TRUE)
 
   # assume NA or NaN are irrelevant as entire lower tail is now modelled
   # inconsistent with evd library definition
@@ -381,8 +400,8 @@ nlitmnormgpd <- function(pvector, x, finitelik = FALSE) {
 
   # Check properties of inputs
   check.nparam(pvector, nparam = np)
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.logic(logicarg = finitelik)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.logic(finitelik)
 
   nmean = pvector[1]
   nsd = pvector[2]
@@ -416,10 +435,12 @@ profleuitmnormgpd <- function(eu, pvector, x, method = "BFGS",
   # Check properties of inputs
   check.nparam(pvector, nparam = np - 2, allownull = TRUE)
   check.nparam(eu, nparam = 2);
-  check.param(eu[1])
-  check.param(eu[2]) # do not check positivity in likelihood
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.logic(logicarg = finitelik)
+  check.posparam(eu[1], allowzero = TRUE)
+  check.param(eu[2])
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.optim(method)
+  check.control(control)
+  check.logic(finitelik)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -444,8 +465,10 @@ profleuitmnormgpd <- function(eu, pvector, x, method = "BFGS",
     nllh = nleuitmnormgpd(pvector, eu[1], eu[2], x)
   }
 
-  if (is.infinite(nllh)) pvector[4] = 0.1
-  nllh = nleuitmnormgpd(pvector, eu[1], eu[2], x)
+  if (is.infinite(nllh)) {
+    pvector[4] = 0.1
+    nllh = nleuitmnormgpd(pvector, eu[1], eu[2], x)
+  }
 
   # if still invalid then output cleanly
   if (is.infinite(nllh)) {
@@ -478,10 +501,10 @@ nleuitmnormgpd <- function(pvector, epsilon, u, x, finitelik = FALSE) {
 
   # Check properties of inputs
   check.nparam(pvector, nparam = np - 2)
-  check.param(epsilon) # do not check positivity in likelihood
+  check.posparam(epsilon, allowzero = TRUE)
   check.param(u)
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.logic(logicarg = finitelik)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.logic(finitelik)
     
   nmean = pvector[1]
   nsd = pvector[2]

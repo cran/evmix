@@ -89,7 +89,7 @@
 #' \code{\link[evmix:bckdengpdcon]{qbckdengpdcon}} gives the quantile function and 
 #' \code{\link[evmix:bckdengpdcon]{rbckdengpdcon}} gives a random sample.
 #' 
-#' @note Unlike all the other extreme value mixture model functions the 
+#' @note Unlike most of the other extreme value mixture model functions the 
 #' \code{\link[evmix:bckdengpdcon]{bckdengpdcon}} functions have not been vectorised as
 #' this is not appropriate. The main inputs (\code{x}, \code{p} or \code{q})
 #' must be either a scalar or a vector, which also define the output length.
@@ -140,9 +140,11 @@
 #' 
 #' Wand, M. and Jones, M.C. (1995). Kernel Smoothing. Chapman && Hall.
 #' 
-#' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}. Based on code
+#' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}. 
+#' 
+#' @section Acknowledgments: Based on code
 #' by Anna MacDonald produced for MATLAB.
-#'
+#' 
 #' @seealso \code{\link[evmix:gpd]{gpd}}, \code{\link[evmix:kernels]{kernels}}, 
 #' \code{\link[evmix:kfun]{kfun}},
 #' \code{\link[stats:density]{density}}, \code{\link[stats:bandwidth]{bw.nrd0}}
@@ -154,7 +156,9 @@
 #' 
 #' @examples
 #' \dontrun{
-#' par(mfrow=c(2,2))
+#' set.seed(1)
+#' par(mfrow = c(2, 2))
+#' 
 #' kerncentres=rgamma(500, shape = 1, scale = 2)
 #' xx = seq(-0.1, 10, 0.01)
 #' hist(kerncentres, breaks = 100, freq = FALSE)
@@ -200,20 +204,19 @@ dbckdengpdcon <- function(x, kerncentres, lambda = NULL,
   bcmethod = "simple", proper = TRUE, nn = "jf96", offset = NULL, xmax = NULL, log = FALSE) {
 
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.quant(kerncentres, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.quant(kerncentres, allowna = TRUE, allowinf = TRUE)
   check.kbw(lambda, bw)
   check.kernel(kernel)
   check.bcmethod(bcmethod)
-  check.logic(logicarg = proper)
+  check.logic(proper)
   check.nn(nn)
-  check.posparam(offset, allownull = TRUE)  
-  check.offset(offset, bcmethod)
+  check.offset(offset, bcmethod, allowzero = TRUE)
   check.posparam(xmax, allownull = TRUE)  
-  check.posparam(u, allownull = TRUE)  
-  check.param(xi, allownull = TRUE)  
+  check.posparam(u)
+  check.param(xi)
   check.phiu(phiu)
-  check.logic(logicarg = log)
+  check.logic(log)
 
   kernel = ifelse(kernel == "rectangular", "uniform", kernel)
   kernel = ifelse(kernel == "normal", "gaussian", kernel)
@@ -244,8 +247,6 @@ dbckdengpdcon <- function(x, kerncentres, lambda = NULL,
   if ((bcmethod == "copula") & (lambda >= 1))
     stop("bandwidth must between (0, 1) for copula method")  
 
-  check.inputn(c(length(lambda), length(u), length(xi), length(phiu)))
-
   upboundmethods = c("beta1", "beta2", "copula")
   if (!is.null(xmax) & !(bcmethod %in% upboundmethods))
     warning(paste("xmax only relevant for boundary correction methods", upboundmethods, collapse = " "))
@@ -272,8 +273,10 @@ dbckdengpdcon <- function(x, kerncentres, lambda = NULL,
     check.quant(kerncentres)
   }
   
-  pu = pbckden(u, kerncentres, lambda, kernel = kernel, 
-      bcmethod = bcmethod, proper = proper, nn = nn, offset = offset, xmax = xmax)
+  check.inputn(c(length(lambda), length(u), length(xi), length(phiu)), allowscalar = TRUE) # scalar only
+
+  pu = pbckden(u, kerncentres, lambda, kernel = kernel, bcmethod = bcmethod,
+               proper = proper, nn = nn, offset = offset, xmax = xmax)
   if (is.logical(phiu)) {
     phiu = 1 - pu
   } else {
@@ -281,11 +284,11 @@ dbckdengpdcon <- function(x, kerncentres, lambda = NULL,
   }
   phib = (1 - phiu) / pu
 
-  du = dbckden(u, kerncentres, lambda, kernel = kernel, 
-      bcmethod = bcmethod, proper = proper, nn = nn, offset = offset, xmax = xmax)
+  du = dbckden(u, kerncentres, lambda, kernel = kernel, bcmethod = bcmethod,
+               proper = proper, nn = nn, offset = offset, xmax = xmax)
   sigmau = phiu / (phib * du)
   
-  check.posparam(param = sigmau)
+  check.posparam(sigmau)
   
   dbckdengpd(x, kerncentres, lambda, u, sigmau, xi, phiu, kernel = kernel, 
     bcmethod = bcmethod, proper = proper, nn = nn, offset = offset, xmax = xmax, log = log)
@@ -303,20 +306,19 @@ pbckdengpdcon <- function(q, kerncentres, lambda = NULL,
   bcmethod = "simple", proper = TRUE, nn = "jf96", offset = NULL, xmax = NULL, lower.tail = TRUE) {
   
   # Check properties of inputs
-  check.quant(q, allowmiss = TRUE, allowinf = TRUE)
-  check.quant(kerncentres, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(q, allowna = TRUE, allowinf = TRUE)
+  check.quant(kerncentres, allowna = TRUE, allowinf = TRUE)
   check.kbw(lambda, bw)
   check.kernel(kernel)
   check.bcmethod(bcmethod)
-  check.logic(logicarg = proper)
+  check.logic(proper)
   check.nn(nn)
-  check.posparam(offset, allownull = TRUE)  
-  check.offset(offset, bcmethod)
+  check.offset(offset, bcmethod, allowzero = TRUE)
   check.posparam(xmax, allownull = TRUE)  
-  check.posparam(u, allownull = TRUE)  
-  check.param(xi, allownull = TRUE)  
+  check.posparam(u)
+  check.param(xi)
   check.phiu(phiu)
-  check.logic(logicarg = lower.tail)
+  check.logic(lower.tail)
 
   kernel = ifelse(kernel == "rectangular", "uniform", kernel)
   kernel = ifelse(kernel == "normal", "gaussian", kernel)
@@ -347,8 +349,6 @@ pbckdengpdcon <- function(q, kerncentres, lambda = NULL,
   if ((bcmethod == "copula") & (lambda >= 1))
     stop("bandwidth must between (0, 1) for copula method")  
 
-  check.inputn(c(length(lambda), length(u), length(xi), length(phiu)))
-
   upboundmethods = c("beta1", "beta2", "copula")
   if (!is.null(xmax) & !(bcmethod %in% upboundmethods))
     warning(paste("xmax only relevant for boundary correction methods", upboundmethods, collapse = " "))
@@ -375,8 +375,10 @@ pbckdengpdcon <- function(q, kerncentres, lambda = NULL,
     check.quant(kerncentres)
   }
   
-  pu = pbckden(u, kerncentres, lambda, kernel = kernel, 
-      bcmethod = bcmethod, proper = proper, nn = nn, offset = offset, xmax = xmax)
+  check.inputn(c(length(lambda), length(u), length(xi), length(phiu)), allowscalar = TRUE) # scalar only
+
+  pu = pbckden(u, kerncentres, lambda, kernel = kernel, bcmethod = bcmethod,
+               proper = proper, nn = nn, offset = offset, xmax = xmax)
   if (is.logical(phiu)) {
     phiu = 1 - pu
   } else {
@@ -384,14 +386,14 @@ pbckdengpdcon <- function(q, kerncentres, lambda = NULL,
   }
   phib = (1 - phiu) / pu
  
-  du = dbckden(u, kerncentres, lambda, kernel = kernel, 
-      bcmethod = bcmethod, proper = proper, nn = nn, offset = offset, xmax = xmax)
+  du = dbckden(u, kerncentres, lambda, kernel = kernel, bcmethod = bcmethod,
+               proper = proper, nn = nn, offset = offset, xmax = xmax)
   sigmau = phiu / (phib * du)
   
-  check.posparam(param = sigmau)
+  check.posparam(sigmau)
   
-  pbckdengpd(q, kerncentres, lambda, u, sigmau, xi, phiu, kernel = kernel, 
-    bcmethod = bcmethod, proper = proper, nn = nn, offset = offset, xmax = xmax, lower.tail = lower.tail)
+  pbckdengpd(q, kerncentres, lambda, u, sigmau, xi, phiu, kernel = kernel, bcmethod = bcmethod,
+             proper = proper, nn = nn, offset = offset, xmax = xmax, lower.tail = lower.tail)
 }
 
 #' @export
@@ -406,20 +408,19 @@ qbckdengpdcon <- function(p, kerncentres, lambda = NULL,
   bcmethod = "simple", proper = TRUE, nn = "jf96", offset = NULL, xmax = NULL, lower.tail = TRUE) {
   
   # Check properties of inputs
-  check.prob(p, allowmiss = TRUE)
-  check.quant(kerncentres, allowmiss = TRUE, allowinf = TRUE)
+  check.prob(p, allowna = TRUE)
+  check.quant(kerncentres, allowna = TRUE, allowinf = TRUE)
   check.kbw(lambda, bw)
   check.kernel(kernel)
   check.bcmethod(bcmethod)
-  check.logic(logicarg = proper)
+  check.logic(proper)
   check.nn(nn)
-  check.posparam(offset, allownull = TRUE)  
-  check.offset(offset, bcmethod)
+  check.offset(offset, bcmethod, allowzero = TRUE)
   check.posparam(xmax, allownull = TRUE)  
-  check.posparam(u, allownull = TRUE)  
-  check.param(xi, allownull = TRUE)  
+  check.posparam(u)
+  check.param(xi)
   check.phiu(phiu)
-  check.logic(logicarg = lower.tail)
+  check.logic(lower.tail)
     
   kernel = ifelse(kernel == "rectangular", "uniform", kernel)
   kernel = ifelse(kernel == "normal", "gaussian", kernel)
@@ -446,8 +447,6 @@ qbckdengpdcon <- function(p, kerncentres, lambda = NULL,
   if ((bcmethod == "copula") & (lambda >= 1))
     stop("bandwidth must between (0, 1) for copula method")  
 
-  check.inputn(c(length(lambda), length(u), length(xi), length(phiu)))
-
   upboundmethods = c("beta1", "beta2", "copula")
   if (!is.null(xmax) & !(bcmethod %in% upboundmethods))
     warning(paste("xmax only relevant for boundary correction methods", upboundmethods, collapse = " "))
@@ -474,8 +473,10 @@ qbckdengpdcon <- function(p, kerncentres, lambda = NULL,
     check.quant(kerncentres)
   }
 
-  pu = pbckden(u, kerncentres, lambda, kernel = kernel, 
-      bcmethod = bcmethod, proper = proper, nn = nn, offset = offset, xmax = xmax)
+  check.inputn(c(length(lambda), length(u), length(xi), length(phiu)), allowscalar = TRUE) # scalar only
+
+  pu = pbckden(u, kerncentres, lambda, kernel = kernel, bcmethod = bcmethod,
+               proper = proper, nn = nn, offset = offset, xmax = xmax)
   if (is.logical(phiu)) {
     phiu = 1 - pu
   } else {
@@ -483,14 +484,14 @@ qbckdengpdcon <- function(p, kerncentres, lambda = NULL,
   }
   phib = (1 - phiu) / pu
   
-  du = dbckden(u, kerncentres, lambda, kernel = kernel, 
-      bcmethod = bcmethod, proper = proper, nn = nn, offset = offset, xmax = xmax)
+  du = dbckden(u, kerncentres, lambda, kernel = kernel, bcmethod = bcmethod,
+               proper = proper, nn = nn, offset = offset, xmax = xmax)
   sigmau = phiu / (phib * du)
   
-  check.posparam(param = sigmau)
+  check.posparam(sigmau)
   
-  qbckdengpd(p, kerncentres, lambda, u, sigmau, xi, phiu, kernel = kernel, 
-      bcmethod = bcmethod, proper = proper, nn = nn, offset = offset, xmax = xmax, lower.tail = lower.tail)
+  qbckdengpd(p, kerncentres, lambda, u, sigmau, xi, phiu, kernel = kernel, bcmethod = bcmethod,
+             proper = proper, nn = nn, offset = offset, xmax = xmax, lower.tail = lower.tail)
 }
 
 #' @export
@@ -506,72 +507,17 @@ rbckdengpdcon <- function(n = 1, kerncentres, lambda = NULL,
   
   # Check properties of inputs
   check.n(n)
-  check.quant(kerncentres, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(kerncentres, allowna = TRUE, allowinf = TRUE)
   check.kbw(lambda, bw)
   check.kernel(kernel)
   check.bcmethod(bcmethod)
-  check.logic(logicarg = proper)
+  check.logic(proper)
   check.nn(nn)
-  check.posparam(offset, allownull = TRUE)  
-  check.offset(offset, bcmethod)
+  check.offset(offset, bcmethod, allowzero = TRUE)
   check.posparam(xmax, allownull = TRUE)  
-  check.posparam(u, allownull = TRUE)  
-  check.param(xi, allownull = TRUE)  
+  check.posparam(u)
+  check.param(xi)
   check.phiu(phiu)
-    
-  kernel = ifelse(kernel == "rectangular", "uniform", kernel)
-  kernel = ifelse(kernel == "normal", "gaussian", kernel)
-
-  if (any(!is.finite(kerncentres))) warning("non-finite kernel centres are dropped")
-
-  kerncentres = kerncentres[is.finite(kerncentres)]
-
-  if (any(kerncentres < 0)) stop("negative kernel centres not permitted")
   
-  check.quant(kerncentres)
-  nk = length(kerncentres)
-
-  # if bcmethod does not use standard kernels then lambda must be specified
-  # then bw can be used, but lambda should be defaulted to if available
-  kernelmethods = c("simple", "cutnorm", "renorm", "reflect", "logtrans")
-  if (!(bcmethod %in% kernelmethods)) {
-    if (is.null(lambda))
-      stop(paste("bandwidth bw only relevant for", kernelmethods, collapse = " "))
-  } else {
-    lambda = klambda(bw, kernel, lambda)    
-  }
-
-  if ((bcmethod == "copula") & (lambda >= 1))
-    stop("bandwidth must between (0, 1) for copula method")  
-
-  check.inputn(c(length(lambda), length(u), length(xi), length(phiu)))
-
-  upboundmethods = c("beta1", "beta2", "copula")
-  if (!is.null(xmax) & !(bcmethod %in% upboundmethods))
-    warning(paste("xmax only relevant for boundary correction methods", upboundmethods, collapse = " "))
-  
-  if (bcmethod %in% upboundmethods) {
-    if (is.null(xmax)) stop("xmax is NULL")
-    
-    if (max(kerncentres) > xmax) stop("largest kernel centre must be below xmax")
-
-    if (u >= xmax) stop("threshold must be below xmax")
-    
-    if (any(kerncentres == 0)) {
-      warning("kernel centres of zero are invalid for gamma or beta method so ignored")
-      kerncentres = kerncentres[kerncentres != 0]
-    }
-
-    if ((bcmethod != "gamma1") & (bcmethod != "gamma2")) {
-      if (any(kerncentres == xmax)) {
-        warning("kernel centres of xmax are invalid for beta or copula method so ignored")
-        kerncentres = kerncentres[kerncentres != xmax]
-      }
-    }
-    # need to recheck there are some valid kernel centres after these exclusions
-    check.quant(kerncentres)
-  }
-  
-  qbckdengpdcon(runif(n), kerncentres, lambda, u, xi, phiu, 
-    kernel = kernel, bcmethod = bcmethod, proper = proper, nn = nn, offset = offset, xmax = xmax)
+  qbckdengpdcon(runif(n), kerncentres, lambda, u, xi, phiu, bw, kernel, bcmethod, proper, nn, offset, xmax)
 }

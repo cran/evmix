@@ -56,28 +56,28 @@
 #' \code{\link[evmix:fhpd]{fhpd}} returns a simple list with the following elements
 #'
 #' \tabular{ll}{
-#' \code{call}: \tab \code{optim} call\cr
-#' \code{x}: \tab data vector \code{x}\cr
-#' \code{init}: \tab \code{pvector}\cr
-#' \code{optim}: \tab complete \code{optim} output\cr
-#' \code{mle}: \tab vector of MLE of parameters\cr
-#' \code{cov}: \tab variance-covariance matrix of MLE of parameters\cr
-#' \code{se}: \tab vector of standard errors of MLE of parameters\cr
-#' \code{rate}: \tab \code{phiu} to be consistent with \code{\link[evd:fpot]{evd}}\cr
-#' \code{nllh}: \tab minimum negative log-likelihood\cr
-#' \code{n}: \tab total sample size\cr
-#' \code{nmean}: \tab MLE of normal mean\cr
-#' \code{nsd}: \tab MLE of normal standard deviation\cr
-#' \code{u}: \tab threshold\cr
+#' \code{call}:   \tab \code{optim} call\cr
+#' \code{x}:      \tab data vector \code{x}\cr
+#' \code{init}:   \tab \code{pvector}\cr
+#' \code{optim}:  \tab complete \code{optim} output\cr
+#' \code{mle}:    \tab vector of MLE of parameters\cr
+#' \code{cov}:    \tab variance-covariance matrix of MLE of parameters\cr
+#' \code{se}:     \tab vector of standard errors of MLE of parameters\cr
+#' \code{rate}:   \tab \code{phiu} to be consistent with \code{\link[evd:fpot]{evd}}\cr
+#' \code{nllh}:   \tab minimum negative log-likelihood\cr
+#' \code{n}:      \tab total sample size\cr
+#' \code{nmean}:  \tab MLE of normal mean\cr
+#' \code{nsd}:    \tab MLE of normal standard deviation\cr
+#' \code{u}:      \tab threshold\cr
 #' \code{sigmau}: \tab MLE of GPD scale\cr
-#' \code{xi}: \tab MLE of GPD shape\cr
+#' \code{xi}:     \tab MLE of GPD shape\cr
 #' }
 #' 
 #' The output list has some duplicate entries and repeats some of the inputs to both 
 #' provide similar items to those from \code{\link[evd:fpot]{fpot}} and to make it 
 #' as useable as possible.
 #'  
-#' @note Unlike all the distribution functions for the extreme value mixture models,
+#' @note Unlike most of the distribution functions for the extreme value mixture models,
 #' the MLE fitting only permits single scalar values for each parameter. Only the data is a vector.
 #' 
 #' When \code{pvector=NULL} then the initial values are calculated, type 
@@ -126,6 +126,9 @@
 #' 
 #' @examples
 #' \dontrun{
+#' set.seed(1)
+#' par(mfrow = c(1, 1))
+#' 
 #' x = rnorm(1000)
 #' xx = seq(-4, 4, 0.01)
 #' y = dnorm(xx)
@@ -135,12 +138,12 @@
 #' fit = fhpd(x, std.err = FALSE)
 #' hist(x, breaks = 100, freq = FALSE, xlim = c(-4, 4))
 #' lines(xx, y)
-#' lines(xx, dhpd(xx, nmean = fit$nmean, nsd = fit$nsd, xi = fit$xi), col="red")
+#' with(fit, lines(xx, dhpd(xx, nmean, nsd, xi), col="red"))
 #' abline(v = fit$u)
 #' 
 #' # Notice that if tail fraction is included a better fit is obtained
 #' fit2 = fnormgpdcon(x, std.err = FALSE)
-#' lines(xx, dnormgpdcon(xx, nmean = fit2$nmean, nsd = fit2$nsd, u = fit2$u, xi = fit2$xi), col="blue")
+#' with(fit2, lines(xx, dnormgpdcon(xx, nmean, nsd, u, xi), col="blue"))
 #' abline(v = fit2$u)
 #' legend("topright", c("Standard Normal", "Hybrid Pareto", "Normal+GPD Continuous"),
 #'   col=c("black", "red", "blue"), lty = 1)
@@ -156,12 +159,12 @@ fhpd <- function(x, pvector = NULL, std.err = TRUE, method = "BFGS",
   np = 3 # maximum number of parameters
 
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
   check.nparam(pvector, nparam = np, allownull = TRUE)
-  check.logic(logicarg = std.err)
+  check.logic(std.err)
   check.optim(method)
   check.control(control)
-  check.logic(logicarg = finitelik)
+  check.logic(finitelik)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
@@ -169,6 +172,7 @@ fhpd <- function(x, pvector = NULL, std.err = TRUE, method = "BFGS",
   }
 
   check.quant(x)
+  n = length(x)
 
   if ((method == "L-BFGS-B") | (method == "BFGS")) finitelik = TRUE
   
@@ -180,6 +184,10 @@ fhpd <- function(x, pvector = NULL, std.err = TRUE, method = "BFGS",
   }
   
   nllh = nlhpd(pvector, x)
+  if (is.infinite(nllh)) {
+    pvector[3] = 0.1
+    nllh = nlhpd(pvector, x)  
+  }
   if (is.infinite(nllh)) stop("initial parameter values are invalid")
 
   fit = optim(par = as.vector(pvector), fn = nlhpd, x = x, finitelik = finitelik,
@@ -191,7 +199,6 @@ fhpd <- function(x, pvector = NULL, std.err = TRUE, method = "BFGS",
     warning("check convergence")
   }
   
-  n = length(x)
   nmean = fit$par[1]
   nsd = fit$par[2]
   xi = fit$par[3]
@@ -208,14 +215,14 @@ fhpd <- function(x, pvector = NULL, std.err = TRUE, method = "BFGS",
   if (conv & std.err) {
     qrhess = qr(fit$hessian)
     if (qrhess$rank != ncol(qrhess$qr)) {
-      warning("observed information matrix is singular; use std.err = FALSE")
+      warning("observed information matrix is singular")
       se = NULL
       invhess = NULL
     } else {
       invhess = solve(qrhess)
       vars = diag(invhess)
       if (any(vars <= 0)) {
-        warning("observed information matrix is singular; use std.err = FALSE")
+        warning("observed information matrix is singular")
         invhess = NULL
         se = NULL
       } else {
@@ -241,18 +248,21 @@ fhpd <- function(x, pvector = NULL, std.err = TRUE, method = "BFGS",
 lhpd <- function(x, nmean = 0, nsd = 1, xi = 0, log = TRUE) {
   
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.param(param = nmean)
-  check.param(param = nsd) # do not check positivity in likelihood
-  check.param(param = xi)
-  check.logic(logicarg = log)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.param(nmean)
+  check.param(nsd)
+  check.param(xi)
+  check.logic(log)
 
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
     x = x[is.finite(x)] # ignore missing and infinite cases
   }
-
-  check.inputn(c(length(nmean), length(nsd), length(xi)))
+  
+  check.quant(x)
+  n = length(x)
+  
+  check.inputn(c(length(nmean), length(nsd), length(xi)), allowscalar = TRUE)
   
   z = (1 + xi)^2/(2*pi)
   wz = lambert_W0(z)
@@ -263,7 +273,6 @@ lhpd <- function(x, nmean = 0, nsd = 1, xi = 0, log = TRUE) {
   # inconsistent with evd library definition
   # hence use which() to ignore these
       
-  n = length(x)
   xu = x[which(x > u)]
   nu = length(xu)
   xb = x[which(x <= u)]
@@ -311,8 +320,8 @@ nlhpd <- function(pvector, x, finitelik = FALSE) {
 
   # Check properties of inputs
   check.nparam(pvector, nparam = np)
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.logic(logicarg = finitelik)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.logic(finitelik)
   
   nmean = pvector[1]
   nsd = pvector[2]

@@ -93,6 +93,7 @@
 #' will either stop or give warning message as appropriate.
 #' 
 #' @references
+#' 
 #' \url{http://en.wikipedia.org/wiki/Generalized_Pareto_distribution}
 #' 
 #' Coles, S.G. (2001). An Introduction to Statistical Modelling of Extreme Values.
@@ -100,10 +101,9 @@
 #' 
 #' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'
-#' @section Acknowledgments: Apects of these functions are deliberately similar
-#'   in syntax and function with the commonly used functions in the
-#'   \code{\link[ismev:gpd.fit]{ismev}} and \code{\link[evd:fpot]{evd}} packages
-#'   for which their author's contributions are gratefully acknowledged.
+#' @section Acknowledgments: Based on the
+#' \code{\link[evd:gpd]{gpd}} functions in the \code{\link[evd:gpd]{evd}} package for which their author's contributions are gratefully acknowledged.
+#' They are designed to have similar syntax and functionality to simplify the transition for users of these packages.
 #'   
 #' @seealso \code{\link[evd:gpd]{evd}} package and \code{\link[evd:fpot]{fpot}}
 #' 
@@ -111,7 +111,9 @@
 #' @family  gpd fgpd
 #' 
 #' @examples
-#' par(mfrow=c(2,2))
+#' set.seed(1)
+#' par(mfrow = c(2, 2))
+#' 
 #' x = rgpd(1000) # simulate sample from GPD
 #' xx = seq(-1, 10, 0.01)
 #' hist(x, breaks = 100, freq = FALSE, xlim = c(-1, 10))
@@ -151,14 +153,14 @@ NULL
 dgpd <- function(x, u = 0, sigmau = 1, xi = 0, phiu = 1, log = FALSE) {
 
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.param(param = u, allowvec = TRUE)
-  check.posparam(param = sigmau, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
-  check.prob(prob = phiu, allowvec = TRUE) # don't use check.phiu as TRUE only valid for mixture models
-  check.logic(logicarg = log)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.param(u, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
+  check.prob(phiu) # don't use check.phiu as TRUE only valid for mixture models
+  check.logic(log)
 
-  n = check.inputn(c(length(x), length(u), length(sigmau), length(xi), length(phiu)))
+  n = check.inputn(c(length(x), length(u), length(sigmau), length(xi), length(phiu)), allowscalar = TRUE)
 
   if (any(is.infinite(x))) warning("infinite quantiles set to NA")
 
@@ -208,14 +210,14 @@ dgpd <- function(x, u = 0, sigmau = 1, xi = 0, phiu = 1, log = FALSE) {
 pgpd <- function(q, u = 0, sigmau = 1, xi = 0, phiu = 1, lower.tail = TRUE) {
 
   # Check properties of inputs
-  check.quant(q, allowmiss = TRUE, allowinf = TRUE)
-  check.param(param = u, allowvec = TRUE)
-  check.posparam(param = sigmau, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
-  check.prob(prob = phiu, allowvec = TRUE) # don't use check.phiu as TRUE only valid for mixture models
-  check.logic(logicarg = lower.tail)
+  check.quant(q, allowna = TRUE, allowinf = TRUE)
+  check.param(u, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
+  check.prob(phiu) # don't use check.phiu as TRUE only valid for mixture models
+  check.logic(lower.tail)
 
-  n = check.inputn(c(length(q), length(u), length(sigmau), length(xi), length(phiu)))
+  n = check.inputn(c(length(q), length(u), length(sigmau), length(xi), length(phiu)), allowscalar = TRUE)
 
   if (any(is.infinite(q))) warning("infinite quantiles set to NA")
 
@@ -265,14 +267,14 @@ pgpd <- function(q, u = 0, sigmau = 1, xi = 0, phiu = 1, lower.tail = TRUE) {
 qgpd <- function(p, u = 0, sigmau = 1, xi = 0, phiu = 1, lower.tail = TRUE) {
 
   # Check properties of inputs
-  check.prob(p, allowmiss = TRUE)
-  check.param(param = u, allowvec = TRUE)
-  check.posparam(param = sigmau, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
-  check.prob(prob = phiu, allowvec = TRUE) # don't use check.phiu as TRUE only valid for mixture models
-  check.logic(logicarg = lower.tail)
+  check.prob(p, allowna = TRUE)
+  check.param(u, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
+  check.prob(phiu) # don't use check.phiu as TRUE only valid for mixture models
+  check.logic(lower.tail)
 
-  n = check.inputn(c(length(p), length(u), length(sigmau), length(xi), length(phiu)))
+  n = check.inputn(c(length(p), length(u), length(sigmau), length(xi), length(phiu)), allowscalar = TRUE)
  
   if (!lower.tail) p = 1 - p
 
@@ -314,12 +316,12 @@ rgpd <- function(n = 1, u = 0, sigmau = 1, xi = 0, phiu = 1) {
 
   # Check properties of inputs
   check.n(n)
-  check.param(param = u, allowvec = TRUE)
-  check.posparam(param = sigmau, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
-  check.prob(prob = phiu, allowvec = TRUE) # don't use check.phiu as TRUE only valid for mixture models
+  check.param(u, allowvec = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
+  check.prob(phiu) # don't use check.phiu as TRUE only valid for mixture models
 
-  n = check.inputn(c(n, length(u), length(sigmau), length(xi), length(phiu)))
+  n = check.inputn(c(n, length(u), length(sigmau), length(xi), length(phiu)), allowscalar = TRUE)
 
   if (any(xi == 1)) stop("shape cannot be 1")
     

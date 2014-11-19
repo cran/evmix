@@ -204,8 +204,8 @@
 #' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}. 
 #' 
 #' @section Acknowledgments: See Acknowledgments in
-#'   \code{\link[evmix:fnormgpd]{fnormgpd}}, type \code{help fnormgpd}. Based on MATLAB
-#'   code written by Anna MacDonald.
+#'   \code{\link[evmix:fnormgpd]{fnormgpd}}, type \code{help fnormgpd}. Based on code
+#' by Anna MacDonald produced for MATLAB.
 #'   
 #' @seealso \code{\link[evmix:kernels]{kernels}}, \code{\link[evmix:kfun]{kfun}},
 #' \code{\link[base:jitter]{jitter}}, \code{\link[stats:density]{density}} and
@@ -217,6 +217,9 @@
 #' 
 #' @examples
 #' \dontrun{
+#' set.seed(1)
+#' par(mfrow = c(1, 1))
+#' 
 #' nk=50
 #' x = rnorm(nk)
 #' xx = seq(-5, 5, 0.01)
@@ -231,6 +234,8 @@
 #' legend("topright", c("True Density", "KDE fitted evmix",
 #' "KDE Using density, default bandwidth", "KDE Using density, c-v likelihood bandwidth"),
 #' lty = c(1, 1, 2, 2), lwd = c(1, 2, 2, 2), col = c("black", "red", "green", "blue"))
+#' 
+#' par(mfrow = c(2, 1))
 #' 
 #' # bandwidth is biased towards oversmoothing for heavy tails
 #' nk=100
@@ -271,18 +276,19 @@ fkden <- function(x, linit = NULL, bwinit = NULL, kernel = "gaussian", extracent
   call <- match.call()
     
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.quant(extracentres, allownull = TRUE, allowmiss = TRUE, allowinf = TRUE)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.quant(extracentres, allownull = TRUE, allowna = TRUE, allowinf = TRUE)
   check.kbw(linit, bwinit, allownull = TRUE)
-  check.kernel(kernel)
-  check.posparam(param = factor)
-  check.posparam(param = amount, allownull = TRUE)
-  check.logic(logicarg = add.jitter)
-  check.logic(logicarg = std.err)
+  check.logic(std.err)
   check.optim(method)
   check.control(control)
-  check.logic(logicarg = finitelik)
+  check.logic(finitelik)
 
+  check.kernel(kernel)
+  check.posparam(factor)
+  check.posparam(amount, allownull = TRUE)
+  check.logic(add.jitter)
+  
   if (any(!is.finite(x))) {
     warning("non-finite cases have been removed")
     x = x[is.finite(x)] # ignore missing and infinite cases
@@ -352,12 +358,12 @@ lkden <- function(x, lambda = NULL, bw = NULL, kernel = "gaussian",
   extracentres = NULL, log = TRUE) {
 
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.quant(extracentres, allownull = TRUE, allowmiss = TRUE, allowinf = TRUE)
-  check.param(param = lambda, allownull = TRUE) # do not check positivity in likelihood
-  check.param(param = bw, allownull = TRUE)     # do not check positivity in likelihood
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.quant(extracentres, allownull = TRUE, allowna = TRUE, allowinf = TRUE)
+  check.param(lambda, allownull = TRUE)
+  check.param(bw, allownull = TRUE)
   check.kernel(kernel)
-  check.logic(logicarg = log)
+  check.logic(log)
 
   kernel = ifelse(kernel == "rectangular", "uniform", kernel)
   kernel = ifelse(kernel == "normal", "gaussian", kernel)
@@ -368,6 +374,7 @@ lkden <- function(x, lambda = NULL, bw = NULL, kernel = "gaussian",
   }
   
   check.quant(x)
+  n = length(x)
 
   if (!is.null(extracentres)) {
     if (any(!is.finite(extracentres))) warning("non-finite extracentres have been removed")
@@ -377,7 +384,6 @@ lkden <- function(x, lambda = NULL, bw = NULL, kernel = "gaussian",
   kerncentres = c(x, extracentres)
   check.quant(kerncentres)
 
-  n = length(x)
   nk = length(kerncentres)
   
   if (is.null(lambda) & is.null(bw)) {
@@ -419,12 +425,12 @@ nlkden <- function(lambda, x, bw = NULL, kernel = "gaussian", extracentres = NUL
   finitelik = FALSE) {
 
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.quant(extracentres, allownull = TRUE, allowmiss = TRUE, allowinf = TRUE)
-  check.param(lambda, allownull = TRUE) # do not check positivity in likelihood
-  check.param(bw, allownull = TRUE) # do not check positivity in likelihood
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.quant(extracentres, allownull = TRUE, allowna = TRUE, allowinf = TRUE)
+  check.param(lambda, allownull = TRUE)
+  check.param(bw, allownull = TRUE)
   check.kernel(kernel)
-  check.logic(logicarg = finitelik)
+  check.logic(finitelik)
   
   kernel = ifelse(kernel == "rectangular", "uniform", kernel)
   kernel = ifelse(kernel == "normal", "gaussian", kernel)

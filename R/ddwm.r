@@ -84,7 +84,9 @@
 #' 
 #' @examples
 #' \dontrun{
+#' set.seed(1)
 #' par(mfrow = c(2, 2))
+#' 
 #' xx = seq(0.001, 5, 0.01)
 #' f = ddwm(xx, wshape = 2, wscale = 1/gamma(1.5), cmu = 1, ctau = 1, sigmau = 1, xi = 0.5)
 #' plot(xx, f, ylim = c(0, 1), xlim = c(0, 5), type = 'l', lwd = 2, 
@@ -127,19 +129,19 @@ ddwm = function(x, wshape = 1, wscale = 1, cmu = 1, ctau = 1,
   xi = 0, log = FALSE) {
 
   # Check properties of inputs
-  check.quant(x, allowmiss = TRUE, allowinf = TRUE)
-  check.posparam(param = wshape, allowvec = TRUE)
-  check.posparam(param = wscale, allowvec = TRUE)
-  check.param(param = cmu, allowvec = TRUE) # not neccessarily postive
-  check.posparam(param = ctau, allowvec = TRUE)
-  check.posparam(param = sigmau, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
-  check.logic(logicarg = log)
+  check.quant(x, allowna = TRUE, allowinf = TRUE)
+  check.posparam(wshape, allowvec = TRUE)
+  check.posparam(wscale, allowvec = TRUE)
+  check.param(cmu, allowvec = TRUE) # not neccessarily positive
+  check.posparam(ctau, allowvec = TRUE, allowzero = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
+  check.logic(log)
 
   n = check.inputn(c(length(x), length(wshape), length(wscale),
-    length(cmu), length(ctau), length(sigmau), length(xi)))
+    length(cmu), length(ctau), length(sigmau), length(xi)), allowscalar = TRUE)
   oneparam = (check.inputn(c(length(wshape), length(wscale),
-    length(cmu), length(ctau), length(sigmau), length(xi))) == 1)
+    length(cmu), length(ctau), length(sigmau), length(xi)), allowscalar = TRUE) == 1)
   
   if (any(is.infinite(x))) warning("infinite quantiles set to NA")
 
@@ -207,19 +209,19 @@ pdwm = function(q, wshape = 1, wscale = 1, cmu = 1, ctau = 1,
   xi = 0, lower.tail = TRUE) {
   
   # Check properties of inputs
-  check.quant(q, allowmiss = TRUE, allowinf = TRUE)
-  check.posparam(param = wshape, allowvec = TRUE)
-  check.posparam(param = wscale, allowvec = TRUE)
-  check.param(param = cmu, allowvec = TRUE) # not neccessarily postive
-  check.posparam(param = ctau, allowvec = TRUE)
-  check.posparam(param = sigmau, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
-  check.logic(logicarg = lower.tail)
+  check.quant(q, allowna = TRUE, allowinf = TRUE)
+  check.posparam(wshape, allowvec = TRUE)
+  check.posparam(wscale, allowvec = TRUE)
+  check.param(cmu, allowvec = TRUE) # not neccessarily positive
+  check.posparam(ctau, allowvec = TRUE, allowzero = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
+  check.logic(lower.tail)
 
   n = check.inputn(c(length(q), length(wshape), length(wscale),
-    length(cmu), length(ctau), length(sigmau), length(xi)))
+    length(cmu), length(ctau), length(sigmau), length(xi)), allowscalar = TRUE)
   oneparam = (check.inputn(c(length(wshape), length(wscale),
-    length(cmu), length(ctau), length(sigmau), length(xi))) == 1)
+    length(cmu), length(ctau), length(sigmau), length(xi)), allowscalar = TRUE) == 1)
 
   if (any(is.infinite(q))) warning("infinite quantiles set to NA")
 
@@ -314,21 +316,21 @@ qdwm = function(p, wshape = 1, wscale = 1, cmu = 1, ctau = 1,
   xi = 0, lower.tail = TRUE, qinit = NULL) {
   
   # Check properties of inputs
-  check.prob(p, allowmiss = TRUE)
-  check.posparam(param = wshape, allowvec = TRUE)
-  check.posparam(param = wscale, allowvec = TRUE)
-  check.param(param = cmu, allowvec = TRUE) # not neccessarily postive
-  check.posparam(param = ctau, allowvec = TRUE)
-  check.posparam(param = sigmau, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
-  check.logic(logicarg = lower.tail)
+  check.prob(p, allowna = TRUE)
+  check.posparam(wshape, allowvec = TRUE)
+  check.posparam(wscale, allowvec = TRUE)
+  check.param(cmu, allowvec = TRUE) # not neccessarily positive
+  check.posparam(ctau, allowvec = TRUE, allowzero = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
+  check.logic(lower.tail)
 
   n = check.inputn(c(length(p), length(wshape), length(wscale),
-    length(cmu), length(ctau), length(sigmau), length(xi)))
+    length(cmu), length(ctau), length(sigmau), length(xi)), allowscalar = TRUE)
 
   if (!lower.tail) p = 1 - p
   
-  check.posparam(qinit, allowvec = TRUE, allowmiss = TRUE)
+  check.posparam(qinit, allowvec = TRUE, allownull = TRUE, allowzero = TRUE)
   if (is.null(qinit)) qinit = NA
 
   qinit = rep(qinit, length.out = n)
@@ -391,15 +393,15 @@ rdwm = function(n = 1, wshape = 1, wscale = 1, cmu = 1, ctau = 1,
   
   # Check properties of inputs
   check.n(n)
-  check.posparam(param = wshape, allowvec = TRUE)
-  check.posparam(param = wscale, allowvec = TRUE)
-  check.param(param = cmu, allowvec = TRUE) # not neccessarily postive
-  check.posparam(param = ctau, allowvec = TRUE)
-  check.posparam(param = sigmau, allowvec = TRUE)
-  check.param(param = xi, allowvec = TRUE)
+  check.posparam(wshape, allowvec = TRUE)
+  check.posparam(wscale, allowvec = TRUE)
+  check.param(cmu, allowvec = TRUE) # not neccessarily positive
+  check.posparam(ctau, allowvec = TRUE, allowzero = TRUE)
+  check.posparam(sigmau, allowvec = TRUE)
+  check.param(xi, allowvec = TRUE)
 
   check.inputn(c(n, length(wshape), length(wscale),
-    length(cmu), length(ctau), length(sigmau), length(xi)))
+    length(cmu), length(ctau), length(sigmau), length(xi)), allowscalar = TRUE)
 
   if (any(xi == 1)) stop("shape cannot be 1")
   
@@ -410,7 +412,7 @@ rdwm = function(n = 1, wshape = 1, wscale = 1, cmu = 1, ctau = 1,
   sigmau = rep(sigmau, length.out = n)
   xi = rep(xi, length.out = n)
   
-  # Simulation scheme proposed by authors
+  # Simulation scheme proposed by authors (see help for reference)
   r = rep(NA, n)
 
   i = 1
