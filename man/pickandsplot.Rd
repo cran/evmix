@@ -7,8 +7,8 @@
 pickandsplot(data, orderlim = NULL, tlim = NULL, y.alpha = FALSE,
   alpha = 0.05, ylim = NULL, legend.loc = "topright",
   try.thresh = quantile(data, 0.9, na.rm = TRUE), main = "Pickand's Plot",
-  xlab = "order", ylab = ifelse(y.alpha, " tail index - alpha>0",
-  "shape  - xi>0"), ...)
+  xlab = "order", ylab = ifelse(y.alpha, " tail index - alpha",
+  "shape  - xi"), ...)
 }
 \arguments{
 \item{data}{vector of sample data}
@@ -50,7 +50,7 @@ Produces the Pickand's plot.
 Produces the Pickand's plot including confidence intervals.
 
   For an ordered iid sequence \eqn{X_{(1)}\ge X_{(2)}\ge\cdots\ge X_{(n)}}
-  the Pickand's estimator of the reciprocal of the tail index \eqn{\xi=1/\alpha>0}
+  the Pickand's estimator of the reciprocal of the shape parameter \eqn{\xi}
   at the \eqn{k}th order statistic is given by
   \deqn{\hat{\xi}_{k,n}=\frac{1}{\log(2)} \log\left(\frac{X_{(k)}-X_{(2k)}}{X_{(2k)}-X_{(4k)}}\right).}
   Unlike the Hill estimator it does not assume positive data, is valid for any \eqn{\xi} and
@@ -62,8 +62,8 @@ Produces the Pickand's plot including confidence intervals.
   plot is a plot of \deqn{\hat{\xi}_{k,n}} against the \eqn{k}. Symmetric asymptotic
   normal confidence intervals assuming Pareto tails are provided.
 
-  The Pickand's estimator is for the GPD shape \eqn{\xi>0}, or the reciprocal of the
-  tail index \eqn{\alpha=1/\xi>0}. The shape is plotted by default using
+  The Pickand's estimator is for the GPD shape \eqn{\xi}, or the reciprocal of the
+  tail index \eqn{\alpha=1/\xi}. The shape is plotted by default using
   \code{y.alpha=FALSE} and the tail index is plotted when \code{y.alpha=TRUE}.
 
   A pre-chosen threshold (or more than one) can be given in
@@ -84,7 +84,7 @@ Produces the Pickand's plot including confidence intervals.
 }
 \note{
 Asymptotic Wald type CI's are estimated for non-\code{NULL} signficance level \code{alpha}
-for the shape parameter, assuming exactly Pareto tails. When plotting on the tail index scale,
+for the shape parameter, assuming exactly GPD tails. When plotting on the tail index scale,
 then a simple reciprocal transform of the CI is applied which may well be sub-optimal.
 
 Error checking of the inputs (e.g. invalid probabilities) is carried out and

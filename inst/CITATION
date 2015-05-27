@@ -7,7 +7,7 @@ citEntry(entry="Misc",
   url = "http://www.math.canterbury.ac.nz/~c.scarrott/evmix",
   institution = "University of Canterbury, New Zealand",
   textVersion = paste("Scarrott, C.J. and Hu, Y.", "(2014).",
-    "evmix 0.2.5: Extreme Value Mixture Modelling, Threshold Estimation and Boundary Corrected Kernel Density Estimation.",
+    "evmix 0.2.6: Extreme Value Mixture Modelling, Threshold Estimation and Boundary Corrected Kernel Density Estimation.",
     "Available on CRAN.", "http://www.math.canterbury.ac.nz/~c.scarrott/evmix")
 )
 
