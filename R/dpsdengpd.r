@@ -67,7 +67,7 @@
 #' @references
 #' \url{http://en.wikipedia.org/wiki/B-spline}
 #' 
-#' \url{http://www.stat.lsu.edu/faculty/marx/}
+#' \url{http://statweb.lsu.edu/faculty/marx/}
 #' 
 #' \url{http://en.wikipedia.org/wiki/Generalized_Pareto_distribution}
 #' 

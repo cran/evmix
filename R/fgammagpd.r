@@ -369,8 +369,8 @@ lgammagpd <- function(x, gshape = 1, gscale = 1, u = qgamma(0.9, gshape, 1/gscal
   if ((gscale <= 0) | (gshape <= 0) | (sigmau <= 0) | (u <= 0) | (u <= min(x)) | (u >= max(x))) {
     l = -Inf
   } else {
+    pu = pgamma(u, gshape, scale = gscale)
     if (is.logical(phiu)) {
-      pu = pgamma(u, gshape, scale = gscale)
       if (phiu) {
         phiu = 1 - pu
       } else {

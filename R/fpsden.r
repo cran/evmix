@@ -100,7 +100,7 @@
 #' 
 #' \url{http://en.wikipedia.org/wiki/B-spline}
 #' 
-#' \url{http://www.stat.lsu.edu/faculty/marx}
+#' \url{http://statweb.lsu.edu/faculty/marx/}
 #' 
 #' Eilers, P.H.C. and Marx, B.D. (1996). Flexible smoothing with B-splines and penalties.
 #' Statistical Science 11(2), 89-121.
@@ -109,7 +109,7 @@
 #'
 #' @section Acknowledgments: The Poisson regression and leave-one-out cross-validation functions
 #' are based on the code of Eilers and Marx (1996) available from Brian Marx's website 
-#' \url{http://www.stat.lsu.edu/faculty/marx}, which is gratefully acknowledged.
+#' \url{http://statweb.lsu.edu/faculty/marx/}, which is gratefully acknowledged.
 #' 
 #' @seealso \code{\link[evmix:kden]{kden}}.
 #'  

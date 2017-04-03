@@ -59,7 +59,7 @@
 #' \itemize{
 #'  \item \code{\link[evmix:fkden]{fkden}} - maximum (cross-validation) likelihood fitting with all the above options;
 #'  \item \code{\link[evmix:fkden]{lkden}} - cross-validation log-likelihood;
-#'  \item \code{\link[evmix:fkden]{nlnornlkdenmgpd}} - negative cross-validation log-likelihood;
+#'  \item \code{\link[evmix:fkden]{nlkden}} - negative cross-validation log-likelihood;
 #' }
 #' The log-likelihood functions are provided for wider usage, e.g. constructing
 #' profile likelihood functions.
@@ -85,7 +85,7 @@
 #' which is inconsistent with the \code{\link[evd:fpot]{evd}} library which assumes the 
 #' missing values are below the threshold.
 #' 
-#' The function \code{\link[evmix:fnormgpd]{lnormgpd}} carries out the calculations
+#' The function \code{\link[evmix:fkden]{lkden}} carries out the calculations
 #' for the log-likelihood directly, which can be exponentiated to give actual
 #' likelihood using (\code{log=FALSE}).
 #' 
@@ -134,8 +134,8 @@
 #' (see example). The bias is due to the distance between the upper (or lower) order statistics not
 #' necessarily decaying to zero as the sample size tends to infinity. Essentially, as the distance
 #' between the two largest (or smallest) sample datapoints does not decay to zero, some smoothing between
-#' them is required (i.e. bandwidth cannot be zero). One solution to this problem is to splice
-#' the GPD at a suitable threshold to remove the problematic tail from the inference for the bandwidth, 
+#' them is required (i.e. bandwidth cannot be zero). One solution to this problem is to trim
+#' the data at a suitable threshold to remove the problematic tail from the inference for the bandwidth, 
 #' using either the \code{\link[evmix:fkdengpd]{fkdengpd}} function for a single heavy tail
 #' or the \code{\link[evmix:fgkg]{fgkg}} function
 #' if both tails are heavy. See MacDonald et al (2013).

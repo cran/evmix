@@ -52,9 +52,9 @@
 #' \eqn{\phi_{ur} = 1 - H(u_r)}.
 #'  
 #' The continuity constraint at \code{ur} means that:
-#'  \deqn{\phi_{ur} g_r(x) = (1-\phi_{ul}-\phi_{ur}) h(u_l)/ (H(u_r) - H(u_l)).}
+#'  \deqn{\phi_{ur} g_r(x) = (1-\phi_{ul}-\phi_{ur}) h(u_r)/ (H(u_r) - H(u_l)).}
 #' By rearrangement, the GPD scale parameter \code{sigmaur} is then:
-#' \deqn{\sigma_ur = \phi_{ur} (H(u_r) - H(u_l))/ h(u_l) (1-\phi_{ul}-\phi_{ur}).}
+#' \deqn{\sigma_ur = \phi_{ur} (H(u_r) - H(u_l))/ h(u_r) (1-\phi_{ul}-\phi_{ur}).}
 #' where \eqn{h(x)}, \eqn{g_l(x)} and \eqn{g_r(x)} are the normal and conditional GPD
 #' density functions for lower and upper tail respectively. 
 #' In the special case of where the tail fraction is defined by the bulk model this reduces to

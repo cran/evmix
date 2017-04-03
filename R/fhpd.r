@@ -68,9 +68,10 @@
 #' \code{n}:      \tab total sample size\cr
 #' \code{nmean}:  \tab MLE of normal mean\cr
 #' \code{nsd}:    \tab MLE of normal standard deviation\cr
-#' \code{u}:      \tab threshold\cr
+#' \code{u}:      \tab threshold (implicit from other parameters)\cr
 #' \code{sigmau}: \tab MLE of GPD scale\cr
 #' \code{xi}:     \tab MLE of GPD shape\cr
+#'  \code{phiu}:    \tab MLE of tail fraction (implied by \code{1/(1+pnorm(u,nmean,nsd))})\cr
 #' }
 #' 
 #' The output list has some duplicate entries and repeats some of the inputs to both 

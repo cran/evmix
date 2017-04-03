@@ -62,7 +62,7 @@
 #'  \code{u}:       \tab threshold (fixed or MLE)\cr
 #'  \code{sigmau}:  \tab MLE of GPD scale (estimated from other parameters)\cr
 #'  \code{xi}:      \tab MLE of GPD shape\cr
-#'  \code{phiu}:    \tab MLE of tail fraction \code{1/(1+pnorm(u,nmean,nsd))}\cr
+#'  \code{phiu}:    \tab MLE of tail fraction (implied by \code{1/(1+pnorm(u,nmean,nsd))})\cr
 #' }
 #' 
 #' @note When \code{pvector=NULL} then the initial values are:

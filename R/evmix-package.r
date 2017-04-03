@@ -4,8 +4,8 @@
 #' \tabular{ll}{
 #' Package: \tab evmix\cr
 #' Type: \tab Package\cr
-#' Version: \tab 0.2-6\cr
-#' Date: \tab 2015-05-27\cr
+#' Version: \tab 0.2-7\cr
+#' Date: \tab 2017-04-04\cr
 #' License: \tab GPL-3\cr
 #' LazyLoad: \tab yes\cr
 #' }
@@ -43,6 +43,6 @@
 #' 
 #' @seealso \code{\link[evd:gpd]{evd}}, \code{\link[ismev:ismev]{ismev}} and 
 #' \code{\link[condmixt:condmixt-package]{condmixt}}
-#' @import stats graphics MASS splines gsl
+#' @import stats graphics MASS splines gsl grDevices
 #' @importFrom SparseM as.matrix.csr rbind.matrix.csr slm.wfit is.matrix.csr
 NULL

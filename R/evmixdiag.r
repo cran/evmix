@@ -11,6 +11,8 @@
 #' @param alpha      significance level over range (0, 1), or \code{NULL} for no CI
 #' @param N          number of Monte Carlo simulation for CI (N>=10)
 #' @param legend     logical, should legend be included
+#' @param rplim      return period range
+#' @param rllim      return level range
 #' @param ...        further arguments to be passed to the plotting functions
 #' 
 #' @details Model diagnostics are available for all the fitted extreme mixture models in the 
@@ -169,7 +171,7 @@ evmix.diag <- function(modelfit, upperfocus = TRUE, alpha = 0.05, N = 1000,
 #' @rdname evmix.diag
 
 rlplot <- function(modelfit, upperfocus = TRUE, alpha = 0.05, N = 1000,
-  legend = TRUE, ...) {
+  legend = TRUE, rplim = NULL, rllim = NULL, ...) {
   
   # Check properties of inputs
   if (missing(modelfit))
@@ -197,6 +199,11 @@ rlplot <- function(modelfit, upperfocus = TRUE, alpha = 0.05, N = 1000,
     if ((alpha == 0) | (alpha == 1)) stop("alpha must be in (0, 1)")
   check.n(N)
 
+  check.param(rllim, allowvec = TRUE, allownull = TRUE)
+  check.nparam(rllim, nparam = 2, allownull = TRUE)
+  check.posparam(rplim, allowvec = TRUE, allownull = TRUE)
+  check.nparam(rplim, nparam = 2, allownull = TRUE)
+  
   if (is.unsorted(modelfit$x, na.rm = TRUE)) {
     modelfit$x=sort(modelfit$x)
   } else {
@@ -398,6 +405,9 @@ rlplot <- function(modelfit, upperfocus = TRUE, alpha = 0.05, N = 1000,
 
   if (is.infinite(ylims[2])) ylims[2] = max(modelfit$x)
 
+  if (!is.null(rplim)) xlims = rplim
+  if (!is.null(rllim)) ylims = rllim
+  
   plot(trans.emp.prob, modelfit$x, pch = 'x', cex = 0.8, log = "x",
     xlab = "Return Period", ylab = "Return Level",
     xlim = xlims, ylim = ylims, axes = FALSE, ...)

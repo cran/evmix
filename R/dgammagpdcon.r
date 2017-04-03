@@ -255,7 +255,7 @@ qgammagpdcon <- function(p, gshape = 1, gscale = 1, u = qgamma(0.9, gshape, 1/gs
   }
   phib = (1 - phiu) / pu
     
-  sigmau = phiu / (phib * dgamma(u, gshape, gscale))
+  sigmau = phiu / (phib * dgamma(u, gshape, scale = gscale))
   
   check.posparam(sigmau, allowvec = TRUE)
     
