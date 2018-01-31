@@ -108,7 +108,7 @@
 #' 
 #' @seealso \code{\link[evmix:kernels]{kernels}}, \code{\link[evmix:kfun]{kfun}},
 #' \code{\link[stats:density]{density}}, \code{\link[stats:bandwidth]{bw.nrd0}}
-#' and \code{\link[ks:kde.1d]{dkde}} in \code{\link[ks:kde.1d]{ks}} package.
+#' and \code{\link[ks:kde]{dkde}} in \code{\link[ks:kde]{ks}} package.
 #' 
 #' @aliases kdengpd dkdengpd pkdengpd qkdengpd rkdengpd
 #' @family  kden kdengpd kdengpdcon bckden bckdengpd bckdengpdcon

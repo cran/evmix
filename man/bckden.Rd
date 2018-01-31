@@ -124,7 +124,7 @@ of length fifty times the number of kernels (upto a maximum of 1000) is first
 calculated. Spline based interpolation using \code{\link[stats:splinefun]{splinefun}},
 with default \code{monoH.FC} method, is then used to approximate the quantile
 function. This is a similar approach to that taken
-by Matt Wand in the \code{\link[ks:kde.1d]{qkde}} in the \code{\link[ks:kde.1d]{ks}} package.
+by Matt Wand in the \code{\link[ks:kde]{qkde}} in the \code{\link[ks:kde]{ks}} package.
 
 Unlike the standard KDE, there is no general rule-of-thumb bandwidth for all these
 estimators, with only certain methods having a guideline in the literature, so none
@@ -202,7 +202,7 @@ This method implicitly assumes f'(0)=0, so can cause extra artefacts at the boun
 
 \code{bcmethod="logtrans"} applies KDE on the log-scale and then back-transforms (with
 explicit normalisation) following Marron and Ruppert (1992). This is the approach
-implemented in the \code{\link[ks:kde.1d]{ks}} package. As the KDE is applied on
+implemented in the \code{\link[ks:kde]{ks}} package. As the KDE is applied on
 the log scale, the effective bandwidth on the original scale is non-constant. The
 \code{offset} option is only used for this method and is commonly used to offset
 zero kernel centres in log transform to prevent \code{log(0)}.
@@ -328,7 +328,7 @@ interval. Biometrika 94(4), 977-984.
 \seealso{
 \code{\link[evmix:kernels]{kernels}}, \code{\link[evmix:kfun]{kfun}},
 \code{\link[stats:density]{density}}, \code{\link[stats:bandwidth]{bw.nrd0}}
-and \code{\link[ks:kde.1d]{dkde}} in \code{\link[ks:kde.1d]{ks}} package.
+and \code{\link[ks:kde]{dkde}} in \code{\link[ks:kde]{ks}} package.
 
 Other kden kdengpd kdengpdcon bckden bckdengpd bckdengpdcon
          fkden fkdengpd fkdengpdcon fbckden fbckdengpd fbckdengpdcon: \code{\link{bckdengpdcon}},

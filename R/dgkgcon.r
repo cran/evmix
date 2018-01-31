@@ -141,7 +141,7 @@
 #' 
 #' @seealso \code{\link[evmix:kernels]{kernels}}, \code{\link[evmix:kfun]{kfun}},
 #' \code{\link[stats:density]{density}}, \code{\link[stats:bandwidth]{bw.nrd0}}
-#' and \code{\link[ks:kde.1d]{dkde}} in \code{\link[ks:kde.1d]{ks}} package.
+#' and \code{\link[ks:kde]{dkde}} in \code{\link[ks:kde]{ks}} package.
 #' 
 #' @aliases gkgcon dgkgcon pgkgcon qgkgcon rgkgcon
 #' @family  kden kdengpd kdengpdcon gkg gkgcon bckden bckdengpd bckdengpdcon

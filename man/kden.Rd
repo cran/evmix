@@ -118,7 +118,7 @@ of length fifty times the number of kernels (with minimum of 1000) is first
 calculated. Spline based interpolation using \code{\link[stats:splinefun]{splinefun}},
 with default \code{monoH.FC} method, is then used to approximate the quantile
 function. This is a similar approach to that taken
-by Matt Wand in the \code{\link[ks:kde.1d]{qkde}} in the \code{\link[ks:kde.1d]{ks}} package.
+by Matt Wand in the \code{\link[ks:kde]{qkde}} in the \code{\link[ks:kde]{ks}} package.
 
 If no bandwidth is provided \code{lambda=NULL} and \code{bw=NULL} then the normal
 reference rule is used, using the \code{\link[stats:bandwidth]{bw.nrd0}} function, which is
@@ -226,7 +226,7 @@ Wand, M. and Jones, M.C. (1995). Kernel Smoothing. Chapman && Hall.
 \seealso{
 \code{\link[evmix:kernels]{kernels}}, \code{\link[evmix:kfun]{kfun}},
 \code{\link[stats:density]{density}}, \code{\link[stats:bandwidth]{bw.nrd0}}
-and \code{\link[ks:kde.1d]{dkde}} in \code{\link[ks:kde.1d]{ks}} package.
+and \code{\link[ks:kde]{dkde}} in \code{\link[ks:kde]{ks}} package.
 
 Other kden kdengpd kdengpdcon bckden bckdengpd bckdengpdcon
          fkden fkdengpd fkdengpdcon fbckden fbckdengpd fbckdengpdcon: \code{\link{bckdengpdcon}},

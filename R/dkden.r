@@ -55,7 +55,7 @@
 #' calculated. Spline based interpolation using \code{\link[stats:splinefun]{splinefun}},
 #' with default \code{monoH.FC} method, is then used to approximate the quantile
 #' function. This is a similar approach to that taken
-#' by Matt Wand in the \code{\link[ks:kde.1d]{qkde}} in the \code{\link[ks:kde.1d]{ks}} package.
+#' by Matt Wand in the \code{\link[ks:kde]{qkde}} in the \code{\link[ks:kde]{ks}} package.
 #' 
 #' If no bandwidth is provided \code{lambda=NULL} and \code{bw=NULL} then the normal
 #' reference rule is used, using the \code{\link[stats:bandwidth]{bw.nrd0}} function, which is
@@ -115,7 +115,7 @@
 #' 
 #' @seealso \code{\link[evmix:kernels]{kernels}}, \code{\link[evmix:kfun]{kfun}},
 #' \code{\link[stats:density]{density}}, \code{\link[stats:bandwidth]{bw.nrd0}}
-#' and \code{\link[ks:kde.1d]{dkde}} in \code{\link[ks:kde.1d]{ks}} package.
+#' and \code{\link[ks:kde]{dkde}} in \code{\link[ks:kde]{ks}} package.
 #' 
 #' @aliases kden dkden pkden qkden rkden
 #' @family  kden kdengpd kdengpdcon bckden bckdengpd bckdengpdcon

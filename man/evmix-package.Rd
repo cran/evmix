@@ -13,8 +13,8 @@ Boundary Corrected Kernel Density Estimation
 \tabular{ll}{
 Package: \tab evmix\cr
 Type: \tab Package\cr
-Version: \tab 0.2-7\cr
-Date: \tab 2017-04-04\cr
+Version: \tab 0.2-8\cr
+Date: \tab 2018-0-31\cr
 License: \tab GPL-3\cr
 LazyLoad: \tab yes\cr
 }
@@ -50,5 +50,5 @@ industrial applications. PhD thesis, University of Canterbury, New Zealand.
 \code{\link[condmixt:condmixt-package]{condmixt}}
 }
 \author{
-Carl Scarrott and Yang Hu, University of Canterbury, New Zealand \email{carl.scarrott@canterbury.ac.nz}
+Carl Scarrott, Yang Hu and Alfadino Akbar, University of Canterbury, New Zealand \email{carl.scarrott@canterbury.ac.nz}
 }

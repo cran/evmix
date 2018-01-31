@@ -144,8 +144,9 @@
 #' 
 #' @seealso \code{\link[evmix:kernels]{kernels}}, \code{\link[evmix:kfun]{kfun}},
 #'  \code{\link[stats:density]{density}}, \code{\link[stats:bandwidth]{bw.nrd0}}
-#' and \code{\link[ks:kde.1d]{dkde}} in \code{\link[ks:kde.1d]{ks}} package.
-#'  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
+#' and \code{\link[ks:kde]{dkde}} in \code{\link[ks:kde]{ks}} package.
+#'  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}.
+#'  
 #' @aliases fbckdengpd lbckdengpd nlbckdengpd proflubckdengpd nlubckdengpd
 #' @family  kdengpd kdengpdcon fkdengpd fkdengpdcon normgpd fnormgpd
 #'          kden bckden bckdengpd bckdengpdcon fkden fbckden fbckdengpd fbckdengpdcon

@@ -128,7 +128,7 @@ of length fifty times the number of knots (with a minimum of 1000) is first
 calculated. Spline based interpolation using \code{\link[stats:splinefun]{splinefun}},
 with default \code{monoH.FC} method, is then used to approximate the quantile
 function. This is a similar approach to that taken
-by Matt Wand in the \code{\link[ks:kde.1d]{qkde}} in the \code{\link[ks:kde.1d]{ks}} package.
+by Matt Wand in the \code{\link[ks:kde]{qkde}} in the \code{\link[ks:kde]{ks}} package.
 }
 \note{
 Unlike most of the other extreme value mixture model functions the 

@@ -4,8 +4,8 @@
 #' \tabular{ll}{
 #' Package: \tab evmix\cr
 #' Type: \tab Package\cr
-#' Version: \tab 0.2-7\cr
-#' Date: \tab 2017-04-04\cr
+#' Version: \tab 0.2-8\cr
+#' Date: \tab 2018-0-31\cr
 #' License: \tab GPL-3\cr
 #' LazyLoad: \tab yes\cr
 #' }
@@ -25,7 +25,7 @@
 #' @aliases evmix
 #' @docType package
 #' @title Extreme Value Mixture Modelling, Threshold Estimation and Boundary Corrected Kernel Density Estimation
-#' @author Carl Scarrott and Yang Hu, University of Canterbury, New Zealand \email{carl.scarrott@@canterbury.ac.nz}
+#' @author Carl Scarrott, Yang Hu and Alfadino Akbar, University of Canterbury, New Zealand \email{carl.scarrott@@canterbury.ac.nz}
 #' @references
 #' \url{http://www.math.canterbury.ac.nz/~c.scarrott/evmix}
 #' 
