@@ -4,8 +4,8 @@
 #' \tabular{ll}{
 #' Package: \tab evmix\cr
 #' Type: \tab Package\cr
-#' Version: \tab 0.2-8\cr
-#' Date: \tab 2018-0-31\cr
+#' Version: \tab 0.2-9\cr
+#' Date: \tab 2018-02-08\cr
 #' License: \tab GPL-3\cr
 #' LazyLoad: \tab yes\cr
 #' }
@@ -36,6 +36,10 @@
 #' Hu, Y. (2013). Extreme value mixture modelling: An R package and simulation study.
 #' MSc (Hons) thesis, University of Canterbury, New Zealand.
 #' \url{http://ir.canterbury.ac.nz/simple-search?query=extreme&submit=Go}
+#' 
+#' Hu Y. and Scarrott, C.J. (2018). evmix: An R Package for Extreme Value Mixture Modeling, 
+#' Threshold Estimation and Boundary Corrected Kernel Density Estimation. Journal of
+#' Statistical Software.
 #' 
 #' MacDonald, A. (2012). Extreme value mixture modelling with medical and
 #' industrial applications. PhD thesis, University of Canterbury, New Zealand.

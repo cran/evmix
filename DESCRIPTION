@@ -1,8 +1,8 @@
 Package: evmix
 Title: Extreme Value Mixture Modelling, Threshold Estimation and
         Boundary Corrected Kernel Density Estimation
-Version: 2.8
-Date: 2018-01-31
+Version: 2.9
+Date: 2018-02-08
 Author: Carl Scarrott, Yang Hu and Alfadino Akbar, University of Canterbury
 Maintainer: Carl Scarrott <carl.scarrott@canterbury.ac.nz>
 Depends: stats, graphics, MASS, splines, gsl, SparseM, grDevices
@@ -18,5 +18,5 @@ URL: http://www.math.canterbury.ac.nz/~c.scarrott/evmix
 Repository: CRAN
 RoxygenNote: 6.0.1
 NeedsCompilation: no
-Packaged: 2018-01-31 21:19:23 UTC; csc51
-Date/Publication: 2018-01-31 23:04:56 UTC
+Packaged: 2018-02-08 04:42:54 UTC; csc51
+Date/Publication: 2018-02-08 23:09:40 UTC

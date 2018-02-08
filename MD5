@@ -1,4 +1,4 @@
-d791291d37d83512ba4c279abb094136 *DESCRIPTION
+9c3b9e7f4272aead52d96ba44fa1d13e *DESCRIPTION
 13fb6bc91cd195e44b5edf608bc90d6f *NAMESPACE
 c9fafd6dc673f3d505283e874cf2376c *R/checking.r
 b765fc92711cb36f983fea14d61f6076 *R/dbckden.r
@@ -33,7 +33,7 @@ fcd4f3f957c7629b83374fa6956f7f5a *R/dnormgpd.r
 75e3c69e75f2b65cbbaa474f6d0840aa *R/dpsdengpd.r
 169ed93723daf1a82c106c2027447361 *R/dweibullgpd.r
 d0070541144b7e730369b0b98f240c9b *R/dweibullgpdcon.r
-ab5007265f95c1808ee32e0372aedc25 *R/evmix-package.r
+6ff63780dc8bc59a06a5b8144e52d942 *R/evmix-package.r
 a1facc9f8312e54c427b13f413b52302 *R/evmixdiag.r
 e0ce5f4c5b53fff4f8a951f5b1b2dcf1 *R/fbckden.r
 e6f0c7e9b5923d26d88480b86b89919b *R/fbckdengpd.r
@@ -74,11 +74,11 @@ c2223c53a2ff61f645ad85f44e88000e *R/fweibullgpdcon.r
 72506074bf0b075b279e983e71af43ff *R/pickandsplot.r
 772b6eab026541db7a7e26b1f6e9fc08 *R/tcplot.r
 16afc21b0c1c562d3e3cd32c2e4315c7 *R/undocumented.r
-361d4191dee6e0971f622fd53d5d2d73 *inst/CITATION
-45570e3eebc515455d4376fb52218f75 *inst/doc/HuScarrott_Submitted_compressed.pdf
-eadb6b40bdadc475e4268ba5428f3eb2 *inst/doc/Rd2.pdf
+ca6794bec1f383398d4f1ab6e3ff4655 *inst/CITATION
+5fbb2ce836b98c84252d685e4046d4dc *inst/doc/HuScarrottJSS_compressed.pdf
+97baae1485b6762f8795a94303c766f7 *inst/doc/Rd2_compressed.pdf
 d145f82ca00bd6b84326690c116e4b58 *inst/doc/UserGuide.pdf
-5026f4d2c34aa78f9da851720ce46590 *inst/doc/evmix_supplementary.pdf
+48f925fa1a764149d8a409e18dd64c2c *inst/doc/evmix_supplementary_compressed.pdf
 20fd7d5801ecd6d2ccbfa4450e1ab8c3 *man/bckden.Rd
 0d4be8bff58ec15af6a5217a5aeb2f0b *man/bckdengpd.Rd
 03f4f0fc0ff4fc5fd2ff669eb1b30432 *man/bckdengpdcon.Rd
@@ -86,7 +86,7 @@ e0bc3fe3a0b7d829e389f6a056718068 *man/betagpd.Rd
 c795f1a73e8307cedf6cf30786e9ea77 *man/betagpdcon.Rd
 34fe18fa398f824195e9dce962344b9b *man/checking.Rd
 d5646a02ccb4784247635cb552fb0d6b *man/dwm.Rd
-595911d3dc526907b884c1464683d46c *man/evmix-package.Rd
+1ab4ca92f01527efa1e6ac74a50ae66c *man/evmix-package.Rd
 0936e5cd0f4320c778c03c1a9211ee53 *man/evmix.diag.Rd
 273c405e7b51408528aa0cbea690a77c *man/fbckden.Rd
 8bf5f0b9b6b0cb21640f6b4b4f7b40f9 *man/fbckdengpd.Rd
