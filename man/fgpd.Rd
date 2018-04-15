@@ -206,6 +206,10 @@ legend("topright", c("True Density","Fitted Density"), col=c("black", "red"), lt
 }
 \references{
 \url{http://en.wikipedia.org/wiki/Generalized_Pareto_distribution}
+
+Hu Y. and Scarrott, C.J. (2018). evmix: An R Package for Extreme Value Mixture Modeling, 
+Threshold Estimation and Boundary Corrected Kernel Density Estimation. Journal of
+Statistical Software 84(5), 1-27. doi: 10.18637/jss.v084.i05.
 }
 \seealso{
 \code{\link[evd:gpd]{dgpd}}, \code{\link[evd:fpot]{fpot}} and

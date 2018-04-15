@@ -342,6 +342,10 @@ Hu, Y. (2013). Extreme value mixture modelling: An R package and simulation stud
 MSc (Hons) thesis, University of Canterbury, New Zealand.
 \url{http://ir.canterbury.ac.nz/simple-search?query=extreme&submit=Go}
 
+Hu Y. and Scarrott, C.J. (2018). evmix: An R Package for Extreme Value Mixture Modeling, 
+Threshold Estimation and Boundary Corrected Kernel Density Estimation. Journal of
+Statistical Software 84(5), 1-27. doi: 10.18637/jss.v084.i05.
+
 Behrens, C.N., Lopes, H.F. and Gamerman, D. (2004). Bayesian analysis of extreme
 events with threshold estimation. Statistical Modelling. 4(3), 227-244.
 }

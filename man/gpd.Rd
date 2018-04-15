@@ -183,6 +183,10 @@ legend("bottomright", c("u = 0 phiu = 1","u = 2 phiu = 1","u = 5 phiu = 0.2"),
 \references{
 \url{http://en.wikipedia.org/wiki/Generalized_Pareto_distribution}
 
+Hu Y. and Scarrott, C.J. (2018). evmix: An R Package for Extreme Value Mixture Modeling, 
+Threshold Estimation and Boundary Corrected Kernel Density Estimation. Journal of
+Statistical Software 84(5), 1-27. doi: 10.18637/jss.v084.i05.
+
 Coles, S.G. (2001). An Introduction to Statistical Modelling of Extreme Values.
 Springer Series in Statistics. Springer-Verlag: London.
 }

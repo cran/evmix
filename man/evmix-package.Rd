@@ -13,8 +13,8 @@ Boundary Corrected Kernel Density Estimation
 \tabular{ll}{
 Package: \tab evmix\cr
 Type: \tab Package\cr
-Version: \tab 0.2-9\cr
-Date: \tab 2018-02-08\cr
+Version: \tab 0.2-10\cr
+Date: \tab 2018-04-15\cr
 License: \tab GPL-3\cr
 LazyLoad: \tab yes\cr
 }
@@ -43,7 +43,7 @@ MSc (Hons) thesis, University of Canterbury, New Zealand.
 
 Hu Y. and Scarrott, C.J. (2018). evmix: An R Package for Extreme Value Mixture Modeling, 
 Threshold Estimation and Boundary Corrected Kernel Density Estimation. Journal of
-Statistical Software.
+Statistical Software 84(5), 1-27. doi: 10.18637/jss.v084.i05.
 
 MacDonald, A. (2012). Extreme value mixture modelling with medical and
 industrial applications. PhD thesis, University of Canterbury, New Zealand.

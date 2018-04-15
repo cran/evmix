@@ -75,6 +75,10 @@
 #' threshold estimation and uncertainty quantification. REVSTAT - Statistical
 #' Journal 10(1), 33-59. Available from \url{http://www.ine.pt/revstat/pdf/rs120102.pdf}
 #' 
+#' Hu Y. and Scarrott, C.J. (2018). evmix: An R Package for Extreme Value Mixture Modeling, 
+#' Threshold Estimation and Boundary Corrected Kernel Density Estimation. Journal of
+#' Statistical Software 84(5), 1-27. doi: 10.18637/jss.v084.i05.
+#' 
 #' Behrens, C.N., Lopes, H.F. and Gamerman, D. (2004). Bayesian analysis of extreme
 #' events with threshold estimation. Statistical Modelling. 4(3), 227-244.
 #' 

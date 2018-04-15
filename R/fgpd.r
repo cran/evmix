@@ -143,6 +143,10 @@
 #' 
 #' \url{http://en.wikipedia.org/wiki/Generalized_Pareto_distribution}
 #' 
+#' Hu Y. and Scarrott, C.J. (2018). evmix: An R Package for Extreme Value Mixture Modeling, 
+#' Threshold Estimation and Boundary Corrected Kernel Density Estimation. Journal of
+#' Statistical Software 84(5), 1-27. doi: 10.18637/jss.v084.i05.
+#' 
 #' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'   
 #' @section Acknowledgments: Based on the \code{\link[ismev:gpd.fit]{gpd.fit}} and
@@ -245,7 +249,7 @@ fgpd <- function(x, u = 0, phiu = NULL, pvector = NULL, std.err = TRUE,
   if (is.infinite(nllh)) stop("initial parameter values are invalid")
 
   fit = optim(par = as.vector(pvector), fn = nlgpd, x = xu, u = u, phiu = phiu,
-    finitelik = finitelik, method = method, hessian = TRUE, ...)
+    finitelik = finitelik, control = control, method = method, hessian = TRUE, ...)
   
   conv = TRUE
   if ((fit$convergence != 0) | any(fit$par == pvector) | (abs(fit$value) >= 1e6)) {
