@@ -13,8 +13,8 @@ Boundary Corrected Kernel Density Estimation
 \tabular{ll}{
 Package: \tab evmix\cr
 Type: \tab Package\cr
-Version: \tab 0.2-10\cr
-Date: \tab 2018-04-15\cr
+Version: \tab 2.11\cr
+Date: \tab 2018-06-06\cr
 License: \tab GPL-3\cr
 LazyLoad: \tab yes\cr
 }

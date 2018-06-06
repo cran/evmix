@@ -1,4 +1,4 @@
-d9eac121dfe0b31deac49ce157b48cb2 *DESCRIPTION
+3368d3d2d1d10bf75ef0534436320c81 *DESCRIPTION
 13fb6bc91cd195e44b5edf608bc90d6f *NAMESPACE
 c9fafd6dc673f3d505283e874cf2376c *R/checking.r
 b765fc92711cb36f983fea14d61f6076 *R/dbckden.r
@@ -33,7 +33,7 @@ cdbafe93bcfafc3e5861d482bc22258c *R/dmgammagpdcon.r
 75e3c69e75f2b65cbbaa474f6d0840aa *R/dpsdengpd.r
 169ed93723daf1a82c106c2027447361 *R/dweibullgpd.r
 d0070541144b7e730369b0b98f240c9b *R/dweibullgpdcon.r
-c8048b4ef91017f38e3dc89d90e83a68 *R/evmix-package.r
+f338869b97d092f468b943bd6c1e7af5 *R/evmix-package.r
 a1facc9f8312e54c427b13f413b52302 *R/evmixdiag.r
 e0ce5f4c5b53fff4f8a951f5b1b2dcf1 *R/fbckden.r
 e6f0c7e9b5923d26d88480b86b89919b *R/fbckdengpd.r
@@ -75,8 +75,8 @@ c2223c53a2ff61f645ad85f44e88000e *R/fweibullgpdcon.r
 772b6eab026541db7a7e26b1f6e9fc08 *R/tcplot.r
 16afc21b0c1c562d3e3cd32c2e4315c7 *R/undocumented.r
 30f095c56a1a541143c69547ad135afe *inst/CITATION
-d5b80d799e87b8ad31548c6de4dd477f *inst/doc/Rd2.pdf
-e66fc194fc1773ff9454fe5d85352f14 *inst/doc/UserGuide_compressed.pdf
+986da52d3a2e9db8fb3ca54d3b9c1459 *inst/doc/Rd2.pdf
+cbcf0289e089d69a622c09f366a28b8a *inst/doc/UserGuide_compressed.pdf
 48f925fa1a764149d8a409e18dd64c2c *inst/doc/evmix_supplementary_compressed.pdf
 8d1fe79f48963d2d6417a48efee3ee33 *inst/doc/v84i05_compressed.pdf
 20fd7d5801ecd6d2ccbfa4450e1ab8c3 *man/bckden.Rd
@@ -86,7 +86,7 @@ e0bc3fe3a0b7d829e389f6a056718068 *man/betagpd.Rd
 c795f1a73e8307cedf6cf30786e9ea77 *man/betagpdcon.Rd
 34fe18fa398f824195e9dce962344b9b *man/checking.Rd
 d5646a02ccb4784247635cb552fb0d6b *man/dwm.Rd
-00179cead43eb19ebea84c821f8c7b0c *man/evmix-package.Rd
+4c99c5f7efc4401656bec0d03f7fb175 *man/evmix-package.Rd
 0936e5cd0f4320c778c03c1a9211ee53 *man/evmix.diag.Rd
 273c405e7b51408528aa0cbea690a77c *man/fbckden.Rd
 8bf5f0b9b6b0cb21640f6b4b4f7b40f9 *man/fbckdengpd.Rd
