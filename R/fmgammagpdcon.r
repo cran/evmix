@@ -255,7 +255,12 @@ fmgammagpdcon <- function(x, M, phiu = TRUE, useq = NULL, fixedu = FALSE, pvecto
   check.quant(x)
   n = length(x)
 
-  if (is.unsorted(x)) x = sort(x)
+  if (is.unsorted(x)) {
+    x = sort(x)
+  } else {
+    if (x[1] > x[length(x)])
+      x = rev(x)
+  }
 
   if ((method == "L-BFGS-B") | (method == "BFGS")) finitelik = TRUE
   
@@ -702,7 +707,7 @@ lmgammagpdcon <- function(x, mgshape, mgscale, mgweight, u, xi, phiu = TRUE, log
       
     syu = 1 + xi * (xu - u)/sigmau
 
-    if ((min(syu) <= 0) | (sigmau <= 0) | (du < .Machine$double.eps) | (phiu <= 0) | (phiu >= 1)) {
+    if ((min(syu) <= 0) | (sigmau <= 0) | (du < .Machine$double.eps) | (phiu <= 0) | (phiu >= 1) | (pu <= 0) | (pu >= 1)) {
       l = -Inf
     }
     else {
@@ -880,7 +885,7 @@ nlEMmgammagpdcon <- function(pvector, tau, mgweight, x, M, phiu = TRUE, finiteli
 # mixture of gammas bulk with GPD for upper tail with continuity at threshold, using EM algorithm
 # designed for sapply to loop over vector of thresholds (hence u is first input)
 proflumgammagpdcon <- function(u, pvector, x, M, phiu = TRUE,
-  method = "BFGS", control = list(maxit = 10000), finitelik = FALSE, ...) {
+  method = "BFGS", control = list(maxit = 10000), finitelik = TRUE, ...) {
 
   check.n(M)
   if (M == 1) stop("use proflugammagpdcon instead")
@@ -910,7 +915,12 @@ proflumgammagpdcon <- function(u, pvector, x, M, phiu = TRUE,
   check.quant(x)
   n = length(x)
 
-  if (is.unsorted(x)) x = sort(x)
+  if (is.unsorted(x)) {
+    x = sort(x)
+  } else {
+    if (x[1] > x[length(x)])
+      x = rev(x)
+  }
 
   # approximate MLE for each gamma component
   approxmle = function(x) {

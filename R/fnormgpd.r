@@ -343,7 +343,7 @@ fnormgpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL
       
       nllhu = sapply(useq, proflunormgpd, pvector = pvector, x = x, phiu = phiu,
         method = method, control = control, finitelik = finitelik, ...)
-      
+
       if (all(!is.finite(nllhu))) stop("thresholds are all invalid")
       u = useq[which.min(nllhu)]
 
@@ -513,7 +513,7 @@ lnormgpd <- function(x, nmean = 0, nsd = 1, u = qnorm(0.9, nmean, nsd),
     syu = 1 + xi * (xu - u) / sigmau  
     yb = (xb - nmean) / nsd # used for normal
   
-    if ((min(syu) <= 0) | (phiu <= 0) | (phiu >= 1)) {
+    if ((min(syu) <= 0) | (phiu <= 0) | (phiu >= 1) | (pu <= 0) | (pu >= 1)) {
       l = -Inf
     } else { 
       l = lgpd(xu, u, sigmau, xi, phiu)
@@ -522,7 +522,6 @@ lnormgpd <- function(x, nmean = 0, nsd = 1, u = qnorm(0.9, nmean, nsd),
   }
   
   if (!log) l = exp(l)
-  
   l
 }
 
@@ -564,8 +563,8 @@ nlnormgpd <- function(pvector, x, phiu = TRUE, finitelik = FALSE) {
 # profile negative log-likelihood function for given threshold for
 # normal bulk with GPD for upper tail
 # designed for sapply to loop over vector of thresholds (hence u is first input)
-proflunormgpd <- function(u, pvector, x, phiu = TRUE, method = "BFGS",
-  control = list(maxit = 10000), finitelik = FALSE, ...) {
+proflunormgpd <- function(u, pvector = NULL, x, phiu = TRUE, method = "BFGS",
+  control = list(maxit = 10000), finitelik = TRUE, ...) {
 
   np = 5 # maximum number of parameters
 
@@ -599,7 +598,7 @@ proflunormgpd <- function(u, pvector, x, phiu = TRUE, method = "BFGS",
     pvector[3] = initfgpd$sigmau
     pvector[4] = initfgpd$xi
     nllh = nlunormgpd(pvector, u, x, phiu)
-  }  
+  }
 
   if (is.infinite(nllh)) {
     pvector[4] = 0.1
@@ -612,9 +611,8 @@ proflunormgpd <- function(u, pvector, x, phiu = TRUE, method = "BFGS",
     fit = list(par = rep(NA, np), value = Inf, counts = 0, convergence = NA, 
       message = "initial values invalid", hessian = rep(NA, np))
   } else {
-
     fit = optim(par = as.vector(pvector), fn = nlunormgpd, u = u, x = x, phiu = phiu,
-    finitelik = finitelik, method = method, control = control, hessian = TRUE, ...)
+      finitelik = finitelik, method = method, control = control, hessian = TRUE, ...)
   }
     
   if (finitelik & is.infinite(fit$value)) {
@@ -647,7 +645,7 @@ nlunormgpd <- function(pvector, u, x, phiu = TRUE, finitelik = FALSE) {
   xi = pvector[4]
 
   nllh = -lnormgpd(x, nmean, nsd, u, sigmau, xi, phiu) 
-  
+
   if (finitelik & is.infinite(nllh)) {
     nllh = sign(nllh) * 1e6
   }

@@ -119,6 +119,9 @@ tcplot <- function(data, tlim = NULL, nt = min(100, length(data)), p.or.n = FALS
   data = data[which(is.finite(data))]
   if (is.unsorted(data)) {
     data = sort(data)
+  } else {
+    if (data[1] > data[length(data)])
+      data = rev(data)
   }
   check.quant(data)
 
@@ -200,6 +203,9 @@ tshapeplot <- function(data, tlim = NULL, nt = min(100, length(data)), p.or.n = 
   data = data[which(is.finite(data))]
   if (is.unsorted(data)) {
     data = sort(data)
+  } else {
+    if (data[1] > data[length(data)])
+      data = rev(data)
   }
   check.quant(data)
 
@@ -428,6 +434,9 @@ tscaleplot <- function(data, tlim = NULL, nt = min(100, length(data)), p.or.n = 
   data = data[which(is.finite(data))]
   if (is.unsorted(data)) {
     data = sort(data)
+  } else {
+    if (data[1] > data[length(data)])
+      data = rev(data)
   }
   check.quant(data)
 

@@ -484,7 +484,7 @@ nlitmgng <- function(pvector, x, finitelik = FALSE) {
 # normal bulk with GPD for both tails interval transition mixture model
 # designed for apply to loop over vector of epsilons and thresholds (hence c(ul, ur) vector is first input)
 profleuitmgng <- function(eulr, pvector, x,
-  method = "BFGS", control = list(maxit = 10000), finitelik = FALSE, ...) {
+  method = "BFGS", control = list(maxit = 10000), finitelik = TRUE, ...) {
 
   np = 9 # maximum number of parameters
 

@@ -149,6 +149,9 @@ mrlplot <- function(data, tlim = NULL, nt = min(100, length(data)), p.or.n = FAL
   data = data[which(is.finite(data))]
   if (is.unsorted(data)) {
     data = sort(data)
+  } else {
+    if (data[1] > data[length(data)])
+      data = rev(data)
   }
   check.quant(data)
 

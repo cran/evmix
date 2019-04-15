@@ -65,6 +65,8 @@
 #' 
 #' @author Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'
+#' @section Acknowledgments: Thanks to Younes Mouatasim, Risk Dynamics, Brussels for reporting various bugs in these functions.
+#' 
 #' @seealso \code{\link[smoothtail:pickands]{pickands}}
 #' 
 #' @examples
@@ -100,6 +102,9 @@ pickandsplot <- function(data, orderlim = NULL, tlim = NULL,
   data = data[which(is.finite(data))]
   if (is.unsorted(data)) {
     data = sort(data, decreasing = TRUE)
+  } else {
+    if (data[1] < data[length(data)])
+      data = rev(data)
   }
   check.quant(data)
 
@@ -166,13 +171,21 @@ pickandsplot <- function(data, orderlim = NULL, tlim = NULL,
   norder = (diff(orderlim) + 1)
   if (norder < 2)
     stop("must be more than 2 order statistics considered")
-
-  check.param(try.thresh, allowvec = TRUE, allownull = TRUE)
+  
+  check.posparam(try.thresh, allowvec = TRUE, allownull = TRUE)
   if (!is.null(try.thresh)) {
-    if (any((try.thresh > data[orderlim[1]]) | (try.thresh < data[orderlim[2]])))
-      stop("potential thresholds must be within range specifed by orderlim")
+    if (any((try.thresh > data[orderlim[1]]) | (try.thresh < data[orderlim[2]]))) {
+      warning("potential thresholds must be within range specifed by orderlim, those outside have been set to limits")
+      if (any(try.thresh > data[orderlim[1]])) {
+        try.thresh[try.thresh > data[orderlim[1]]] = data[orderlim[1]]
+      }
+      if (any(try.thresh < data[orderlim[2]])) {
+        try.thresh[try.thresh < data[orderlim[2]]] = data[orderlim[2]]
+      }
+      try.thresh = as.vector(try.thresh)
+    }
   }
-    
+
   # max order statistic
   maxks = floor(n/4)
 
@@ -244,7 +257,7 @@ pickandsplot <- function(data, orderlim = NULL, tlim = NULL,
     Pickparams = rep(NA, ntry)
     linecols = rep(c("blue", "green", "red"), length.out = ntry)
     for (i in 1:ntry) {
-      try.order = sum(data >= try.thresh[i])      
+      try.order = sum(data > try.thresh[i])      
       try.x = c(orderlim[1], try.order, orderlim[2])
       Pickparams[i] = Pick[try.order]
       try.y = rep(Pickparams[i], 3)

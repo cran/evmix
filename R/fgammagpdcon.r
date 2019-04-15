@@ -380,7 +380,7 @@ lgammagpdcon <- function(x, gshape = 1, gscale = 1, u = qgamma(0.9, gshape, 1/gs
     
     syu = 1 + xi * (xu - u) / sigmau  
   
-    if ((min(syu) <= 0) | (sigmau <= 0) | (du < .Machine$double.eps) | (phiu <= 0) | (phiu >= 1)) {
+    if ((min(syu) <= 0) | (sigmau <= 0) | (du < .Machine$double.eps) | (phiu <= 0) | (phiu >= 1) | (pu <= 0) | (pu >= 1)) {
       l = -Inf
     } else { 
       l = lgpd(xu, u, sigmau, xi, phiu)
@@ -431,7 +431,7 @@ nlgammagpdcon <- function(pvector, x, phiu = TRUE, finitelik = FALSE) {
 # gamma bulk with GPD for upper tail with continuity at threshold
 # designed for sapply to loop over vector of thresholds (hence u is first input)
 proflugammagpdcon <- function(u, pvector, x, phiu = TRUE, method = "BFGS",
-  control = list(maxit = 10000), finitelik = FALSE, ...) {
+  control = list(maxit = 10000), finitelik = TRUE, ...) {
 
   np = 4 # maximum number of parameters
 

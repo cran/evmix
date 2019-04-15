@@ -4,8 +4,8 @@
 #' \tabular{ll}{
 #' Package: \tab evmix\cr
 #' Type: \tab Package\cr
-#' Version: \tab 0.2-3\cr
-#' Date: \tab 2014-09-01\cr
+#' Version: \tab 0.2-5\cr
+#' Date: \tab 2015-04-15\cr
 #' License: \tab GPL-3\cr
 #' LazyLoad: \tab yes\cr
 #' }

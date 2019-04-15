@@ -484,7 +484,7 @@ lpsdengpd <- function(x, psdenx, u = NULL, sigmau = NULL, xi = 0, phiu = TRUE, b
 
     syu = 1 + xi * (xu - u) / sigmau  
   
-    if ((min(syu) <= 0) | (phiu <= 0) | (phiu >= 1)) {
+    if ((min(syu) <= 0) | (phiu <= 0) | (phiu >= 1) | (pu <= 0) | (pu >= 1)) {
       l = -Inf
     } else { 
       l = lgpd(xu, u, sigmau, xi, phiu)
@@ -538,7 +538,7 @@ nlpsdengpd <- function(pvector, x, psdenx, phiu = TRUE, bsplinefit, phib = NULL,
 # P-splines density estimate for bulk with GPD for upper tail
 # designed for sapply to loop over vector of thresholds (hence u is first input)
 proflupsdengpd <- function(u, pvector, x, psdenx, phiu = TRUE, bsplinefit,
-                          method = "BFGS", control = list(maxit = 10000), finitelik = FALSE, ...) {
+                          method = "BFGS", control = list(maxit = 10000), finitelik = TRUE, ...) {
 
   np = 3 # maximum number of parameters
 

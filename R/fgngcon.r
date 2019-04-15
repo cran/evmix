@@ -455,7 +455,9 @@ lgngcon <- function(x, nmean = 0, nsd = 1,
   
     if ((min(syul) <= 0) | (phiul <= 0) | (phiul >= 1) | 
         (min(syur) <= 0) | (phiur <= 0) | (phiur >= 1) | ((phiul + phiur) > 1) |
-        (phib < .Machine$double.eps) | (dul < .Machine$double.eps) | (dur < .Machine$double.eps) | 
+        (pul <= 0) | (pul >= 1) | (pur <= 0) | (pur >= 1) |
+        (phib < .Machine$double.eps) |
+        (dul < .Machine$double.eps) | (dur < .Machine$double.eps) | 
         (sigmaul <= 0) | (sigmaur <= 0)) {
       l = -Inf
     } else { 
@@ -512,7 +514,7 @@ nlgngcon <- function(pvector, x, phiul = TRUE, phiur = TRUE, finitelik = FALSE) 
 # normal bulk with GPD for both tails with continuity at thresholds
 # designed for apply to loop over vector of thresholds (hence c(ul, ur) vector is first input)
 proflugngcon <- function(ulr, pvector, x, phiul = TRUE, phiur = TRUE,
-  method = "BFGS", control = list(maxit = 10000), finitelik = FALSE, ...) {
+  method = "BFGS", control = list(maxit = 10000), finitelik = TRUE, ...) {
 
   np = 6 # maximum number of parameters
 

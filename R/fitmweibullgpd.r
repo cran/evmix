@@ -438,7 +438,7 @@ nlitmweibullgpd <- function(pvector, x, finitelik = FALSE) {
 # designed for sapply to loop over matrix with two columns vector of threshold and epsilon pairs
 # (hence eu is first input)
 profleuitmweibullgpd <- function(eu, pvector, x, method = "BFGS",
-  control = list(maxit = 10000), finitelik = FALSE, ...) {
+  control = list(maxit = 10000), finitelik = TRUE, ...) {
 
   np = 6 # maximum number of parameters
 

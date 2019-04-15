@@ -222,7 +222,12 @@ fpsden <- function(x, lambdaseq = NULL, breaks = NULL, xrange = NULL,
     
   } else {
     # if knots specified, they must be sorted
-    if (is.unsorted(design.knots)) design.knots = sort(design.knots)
+    if (is.unsorted(design.knots)) {
+      design.knots = sort(design.knots)
+    } else {
+      if (design.knots[1] > design.knots[length(design.knots)])
+        design.knots = rev(design.knots)
+    }
     
     # cannot check degree as beta coefficients not provided (as checked in psden functions)
     
@@ -253,7 +258,12 @@ fpsden <- function(x, lambdaseq = NULL, breaks = NULL, xrange = NULL,
     breaks = ceiling(10 * log(n)) # Eilers and Marx default setting for # breaks
   } else {
     # if breaks specified, they must be sorted
-    if (is.unsorted(breaks)) breaks = sort(breaks)
+    if (is.unsorted(breaks)) {
+      breaks = sort(breaks)
+    } else {
+      if (breaks[1] > breaks[length(breaks)])
+        breaks = rev(breaks)
+    }
   }
   
   # If breaks are not prescribed, then set sequence from min to max of data

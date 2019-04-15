@@ -575,7 +575,7 @@ lbckdengpdcon <- function(x, lambda = NULL, u = 0, xi = 0, phiu = TRUE,
     
     syu = 1 + xi * (xu - u) / sigmau  
   
-    if ((min(syu) <= 0) | (sigmau <= 0) | (du < .Machine$double.eps) | (phiu <= 0) | (phiu >= 1) | ifelse(is.null(xmax), FALSE, u >= xmax)) {
+    if ((min(syu) <= 0) | (sigmau <= 0) | (du < .Machine$double.eps) | (phiu <= 0) | (phiu >= 1) | (pu <= 0) | (pu >= 1) | ifelse(is.null(xmax), FALSE, u >= xmax)) {
       l = -Inf
     } else { 
       l = lgpd(xu, u, sigmau, xi, phiu)
@@ -643,7 +643,7 @@ nlbckdengpdcon <- function(pvector, x, phiu = TRUE, kernel = "gaussian",
 # cross-validation for KDE component
 proflubckdengpdcon <- function(u, pvector, x, phiu = TRUE, kernel = "gaussian",
   bcmethod = "simple", proper = TRUE, nn = "jf96", offset = NULL, xmax = NULL,
-  method = "BFGS", control = list(maxit = 10000), finitelik = FALSE, ...) {
+  method = "BFGS", control = list(maxit = 10000), finitelik = TRUE, ...) {
 
   np = 3 # maximum number of parameters
 

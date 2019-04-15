@@ -538,7 +538,12 @@ check.design.knots <- function(beta, xrange, nseg, degree, design.knots) {
     
   } else {
     # if knots specified, they must be sorted
-    if (is.unsorted(design.knots)) design.knots = sort(design.knots)
+    if (is.unsorted(design.knots)) {
+      design.knots = sort(design.knots)
+    } else {
+      if (design.knots[1] > design.knots[length(design.knots)])
+        design.knots = rev(design.knots)
+    }
     
     # degree determinable by difference between design.knots and coefficients
     if ((length(design.knots) - length(beta) - 1) != degree) {

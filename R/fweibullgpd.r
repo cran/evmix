@@ -24,7 +24,7 @@
 #' (\code{wshape}, \code{wscale}, \code{u}, \code{sigmau}, \code{xi}) if threshold is also estimated and
 #' (\code{wshape}, \code{wscale}, \code{sigmau}, \code{xi}) for profile likelihood or fixed threshold approach.
 #' 
-#' Negative data are ignored.
+#' Non-positive data are ignored (f(0) is infinite for wshape<1).
 #' 
 #' @return Log-likelihood is given by \code{\link[evmix:fweibullgpd]{lweibullgpd}} and it's
 #'   wrappers for negative log-likelihood from \code{\link[evmix:fweibullgpd]{nlweibullgpd}}
@@ -156,9 +156,9 @@ fweibullgpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = N
     x = x[is.finite(x)] # ignore missing and infinite cases
   }
 
-  if (any(x < 0)) {
-    warning("negative values have been removed")
-    x = x[x >= 0]
+  if (any(x <= 0)) {
+    warning("non-positive values have been removed")
+    x = x[x > 0]
   }
 
   check.quant(x)
@@ -338,9 +338,9 @@ lweibullgpd <- function(x, wshape = 1, wscale = 1, u = qweibull(0.9, wshape, wsc
     x = x[is.finite(x)] # ignore missing and infinite cases
   }
 
-  if (any(x < 0)) {
-    warning("negative values have been removed")
-    x = x[x >= 0]
+  if (any(x <= 0)) {
+    warning("non-positive values have been removed")
+    x = x[x > 0]
   }
 
   check.quant(x)
@@ -376,8 +376,8 @@ lweibullgpd <- function(x, wshape = 1, wscale = 1, u = qweibull(0.9, wshape, wsc
     phib = (1 - phiu) / pu
   
     syu = 1 + xi * (xu - u) / sigmau  
-  
-    if ((min(syu) <= 0) | (phiu <= 0) | (phiu >= 1)) {
+
+    if ((min(syu) <= 0) | (phiu <= 0) | (phiu >= 1) | (pu < .Machine$double.eps) | (pu <= 0) | (pu >= 1)) {
       l = -Inf
     } else { 
       l = lgpd(xu, u, sigmau, xi, phiu)
@@ -429,7 +429,7 @@ nlweibullgpd <- function(pvector, x, phiu = TRUE, finitelik = FALSE) {
 # Weibull bulk with GPD for upper tail
 # designed for sapply to loop over vector of thresholds (hence u is first input)
 profluweibullgpd <- function(u, pvector, x, phiu = TRUE, method = "BFGS",
-  control = list(maxit = 10000), finitelik = FALSE, ...) {
+  control = list(maxit = 10000), finitelik = TRUE, ...) {
 
   np = 5 # maximum number of parameters
 
@@ -447,9 +447,9 @@ profluweibullgpd <- function(u, pvector, x, phiu = TRUE, method = "BFGS",
     x = x[is.finite(x)] # ignore missing and infinite cases
   }
 
-  if (any(x < 0)) {
-    warning("negative values have been removed")
-    x = x[x >= 0]
+  if (any(x <= 0)) {
+    warning("non-positive values have been removed")
+    x = x[x > 0]
   }
 
   check.quant(x)

@@ -92,6 +92,8 @@
 #' 
 #' @author Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'
+#' @section Acknowledgments: Thanks to Younes Mouatasim, Risk Dynamics, Brussels for reporting various bugs in these functions.
+#' 
 #' @seealso \code{\link[evir:hill]{hill}}
 #' 
 #' @examples
@@ -118,7 +120,7 @@
 
 hillplot <- function(data, orderlim = NULL, tlim = NULL, hill.type = "Hill", r = 2,
   x.theta = FALSE, y.alpha = FALSE, alpha = 0.05, ylim = NULL, legend.loc = "topright",
-  try.thresh = quantile(data[data > 0], 0.9, na.rm = TRUE), 
+  try.thresh = quantile(data[data > 0], 0.9, na.rm = TRUE),
   main = paste(ifelse(x.theta, "Alt", ""), hill.type, " Plot", sep=""),
   xlab = ifelse(x.theta, "theta", "order"),
   ylab = paste(ifelse(x.theta, "Alt", ""), hill.type, ifelse(y.alpha, " alpha", " xi"), ">0", sep=""),
@@ -145,6 +147,9 @@ hillplot <- function(data, orderlim = NULL, tlim = NULL, hill.type = "Hill", r =
   # sort into descending order if needed
   if (is.unsorted(data)) {
     data = sort(data, decreasing = TRUE)
+  } else {
+    if (data[1] < data[length(data)])
+      data = rev(data)
   }
   n = length(data)
   
@@ -192,7 +197,7 @@ hillplot <- function(data, orderlim = NULL, tlim = NULL, hill.type = "Hill", r =
   } else {
     orderlim = c(3, ifelse(hill.type == "SmooHill", floor(n/r), n - 1))
   }
-  
+
   check.logic(x.theta)
   check.logic(y.alpha)
   check.prob(alpha, allownull = TRUE)
@@ -227,8 +232,16 @@ hillplot <- function(data, orderlim = NULL, tlim = NULL, hill.type = "Hill", r =
 
   check.posparam(try.thresh, allowvec = TRUE, allownull = TRUE)
   if (!is.null(try.thresh)) {
-    if (any((try.thresh > data[orderlim[1]]) | (try.thresh < data[orderlim[2]])))
-      stop("potential thresholds must be within range specifed by orderlim")
+    if (any((try.thresh > data[orderlim[1]]) | (try.thresh < data[orderlim[2]]))) {
+      warning("potential thresholds must be within range specifed by orderlim, those outside have been set to limits")
+      if (any(try.thresh > data[orderlim[1]])) {
+        try.thresh[try.thresh > data[orderlim[1]]] = data[orderlim[1]]
+      }
+      if (any(try.thresh < data[orderlim[2]])) {
+        try.thresh[try.thresh < data[orderlim[2]]] = data[orderlim[2]]
+      }
+      try.thresh = as.vector(try.thresh)
+    }
   }
   
   logdata = log(data)
@@ -241,7 +254,7 @@ hillplot <- function(data, orderlim = NULL, tlim = NULL, hill.type = "Hill", r =
 
   # Hill estimator of xi
   H = cumsum(logdata[-n])/ks - logdata[-1]
-  
+
   # Reciprocal of Hill estimator is tail index
   alphahat = 1/H
   
@@ -256,7 +269,7 @@ hillplot <- function(data, orderlim = NULL, tlim = NULL, hill.type = "Hill", r =
                 H + qnorm(1 - alpha/2) * Hse)
     hillresults = cbind(hillresults, cil.H = Hci[, 1], ciu.H = Hci[, 2])
   }
-    
+
   # smooHill estimator, if needed
   if (hill.type == "SmooHill") {
     # max order statistic for given smoothing factor
@@ -270,16 +283,21 @@ hillplot <- function(data, orderlim = NULL, tlim = NULL, hill.type = "Hill", r =
     # standard error of Hsmoo
     smooHse = smooH * sqrt(2*(1 - (log(r)/(r - 1)))/(r - 1))/sqrt(smooks)
 
-    hillresults = cbind(hillresults, smooks, smooH, se.smooH = smooHse)
+    hillresults = cbind(hillresults, smooks = NA, smooH = NA, se.smooH = NA)
+    hillresults$smooks[smooks] = smooks
+    hillresults$smooH[smooks] = smooH
+    hillresults$se.smooH[smooks] = smooHse
     
     if (!is.null(alpha)) {
       # 100(1-alpha)% CI for Hsmoo
       smooHci = cbind(smooH - qnorm(1 - alpha/2) * smooHse,
                   smooH + qnorm(1 - alpha/2) * smooHse)
-      hillresults = cbind(hillresults, cil.smooH = smooHci[, 1], ciu.smooH = smooHci[, 2])
+      hillresults = cbind(hillresults, cil.smooH = NA, ciu.smooH = NA)
+      hillresults$cil.smooH[smooks] = smooHci[, 1]
+      hillresults$ciu.smooH[smooks] = smooHci[, 2]
     }        
   }
-    
+
   # Resolve results to be plotted
   if (hill.type == "Hill") {
     x = ks
@@ -311,7 +329,7 @@ hillplot <- function(data, orderlim = NULL, tlim = NULL, hill.type = "Hill", r =
     if (!is.null(alpha)) {
       ylim = range(yci, na.rm = TRUE)
     } else {
-      ylim = range(y, na.rm = TRUE)      
+      ylim = range(y, na.rm = TRUE)
     }
     ylim = ylim + c(-1, 1) * diff(ylim)/10
   }
@@ -345,7 +363,7 @@ hillplot <- function(data, orderlim = NULL, tlim = NULL, hill.type = "Hill", r =
     Hparams = rep(NA, ntry)
     linecols = rep(c("blue", "green", "red"), length.out = ntry)
     for (i in 1:ntry) {
-      try.order = sum(data >= try.thresh[i])      
+      try.order = sum(data > try.thresh[i])
       try.x = c(orderlim[1], try.order, orderlim[2])
       Hparams[i] = ifelse(hill.type == "SmooHill", smooH[try.order], H[try.order])
       try.y = rep(Hparams[i], 3)

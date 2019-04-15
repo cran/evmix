@@ -212,7 +212,12 @@ fmgamma <- function(x, M, pvector = NULL, std.err = TRUE,
   n = length(x)
   
   if (is.null(pvector)) {
-    if (is.unsorted(x)) x = sort(x)
+    if (is.unsorted(x)) {
+      x = sort(x)
+    } else {
+      if (x[1] > x[length(x)])
+        x = rev(x)
+    }
     
     # split dataset into components
     nM = rmultinom(1, n, rep(1/M, M))

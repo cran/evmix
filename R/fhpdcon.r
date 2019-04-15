@@ -430,7 +430,7 @@ nlhpdcon <- function(pvector, x, finitelik = FALSE) {
 # hybrid Pareto with single continuity constraint
 # designed for sapply to loop over vector of thresholds (hence u is first input)
 profluhpdcon <- function(u, pvector, x,
-  method = "BFGS", control = list(maxit = 10000), finitelik = FALSE, ...) {
+  method = "BFGS", control = list(maxit = 10000), finitelik = TRUE, ...) {
 
   np = 4 # maximum number of parameters
 

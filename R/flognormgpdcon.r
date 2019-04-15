@@ -374,7 +374,7 @@ llognormgpdcon <- function(x, lnmean = 0, lnsd = 1, u = qlnorm(0.9, lnmean, lnsd
     syu = 1 + xi * (xu - u) / sigmau  
     yb = (log(xb) - lnmean) / lnsd    # used for log-normal
   
-    if ((min(syu) <= 0) | (sigmau <= 0) | (du < .Machine$double.eps) | (phiu <= 0) | (phiu >= 1)) {
+    if ((min(syu) <= 0) | (sigmau <= 0) | (du < .Machine$double.eps) | (phiu <= 0) | (phiu >= 1) | (pu <= 0) | (pu >= 1)) {
       l = -Inf
     } else { 
       l = lgpd(xu, u, sigmau, xi, phiu)
@@ -425,7 +425,7 @@ nllognormgpdcon <- function(pvector, x, phiu = TRUE, finitelik = FALSE) {
 # log-normal bulk with GPD for upper tail with continuity at threshold
 # designed for sapply to loop over vector of thresholds (hence u is first input)
 proflulognormgpdcon <- function(u, pvector, x, phiu = TRUE, method = "BFGS",
-  control = list(maxit = 10000), finitelik = FALSE, ...) {
+  control = list(maxit = 10000), finitelik = TRUE, ...) {
 
   np = 4 # maximum number of parameters
 

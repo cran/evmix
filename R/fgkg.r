@@ -545,7 +545,9 @@ lgkg <- function(x, lambda = NULL,
     syur = 1 + xir * (xur - ur) / sigmaur  
   
     if ((min(syul) <= 0) | (phiul <= 0) | (phiul >= 1) | 
-        (min(syur) <= 0) | (phiur <= 0) | (phiur >= 1) | ((phiul + phiur) > 1)) {
+        (min(syur) <= 0) | (phiur <= 0) | (phiur >= 1) | ((phiul + phiur) > 1) |
+        (pul <= 0) | (pul >= 1) | (pur <= 0) | (pur >= 1) |
+        (phib < .Machine$double.eps)) {
       l = -Inf
     } else { 
       l = lgpd(-xul, -ul, sigmaul, xil, phiul)
@@ -607,7 +609,7 @@ nlgkg <- function(pvector, x, phiul = TRUE, phiur = TRUE, kernel = "gaussian", f
 # designed for apply to loop over vector of thresholds (hence c(ul, ur) vector is first input)
 # cross-validation for KDE component
 proflugkg <- function(ulr, pvector, x, phiul = TRUE, phiur = TRUE, kernel = "gaussian",
-  method = "BFGS", control = list(maxit = 10000), finitelik = FALSE, ...) {
+  method = "BFGS", control = list(maxit = 10000), finitelik = TRUE, ...) {
 
   np = 7 # maximum number of parameters
 

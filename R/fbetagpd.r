@@ -394,7 +394,7 @@ lbetagpd <- function(x, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1, bshape
   
     syu = 1 + xi * (xu - u) / sigmau  
   
-    if ((min(syu) <= 0) | (phiu <= 0) | (phiu >= 1)) {
+    if ((min(syu) <= 0) | (phiu <= 0) | (phiu >= 1) | (pu <= 0) | (pu >= 1)) {
       l = -Inf
     } else { 
       l = lgpd(xu, u, sigmau, xi, phiu)
@@ -446,7 +446,7 @@ nlbetagpd <- function(pvector, x, phiu = TRUE, finitelik = FALSE) {
 # beta bulk with GPD for upper tail
 # designed for sapply to loop over vector of thresholds (hence u is first input)
 proflubetagpd <- function(u, pvector, x, phiu = TRUE, method = "BFGS",
-  control = list(maxit = 10000), finitelik = FALSE, ...) {
+  control = list(maxit = 10000), finitelik = TRUE, ...) {
 
   np = 5 # maximum number of parameters
 

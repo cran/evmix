@@ -545,6 +545,7 @@ lgkgcon <- function(x, lambda = NULL, ul = 0, xil = 0, phiul = TRUE,
   
     if ((min(syul) <= 0) | (phiul <= 0) | (phiul >= 1) | 
         (min(syur) <= 0) | (phiur <= 0) | (phiur >= 1) | ((phiul + phiur) > 1) |
+        (pul <= 0) | (pul >= 1) | (pur <= 0) | (pur >= 1) |
         (phib < .Machine$double.eps) |
         (dul < .Machine$double.eps) | (dur < .Machine$double.eps) | 
         (sigmaul <= 0) | (sigmaur <= 0)) {
@@ -608,7 +609,7 @@ nlgkgcon <- function(pvector, x, phiul = TRUE, phiur = TRUE, kernel = "gaussian"
 # designed for apply to loop over vector of thresholds (hence c(ul, ur) vector is first input)
 # cross-validation for KDE component
 proflugkgcon <- function(ulr, pvector, x, phiul = TRUE, phiur = TRUE, kernel = "gaussian",
-  method = "BFGS", control = list(maxit = 10000), finitelik = FALSE, ...) {
+  method = "BFGS", control = list(maxit = 10000), finitelik = TRUE, ...) {
 
   np = 5 # maximum number of parameters
 

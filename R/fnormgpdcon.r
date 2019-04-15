@@ -361,7 +361,7 @@ lnormgpdcon <- function(x, nmean = 0, nsd = 1, u = qnorm(0.9, nmean, nsd),
     yb = (xb - nmean) / nsd # used for normal
 
     
-    if ((min(syu) <= 0) | (sigmau <= 0) | (du < .Machine$double.eps) | (phiu <= 0) | (phiu >= 1)) {
+    if ((min(syu) <= 0) | (sigmau <= 0) | (du < .Machine$double.eps) | (phiu <= 0) | (phiu >= 1) | (pu <= 0) | (pu >= 1)) {
       l = -Inf
     } else { 
       l = lgpd(xu, u, sigmau, xi, phiu)
@@ -412,7 +412,7 @@ nlnormgpdcon <- function(pvector, x, phiu = TRUE, finitelik = FALSE) {
 # normal bulk with GPD for upper tail with single continuity constraint
 # designed for sapply to loop over vector of thresholds (hence u is first input)
 proflunormgpdcon <- function(u, pvector, x, phiu = TRUE, method = "BFGS",
-  control = list(maxit = 10000), finitelik = FALSE, ...) {
+  control = list(maxit = 10000), finitelik = TRUE, ...) {
 
   np = 4 # maximum number of parameters
 

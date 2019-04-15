@@ -440,7 +440,7 @@ lkdengpd <- function(x, lambda = NULL, u = 0, sigmau = 1, xi = 0, phiu = TRUE,
   
     syu = 1 + xi * (xu - u) / sigmau  
   
-    if ((min(syu) <= 0) | (phiu <= 0) | (phiu >= 1)) {
+    if ((min(syu) <= 0) | (phiu <= 0) | (phiu >= 1) | (pu <= 0) | (pu >= 1)) {
       l = -Inf
     } else { 
       l = lgpd(xu, u, sigmau, xi, phiu)
@@ -497,7 +497,7 @@ nlkdengpd <- function(pvector, x, phiu = TRUE, kernel = "gaussian", finitelik = 
 # designed for sapply to loop over vector of thresholds (hence u is first input)
 # cross-validation for KDE component
 proflukdengpd <- function(u, pvector, x, phiu = TRUE, kernel = "gaussian",
-  method = "BFGS", control = list(maxit = 10000), finitelik = FALSE, ...) {
+  method = "BFGS", control = list(maxit = 10000), finitelik = TRUE, ...) {
 
   np = 4 # maximum number of parameters
 

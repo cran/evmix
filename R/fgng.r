@@ -491,7 +491,8 @@ lgng <- function(x, nmean = 0, nsd = 1,
     yb = (xb - nmean) / nsd    # used for normal
   
     if ((min(syul) <= 0) | (phiul <= 0) | (phiul >= 1) | 
-        (min(syur) <= 0) | (phiur <= 0) | (phiur >= 1) | ((phiul + phiur) > 1)) {
+        (min(syur) <= 0) | (phiur <= 0) | (phiur >= 1) | ((phiul + phiur) > 1) |
+          (pul <= 0) | (pul >= 1) | (pur <= 0) | (pur >= 1)) {
       l = -Inf
     } else { 
       l = lgpd(-xul, -ul, sigmaul, xil, phiul)
@@ -548,7 +549,7 @@ nlgng <- function(pvector, x, phiul = TRUE, phiur = TRUE, finitelik = FALSE) {
 # normal bulk with GPD for both tails
 # designed for apply to loop over vector of thresholds (hence c(ul, ur) vector is first input)
 proflugng <- function(ulr, pvector, x, phiul = TRUE, phiur = TRUE,
-  method = "BFGS", control = list(maxit = 10000), finitelik = FALSE, ...) {
+  method = "BFGS", control = list(maxit = 10000), finitelik = TRUE, ...) {
 
   np = 8 # maximum number of parameters
 
