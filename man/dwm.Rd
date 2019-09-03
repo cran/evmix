@@ -6,26 +6,6 @@
 \alias{pdwm}
 \alias{qdwm}
 \alias{rdwm}
-\alias{ddwm}
-\alias{dwm}
-\alias{pdwm}
-\alias{qdwm}
-\alias{rdwm}
-\alias{pdwm}
-\alias{dwm}
-\alias{ddwm}
-\alias{qdwm}
-\alias{rdwm}
-\alias{qdwm}
-\alias{dwm}
-\alias{ddwm}
-\alias{pdwm}
-\alias{rdwm}
-\alias{rdwm}
-\alias{dwm}
-\alias{ddwm}
-\alias{pdwm}
-\alias{qdwm}
 \title{Dynamically Weighted Mixture Model}
 \usage{
 ddwm(x, wshape = 1, wscale = 1, cmu = 1, ctau = 1,
@@ -181,7 +161,11 @@ estimation without threshold selection. Extremes 5 (3), 219-235
 \seealso{
 \code{\link[evmix:gpd]{gpd}}, \code{\link[stats:Cauchy]{dcauchy}}
    and \code{\link[stats:Weibull]{dweibull}}
+
+Other fdwm: \code{\link{fdwm}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fdwm}
+\concept{ldwm}

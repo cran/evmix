@@ -82,14 +82,18 @@
 #'
 #' @seealso \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:Normal]{dnorm}}.
 #' 
-#' The \code{\link[condmixt:condmixt-package]{condmixt}} package written by one of the
+#' The condmixt package written by one of the
 #' original authors of the hybrid Pareto model (Carreau and Bengio, 2008) also has 
-#' similar functions for the hybrid Pareto \code{\link[condmixt:hpareto]{hpareto}} and
-#' mixture of hybrid Paretos \code{\link[condmixt:hparetomixt]{hparetomixt}}, which are
+#' similar functions for the hybrid Pareto (hpareto) and
+#' mixture of hybrid Paretos (hparetomixt), which are
 #' more flexible as they also permit the model to be truncated at zero.
 #' 
 #' @aliases hpd dhpd phpd qhpd rhpd
-#' @family  hpd hpdcon fhpd fhpdcon normgpd normgpdcon fnormgpd fnormgpdcon
+#' @family  hpd
+#' @family  hpdcon
+#' @family  normgpd
+#' @family  normgpdcon
+#' @family  fhpd
 #' 
 #' @examples
 #' \dontrun{

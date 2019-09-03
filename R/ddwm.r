@@ -80,7 +80,8 @@
 #' @seealso \code{\link[evmix:gpd]{gpd}}, \code{\link[stats:Cauchy]{dcauchy}}
 #'    and \code{\link[stats:Weibull]{dweibull}}
 #' @aliases dwm ddwm pdwm qdwm rdwm
-#' @family  ldwm fdwm
+#' @family  ldwm
+#' @family  fdwm
 #' 
 #' @examples
 #' \dontrun{

@@ -101,7 +101,9 @@
 #' @seealso \code{\link[splines:splineDesign]{splineDesign}}.
 #' 
 #' @aliases psden dpsden ppsden qpsden rpsden
-#' @family  psden fpsden
+#' @family  psden
+#' @family  psdengpd
+#' @family  fpsden
 #' 
 #' @examples
 #' \dontrun{

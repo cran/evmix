@@ -91,7 +91,10 @@
 #'  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
 #'  
 #' @aliases flognormgpd llognormgpd nllognormgpd proflulognormgpd nlulognormgpd
-#' @family  lognormgpd lognormgpdcon flognormgpd flognormgpdcon normgpd fnormgpd
+#' @family  lognormgpd
+#' @family  lognormgpdcon
+#' @family  normgpd
+#' @family  flognormgpd
 #' 
 #' @examples
 #' \dontrun{
@@ -362,8 +365,8 @@ llognormgpd <- function(x, lnmean = 0, lnsd = 1, u = qlnorm(0.9, lnmean, lnsd),
   if ((lnsd <= 0) | (sigmau <= 0) | (u <= 0) | (u <= min(x)) | (u >= max(x))) {
     l = -Inf
   } else {
+    pu = plnorm(u, lnmean, lnsd)
     if (is.logical(phiu)) {
-      pu = plnorm(u, lnmean, lnsd)
       if (phiu) {
         phiu = 1 - pu
       } else {

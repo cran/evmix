@@ -6,43 +6,23 @@
 \alias{pgkgcon}
 \alias{qgkgcon}
 \alias{rgkgcon}
-\alias{dgkgcon}
-\alias{gkgcon}
-\alias{pgkgcon}
-\alias{qgkgcon}
-\alias{rgkgcon}
-\alias{pgkgcon}
-\alias{gkgcon}
-\alias{dgkgcon}
-\alias{qgkgcon}
-\alias{rgkgcon}
-\alias{qgkgcon}
-\alias{gkgcon}
-\alias{dgkgcon}
-\alias{pgkgcon}
-\alias{rgkgcon}
-\alias{rgkgcon}
-\alias{gkgcon}
-\alias{dgkgcon}
-\alias{pgkgcon}
-\alias{qgkgcon}
 \title{Kernel Density Estimate and GPD Both Upper and Lower Tails Extreme Value Mixture Model
  With Single Continuity Constraint at Both}
 \usage{
-dgkgcon(x, kerncentres, lambda = NULL, ul = as.vector(quantile(kerncentres,
-  0.1)), xil = 0, phiul = TRUE, ur = as.vector(quantile(kerncentres,
-  0.9)), xir = 0, phiur = TRUE, bw = NULL, kernel = "gaussian",
-  log = FALSE)
+dgkgcon(x, kerncentres, lambda = NULL,
+  ul = as.vector(quantile(kerncentres, 0.1)), xil = 0, phiul = TRUE,
+  ur = as.vector(quantile(kerncentres, 0.9)), xir = 0, phiur = TRUE,
+  bw = NULL, kernel = "gaussian", log = FALSE)
 
-pgkgcon(q, kerncentres, lambda = NULL, ul = as.vector(quantile(kerncentres,
-  0.1)), xil = 0, phiul = TRUE, ur = as.vector(quantile(kerncentres,
-  0.9)), xir = 0, phiur = TRUE, bw = NULL, kernel = "gaussian",
-  lower.tail = TRUE)
+pgkgcon(q, kerncentres, lambda = NULL,
+  ul = as.vector(quantile(kerncentres, 0.1)), xil = 0, phiul = TRUE,
+  ur = as.vector(quantile(kerncentres, 0.9)), xir = 0, phiur = TRUE,
+  bw = NULL, kernel = "gaussian", lower.tail = TRUE)
 
-qgkgcon(p, kerncentres, lambda = NULL, ul = as.vector(quantile(kerncentres,
-  0.1)), xil = 0, phiul = TRUE, ur = as.vector(quantile(kerncentres,
-  0.9)), xir = 0, phiur = TRUE, bw = NULL, kernel = "gaussian",
-  lower.tail = TRUE)
+qgkgcon(p, kerncentres, lambda = NULL,
+  ul = as.vector(quantile(kerncentres, 0.1)), xil = 0, phiul = TRUE,
+  ur = as.vector(quantile(kerncentres, 0.9)), xir = 0, phiur = TRUE,
+  bw = NULL, kernel = "gaussian", lower.tail = TRUE)
 
 rgkgcon(n = 1, kerncentres, lambda = NULL,
   ul = as.vector(quantile(kerncentres, 0.1)), xil = 0, phiul = TRUE,
@@ -260,9 +240,32 @@ Wand, M. and Jones, M.C. (1995). Kernel Smoothing. Chapman && Hall.
 \code{\link[stats:density]{density}}, \code{\link[stats:bandwidth]{bw.nrd0}}
 and \code{\link[ks:kde]{dkde}} in \code{\link[ks:kde]{ks}} package.
 
-Other kden kdengpd kdengpdcon gkg gkgcon bckden bckdengpd bckdengpdcon
-         fkden fkdengpd fkdengpdcon fgkg fgkgcon fbckden fbckdengpd fbckdengpdcon: \code{\link{gkg}}
+Other kdengpdcon: \code{\link{bckdengpdcon}},
+  \code{\link{fbckdengpdcon}}, \code{\link{fgkgcon}},
+  \code{\link{fkdengpdcon}}, \code{\link{fkdengpd}},
+  \code{\link{kdengpdcon}}, \code{\link{kdengpd}}
+
+Other gkg: \code{\link{fgkgcon}}, \code{\link{fgkg}},
+  \code{\link{fkdengpd}}, \code{\link{gkg}},
+  \code{\link{kdengpd}}, \code{\link{kden}}
+
+Other gkgcon: \code{\link{fgkgcon}}, \code{\link{fgkg}},
+  \code{\link{fkdengpdcon}}, \code{\link{gkg}},
+  \code{\link{kdengpdcon}}
+
+Other bckdengpdcon: \code{\link{bckdengpdcon}},
+  \code{\link{bckdengpd}}, \code{\link{bckden}},
+  \code{\link{fbckdengpdcon}}, \code{\link{fbckdengpd}},
+  \code{\link{fbckden}}, \code{\link{fkdengpdcon}},
+  \code{\link{kdengpdcon}}
+
+Other fgkgcon: \code{\link{fgkgcon}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}.
 }
+\concept{bckdengpdcon}
+\concept{fgkgcon}
+\concept{gkg}
+\concept{gkgcon}
+\concept{kdengpdcon}

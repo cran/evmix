@@ -175,9 +175,11 @@
 #'  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
 #'  
 #' @aliases fmgammagpd lmgammagpd nlmgammagpd nlumgammagpd proflumgammagpd nlEMmgammagpd nluEMmgammagpd
-#' @family  mgamma fmgamma
-#'          gammagpd gammagpdcon fgammagpd fgammagpdcon normgpd fnormgpd
-#'          mgammagpd mgammagpdcon fmgammagpd fmgammagpdcon 
+#' @family  gammagpd
+#' @family  mgamma
+#' @family  mgammagpd
+#' @family  mgammagpdcon
+#' @family  fmgammagpd
 #' 
 #' @examples
 #' \dontrun{

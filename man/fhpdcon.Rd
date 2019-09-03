@@ -6,38 +6,19 @@
 \alias{nlhpdcon}
 \alias{profluhpdcon}
 \alias{nluhpdcon}
-\alias{lhpdcon}
-\alias{fhpdcon}
-\alias{nlhpdcon}
-\alias{profluhpdcon}
-\alias{nluhpdcon}
-\alias{nlhpdcon}
-\alias{fhpdcon}
-\alias{lhpdcon}
-\alias{profluhpdcon}
-\alias{nluhpdcon}
-\alias{profluhpdcon}
-\alias{fhpdcon}
-\alias{lhpdcon}
-\alias{nlhpdcon}
-\alias{nluhpdcon}
-\alias{nluhpdcon}
-\alias{fhpdcon}
-\alias{lhpdcon}
-\alias{nlhpdcon}
-\alias{profluhpdcon}
 \title{MLE Fitting of Hybrid Pareto Extreme Value Mixture Model with Single Continuity Constraint}
 \usage{
-fhpdcon(x, useq = NULL, fixedu = FALSE, pvector = NULL, std.err = TRUE,
-  method = "BFGS", control = list(maxit = 10000), finitelik = TRUE, ...)
+fhpdcon(x, useq = NULL, fixedu = FALSE, pvector = NULL,
+  std.err = TRUE, method = "BFGS", control = list(maxit = 10000),
+  finitelik = TRUE, ...)
 
 lhpdcon(x, nmean = 0, nsd = 1, u = qnorm(0.9, nmean, nsd), xi = 0,
   log = TRUE)
 
 nlhpdcon(pvector, x, finitelik = FALSE)
 
-profluhpdcon(u, pvector, x, method = "BFGS", control = list(maxit = 10000),
-  finitelik = TRUE, ...)
+profluhpdcon(u, pvector, x, method = "BFGS", control = list(maxit =
+  10000), finitelik = TRUE, ...)
 
 nluhpdcon(pvector, u, x, finitelik = FALSE)
 }
@@ -230,15 +211,30 @@ the univariate case. Extremes 12 (1), 53-76.
 \code{\link[stats:Normal]{dnorm}},
  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
  
-The \code{\link[condmixt:condmixt-package]{condmixt}} package written by one of the
+The condmixt package written by one of the
 original authors of the hybrid Pareto model (Carreau and Bengio, 2008) also has 
 similar functions for the likelihood of the hybrid Pareto 
-\code{\link[condmixt:hpareto.negloglike]{hpareto.negloglike}} and
-fitting \code{\link[condmixt:hpareto.negloglike]{hpareto.fit}}.
+(hpareto.negloglike) and fitting (hpareto.fit).
 
-Other hpd hpdcon normgpd normgpdcon gng gngcon
-         fhpd fhpdcon fnormgpd fnormgpdcon fgng fgngcon: \code{\link{fhpd}}
+Other hpd: \code{\link{fhpd}}, \code{\link{hpdcon}},
+  \code{\link{hpd}}
+
+Other hpdcon: \code{\link{fhpd}}, \code{\link{hpdcon}},
+  \code{\link{hpd}}
+
+Other normgpdcon: \code{\link{fgngcon}},
+  \code{\link{flognormgpdcon}}, \code{\link{fnormgpdcon}},
+  \code{\link{fnormgpd}}, \code{\link{gngcon}},
+  \code{\link{gng}}, \code{\link{hpdcon}},
+  \code{\link{hpd}}, \code{\link{normgpdcon}},
+  \code{\link{normgpd}}
+
+Other fhpdcon: \code{\link{hpdcon}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fhpdcon}
+\concept{hpd}
+\concept{hpdcon}
+\concept{normgpdcon}

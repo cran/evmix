@@ -101,7 +101,11 @@
 #'
 #' @seealso \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:Normal]{dnorm}}
 #' @aliases gng dgng pgng qgng rgng
-#' @family  normgpd normgpdcon gng gngcon fnormgpd fnormgpdcon fgng fgngcon
+#' @family  normgpd
+#' @family  normgpdcon
+#' @family  gng
+#' @family  gngcon
+#' @family  fgng
 #' 
 #' @examples
 #' \dontrun{

@@ -8,54 +8,12 @@
 \alias{proflumgammagpd}
 \alias{nlEMmgammagpd}
 \alias{nluEMmgammagpd}
-\alias{lmgammagpd}
-\alias{fmgammagpd}
-\alias{nlmgammagpd}
-\alias{nlumgammagpd}
-\alias{proflumgammagpd}
-\alias{nlEMmgammagpd}
-\alias{nluEMmgammagpd}
-\alias{nlmgammagpd}
-\alias{fmgammagpd}
-\alias{lmgammagpd}
-\alias{nlumgammagpd}
-\alias{proflumgammagpd}
-\alias{nlEMmgammagpd}
-\alias{nluEMmgammagpd}
-\alias{nlumgammagpd}
-\alias{fmgammagpd}
-\alias{lmgammagpd}
-\alias{nlmgammagpd}
-\alias{proflumgammagpd}
-\alias{nlEMmgammagpd}
-\alias{nluEMmgammagpd}
-\alias{nlEMmgammagpd}
-\alias{fmgammagpd}
-\alias{lmgammagpd}
-\alias{nlmgammagpd}
-\alias{nlumgammagpd}
-\alias{proflumgammagpd}
-\alias{nluEMmgammagpd}
-\alias{proflumgammagpd}
-\alias{fmgammagpd}
-\alias{lmgammagpd}
-\alias{nlmgammagpd}
-\alias{nlumgammagpd}
-\alias{nlEMmgammagpd}
-\alias{nluEMmgammagpd}
-\alias{nluEMmgammagpd}
-\alias{fmgammagpd}
-\alias{lmgammagpd}
-\alias{nlmgammagpd}
-\alias{nlumgammagpd}
-\alias{proflumgammagpd}
-\alias{nlEMmgammagpd}
 \title{MLE Fitting of Mixture of Gammas Bulk and GPD Tail Extreme Value Mixture Model
 using the EM algorithm.}
 \usage{
 fmgammagpd(x, M, phiu = TRUE, useq = NULL, fixedu = FALSE,
-  pvector = NULL, std.err = TRUE, method = "BFGS", control = list(maxit
-  = 10000), finitelik = TRUE, ...)
+  pvector = NULL, std.err = TRUE, method = "BFGS",
+  control = list(maxit = 10000), finitelik = TRUE, ...)
 
 lmgammagpd(x, mgshape, mgscale, mgweight, u, sigmau, xi, phiu = TRUE,
   log = TRUE)
@@ -64,7 +22,8 @@ nlmgammagpd(pvector, x, M, phiu = TRUE, finitelik = FALSE)
 
 nlumgammagpd(pvector, u, x, M, phiu = TRUE, finitelik = FALSE)
 
-nlEMmgammagpd(pvector, tau, mgweight, x, M, phiu = TRUE, finitelik = FALSE)
+nlEMmgammagpd(pvector, tau, mgweight, x, M, phiu = TRUE,
+  finitelik = FALSE)
 
 proflumgammagpd(u, pvector, x, M, phiu = TRUE, method = "BFGS",
   control = list(maxit = 10000), finitelik = TRUE, ...)
@@ -329,14 +288,32 @@ Bayesian approach to extreme value estimation. Statistical Computing, 22(2), 661
 \code{\link[stats:GammaDist]{dgamma}},
  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
 
-Other mgamma fmgamma
-         gammagpd gammagpdcon fgammagpd fgammagpdcon normgpd fnormgpd
-         mgammagpd mgammagpdcon fmgammagpd fmgammagpdcon: \code{\link{fgammagpdcon}},
-  \code{\link{fgammagpd}}, \code{\link{fmgammagpdcon}},
-  \code{\link{fmgamma}}, \code{\link{gammagpdcon}},
+Other gammagpd: \code{\link{fgammagpdcon}},
+  \code{\link{fgammagpd}}, \code{\link{fmgamma}},
+  \code{\link{gammagpdcon}}, \code{\link{gammagpd}},
+  \code{\link{mgammagpd}}
+
+Other mgamma: \code{\link{fmgammagpdcon}},
+  \code{\link{fmgamma}}, \code{\link{mgammagpdcon}},
+  \code{\link{mgammagpd}}, \code{\link{mgamma}}
+
+Other mgammagpd: \code{\link{fgammagpd}},
+  \code{\link{fmgammagpdcon}}, \code{\link{fmgamma}},
   \code{\link{gammagpd}}, \code{\link{mgammagpdcon}},
   \code{\link{mgammagpd}}, \code{\link{mgamma}}
+
+Other mgammagpdcon: \code{\link{fgammagpdcon}},
+  \code{\link{fmgammagpdcon}}, \code{\link{fmgamma}},
+  \code{\link{gammagpdcon}}, \code{\link{mgammagpdcon}},
+  \code{\link{mgammagpd}}, \code{\link{mgamma}}
+
+Other fmgammagpd: \code{\link{mgammagpd}}
 }
 \author{
 Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fmgammagpd}
+\concept{gammagpd}
+\concept{mgamma}
+\concept{mgammagpd}
+\concept{mgammagpdcon}

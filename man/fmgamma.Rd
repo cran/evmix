@@ -5,18 +5,6 @@
 \alias{lmgamma}
 \alias{nlmgamma}
 \alias{nlEMmgamma}
-\alias{lmgamma}
-\alias{fmgamma}
-\alias{nlmgamma}
-\alias{nlEMmgamma}
-\alias{nlmgamma}
-\alias{fmgamma}
-\alias{lmgamma}
-\alias{nlEMmgamma}
-\alias{nlEMmgamma}
-\alias{fmgamma}
-\alias{lmgamma}
-\alias{nlmgamma}
 \title{MLE Fitting of Mixture of Gammas Using EM Algorithm}
 \usage{
 fmgamma(x, M, pvector = NULL, std.err = TRUE, method = "BFGS",
@@ -227,14 +215,32 @@ McLachlan, G.J. and Peel, D. (2000). Finite Mixture Models. Wiley.
 \code{\link[stats:GammaDist]{dgamma}} and \code{\link[mixtools:gammamixEM]{gammamixEM}}
  in \code{mixtools} package
 
-Other mgamma fmgamma
-         gammagpd gammagpdcon fgammagpd fgammagpdcon normgpd fnormgpd
-         mgammagpd mgammagpdcon fmgammagpd fmgammagpdcon: \code{\link{fgammagpdcon}},
-  \code{\link{fgammagpd}}, \code{\link{fmgammagpdcon}},
-  \code{\link{fmgammagpd}}, \code{\link{gammagpdcon}},
+Other gammagpd: \code{\link{fgammagpdcon}},
+  \code{\link{fgammagpd}}, \code{\link{fmgammagpd}},
+  \code{\link{gammagpdcon}}, \code{\link{gammagpd}},
+  \code{\link{mgammagpd}}
+
+Other mgamma: \code{\link{fmgammagpdcon}},
+  \code{\link{fmgammagpd}}, \code{\link{mgammagpdcon}},
+  \code{\link{mgammagpd}}, \code{\link{mgamma}}
+
+Other mgammagpd: \code{\link{fgammagpd}},
+  \code{\link{fmgammagpdcon}}, \code{\link{fmgammagpd}},
   \code{\link{gammagpd}}, \code{\link{mgammagpdcon}},
   \code{\link{mgammagpd}}, \code{\link{mgamma}}
+
+Other mgammagpdcon: \code{\link{fgammagpdcon}},
+  \code{\link{fmgammagpdcon}}, \code{\link{fmgammagpd}},
+  \code{\link{gammagpdcon}}, \code{\link{mgammagpdcon}},
+  \code{\link{mgammagpd}}, \code{\link{mgamma}}
+
+Other fmgamma: \code{\link{mgamma}}
 }
 \author{
 Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fmgamma}
+\concept{gammagpd}
+\concept{mgamma}
+\concept{mgammagpd}
+\concept{mgammagpdcon}

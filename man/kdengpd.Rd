@@ -6,39 +6,22 @@
 \alias{pkdengpd}
 \alias{qkdengpd}
 \alias{rkdengpd}
-\alias{dkdengpd}
-\alias{kdengpd}
-\alias{pkdengpd}
-\alias{qkdengpd}
-\alias{rkdengpd}
-\alias{pkdengpd}
-\alias{kdengpd}
-\alias{dkdengpd}
-\alias{qkdengpd}
-\alias{rkdengpd}
-\alias{qkdengpd}
-\alias{kdengpd}
-\alias{dkdengpd}
-\alias{pkdengpd}
-\alias{rkdengpd}
-\alias{rkdengpd}
-\alias{kdengpd}
-\alias{dkdengpd}
-\alias{pkdengpd}
-\alias{qkdengpd}
 \title{Kernel Density Estimate and GPD Tail Extreme Value Mixture Model}
 \usage{
-dkdengpd(x, kerncentres, lambda = NULL, u = as.vector(quantile(kerncentres,
-  0.9)), sigmau = sqrt(6 * var(kerncentres))/pi, xi = 0, phiu = TRUE,
-  bw = NULL, kernel = "gaussian", log = FALSE)
+dkdengpd(x, kerncentres, lambda = NULL,
+  u = as.vector(quantile(kerncentres, 0.9)), sigmau = sqrt(6 *
+  var(kerncentres))/pi, xi = 0, phiu = TRUE, bw = NULL,
+  kernel = "gaussian", log = FALSE)
 
-pkdengpd(q, kerncentres, lambda = NULL, u = as.vector(quantile(kerncentres,
-  0.9)), sigmau = sqrt(6 * var(kerncentres))/pi, xi = 0, phiu = TRUE,
-  bw = NULL, kernel = "gaussian", lower.tail = TRUE)
+pkdengpd(q, kerncentres, lambda = NULL,
+  u = as.vector(quantile(kerncentres, 0.9)), sigmau = sqrt(6 *
+  var(kerncentres))/pi, xi = 0, phiu = TRUE, bw = NULL,
+  kernel = "gaussian", lower.tail = TRUE)
 
-qkdengpd(p, kerncentres, lambda = NULL, u = as.vector(quantile(kerncentres,
-  0.9)), sigmau = sqrt(6 * var(kerncentres))/pi, xi = 0, phiu = TRUE,
-  bw = NULL, kernel = "gaussian", lower.tail = TRUE)
+qkdengpd(p, kerncentres, lambda = NULL,
+  u = as.vector(quantile(kerncentres, 0.9)), sigmau = sqrt(6 *
+  var(kerncentres))/pi, xi = 0, phiu = TRUE, bw = NULL,
+  kernel = "gaussian", lower.tail = TRUE)
 
 rkdengpd(n = 1, kerncentres, lambda = NULL,
   u = as.vector(quantile(kerncentres, 0.9)), sigmau = sqrt(6 *
@@ -212,12 +195,41 @@ Wand, M. and Jones, M.C. (1995). Kernel Smoothing. Chapman && Hall.
 \code{\link[stats:density]{density}}, \code{\link[stats:bandwidth]{bw.nrd0}}
 and \code{\link[ks:kde]{dkde}} in \code{\link[ks:kde]{ks}} package.
 
-Other kden kdengpd kdengpdcon bckden bckdengpd bckdengpdcon
-         fkden fkdengpd fkdengpdcon fbckden fbckdengpd fbckdengpdcon: \code{\link{bckdengpdcon}},
-  \code{\link{bckdengpd}}, \code{\link{bckden}},
-  \code{\link{fbckden}}, \code{\link{fkden}},
+Other kden: \code{\link{bckden}}, \code{\link{fbckden}},
+  \code{\link{fgkgcon}}, \code{\link{fgkg}},
+  \code{\link{fkdengpdcon}}, \code{\link{fkdengpd}},
+  \code{\link{fkden}}, \code{\link{kdengpdcon}},
+  \code{\link{kden}}
+
+Other kdengpd: \code{\link{bckdengpd}},
+  \code{\link{fbckdengpd}}, \code{\link{fgkg}},
+  \code{\link{fkdengpdcon}}, \code{\link{fkdengpd}},
+  \code{\link{fkden}}, \code{\link{gkg}},
   \code{\link{kdengpdcon}}, \code{\link{kden}}
+
+Other kdengpdcon: \code{\link{bckdengpdcon}},
+  \code{\link{fbckdengpdcon}}, \code{\link{fgkgcon}},
+  \code{\link{fkdengpdcon}}, \code{\link{fkdengpd}},
+  \code{\link{gkgcon}}, \code{\link{kdengpdcon}}
+
+Other gkg: \code{\link{fgkgcon}}, \code{\link{fgkg}},
+  \code{\link{fkdengpd}}, \code{\link{gkgcon}},
+  \code{\link{gkg}}, \code{\link{kden}}
+
+Other bckdengpd: \code{\link{bckdengpdcon}},
+  \code{\link{bckdengpd}}, \code{\link{bckden}},
+  \code{\link{fbckdengpdcon}}, \code{\link{fbckdengpd}},
+  \code{\link{fbckden}}, \code{\link{fkdengpd}},
+  \code{\link{gkg}}, \code{\link{kden}}
+
+Other fkdengpd: \code{\link{fkdengpd}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}.
 }
+\concept{bckdengpd}
+\concept{fkdengpd}
+\concept{gkg}
+\concept{kden}
+\concept{kdengpd}
+\concept{kdengpdcon}

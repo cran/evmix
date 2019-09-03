@@ -10,14 +10,6 @@
 \alias{ka0}
 \alias{ka1}
 \alias{ka2}
-\alias{check.kinputs}
-\alias{check.kernel}
-\alias{check.kbw}
-\alias{klambda}
-\alias{kbw}
-\alias{ka0}
-\alias{ka1}
-\alias{ka2}
 \title{Various subsidiary kernel function, conversion of bandwidths and evaluating certain
 kernel integrals.}
 \usage{
@@ -140,3 +132,4 @@ Other kernels: \code{\link{kernels}}
 \author{
 Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}.
 }
+\concept{kernels}

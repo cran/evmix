@@ -6,26 +6,6 @@
 \alias{pkdengpdcon}
 \alias{qkdengpdcon}
 \alias{rkdengpdcon}
-\alias{dkdengpdcon}
-\alias{kdengpdcon}
-\alias{pkdengpdcon}
-\alias{qkdengpdcon}
-\alias{rkdengpdcon}
-\alias{pkdengpdcon}
-\alias{kdengpdcon}
-\alias{dkdengpdcon}
-\alias{qkdengpdcon}
-\alias{rkdengpdcon}
-\alias{qkdengpdcon}
-\alias{kdengpdcon}
-\alias{dkdengpdcon}
-\alias{pkdengpdcon}
-\alias{rkdengpdcon}
-\alias{rkdengpdcon}
-\alias{kdengpdcon}
-\alias{dkdengpdcon}
-\alias{pkdengpdcon}
-\alias{qkdengpdcon}
 \title{Kernel Density Estimate and GPD Tail Extreme Value Mixture Model With 
  Single Continuity Constraint}
 \usage{
@@ -218,12 +198,41 @@ Wand, M. and Jones, M.C. (1995). Kernel Smoothing. Chapman && Hall.
 \code{\link[stats:density]{density}}, \code{\link[stats:bandwidth]{bw.nrd0}}
 and \code{\link[ks:kde]{dkde}} in \code{\link[ks:kde]{ks}} package.
 
-Other kden kdengpd kdengpdcon bckden bckdengpd bckdengpdcon
-         fkden fkdengpd fkdengpdcon fbckden fbckdengpd fbckdengpdcon: \code{\link{bckdengpdcon}},
-  \code{\link{bckdengpd}}, \code{\link{bckden}},
-  \code{\link{fbckden}}, \code{\link{fkden}},
+Other kden: \code{\link{bckden}}, \code{\link{fbckden}},
+  \code{\link{fgkgcon}}, \code{\link{fgkg}},
+  \code{\link{fkdengpdcon}}, \code{\link{fkdengpd}},
+  \code{\link{fkden}}, \code{\link{kdengpd}},
+  \code{\link{kden}}
+
+Other kdengpd: \code{\link{bckdengpd}},
+  \code{\link{fbckdengpd}}, \code{\link{fgkg}},
+  \code{\link{fkdengpdcon}}, \code{\link{fkdengpd}},
+  \code{\link{fkden}}, \code{\link{gkg}},
   \code{\link{kdengpd}}, \code{\link{kden}}
+
+Other kdengpdcon: \code{\link{bckdengpdcon}},
+  \code{\link{fbckdengpdcon}}, \code{\link{fgkgcon}},
+  \code{\link{fkdengpdcon}}, \code{\link{fkdengpd}},
+  \code{\link{gkgcon}}, \code{\link{kdengpd}}
+
+Other gkgcon: \code{\link{fgkgcon}}, \code{\link{fgkg}},
+  \code{\link{fkdengpdcon}}, \code{\link{gkgcon}},
+  \code{\link{gkg}}
+
+Other bckdengpdcon: \code{\link{bckdengpdcon}},
+  \code{\link{bckdengpd}}, \code{\link{bckden}},
+  \code{\link{fbckdengpdcon}}, \code{\link{fbckdengpd}},
+  \code{\link{fbckden}}, \code{\link{fkdengpdcon}},
+  \code{\link{gkgcon}}
+
+Other fkdengpdcon: \code{\link{fkdengpdcon}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}.
 }
+\concept{bckdengpdcon}
+\concept{fkdengpdcon}
+\concept{gkgcon}
+\concept{kden}
+\concept{kdengpd}
+\concept{kdengpdcon}

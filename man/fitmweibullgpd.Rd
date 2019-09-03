@@ -6,43 +6,23 @@
 \alias{nlitmweibullgpd}
 \alias{profluitmweibullgpd}
 \alias{nluitmweibullgpd}
-\alias{litmweibullgpd}
-\alias{fitmweibullgpd}
-\alias{nlitmweibullgpd}
-\alias{profluitmweibullgpd}
-\alias{nluitmweibullgpd}
-\alias{nlitmweibullgpd}
-\alias{fitmweibullgpd}
-\alias{litmweibullgpd}
-\alias{profluitmweibullgpd}
-\alias{nluitmweibullgpd}
 \alias{profleuitmweibullgpd}
-\alias{fitmweibullgpd}
-\alias{litmweibullgpd}
-\alias{nlitmweibullgpd}
-\alias{profluitmweibullgpd}
-\alias{nluitmweibullgpd}
 \alias{nleuitmweibullgpd}
-\alias{fitmweibullgpd}
-\alias{litmweibullgpd}
-\alias{nlitmweibullgpd}
-\alias{profluitmweibullgpd}
-\alias{nluitmweibullgpd}
 \title{MLE Fitting of Weibull Bulk and GPD Tail Interval Transition Mixture Model}
 \usage{
 fitmweibullgpd(x, eseq = NULL, useq = NULL, fixedeu = FALSE,
-  pvector = NULL, std.err = TRUE, method = "BFGS", control = list(maxit
-  = 10000), finitelik = TRUE, ...)
+  pvector = NULL, std.err = TRUE, method = "BFGS",
+  control = list(maxit = 10000), finitelik = TRUE, ...)
 
 litmweibullgpd(x, wshape = 1, wscale = 1, epsilon = sqrt(wscale^2 *
-  gamma(1 + 2/wshape) - (wscale * gamma(1 + 1/wshape))^2), u = qweibull(0.9,
-  wshape, wscale), sigmau = sqrt(wscale^2 * gamma(1 + 2/wshape) - (wscale *
-  gamma(1 + 1/wshape))^2), xi = 0, log = TRUE)
+  gamma(1 + 2/wshape) - (wscale * gamma(1 + 1/wshape))^2),
+  u = qweibull(0.9, wshape, wscale), sigmau = sqrt(wscale^2 * gamma(1 +
+  2/wshape) - (wscale * gamma(1 + 1/wshape))^2), xi = 0, log = TRUE)
 
 nlitmweibullgpd(pvector, x, finitelik = FALSE)
 
-profleuitmweibullgpd(eu, pvector, x, method = "BFGS", control = list(maxit =
-  10000), finitelik = TRUE, ...)
+profleuitmweibullgpd(eu, pvector, x, method = "BFGS",
+  control = list(maxit = 10000), finitelik = TRUE, ...)
 
 nleuitmweibullgpd(pvector, epsilon, u, x, finitelik = FALSE)
 }
@@ -208,7 +188,20 @@ estimation. arxiv:0902.4137
 \seealso{
 \code{\link[stats:Weibull]{dweibull}},
  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
+
+Other weibullgpd: \code{\link{fweibullgpdcon}},
+  \code{\link{fweibullgpd}}, \code{\link{itmweibullgpd}},
+  \code{\link{weibullgpdcon}}, \code{\link{weibullgpd}}
+
+Other itmweibullgpd: \code{\link{fweibullgpdcon}},
+  \code{\link{fweibullgpd}}, \code{\link{itmweibullgpd}},
+  \code{\link{weibullgpdcon}}, \code{\link{weibullgpd}}
+
+Other fitmweibullgpd: \code{\link{itmweibullgpd}}
 }
 \author{
 Alfadino Akbar and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fitmweibullgpd}
+\concept{itmweibullgpd}
+\concept{weibullgpd}

@@ -6,35 +6,15 @@
 \alias{nlweibullgpd}
 \alias{profluweibullgpd}
 \alias{nluweibullgpd}
-\alias{lweibullgpd}
-\alias{fweibullgpd}
-\alias{nlweibullgpd}
-\alias{profluweibullgpd}
-\alias{nluweibullgpd}
-\alias{nlweibullgpd}
-\alias{fweibullgpd}
-\alias{lweibullgpd}
-\alias{profluweibullgpd}
-\alias{nluweibullgpd}
-\alias{profluweibullgpd}
-\alias{fweibullgpd}
-\alias{lweibullgpd}
-\alias{nlweibullgpd}
-\alias{nluweibullgpd}
-\alias{nluweibullgpd}
-\alias{fweibullgpd}
-\alias{lweibullgpd}
-\alias{nlweibullgpd}
-\alias{profluweibullgpd}
 \title{MLE Fitting of Weibull Bulk and GPD Tail Extreme Value Mixture Model}
 \usage{
-fweibullgpd(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL,
-  std.err = TRUE, method = "BFGS", control = list(maxit = 10000),
-  finitelik = TRUE, ...)
+fweibullgpd(x, phiu = TRUE, useq = NULL, fixedu = FALSE,
+  pvector = NULL, std.err = TRUE, method = "BFGS",
+  control = list(maxit = 10000), finitelik = TRUE, ...)
 
-lweibullgpd(x, wshape = 1, wscale = 1, u = qweibull(0.9, wshape, wscale),
-  sigmau = sqrt(wscale^2 * gamma(1 + 2/wshape) - (wscale * gamma(1 +
-  1/wshape))^2), xi = 0, phiu = TRUE, log = TRUE)
+lweibullgpd(x, wshape = 1, wscale = 1, u = qweibull(0.9, wshape,
+  wscale), sigmau = sqrt(wscale^2 * gamma(1 + 2/wshape) - (wscale *
+  gamma(1 + 1/wshape))^2), xi = 0, phiu = TRUE, log = TRUE)
 
 nlweibullgpd(pvector, x, phiu = TRUE, finitelik = FALSE)
 
@@ -209,8 +189,26 @@ events with threshold estimation. Statistical Modelling. 4(3), 227-244.
 \code{\link[stats:Weibull]{dweibull}},
  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
 
-Other weibullgpd weibullgpdcon fweibullgpd fweibullgpdcon normgpd fnormgpd: \code{\link{fweibullgpdcon}}
+Other weibullgpd: \code{\link{fitmweibullgpd}},
+  \code{\link{fweibullgpdcon}},
+  \code{\link{itmweibullgpd}}, \code{\link{weibullgpdcon}},
+  \code{\link{weibullgpd}}
+
+Other weibullgpdcon: \code{\link{fweibullgpdcon}},
+  \code{\link{itmweibullgpd}}, \code{\link{weibullgpdcon}},
+  \code{\link{weibullgpd}}
+
+Other itmweibullgpd: \code{\link{fitmweibullgpd}},
+  \code{\link{fweibullgpdcon}},
+  \code{\link{itmweibullgpd}}, \code{\link{weibullgpdcon}},
+  \code{\link{weibullgpd}}
+
+Other fweibullgpd: \code{\link{weibullgpd}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fweibullgpd}
+\concept{itmweibullgpd}
+\concept{weibullgpd}
+\concept{weibullgpdcon}

@@ -6,26 +6,6 @@
 \alias{pmgammagpdcon}
 \alias{qmgammagpdcon}
 \alias{rmgammagpdcon}
-\alias{dmgammagpdcon}
-\alias{mgammagpdcon}
-\alias{pmgammagpdcon}
-\alias{qmgammagpdcon}
-\alias{rmgammagpdcon}
-\alias{pmgammagpdcon}
-\alias{mgammagpdcon}
-\alias{dmgammagpdcon}
-\alias{qmgammagpdcon}
-\alias{rmgammagpdcon}
-\alias{qmgammagpdcon}
-\alias{mgammagpdcon}
-\alias{dmgammagpdcon}
-\alias{pmgammagpdcon}
-\alias{rmgammagpdcon}
-\alias{rmgammagpdcon}
-\alias{mgammagpdcon}
-\alias{dmgammagpdcon}
-\alias{pmgammagpdcon}
-\alias{qmgammagpdcon}
 \title{Mixture of Gammas Bulk and GPD Tail Extreme Value Mixture Model with Single Continuity Constraint}
 \usage{
 dmgammagpdcon(x, mgshape = 1, mgscale = 1, mgweight = NULL,
@@ -198,14 +178,31 @@ Bayesian approach to extreme value estimation. Statistical Computing, 22(2), 661
 \seealso{
 \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:GammaDist]{dgamma}}
 
-Other mgamma fmgamma
-         gammagpd gammagpdcon fgammagpd fgammagpdcon normgpd fnormgpd
-         mgammagpd mgammagpdcon fmgammagpd fmgammagpdcon: \code{\link{fgammagpdcon}},
+Other gammagpdcon: \code{\link{fgammagpdcon}},
   \code{\link{fgammagpd}}, \code{\link{fmgammagpdcon}},
+  \code{\link{gammagpdcon}}, \code{\link{gammagpd}}
+
+Other mgamma: \code{\link{fmgammagpdcon}},
   \code{\link{fmgammagpd}}, \code{\link{fmgamma}},
-  \code{\link{gammagpdcon}}, \code{\link{gammagpd}},
   \code{\link{mgammagpd}}, \code{\link{mgamma}}
+
+Other mgammagpd: \code{\link{fgammagpd}},
+  \code{\link{fmgammagpdcon}}, \code{\link{fmgammagpd}},
+  \code{\link{fmgamma}}, \code{\link{gammagpd}},
+  \code{\link{mgammagpd}}, \code{\link{mgamma}}
+
+Other mgammagpdcon: \code{\link{fgammagpdcon}},
+  \code{\link{fmgammagpdcon}}, \code{\link{fmgammagpd}},
+  \code{\link{fmgamma}}, \code{\link{gammagpdcon}},
+  \code{\link{mgammagpd}}, \code{\link{mgamma}}
+
+Other fmgammagpdcon: \code{\link{fmgammagpdcon}}
 }
 \author{
 Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fmgammagpdcon}
+\concept{gammagpdcon}
+\concept{mgamma}
+\concept{mgammagpd}
+\concept{mgammagpdcon}

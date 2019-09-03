@@ -6,43 +6,26 @@
 \alias{pbetagpd}
 \alias{qbetagpd}
 \alias{rbetagpd}
-\alias{dbetagpd}
-\alias{betagpd}
-\alias{pbetagpd}
-\alias{qbetagpd}
-\alias{rbetagpd}
-\alias{pbetagpd}
-\alias{betagpd}
-\alias{dbetagpd}
-\alias{qbetagpd}
-\alias{rbetagpd}
-\alias{qbetagpd}
-\alias{betagpd}
-\alias{dbetagpd}
-\alias{pbetagpd}
-\alias{rbetagpd}
-\alias{rbetagpd}
-\alias{betagpd}
-\alias{dbetagpd}
-\alias{pbetagpd}
-\alias{qbetagpd}
 \title{Beta Bulk and GPD Tail Extreme Value Mixture Model}
 \usage{
-dbetagpd(x, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1, bshape2),
-  sigmau = sqrt(bshape1 * bshape2/(bshape1 + bshape2)^2/(bshape1 + bshape2 +
-  1)), xi = 0, phiu = TRUE, log = FALSE)
+dbetagpd(x, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1,
+  bshape2), sigmau = sqrt(bshape1 * bshape2/(bshape1 +
+  bshape2)^2/(bshape1 + bshape2 + 1)), xi = 0, phiu = TRUE,
+  log = FALSE)
 
-pbetagpd(q, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1, bshape2),
-  sigmau = sqrt(bshape1 * bshape2/(bshape1 + bshape2)^2/(bshape1 + bshape2 +
-  1)), xi = 0, phiu = TRUE, lower.tail = TRUE)
+pbetagpd(q, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1,
+  bshape2), sigmau = sqrt(bshape1 * bshape2/(bshape1 +
+  bshape2)^2/(bshape1 + bshape2 + 1)), xi = 0, phiu = TRUE,
+  lower.tail = TRUE)
 
-qbetagpd(p, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1, bshape2),
-  sigmau = sqrt(bshape1 * bshape2/(bshape1 + bshape2)^2/(bshape1 + bshape2 +
-  1)), xi = 0, phiu = TRUE, lower.tail = TRUE)
+qbetagpd(p, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1,
+  bshape2), sigmau = sqrt(bshape1 * bshape2/(bshape1 +
+  bshape2)^2/(bshape1 + bshape2 + 1)), xi = 0, phiu = TRUE,
+  lower.tail = TRUE)
 
 rbetagpd(n = 1, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1,
-  bshape2), sigmau = sqrt(bshape1 * bshape2/(bshape1 + bshape2)^2/(bshape1 +
-  bshape2 + 1)), xi = 0, phiu = TRUE)
+  bshape2), sigmau = sqrt(bshape1 * bshape2/(bshape1 +
+  bshape2)^2/(bshape1 + bshape2 + 1)), xi = 0, phiu = TRUE)
 }
 \arguments{
 \item{x}{quantiles}
@@ -179,8 +162,17 @@ industrial applications. PhD thesis, University of Canterbury, New Zealand.
 \seealso{
 \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:Beta]{dbeta}}
 
-Other betagpd betagpdcon fbetagpd fbetagpdcon: \code{\link{betagpdcon}}
+Other betagpd: \code{\link{betagpdcon}},
+  \code{\link{fbetagpdcon}}, \code{\link{fbetagpd}}
+
+Other betagpdcon: \code{\link{betagpdcon}},
+  \code{\link{fbetagpdcon}}, \code{\link{fbetagpd}}
+
+Other fbetagpd: \code{\link{fbetagpd}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{betagpd}
+\concept{betagpdcon}
+\concept{fbetagpd}

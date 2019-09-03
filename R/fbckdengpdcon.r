@@ -150,8 +150,11 @@
 #'  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}.
 #'  
 #' @aliases fbckdengpdcon lbckdengpdcon nlbckdengpdcon proflubckdengpdcon nlubckdengpdcon
-#' @family  kdengpd kdengpdcon fkdengpd fkdengpdcon normgpd fnormgpd
-#'          kden bckden bckdengpd bckdengpdcon fkden fbckden fbckdengpd fbckdengpdcon
+#' @family  kdengpdcon
+#' @family  bckden
+#' @family  bckdengpd
+#' @family  bckdengpdcon
+#' @family  fbckdengpdcon
 #' 
 #' @examples
 #' \dontrun{
@@ -559,9 +562,9 @@ lbckdengpdcon <- function(x, lambda = NULL, u = 0, xi = 0, phiu = TRUE,
       (u <= min(x)) | (u >= max(x))) {
     l = -Inf
   } else {
+    pu = pbckden(u, x, lambda, kernel = kernel, bcmethod = bcmethod,
+                 proper = proper, nn = nn, offset = offset, xmax = xmax)
     if (is.logical(phiu)) {
-      pu = pbckden(u, x, lambda, kernel = kernel, bcmethod = bcmethod,
-        proper = proper, nn = nn, offset = offset, xmax = xmax)
       if (phiu) {
         phiu = 1 - pu
       } else {

@@ -116,9 +116,11 @@
 #' @seealso \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:GammaDist]{dgamma}}
 #' 
 #' @aliases mgammagpdcon dmgammagpdcon pmgammagpdcon qmgammagpdcon rmgammagpdcon
-#' @family  mgamma fmgamma
-#'          gammagpd gammagpdcon fgammagpd fgammagpdcon normgpd fnormgpd
-#'          mgammagpd mgammagpdcon fmgammagpd fmgammagpdcon 
+#' @family  gammagpdcon
+#' @family  mgamma
+#' @family  mgammagpd
+#' @family  mgammagpdcon
+#' @family  fmgammagpdcon 
 #'
 #' @examples
 #' \dontrun{

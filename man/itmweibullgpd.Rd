@@ -6,47 +6,30 @@
 \alias{pitmweibullgpd}
 \alias{qitmweibullgpd}
 \alias{ritmweibullgpd}
-\alias{ditmweibullgpd}
-\alias{itmweibullgpd}
-\alias{pitmweibullgpd}
-\alias{qitmweibullgpd}
-\alias{ritmweibullgpd}
-\alias{pitmweibullgpd}
-\alias{itmweibullgpd}
-\alias{ditmweibullgpd}
-\alias{qitmweibullgpd}
-\alias{ritmweibullgpd}
-\alias{qitmweibullgpd}
-\alias{itmweibullgpd}
-\alias{ditmweibullgpd}
-\alias{pitmweibullgpd}
-\alias{ritmweibullgpd}
-\alias{ritmweibullgpd}
-\alias{itmweibullgpd}
-\alias{ditmweibullgpd}
-\alias{pitmweibullgpd}
-\alias{qitmweibullgpd}
 \title{Weibull Bulk and GPD Tail Interval Transition Mixture Model}
 \usage{
 ditmweibullgpd(x, wshape = 1, wscale = 1, epsilon = sqrt(wscale^2 *
-  gamma(1 + 2/wshape) - (wscale * gamma(1 + 1/wshape))^2), u = qweibull(0.9,
-  wshape, wscale), sigmau = sqrt(wscale^2 * gamma(1 + 2/wshape) - (wscale *
-  gamma(1 + 1/wshape))^2), xi = 0, log = FALSE)
+  gamma(1 + 2/wshape) - (wscale * gamma(1 + 1/wshape))^2),
+  u = qweibull(0.9, wshape, wscale), sigmau = sqrt(wscale^2 * gamma(1 +
+  2/wshape) - (wscale * gamma(1 + 1/wshape))^2), xi = 0, log = FALSE)
 
 pitmweibullgpd(q, wshape = 1, wscale = 1, epsilon = sqrt(wscale^2 *
-  gamma(1 + 2/wshape) - (wscale * gamma(1 + 1/wshape))^2), u = qweibull(0.9,
-  wshape, wscale), sigmau = sqrt(wscale^2 * gamma(1 + 2/wshape) - (wscale *
-  gamma(1 + 1/wshape))^2), xi = 0, lower.tail = TRUE)
+  gamma(1 + 2/wshape) - (wscale * gamma(1 + 1/wshape))^2),
+  u = qweibull(0.9, wshape, wscale), sigmau = sqrt(wscale^2 * gamma(1 +
+  2/wshape) - (wscale * gamma(1 + 1/wshape))^2), xi = 0,
+  lower.tail = TRUE)
 
 qitmweibullgpd(p, wshape = 1, wscale = 1, epsilon = sqrt(wscale^2 *
-  gamma(1 + 2/wshape) - (wscale * gamma(1 + 1/wshape))^2), u = qweibull(0.9,
-  wshape, wscale), sigmau = sqrt(wscale^2 * gamma(1 + 2/wshape) - (wscale *
-  gamma(1 + 1/wshape))^2), xi = 0, lower.tail = TRUE)
+  gamma(1 + 2/wshape) - (wscale * gamma(1 + 1/wshape))^2),
+  u = qweibull(0.9, wshape, wscale), sigmau = sqrt(wscale^2 * gamma(1 +
+  2/wshape) - (wscale * gamma(1 + 1/wshape))^2), xi = 0,
+  lower.tail = TRUE)
 
-ritmweibullgpd(n = 1, wshape = 1, wscale = 1, epsilon = sqrt(wscale^2 *
-  gamma(1 + 2/wshape) - (wscale * gamma(1 + 1/wshape))^2), u = qweibull(0.9,
-  wshape, wscale), sigmau = sqrt(wscale^2 * gamma(1 + 2/wshape) - (wscale *
-  gamma(1 + 1/wshape))^2), xi = 0)
+ritmweibullgpd(n = 1, wshape = 1, wscale = 1,
+  epsilon = sqrt(wscale^2 * gamma(1 + 2/wshape) - (wscale * gamma(1 +
+  1/wshape))^2), u = qweibull(0.9, wshape, wscale),
+  sigmau = sqrt(wscale^2 * gamma(1 + 2/wshape) - (wscale * gamma(1 +
+  1/wshape))^2), xi = 0)
 }
 \arguments{
 \item{x}{quantiles}
@@ -197,7 +180,25 @@ estimation. arxiv:0902.4137
 \seealso{
 \code{\link[evmix:weibullgpd]{weibullgpd}}, \code{\link[evmix:gpd]{gpd}}
    and \code{\link[stats:Weibull]{dweibull}}
+
+Other itmweibullgpd: \code{\link{fitmweibullgpd}},
+  \code{\link{fweibullgpdcon}}, \code{\link{fweibullgpd}},
+  \code{\link{weibullgpdcon}}, \code{\link{weibullgpd}}
+
+Other weibullgpd: \code{\link{fitmweibullgpd}},
+  \code{\link{fweibullgpdcon}}, \code{\link{fweibullgpd}},
+  \code{\link{weibullgpdcon}}, \code{\link{weibullgpd}}
+
+Other weibullgpdcon: \code{\link{fweibullgpdcon}},
+  \code{\link{fweibullgpd}}, \code{\link{weibullgpdcon}},
+  \code{\link{weibullgpd}}
+
+Other fitmweibullgpd: \code{\link{fitmweibullgpd}}
 }
 \author{
 Alfadino Akbar and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fitmweibullgpd}
+\concept{itmweibullgpd}
+\concept{weibullgpd}
+\concept{weibullgpdcon}

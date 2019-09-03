@@ -4,11 +4,12 @@
 \alias{hillplot}
 \title{Hill Plot}
 \usage{
-hillplot(data, orderlim = NULL, tlim = NULL, hill.type = "Hill", r = 2,
-  x.theta = FALSE, y.alpha = FALSE, alpha = 0.05, ylim = NULL,
-  legend.loc = "topright", try.thresh = quantile(data[data > 0], 0.9, na.rm
-  = TRUE), main = paste(ifelse(x.theta, "Alt", ""), hill.type, " Plot", sep =
-  ""), xlab = ifelse(x.theta, "theta", "order"),
+hillplot(data, orderlim = NULL, tlim = NULL, hill.type = "Hill",
+  r = 2, x.theta = FALSE, y.alpha = FALSE, alpha = 0.05,
+  ylim = NULL, legend.loc = "topright",
+  try.thresh = quantile(data[data > 0], 0.9, na.rm = TRUE),
+  main = paste(ifelse(x.theta, "Alt", ""), hill.type, " Plot", sep = ""),
+  xlab = ifelse(x.theta, "theta", "order"),
   ylab = paste(ifelse(x.theta, "Alt", ""), hill.type, ifelse(y.alpha,
   " alpha", " xi"), ">0", sep = ""), ...)
 }

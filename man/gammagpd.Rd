@@ -6,37 +6,18 @@
 \alias{pgammagpd}
 \alias{qgammagpd}
 \alias{rgammagpd}
-\alias{dgammagpd}
-\alias{gammagpd}
-\alias{pgammagpd}
-\alias{qgammagpd}
-\alias{rgammagpd}
-\alias{pgammagpd}
-\alias{gammagpd}
-\alias{dgammagpd}
-\alias{qgammagpd}
-\alias{rgammagpd}
-\alias{qgammagpd}
-\alias{gammagpd}
-\alias{dgammagpd}
-\alias{pgammagpd}
-\alias{rgammagpd}
-\alias{rgammagpd}
-\alias{gammagpd}
-\alias{dgammagpd}
-\alias{pgammagpd}
-\alias{qgammagpd}
 \title{Gamma Bulk and GPD Tail Extreme Value Mixture Model}
 \usage{
-dgammagpd(x, gshape = 1, gscale = 1, u = qgamma(0.9, gshape, 1/gscale),
-  sigmau = sqrt(gshape) * gscale, xi = 0, phiu = TRUE, log = FALSE)
+dgammagpd(x, gshape = 1, gscale = 1, u = qgamma(0.9, gshape,
+  1/gscale), sigmau = sqrt(gshape) * gscale, xi = 0, phiu = TRUE,
+  log = FALSE)
 
-pgammagpd(q, gshape = 1, gscale = 1, u = qgamma(0.9, gshape, 1/gscale),
-  sigmau = sqrt(gshape) * gscale, xi = 0, phiu = TRUE,
+pgammagpd(q, gshape = 1, gscale = 1, u = qgamma(0.9, gshape,
+  1/gscale), sigmau = sqrt(gshape) * gscale, xi = 0, phiu = TRUE,
   lower.tail = TRUE)
 
-qgammagpd(p, gshape = 1, gscale = 1, u = qgamma(0.9, gshape, 1/gscale),
-  sigmau = sqrt(gshape) * gscale, xi = 0, phiu = TRUE,
+qgammagpd(p, gshape = 1, gscale = 1, u = qgamma(0.9, gshape,
+  1/gscale), sigmau = sqrt(gshape) * gscale, xi = 0, phiu = TRUE,
   lower.tail = TRUE)
 
 rgammagpd(n = 1, gshape = 1, gscale = 1, u = qgamma(0.9, gshape,
@@ -180,14 +161,26 @@ events with threshold estimation. Statistical Modelling. 4(3), 227-244.
 \seealso{
 \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:GammaDist]{dgamma}}
 
-Other mgamma fmgamma
-         gammagpd gammagpdcon fgammagpd fgammagpdcon normgpd fnormgpd
-         mgammagpd mgammagpdcon fmgammagpd fmgammagpdcon: \code{\link{fgammagpdcon}},
+Other gammagpd: \code{\link{fgammagpdcon}},
+  \code{\link{fgammagpd}}, \code{\link{fmgammagpd}},
+  \code{\link{fmgamma}}, \code{\link{gammagpdcon}},
+  \code{\link{mgammagpd}}
+
+Other gammagpdcon: \code{\link{fgammagpdcon}},
   \code{\link{fgammagpd}}, \code{\link{fmgammagpdcon}},
-  \code{\link{fmgammagpd}}, \code{\link{fmgamma}},
-  \code{\link{gammagpdcon}}, \code{\link{mgammagpdcon}},
+  \code{\link{gammagpdcon}}, \code{\link{mgammagpdcon}}
+
+Other mgammagpd: \code{\link{fgammagpd}},
+  \code{\link{fmgammagpdcon}}, \code{\link{fmgammagpd}},
+  \code{\link{fmgamma}}, \code{\link{mgammagpdcon}},
   \code{\link{mgammagpd}}, \code{\link{mgamma}}
+
+Other fgammagpd: \code{\link{fgammagpd}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fgammagpd}
+\concept{gammagpd}
+\concept{gammagpdcon}
+\concept{mgammagpd}

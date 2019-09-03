@@ -6,34 +6,14 @@
 \alias{nlnormgpdcon}
 \alias{proflunormgpdcon}
 \alias{nlunormgpdcon}
-\alias{lnormgpdcon}
-\alias{fnormgpdcon}
-\alias{nlnormgpdcon}
-\alias{proflunormgpdcon}
-\alias{nlunormgpdcon}
-\alias{nlnormgpdcon}
-\alias{fnormgpdcon}
-\alias{lnormgpdcon}
-\alias{proflunormgpdcon}
-\alias{nlunormgpdcon}
-\alias{proflunormgpdcon}
-\alias{fnormgpdcon}
-\alias{lnormgpdcon}
-\alias{nlnormgpdcon}
-\alias{nlunormgpdcon}
-\alias{nlunormgpdcon}
-\alias{fnormgpdcon}
-\alias{lnormgpdcon}
-\alias{nlnormgpdcon}
-\alias{proflunormgpdcon}
 \title{MLE Fitting of Normal Bulk and GPD Tail Extreme Value Mixture Model with Single Continuity Constraint}
 \usage{
-fnormgpdcon(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL,
-  std.err = TRUE, method = "BFGS", control = list(maxit = 10000),
-  finitelik = TRUE, ...)
+fnormgpdcon(x, phiu = TRUE, useq = NULL, fixedu = FALSE,
+  pvector = NULL, std.err = TRUE, method = "BFGS",
+  control = list(maxit = 10000), finitelik = TRUE, ...)
 
-lnormgpdcon(x, nmean = 0, nsd = 1, u = qnorm(0.9, nmean, nsd), xi = 0,
-  phiu = TRUE, log = TRUE)
+lnormgpdcon(x, nmean = 0, nsd = 1, u = qnorm(0.9, nmean, nsd),
+  xi = 0, phiu = TRUE, log = TRUE)
 
 nlnormgpdcon(pvector, x, phiu = TRUE, finitelik = FALSE)
 
@@ -207,12 +187,31 @@ events with threshold estimation. Statistical Modelling. 4(3), 227-244.
 \code{\link[stats:Normal]{dnorm}},
  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
 
-Other normgpd normgpdcon gng gngcon fnormgpd fnormgpdcon fgng fgngcon: \code{\link{fgngcon}},
-  \code{\link{fgng}}, \code{\link{fitmgng}},
+Other normgpd: \code{\link{fgng}}, \code{\link{fhpd}},
+  \code{\link{fitmnormgpd}}, \code{\link{flognormgpd}},
   \code{\link{fnormgpd}}, \code{\link{gngcon}},
-  \code{\link{gng}}, \code{\link{itmgng}},
+  \code{\link{gng}}, \code{\link{hpdcon}},
+  \code{\link{hpd}}, \code{\link{itmnormgpd}},
+  \code{\link{lognormgpdcon}}, \code{\link{lognormgpd}},
   \code{\link{normgpdcon}}, \code{\link{normgpd}}
+
+Other normgpdcon: \code{\link{fgngcon}},
+  \code{\link{fhpdcon}}, \code{\link{flognormgpdcon}},
+  \code{\link{fnormgpd}}, \code{\link{gngcon}},
+  \code{\link{gng}}, \code{\link{hpdcon}},
+  \code{\link{hpd}}, \code{\link{normgpdcon}},
+  \code{\link{normgpd}}
+
+Other gngcon: \code{\link{fgngcon}}, \code{\link{fgng}},
+  \code{\link{gngcon}}, \code{\link{gng}},
+  \code{\link{normgpdcon}}
+
+Other fnormgpdcon: \code{\link{normgpdcon}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fnormgpdcon}
+\concept{gngcon}
+\concept{normgpd}
+\concept{normgpdcon}

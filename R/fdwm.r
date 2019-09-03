@@ -110,7 +110,8 @@
 #'   
 #' @seealso \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
 #' @aliases fdwm ldwm nldwm
-#' @family  dwm fdwm
+#' @family  dwm
+#' @family  fdwm
 #' 
 #' @examples
 #' \dontrun{

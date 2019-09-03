@@ -6,34 +6,15 @@
 \alias{nlpsden}
 \alias{iwlspsden}
 \alias{cvpsden}
-\alias{lpsden}
-\alias{fpsden}
-\alias{nlpsden}
-\alias{iwlspsden}
-\alias{cvpsden}
-\alias{nlpsden}
-\alias{fpsden}
-\alias{lpsden}
-\alias{iwlspsden}
-\alias{cvpsden}
-\alias{cvpsden}
-\alias{fpsden}
-\alias{lpsden}
-\alias{nlpsden}
-\alias{iwlspsden}
-\alias{iwlspsden}
-\alias{fpsden}
-\alias{lpsden}
-\alias{nlpsden}
-\alias{cvpsden}
 \title{MLE Fitting of P-splines Density Estimator}
 \usage{
-fpsden(x, lambdaseq = NULL, breaks = NULL, xrange = NULL, nseg = 10,
-  degree = 3, design.knots = NULL, ord = 2)
+fpsden(x, lambdaseq = NULL, breaks = NULL, xrange = NULL,
+  nseg = 10, degree = 3, design.knots = NULL, ord = 2)
 
 lpsden(x, beta = NULL, bsplines = NULL, nbinwidth = 1, log = TRUE)
 
-nlpsden(pvector, x, bsplines = NULL, nbinwidth = 1, finitelik = FALSE)
+nlpsden(pvector, x, bsplines = NULL, nbinwidth = 1,
+  finitelik = FALSE)
 
 cvpsden(lambda = 1, counts, bsplines, ord = 2)
 
@@ -222,8 +203,13 @@ Statistical Science 11(2), 89-121.
 \seealso{
 \code{\link[evmix:kden]{kden}}.
 
-Other psden fpsden: \code{\link{psden}}
+Other psden: \code{\link{fpsdengpd}},
+  \code{\link{psdengpd}}, \code{\link{psden}}
+
+Other fpsden: \code{\link{psden}}
 }
 \author{
 Alfadino Akbar and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fpsden}
+\concept{psden}

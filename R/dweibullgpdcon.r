@@ -88,7 +88,10 @@
 #' 
 #' @seealso \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:Weibull]{dweibull}}
 #' @aliases weibullgpdcon dweibullgpdcon pweibullgpdcon qweibullgpdcon rweibullgpdcon
-#' @family  weibullgpd weibullgpdcon fweibullgpd fweibullgpdcon
+#' @family  weibullgpd
+#' @family  weibullgpdcon
+#' @family  itmweibullgpd
+#' @family  fweibullgpdcon
 #' 
 #' @examples
 #' \dontrun{

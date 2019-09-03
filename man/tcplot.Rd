@@ -4,30 +4,24 @@
 \alias{tcplot}
 \alias{tshapeplot}
 \alias{tscaleplot}
-\alias{tshapeplot}
-\alias{tcplot}
-\alias{tscaleplot}
-\alias{tscaleplot}
-\alias{tcplot}
-\alias{tshapeplot}
 \title{Parameter Threshold Stability Plots}
 \usage{
-tcplot(data, tlim = NULL, nt = min(100, length(data)), p.or.n = FALSE,
-  alpha = 0.05, ylim.xi = NULL, ylim.sigmau = NULL,
+tcplot(data, tlim = NULL, nt = min(100, length(data)),
+  p.or.n = FALSE, alpha = 0.05, ylim.xi = NULL, ylim.sigmau = NULL,
   legend.loc = "bottomright", try.thresh = quantile(data, 0.9, na.rm =
   TRUE), ...)
 
-tshapeplot(data, tlim = NULL, nt = min(100, length(data)), p.or.n = FALSE,
-  alpha = 0.05, ylim = NULL, legend.loc = "bottomright",
-  try.thresh = quantile(data, 0.9, na.rm = TRUE),
-  main = "Shape Threshold Stability Plot", xlab = "Threshold u",
+tshapeplot(data, tlim = NULL, nt = min(100, length(data)),
+  p.or.n = FALSE, alpha = 0.05, ylim = NULL,
+  legend.loc = "bottomright", try.thresh = quantile(data, 0.9, na.rm =
+  TRUE), main = "Shape Threshold Stability Plot", xlab = "Threshold u",
   ylab = "Shape Parameter", ...)
 
-tscaleplot(data, tlim = NULL, nt = min(100, length(data)), p.or.n = FALSE,
-  alpha = 0.05, ylim = NULL, legend.loc = "bottomright",
-  try.thresh = quantile(data, 0.9, na.rm = TRUE),
-  main = "Modified Scale Threshold Stability Plot", xlab = "Threshold u",
-  ylab = "Modified Scale Parameter", ...)
+tscaleplot(data, tlim = NULL, nt = min(100, length(data)),
+  p.or.n = FALSE, alpha = 0.05, ylim = NULL,
+  legend.loc = "bottomright", try.thresh = quantile(data, 0.9, na.rm =
+  TRUE), main = "Modified Scale Threshold Stability Plot",
+  xlab = "Threshold u", ylab = "Modified Scale Parameter", ...)
 }
 \arguments{
 \item{data}{vector of sample data}
@@ -161,3 +155,4 @@ Springer-Verlag: London.
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{tcplot}

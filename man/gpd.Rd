@@ -6,26 +6,6 @@
 \alias{pgpd}
 \alias{qgpd}
 \alias{rgpd}
-\alias{dgpd}
-\alias{gpd}
-\alias{pgpd}
-\alias{qgpd}
-\alias{rgpd}
-\alias{pgpd}
-\alias{gpd}
-\alias{dgpd}
-\alias{qgpd}
-\alias{rgpd}
-\alias{qgpd}
-\alias{gpd}
-\alias{dgpd}
-\alias{pgpd}
-\alias{rgpd}
-\alias{rgpd}
-\alias{gpd}
-\alias{dgpd}
-\alias{pgpd}
-\alias{qgpd}
 \title{Generalised Pareto Distribution (GPD)}
 \usage{
 dgpd(x, u = 0, sigmau = 1, xi = 0, phiu = 1, log = FALSE)
@@ -193,8 +173,12 @@ Springer Series in Statistics. Springer-Verlag: London.
 \seealso{
 \code{\link[evd:gpd]{evd}} package and \code{\link[evd:fpot]{fpot}}
 
-Other gpd fgpd: \code{\link{fgpd}}
+Other gpd: \code{\link{fgpd}}
+
+Other fgpd: \code{\link{fgpd}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fgpd}
+\concept{gpd}

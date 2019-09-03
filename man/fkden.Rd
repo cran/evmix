@@ -4,24 +4,18 @@
 \alias{fkden}
 \alias{lkden}
 \alias{nlkden}
-\alias{lkden}
-\alias{fkden}
-\alias{nlkden}
-\alias{nlkden}
-\alias{fkden}
-\alias{lkden}
 \title{Cross-validation MLE Fitting of Kernel Density Estimator, With Variety of Kernels}
 \usage{
 fkden(x, linit = NULL, bwinit = NULL, kernel = "gaussian",
-  extracentres = NULL, add.jitter = FALSE, factor = 0.1, amount = NULL,
-  std.err = TRUE, method = "BFGS", control = list(maxit = 10000),
-  finitelik = TRUE, ...)
+  extracentres = NULL, add.jitter = FALSE, factor = 0.1,
+  amount = NULL, std.err = TRUE, method = "BFGS",
+  control = list(maxit = 10000), finitelik = TRUE, ...)
 
 lkden(x, lambda = NULL, bw = NULL, kernel = "gaussian",
   extracentres = NULL, log = TRUE)
 
-nlkden(lambda, x, bw = NULL, kernel = "gaussian", extracentres = NULL,
-  finitelik = FALSE)
+nlkden(lambda, x, bw = NULL, kernel = "gaussian",
+  extracentres = NULL, finitelik = FALSE)
 }
 \arguments{
 \item{x}{vector of sample data}
@@ -319,12 +313,29 @@ Wand, M. and Jones, M.C. (1995). Kernel Smoothing. Chapman && Hall.
 \code{\link[base:jitter]{jitter}}, \code{\link[stats:density]{density}} and
 \code{\link[stats:bandwidth]{bw.nrd0}}
 
-Other kden kdengpd kdengpdcon bckden bckdengpd bckdengpdcon
-         fkden fkdengpd fkdengpdcon fbckden fbckdengpd fbckdengpdcon: \code{\link{bckdengpdcon}},
-  \code{\link{bckdengpd}}, \code{\link{bckden}},
-  \code{\link{fbckden}}, \code{\link{kdengpdcon}},
+Other kden: \code{\link{bckden}}, \code{\link{fbckden}},
+  \code{\link{fgkgcon}}, \code{\link{fgkg}},
+  \code{\link{fkdengpdcon}}, \code{\link{fkdengpd}},
+  \code{\link{kdengpdcon}}, \code{\link{kdengpd}},
+  \code{\link{kden}}
+
+Other kdengpd: \code{\link{bckdengpd}},
+  \code{\link{fbckdengpd}}, \code{\link{fgkg}},
+  \code{\link{fkdengpdcon}}, \code{\link{fkdengpd}},
+  \code{\link{gkg}}, \code{\link{kdengpdcon}},
   \code{\link{kdengpd}}, \code{\link{kden}}
+
+Other bckden: \code{\link{bckdengpdcon}},
+  \code{\link{bckdengpd}}, \code{\link{bckden}},
+  \code{\link{fbckdengpdcon}}, \code{\link{fbckdengpd}},
+  \code{\link{fbckden}}, \code{\link{kden}}
+
+Other fkden: \code{\link{kden}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}.
 }
+\concept{bckden}
+\concept{fkden}
+\concept{kden}
+\concept{kdengpd}

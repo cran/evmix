@@ -216,8 +216,10 @@
 #' \code{\link[stats:bandwidth]{bw.nrd0}}
 #' 
 #' @aliases fkden lkden nlkden
-#' @family  kden kdengpd kdengpdcon bckden bckdengpd bckdengpdcon
-#'          fkden fkdengpd fkdengpdcon fbckden fbckdengpd fbckdengpdcon
+#' @family  kden 
+#' @family  kdengpd
+#' @family  bckden
+#' @family  fkden
 #' 
 #' @examples
 #' \dontrun{

@@ -6,43 +6,23 @@
 \alias{pbckden}
 \alias{qbckden}
 \alias{rbckden}
-\alias{dbckden}
-\alias{bckden}
-\alias{pbckden}
-\alias{qbckden}
-\alias{rbckden}
-\alias{pbckden}
-\alias{bckden}
-\alias{dbckden}
-\alias{qbckden}
-\alias{rbckden}
-\alias{qbckden}
-\alias{bckden}
-\alias{dbckden}
-\alias{pbckden}
-\alias{rbckden}
-\alias{rbckden}
-\alias{bckden}
-\alias{dbckden}
-\alias{pbckden}
-\alias{qbckden}
 \title{Boundary Corrected Kernel Density Estimation Using a Variety of Approaches}
 \usage{
-dbckden(x, kerncentres, lambda = NULL, bw = NULL, kernel = "gaussian",
-  bcmethod = "simple", proper = TRUE, nn = "jf96", offset = NULL,
-  xmax = NULL, log = FALSE)
+dbckden(x, kerncentres, lambda = NULL, bw = NULL,
+  kernel = "gaussian", bcmethod = "simple", proper = TRUE,
+  nn = "jf96", offset = NULL, xmax = NULL, log = FALSE)
 
-pbckden(q, kerncentres, lambda = NULL, bw = NULL, kernel = "gaussian",
-  bcmethod = "simple", proper = TRUE, nn = "jf96", offset = NULL,
-  xmax = NULL, lower.tail = TRUE)
+pbckden(q, kerncentres, lambda = NULL, bw = NULL,
+  kernel = "gaussian", bcmethod = "simple", proper = TRUE,
+  nn = "jf96", offset = NULL, xmax = NULL, lower.tail = TRUE)
 
-qbckden(p, kerncentres, lambda = NULL, bw = NULL, kernel = "gaussian",
-  bcmethod = "simple", proper = TRUE, nn = "jf96", offset = NULL,
-  xmax = NULL, lower.tail = TRUE)
+qbckden(p, kerncentres, lambda = NULL, bw = NULL,
+  kernel = "gaussian", bcmethod = "simple", proper = TRUE,
+  nn = "jf96", offset = NULL, xmax = NULL, lower.tail = TRUE)
 
 rbckden(n = 1, kerncentres, lambda = NULL, bw = NULL,
-  kernel = "gaussian", bcmethod = "simple", proper = TRUE, nn = "jf96",
-  offset = NULL, xmax = NULL)
+  kernel = "gaussian", bcmethod = "simple", proper = TRUE,
+  nn = "jf96", offset = NULL, xmax = NULL)
 }
 \arguments{
 \item{x}{quantiles}
@@ -330,12 +310,36 @@ interval. Biometrika 94(4), 977-984.
 \code{\link[stats:density]{density}}, \code{\link[stats:bandwidth]{bw.nrd0}}
 and \code{\link[ks:kde]{dkde}} in \code{\link[ks:kde]{ks}} package.
 
-Other kden kdengpd kdengpdcon bckden bckdengpd bckdengpdcon
-         fkden fkdengpd fkdengpdcon fbckden fbckdengpd fbckdengpdcon: \code{\link{bckdengpdcon}},
-  \code{\link{bckdengpd}}, \code{\link{fbckden}},
-  \code{\link{fkden}}, \code{\link{kdengpdcon}},
+Other kden: \code{\link{fbckden}}, \code{\link{fgkgcon}},
+  \code{\link{fgkg}}, \code{\link{fkdengpdcon}},
+  \code{\link{fkdengpd}}, \code{\link{fkden}},
+  \code{\link{kdengpdcon}}, \code{\link{kdengpd}},
+  \code{\link{kden}}
+
+Other bckden: \code{\link{bckdengpdcon}},
+  \code{\link{bckdengpd}}, \code{\link{fbckdengpdcon}},
+  \code{\link{fbckdengpd}}, \code{\link{fbckden}},
+  \code{\link{fkden}}, \code{\link{kden}}
+
+Other bckdengpd: \code{\link{bckdengpdcon}},
+  \code{\link{bckdengpd}}, \code{\link{fbckdengpdcon}},
+  \code{\link{fbckdengpd}}, \code{\link{fbckden}},
+  \code{\link{fkdengpd}}, \code{\link{gkg}},
   \code{\link{kdengpd}}, \code{\link{kden}}
+
+Other bckdengpdcon: \code{\link{bckdengpdcon}},
+  \code{\link{bckdengpd}}, \code{\link{fbckdengpdcon}},
+  \code{\link{fbckdengpd}}, \code{\link{fbckden}},
+  \code{\link{fkdengpdcon}}, \code{\link{gkgcon}},
+  \code{\link{kdengpdcon}}
+
+Other fbckden: \code{\link{fbckden}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}.
 }
+\concept{bckden}
+\concept{bckdengpd}
+\concept{bckdengpdcon}
+\concept{fbckden}
+\concept{kden}

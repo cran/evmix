@@ -99,7 +99,9 @@
 #'  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
 #'  
 #' @aliases fitmweibullgpd litmweibullgpd nlitmweibullgpd profluitmweibullgpd nluitmweibullgpd
-#' @family  itmweibullgpd fitmweibullgpd normgpd fnormgpd
+#' @family  weibullgpd
+#' @family  itmweibullgpd
+#' @family  fitmweibullgpd
 #' 
 #' @examples
 #' \dontrun{

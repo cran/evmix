@@ -6,48 +6,31 @@
 \alias{pbckdengpdcon}
 \alias{qbckdengpdcon}
 \alias{rbckdengpdcon}
-\alias{dbckdengpdcon}
-\alias{bckdengpdcon}
-\alias{pbckdengpdcon}
-\alias{qbckdengpdcon}
-\alias{rbckdengpdcon}
-\alias{pbckdengpdcon}
-\alias{bckdengpdcon}
-\alias{dbckdengpdcon}
-\alias{qbckdengpdcon}
-\alias{rbckdengpdcon}
-\alias{qbckdengpdcon}
-\alias{bckdengpdcon}
-\alias{dbckdengpdcon}
-\alias{pbckdengpdcon}
-\alias{rbckdengpdcon}
-\alias{rbckdengpdcon}
-\alias{bckdengpdcon}
-\alias{dbckdengpdcon}
-\alias{pbckdengpdcon}
-\alias{qbckdengpdcon}
 \title{Boundary Corrected Kernel Density Estimate and GPD Tail Extreme Value Mixture Model
  With Single Continuity Constraint}
 \usage{
 dbckdengpdcon(x, kerncentres, lambda = NULL,
   u = as.vector(quantile(kerncentres, 0.9)), xi = 0, phiu = TRUE,
-  bw = NULL, kernel = "gaussian", bcmethod = "simple", proper = TRUE,
-  nn = "jf96", offset = NULL, xmax = NULL, log = FALSE)
+  bw = NULL, kernel = "gaussian", bcmethod = "simple",
+  proper = TRUE, nn = "jf96", offset = NULL, xmax = NULL,
+  log = FALSE)
 
 pbckdengpdcon(q, kerncentres, lambda = NULL,
   u = as.vector(quantile(kerncentres, 0.9)), xi = 0, phiu = TRUE,
-  bw = NULL, kernel = "gaussian", bcmethod = "simple", proper = TRUE,
-  nn = "jf96", offset = NULL, xmax = NULL, lower.tail = TRUE)
+  bw = NULL, kernel = "gaussian", bcmethod = "simple",
+  proper = TRUE, nn = "jf96", offset = NULL, xmax = NULL,
+  lower.tail = TRUE)
 
 qbckdengpdcon(p, kerncentres, lambda = NULL,
   u = as.vector(quantile(kerncentres, 0.9)), xi = 0, phiu = TRUE,
-  bw = NULL, kernel = "gaussian", bcmethod = "simple", proper = TRUE,
-  nn = "jf96", offset = NULL, xmax = NULL, lower.tail = TRUE)
+  bw = NULL, kernel = "gaussian", bcmethod = "simple",
+  proper = TRUE, nn = "jf96", offset = NULL, xmax = NULL,
+  lower.tail = TRUE)
 
 rbckdengpdcon(n = 1, kerncentres, lambda = NULL,
   u = as.vector(quantile(kerncentres, 0.9)), xi = 0, phiu = TRUE,
-  bw = NULL, kernel = "gaussian", bcmethod = "simple", proper = TRUE,
-  nn = "jf96", offset = NULL, xmax = NULL)
+  bw = NULL, kernel = "gaussian", bcmethod = "simple",
+  proper = TRUE, nn = "jf96", offset = NULL, xmax = NULL)
 }
 \arguments{
 \item{x}{quantiles}
@@ -277,12 +260,35 @@ Wand, M. and Jones, M.C. (1995). Kernel Smoothing. Chapman && Hall.
 \code{\link[stats:density]{density}}, \code{\link[stats:bandwidth]{bw.nrd0}}
 and \code{\link[ks:kde]{dkde}} in \code{\link[ks:kde]{ks}} package.
 
-Other kden kdengpd kdengpdcon bckden bckdengpd bckdengpdcon
-         fkden fkdengpd fkdengpdcon fbckden fbckdengpd fbckdengpdcon: \code{\link{bckdengpd}},
-  \code{\link{bckden}}, \code{\link{fbckden}},
-  \code{\link{fkden}}, \code{\link{kdengpdcon}},
+Other kdengpdcon: \code{\link{fbckdengpdcon}},
+  \code{\link{fgkgcon}}, \code{\link{fkdengpdcon}},
+  \code{\link{fkdengpd}}, \code{\link{gkgcon}},
+  \code{\link{kdengpdcon}}, \code{\link{kdengpd}}
+
+Other bckden: \code{\link{bckdengpd}},
+  \code{\link{bckden}}, \code{\link{fbckdengpdcon}},
+  \code{\link{fbckdengpd}}, \code{\link{fbckden}},
+  \code{\link{fkden}}, \code{\link{kden}}
+
+Other bckdengpd: \code{\link{bckdengpd}},
+  \code{\link{bckden}}, \code{\link{fbckdengpdcon}},
+  \code{\link{fbckdengpd}}, \code{\link{fbckden}},
+  \code{\link{fkdengpd}}, \code{\link{gkg}},
   \code{\link{kdengpd}}, \code{\link{kden}}
+
+Other bckdengpdcon: \code{\link{bckdengpd}},
+  \code{\link{bckden}}, \code{\link{fbckdengpdcon}},
+  \code{\link{fbckdengpd}}, \code{\link{fbckden}},
+  \code{\link{fkdengpdcon}}, \code{\link{gkgcon}},
+  \code{\link{kdengpdcon}}
+
+Other fbckdengpdcon: \code{\link{fbckdengpdcon}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}.
 }
+\concept{bckden}
+\concept{bckdengpd}
+\concept{bckdengpdcon}
+\concept{fbckdengpdcon}
+\concept{kdengpdcon}

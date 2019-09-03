@@ -86,7 +86,7 @@
 #' 
 #' @author Yang Hu and Carl Scarrott \email{carl.scarrott@@canterbury.ac.nz}
 #'
-#' @section Acknowledgments: See Acknowledgments in
+#' @section Acknowledgments: Thanks to Vathy Kamulete of the Royal Bank of Canada for reporting a bug in the likelihood function. See Acknowledgments in
 #'   \code{\link[evmix:fnormgpd]{fnormgpd}}, type \code{help fnormgpd}. Based on code
 #' by Anna MacDonald produced for MATLAB.
 #'   
@@ -94,7 +94,9 @@
 #'  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
 #'  
 #' @aliases fbetagpd lbetagpd nlbetagpd proflubetagpd nlubetagpd
-#' @family  betagpd betagpdcon fbetagpd fbetagpdcon normgpd fnormgpd
+#' @family  betagpd
+#' @family  betagpdcon
+#' @family  fbetagpd
 #' 
 #' @examples
 #' \dontrun{
@@ -382,8 +384,8 @@ lbetagpd <- function(x, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1, bshape
   if ((bshape2 <= 0) | (bshape1 <= 0) | (u <= 0) | (u >= 1) | (sigmau <= 0) | (u <= min(x)) | (u >= max(x))) {
     l = -Inf
   } else {
+    pu = pbeta(u, bshape1, bshape2)
     if (is.logical(phiu)) {
-      pu = pbeta(u, bshape1, bshape2)
       if (phiu) {
         phiu = 1 - pu
       } else {

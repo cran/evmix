@@ -6,36 +6,16 @@
 \alias{plognormgpdcon}
 \alias{qlognormgpdcon}
 \alias{rlognormgpdcon}
-\alias{dlognormgpdcon}
-\alias{lognormgpdcon}
-\alias{plognormgpdcon}
-\alias{qlognormgpdcon}
-\alias{rlognormgpdcon}
-\alias{plognormgpdcon}
-\alias{lognormgpdcon}
-\alias{dlognormgpdcon}
-\alias{qlognormgpdcon}
-\alias{rlognormgpdcon}
-\alias{qlognormgpdcon}
-\alias{lognormgpdcon}
-\alias{dlognormgpdcon}
-\alias{plognormgpdcon}
-\alias{rlognormgpdcon}
-\alias{rlognormgpdcon}
-\alias{lognormgpdcon}
-\alias{dlognormgpdcon}
-\alias{plognormgpdcon}
-\alias{qlognormgpdcon}
 \title{Log-Normal Bulk and GPD Tail Extreme Value Mixture Model with Single Continuity Constraint}
 \usage{
-dlognormgpdcon(x, lnmean = 0, lnsd = 1, u = qlnorm(0.9, lnmean, lnsd),
-  xi = 0, phiu = TRUE, log = FALSE)
+dlognormgpdcon(x, lnmean = 0, lnsd = 1, u = qlnorm(0.9, lnmean,
+  lnsd), xi = 0, phiu = TRUE, log = FALSE)
 
-plognormgpdcon(q, lnmean = 0, lnsd = 1, u = qlnorm(0.9, lnmean, lnsd),
-  xi = 0, phiu = TRUE, lower.tail = TRUE)
+plognormgpdcon(q, lnmean = 0, lnsd = 1, u = qlnorm(0.9, lnmean,
+  lnsd), xi = 0, phiu = TRUE, lower.tail = TRUE)
 
-qlognormgpdcon(p, lnmean = 0, lnsd = 1, u = qlnorm(0.9, lnmean, lnsd),
-  xi = 0, phiu = TRUE, lower.tail = TRUE)
+qlognormgpdcon(p, lnmean = 0, lnsd = 1, u = qlnorm(0.9, lnmean,
+  lnsd), xi = 0, phiu = TRUE, lower.tail = TRUE)
 
 rlognormgpdcon(n = 1, lnmean = 0, lnsd = 1, u = qlnorm(0.9, lnmean,
   lnsd), xi = 0, phiu = TRUE)
@@ -180,8 +160,26 @@ threshold method. Water Resources Research. 48, W10541.
 \seealso{
 \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:Lognormal]{dlnorm}}
 
-Other lognormgpd lognormgpdcon normgpd normgpdcon flognormgpd flognormgpdcon fnormgpd fnormgpdcon: \code{\link{lognormgpd}}
+Other lognormgpd: \code{\link{flognormgpdcon}},
+  \code{\link{flognormgpd}}, \code{\link{lognormgpd}}
+
+Other lognormgpdcon: \code{\link{flognormgpdcon}},
+  \code{\link{flognormgpd}}, \code{\link{lognormgpd}}
+
+Other normgpd: \code{\link{fgng}}, \code{\link{fhpd}},
+  \code{\link{fitmnormgpd}}, \code{\link{flognormgpd}},
+  \code{\link{fnormgpdcon}}, \code{\link{fnormgpd}},
+  \code{\link{gngcon}}, \code{\link{gng}},
+  \code{\link{hpdcon}}, \code{\link{hpd}},
+  \code{\link{itmnormgpd}}, \code{\link{lognormgpd}},
+  \code{\link{normgpdcon}}, \code{\link{normgpd}}
+
+Other flognormgpdcon: \code{\link{flognormgpdcon}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{flognormgpdcon}
+\concept{lognormgpd}
+\concept{lognormgpdcon}
+\concept{normgpd}

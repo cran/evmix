@@ -4,16 +4,11 @@
 \alias{fgpd}
 \alias{lgpd}
 \alias{nlgpd}
-\alias{lgpd}
-\alias{fgpd}
-\alias{nlgpd}
-\alias{nlgpd}
-\alias{fgpd}
-\alias{lgpd}
 \title{MLE Fitting of Generalised Pareto Distribution (GPD)}
 \usage{
 fgpd(x, u = 0, phiu = NULL, pvector = NULL, std.err = TRUE,
-  method = "BFGS", control = list(maxit = 10000), finitelik = TRUE, ...)
+  method = "BFGS", control = list(maxit = 10000), finitelik = TRUE,
+  ...)
 
 lgpd(x, u = 0, sigmau = 1, xi = 0, phiu = 1, log = TRUE)
 
@@ -215,8 +210,12 @@ Statistical Software 84(5), 1-27. doi: 10.18637/jss.v084.i05.
 \code{\link[evd:gpd]{dgpd}}, \code{\link[evd:fpot]{fpot}} and
   \code{\link[MASS:fitdistr]{fitdistr}}
 
-Other gpd fgpd: \code{\link{gpd}}
+Other gpd: \code{\link{gpd}}
+
+Other fgpd: \code{\link{gpd}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fgpd}
+\concept{gpd}

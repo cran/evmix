@@ -6,26 +6,6 @@
 \alias{qplot}
 \alias{pplot}
 \alias{densplot}
-\alias{rlplot}
-\alias{evmix.diag}
-\alias{qplot}
-\alias{pplot}
-\alias{densplot}
-\alias{qplot}
-\alias{evmix.diag}
-\alias{rlplot}
-\alias{pplot}
-\alias{densplot}
-\alias{pplot}
-\alias{evmix.diag}
-\alias{rlplot}
-\alias{qplot}
-\alias{densplot}
-\alias{densplot}
-\alias{evmix.diag}
-\alias{rlplot}
-\alias{qplot}
-\alias{pplot}
 \title{Diagnostic Plots for Extreme Value Mixture Models}
 \usage{
 evmix.diag(modelfit, upperfocus = TRUE, alpha = 0.05, N = 1000,
@@ -176,3 +156,4 @@ Springer-Verlag: London.
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{evmix.diag}

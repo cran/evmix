@@ -164,8 +164,11 @@
 #'  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}.
 #'  
 #' @aliases fgkgcon lgkgcon nlgkgcon proflugkgcon nlugkgcon
-#' @family  kdengpd kdengpdcon fkdengpd fkdengpdcon normgpd fnormgpd gkg gkgcon fgkg fgkgcon
-#'          kden bckden bckdengpd bckdengpdcon fkden fbckden fbckdengpd fbckdengpdcon
+#' @family  kden 
+#' @family  kdengpdcon
+#' @family  gkg
+#' @family  gkgcon
+#' @family  fgkgcon
 #' 
 #' @examples
 #' \dontrun{

@@ -4,10 +4,10 @@
 \alias{mrlplot}
 \title{Mean Residual Life Plot}
 \usage{
-mrlplot(data, tlim = NULL, nt = min(100, length(data)), p.or.n = FALSE,
-  alpha = 0.05, ylim = NULL, legend.loc = "bottomleft",
-  try.thresh = quantile(data, 0.9, na.rm = TRUE),
-  main = "Mean Residual Life Plot", xlab = "Threshold u",
+mrlplot(data, tlim = NULL, nt = min(100, length(data)),
+  p.or.n = FALSE, alpha = 0.05, ylim = NULL,
+  legend.loc = "bottomleft", try.thresh = quantile(data, 0.9, na.rm =
+  TRUE), main = "Mean Residual Life Plot", xlab = "Threshold u",
   ylab = "Mean Excess", ...)
 }
 \arguments{

@@ -6,43 +6,23 @@
 \alias{pgng}
 \alias{qgng}
 \alias{rgng}
-\alias{dgng}
-\alias{gng}
-\alias{pgng}
-\alias{qgng}
-\alias{rgng}
-\alias{pgng}
-\alias{gng}
-\alias{dgng}
-\alias{qgng}
-\alias{rgng}
-\alias{qgng}
-\alias{gng}
-\alias{dgng}
-\alias{pgng}
-\alias{rgng}
-\alias{rgng}
-\alias{gng}
-\alias{dgng}
-\alias{pgng}
-\alias{qgng}
 \title{Normal Bulk with GPD Upper and Lower Tails Extreme Value Mixture Model}
 \usage{
-dgng(x, nmean = 0, nsd = 1, ul = qnorm(0.1, nmean, nsd), sigmaul = nsd,
-  xil = 0, phiul = TRUE, ur = qnorm(0.9, nmean, nsd), sigmaur = nsd,
-  xir = 0, phiur = TRUE, log = FALSE)
+dgng(x, nmean = 0, nsd = 1, ul = qnorm(0.1, nmean, nsd),
+  sigmaul = nsd, xil = 0, phiul = TRUE, ur = qnorm(0.9, nmean,
+  nsd), sigmaur = nsd, xir = 0, phiur = TRUE, log = FALSE)
 
-pgng(q, nmean = 0, nsd = 1, ul = qnorm(0.1, nmean, nsd), sigmaul = nsd,
-  xil = 0, phiul = TRUE, ur = qnorm(0.9, nmean, nsd), sigmaur = nsd,
-  xir = 0, phiur = TRUE, lower.tail = TRUE)
+pgng(q, nmean = 0, nsd = 1, ul = qnorm(0.1, nmean, nsd),
+  sigmaul = nsd, xil = 0, phiul = TRUE, ur = qnorm(0.9, nmean,
+  nsd), sigmaur = nsd, xir = 0, phiur = TRUE, lower.tail = TRUE)
 
-qgng(p, nmean = 0, nsd = 1, ul = qnorm(0.1, nmean, nsd), sigmaul = nsd,
-  xil = 0, phiul = TRUE, ur = qnorm(0.9, nmean, nsd), sigmaur = nsd,
-  xir = 0, phiur = TRUE, lower.tail = TRUE)
+qgng(p, nmean = 0, nsd = 1, ul = qnorm(0.1, nmean, nsd),
+  sigmaul = nsd, xil = 0, phiul = TRUE, ur = qnorm(0.9, nmean,
+  nsd), sigmaur = nsd, xir = 0, phiur = TRUE, lower.tail = TRUE)
 
 rgng(n = 1, nmean = 0, nsd = 1, ul = qnorm(0.1, nmean, nsd),
-  sigmaul = nsd, xil = 0, phiul = TRUE, ur = qnorm(0.9, nmean, nsd),
-  sigmaur = nsd, xir = 0, phiur = TRUE)
+  sigmaul = nsd, xil = 0, phiul = TRUE, ur = qnorm(0.9, nmean,
+  nsd), sigmaur = nsd, xir = 0, phiur = TRUE)
 }
 \arguments{
 \item{x}{quantiles}
@@ -198,12 +178,37 @@ for forecasting the market crisis. Applied Financial Econometrics 20(1), 63-72.
 \seealso{
 \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:Normal]{dnorm}}
 
-Other normgpd normgpdcon gng gngcon fnormgpd fnormgpdcon fgng fgngcon: \code{\link{fgngcon}},
-  \code{\link{fgng}}, \code{\link{fitmgng}},
+Other normgpd: \code{\link{fgng}}, \code{\link{fhpd}},
+  \code{\link{fitmnormgpd}}, \code{\link{flognormgpd}},
   \code{\link{fnormgpdcon}}, \code{\link{fnormgpd}},
-  \code{\link{gngcon}}, \code{\link{itmgng}},
+  \code{\link{gngcon}}, \code{\link{hpdcon}},
+  \code{\link{hpd}}, \code{\link{itmnormgpd}},
+  \code{\link{lognormgpdcon}}, \code{\link{lognormgpd}},
   \code{\link{normgpdcon}}, \code{\link{normgpd}}
+
+Other normgpdcon: \code{\link{fgngcon}},
+  \code{\link{fhpdcon}}, \code{\link{flognormgpdcon}},
+  \code{\link{fnormgpdcon}}, \code{\link{fnormgpd}},
+  \code{\link{gngcon}}, \code{\link{hpdcon}},
+  \code{\link{hpd}}, \code{\link{normgpdcon}},
+  \code{\link{normgpd}}
+
+Other gng: \code{\link{fgngcon}}, \code{\link{fgng}},
+  \code{\link{fitmgng}}, \code{\link{fnormgpd}},
+  \code{\link{gngcon}}, \code{\link{itmgng}},
+  \code{\link{normgpd}}
+
+Other gngcon: \code{\link{fgngcon}}, \code{\link{fgng}},
+  \code{\link{fnormgpdcon}}, \code{\link{gngcon}},
+  \code{\link{normgpdcon}}
+
+Other fgng: \code{\link{fgng}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fgng}
+\concept{gng}
+\concept{gngcon}
+\concept{normgpd}
+\concept{normgpdcon}

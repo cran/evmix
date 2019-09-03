@@ -6,26 +6,6 @@
 \alias{pnormgpd}
 \alias{qnormgpd}
 \alias{rnormgpd}
-\alias{dnormgpd}
-\alias{normgpd}
-\alias{pnormgpd}
-\alias{qnormgpd}
-\alias{rnormgpd}
-\alias{pnormgpd}
-\alias{normgpd}
-\alias{dnormgpd}
-\alias{qnormgpd}
-\alias{rnormgpd}
-\alias{qnormgpd}
-\alias{normgpd}
-\alias{dnormgpd}
-\alias{pnormgpd}
-\alias{rnormgpd}
-\alias{rnormgpd}
-\alias{normgpd}
-\alias{dnormgpd}
-\alias{pnormgpd}
-\alias{qnormgpd}
 \title{Normal Bulk and GPD Tail Extreme Value Mixture Model}
 \usage{
 dnormgpd(x, nmean = 0, nsd = 1, u = qnorm(0.9, nmean, nsd),
@@ -177,12 +157,32 @@ events with threshold estimation. Statistical Modelling. 4(3), 227-244.
 \seealso{
 \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:Normal]{dnorm}}
 
-Other normgpd normgpdcon gng gngcon fnormgpd fnormgpdcon fgng fgngcon: \code{\link{fgngcon}},
-  \code{\link{fgng}}, \code{\link{fitmgng}},
+Other normgpd: \code{\link{fgng}}, \code{\link{fhpd}},
+  \code{\link{fitmnormgpd}}, \code{\link{flognormgpd}},
   \code{\link{fnormgpdcon}}, \code{\link{fnormgpd}},
   \code{\link{gngcon}}, \code{\link{gng}},
-  \code{\link{itmgng}}, \code{\link{normgpdcon}}
+  \code{\link{hpdcon}}, \code{\link{hpd}},
+  \code{\link{itmnormgpd}}, \code{\link{lognormgpdcon}},
+  \code{\link{lognormgpd}}, \code{\link{normgpdcon}}
+
+Other normgpdcon: \code{\link{fgngcon}},
+  \code{\link{fhpdcon}}, \code{\link{flognormgpdcon}},
+  \code{\link{fnormgpdcon}}, \code{\link{fnormgpd}},
+  \code{\link{gngcon}}, \code{\link{gng}},
+  \code{\link{hpdcon}}, \code{\link{hpd}},
+  \code{\link{normgpdcon}}
+
+Other gng: \code{\link{fgngcon}}, \code{\link{fgng}},
+  \code{\link{fitmgng}}, \code{\link{fnormgpd}},
+  \code{\link{gngcon}}, \code{\link{gng}},
+  \code{\link{itmgng}}
+
+Other fnormgpd: \code{\link{fnormgpd}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fnormgpd}
+\concept{gng}
+\concept{normgpd}
+\concept{normgpdcon}

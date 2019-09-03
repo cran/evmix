@@ -88,9 +88,10 @@
 #'
 #' @seealso \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:GammaDist]{dgamma}}
 #' @aliases gammagpd dgammagpd pgammagpd qgammagpd rgammagpd
-#' @family  mgamma fmgamma
-#'          gammagpd gammagpdcon fgammagpd fgammagpdcon normgpd fnormgpd
-#'          mgammagpd mgammagpdcon fmgammagpd fmgammagpdcon 
+#' @family  gammagpd
+#' @family  gammagpdcon
+#' @family  mgammagpd
+#' @family  fgammagpd
 #' 
 #' @examples
 #' \dontrun{

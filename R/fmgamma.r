@@ -160,9 +160,11 @@
 #'  in \code{mixtools} package
 #' 
 #' @aliases fmgamma lmgamma nlmgamma nlEMmgamma
-#' @family  mgamma fmgamma
-#'          gammagpd gammagpdcon fgammagpd fgammagpdcon normgpd fnormgpd
-#'          mgammagpd mgammagpdcon fmgammagpd fmgammagpdcon 
+#' @family  gammagpd
+#' @family  mgamma
+#' @family  mgammagpd
+#' @family  mgammagpdcon
+#' @family  fmgamma
 #' 
 #' @examples
 #' \dontrun{

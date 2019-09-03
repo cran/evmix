@@ -6,39 +6,19 @@
 \alias{pitmnormgpd}
 \alias{qitmnormgpd}
 \alias{ritmnormgpd}
-\alias{ditmnormgpd}
-\alias{itmnormgpd}
-\alias{pitmnormgpd}
-\alias{qitmnormgpd}
-\alias{ritmnormgpd}
-\alias{pitmnormgpd}
-\alias{itmnormgpd}
-\alias{ditmnormgpd}
-\alias{qitmnormgpd}
-\alias{ritmnormgpd}
-\alias{qitmnormgpd}
-\alias{itmnormgpd}
-\alias{ditmnormgpd}
-\alias{pitmnormgpd}
-\alias{ritmnormgpd}
-\alias{ritmnormgpd}
-\alias{itmnormgpd}
-\alias{ditmnormgpd}
-\alias{pitmnormgpd}
-\alias{qitmnormgpd}
 \title{Normal Bulk and GPD Tail Interval Transition Mixture Model}
 \usage{
-ditmnormgpd(x, nmean = 0, nsd = 1, epsilon = nsd, u = qnorm(0.9, nmean,
-  nsd), sigmau = nsd, xi = 0, log = FALSE)
+ditmnormgpd(x, nmean = 0, nsd = 1, epsilon = nsd, u = qnorm(0.9,
+  nmean, nsd), sigmau = nsd, xi = 0, log = FALSE)
 
-pitmnormgpd(q, nmean = 0, nsd = 1, epsilon = nsd, u = qnorm(0.9, nmean,
-  nsd), sigmau = nsd, xi = 0, lower.tail = TRUE)
+pitmnormgpd(q, nmean = 0, nsd = 1, epsilon = nsd, u = qnorm(0.9,
+  nmean, nsd), sigmau = nsd, xi = 0, lower.tail = TRUE)
 
-qitmnormgpd(p, nmean = 0, nsd = 1, epsilon = nsd, u = qnorm(0.9, nmean,
-  nsd), sigmau = nsd, xi = 0, lower.tail = TRUE)
+qitmnormgpd(p, nmean = 0, nsd = 1, epsilon = nsd, u = qnorm(0.9,
+  nmean, nsd), sigmau = nsd, xi = 0, lower.tail = TRUE)
 
-ritmnormgpd(n = 1, nmean = 0, nsd = 1, epsilon = nsd, u = qnorm(0.9,
-  nmean, nsd), sigmau = nsd, xi = 0)
+ritmnormgpd(n = 1, nmean = 0, nsd = 1, epsilon = nsd,
+  u = qnorm(0.9, nmean, nsd), sigmau = nsd, xi = 0)
 }
 \arguments{
 \item{x}{quantiles}
@@ -189,7 +169,21 @@ estimation. arxiv:0902.4137
 \seealso{
 \code{\link[evmix:normgpd]{normgpd}}, \code{\link[evmix:gpd]{gpd}}
    and \code{\link[stats:Normal]{dnorm}}
+
+Other itmnormgpd: \code{\link{fitmgng}},
+  \code{\link{fitmnormgpd}}, \code{\link{itmgng}}
+
+Other normgpd: \code{\link{fgng}}, \code{\link{fhpd}},
+  \code{\link{fitmnormgpd}}, \code{\link{flognormgpd}},
+  \code{\link{fnormgpdcon}}, \code{\link{fnormgpd}},
+  \code{\link{gngcon}}, \code{\link{gng}},
+  \code{\link{hpdcon}}, \code{\link{hpd}},
+  \code{\link{lognormgpdcon}}, \code{\link{lognormgpd}},
+  \code{\link{normgpdcon}}, \code{\link{normgpd}}
 }
 \author{
 Alfadino Akbar and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fititmnormgpd}
+\concept{itmnormgpd}
+\concept{normgpd}

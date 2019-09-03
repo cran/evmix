@@ -6,26 +6,6 @@
 \alias{nlgng}
 \alias{proflugng}
 \alias{nlugng}
-\alias{lgng}
-\alias{fgng}
-\alias{nlgng}
-\alias{proflugng}
-\alias{nlugng}
-\alias{nlgng}
-\alias{fgng}
-\alias{lgng}
-\alias{proflugng}
-\alias{nlugng}
-\alias{proflugng}
-\alias{fgng}
-\alias{lgng}
-\alias{nlgng}
-\alias{nlugng}
-\alias{nlugng}
-\alias{fgng}
-\alias{lgng}
-\alias{nlgng}
-\alias{proflugng}
 \title{MLE Fitting of Normal Bulk and GPD for Both Tails Extreme Value Mixture Model}
 \usage{
 fgng(x, phiul = TRUE, phiur = TRUE, ulseq = NULL, urseq = NULL,
@@ -38,10 +18,12 @@ lgng(x, nmean = 0, nsd = 1, ul = 0, sigmaul = 1, xil = 0,
 
 nlgng(pvector, x, phiul = TRUE, phiur = TRUE, finitelik = FALSE)
 
-proflugng(ulr, pvector, x, phiul = TRUE, phiur = TRUE, method = "BFGS",
-  control = list(maxit = 10000), finitelik = TRUE, ...)
+proflugng(ulr, pvector, x, phiul = TRUE, phiur = TRUE,
+  method = "BFGS", control = list(maxit = 10000), finitelik = TRUE,
+  ...)
 
-nlugng(pvector, ul, ur, x, phiul = TRUE, phiur = TRUE, finitelik = FALSE)
+nlugng(pvector, ul, ur, x, phiul = TRUE, phiur = TRUE,
+  finitelik = FALSE)
 }
 \arguments{
 \item{x}{vector of sample data}
@@ -268,12 +250,30 @@ Statistics and Data Analysis 47(3), 583-598.
 \code{\link[stats:Normal]{dnorm}},
  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
 
-Other normgpd normgpdcon gng gngcon fnormgpd fnormgpdcon fgng fgngcon: \code{\link{fgngcon}},
-  \code{\link{fitmgng}}, \code{\link{fnormgpdcon}},
+Other normgpd: \code{\link{fhpd}},
+  \code{\link{fitmnormgpd}}, \code{\link{flognormgpd}},
+  \code{\link{fnormgpdcon}}, \code{\link{fnormgpd}},
+  \code{\link{gngcon}}, \code{\link{gng}},
+  \code{\link{hpdcon}}, \code{\link{hpd}},
+  \code{\link{itmnormgpd}}, \code{\link{lognormgpdcon}},
+  \code{\link{lognormgpd}}, \code{\link{normgpdcon}},
+  \code{\link{normgpd}}
+
+Other gng: \code{\link{fgngcon}}, \code{\link{fitmgng}},
   \code{\link{fnormgpd}}, \code{\link{gngcon}},
   \code{\link{gng}}, \code{\link{itmgng}},
-  \code{\link{normgpdcon}}, \code{\link{normgpd}}
+  \code{\link{normgpd}}
+
+Other gngcon: \code{\link{fgngcon}},
+  \code{\link{fnormgpdcon}}, \code{\link{gngcon}},
+  \code{\link{gng}}, \code{\link{normgpdcon}}
+
+Other fgng: \code{\link{gng}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fgng}
+\concept{gng}
+\concept{gngcon}
+\concept{normgpd}

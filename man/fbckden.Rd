@@ -4,28 +4,22 @@
 \alias{fbckden}
 \alias{lbckden}
 \alias{nlbckden}
-\alias{lbckden}
-\alias{fbckden}
-\alias{nlbckden}
-\alias{nlbckden}
-\alias{fbckden}
-\alias{lbckden}
 \title{Cross-validation MLE Fitting of Boundary Corrected Kernel Density Estimation
   Using a Variety of Approaches}
 \usage{
 fbckden(x, linit = NULL, bwinit = NULL, kernel = "gaussian",
-  extracentres = NULL, bcmethod = "simple", proper = TRUE, nn = "jf96",
-  offset = NULL, xmax = NULL, add.jitter = FALSE, factor = 0.1,
-  amount = NULL, std.err = TRUE, method = "BFGS", control = list(maxit =
-  10000), finitelik = TRUE, ...)
+  extracentres = NULL, bcmethod = "simple", proper = TRUE,
+  nn = "jf96", offset = NULL, xmax = NULL, add.jitter = FALSE,
+  factor = 0.1, amount = NULL, std.err = TRUE, method = "BFGS",
+  control = list(maxit = 10000), finitelik = TRUE, ...)
 
 lbckden(x, lambda = NULL, bw = NULL, kernel = "gaussian",
-  extracentres = NULL, bcmethod = "simple", proper = TRUE, nn = "jf96",
-  offset = NULL, xmax = NULL, log = TRUE)
+  extracentres = NULL, bcmethod = "simple", proper = TRUE,
+  nn = "jf96", offset = NULL, xmax = NULL, log = TRUE)
 
-nlbckden(lambda, x, bw = NULL, kernel = "gaussian", extracentres = NULL,
-  bcmethod = "simple", proper = TRUE, nn = "jf96", offset = NULL,
-  xmax = NULL, finitelik = FALSE)
+nlbckden(lambda, x, bw = NULL, kernel = "gaussian",
+  extracentres = NULL, bcmethod = "simple", proper = TRUE,
+  nn = "jf96", offset = NULL, xmax = NULL, finitelik = FALSE)
 }
 \arguments{
 \item{x}{vector of sample data}
@@ -304,12 +298,36 @@ Wand, M. and Jones, M.C. (1995). Kernel Smoothing. Chapman && Hall.
 \code{\link[base:jitter]{jitter}}, \code{\link[stats:density]{density}} and
 \code{\link[stats:bandwidth]{bw.nrd0}}
 
-Other kden kdengpd kdengpdcon bckden bckdengpd bckdengpdcon
-         fkden fkdengpd fkdengpdcon fbckden fbckdengpd fbckdengpdcon: \code{\link{bckdengpdcon}},
+Other kden: \code{\link{bckden}}, \code{\link{fgkgcon}},
+  \code{\link{fgkg}}, \code{\link{fkdengpdcon}},
+  \code{\link{fkdengpd}}, \code{\link{fkden}},
+  \code{\link{kdengpdcon}}, \code{\link{kdengpd}},
+  \code{\link{kden}}
+
+Other bckden: \code{\link{bckdengpdcon}},
   \code{\link{bckdengpd}}, \code{\link{bckden}},
-  \code{\link{fkden}}, \code{\link{kdengpdcon}},
+  \code{\link{fbckdengpdcon}}, \code{\link{fbckdengpd}},
+  \code{\link{fkden}}, \code{\link{kden}}
+
+Other bckdengpd: \code{\link{bckdengpdcon}},
+  \code{\link{bckdengpd}}, \code{\link{bckden}},
+  \code{\link{fbckdengpdcon}}, \code{\link{fbckdengpd}},
+  \code{\link{fkdengpd}}, \code{\link{gkg}},
   \code{\link{kdengpd}}, \code{\link{kden}}
+
+Other bckdengpdcon: \code{\link{bckdengpdcon}},
+  \code{\link{bckdengpd}}, \code{\link{bckden}},
+  \code{\link{fbckdengpdcon}}, \code{\link{fbckdengpd}},
+  \code{\link{fkdengpdcon}}, \code{\link{gkgcon}},
+  \code{\link{kdengpdcon}}
+
+Other fbckden: \code{\link{bckden}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}.
 }
+\concept{bckden}
+\concept{bckdengpd}
+\concept{bckdengpdcon}
+\concept{fbckden}
+\concept{kden}

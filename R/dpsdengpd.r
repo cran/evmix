@@ -83,7 +83,9 @@
 #' @seealso \code{\link[evmix:psden]{psden}} and \code{\link[evmix:fpsden]{fpsden}}.
 #' 
 #' @aliases psdengpd dpsdengpd ppsdengpd qpsdengpd rpsdengpd
-#' @family  psden psdengpd fpsden fpsdengpd
+#' @family  psden
+#' @family  psdengpd
+#' @family  fpsdengpd
 #' 
 #' @examples
 #' \dontrun{

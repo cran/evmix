@@ -6,39 +6,19 @@
 \alias{pitmgng}
 \alias{qitmgng}
 \alias{ritmgng}
-\alias{ditmgng}
-\alias{itmgng}
-\alias{pitmgng}
-\alias{qitmgng}
-\alias{ritmgng}
-\alias{pitmgng}
-\alias{itmgng}
-\alias{ditmgng}
-\alias{qitmgng}
-\alias{ritmgng}
-\alias{qitmgng}
-\alias{itmgng}
-\alias{ditmgng}
-\alias{pitmgng}
-\alias{ritmgng}
-\alias{ritmgng}
-\alias{itmgng}
-\alias{ditmgng}
-\alias{pitmgng}
-\alias{qitmgng}
 \title{Normal Bulk with GPD Upper and Lower Tails Interval Transition Mixture Model}
 \usage{
-ditmgng(x, nmean = 0, nsd = 1, epsilon = nsd, ul = qnorm(0.1, nmean,
-  nsd), sigmaul = nsd, xil = 0, ur = qnorm(0.9, nmean, nsd),
+ditmgng(x, nmean = 0, nsd = 1, epsilon = nsd, ul = qnorm(0.1,
+  nmean, nsd), sigmaul = nsd, xil = 0, ur = qnorm(0.9, nmean, nsd),
   sigmaur = nsd, xir = 0, log = FALSE)
 
-pitmgng(q, nmean = 0, nsd = 1, epsilon = nsd, ul = qnorm(0.1, nmean,
-  nsd), sigmaul = nsd, xil = 0, ur = qnorm(0.9, nmean, nsd),
+pitmgng(q, nmean = 0, nsd = 1, epsilon = nsd, ul = qnorm(0.1,
+  nmean, nsd), sigmaul = nsd, xil = 0, ur = qnorm(0.9, nmean, nsd),
   sigmaur = nsd, xir = 0, lower.tail = TRUE)
 
 qitmgng(p, nmean = 0, nsd = 1, epsilon, ul = qnorm(0.1, nmean, nsd),
-  sigmaul = nsd, xil = 0, ur = qnorm(0.9, nmean, nsd), sigmaur = nsd,
-  xir = 0, lower.tail = TRUE)
+  sigmaul = nsd, xil = 0, ur = qnorm(0.9, nmean, nsd),
+  sigmaur = nsd, xir = 0, lower.tail = TRUE)
 
 ritmgng(n = 1, nmean = 0, nsd = 1, epsilon = sd, ul = qnorm(0.1,
   nmean, nsd), sigmaul = nsd, xil = 0, ur = qnorm(0.9, nmean, nsd),
@@ -220,12 +200,20 @@ estimation. arxiv:0902.4137
 \code{\link[evmix:gng]{gng}}, \code{\link[evmix:normgpd]{normgpd}},
            \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:Normal]{dnorm}}
 
-Other normgpd normgpdcon gng gngcon fnormgpd fnormgpdcon fgng fgngcon: \code{\link{fgngcon}},
-  \code{\link{fgng}}, \code{\link{fitmgng}},
-  \code{\link{fnormgpdcon}}, \code{\link{fnormgpd}},
+Other itmgng: \code{\link{fitmgng}}
+
+Other gng: \code{\link{fgngcon}}, \code{\link{fgng}},
+  \code{\link{fitmgng}}, \code{\link{fnormgpd}},
   \code{\link{gngcon}}, \code{\link{gng}},
-  \code{\link{normgpdcon}}, \code{\link{normgpd}}
+  \code{\link{normgpd}}
+
+Other itmnormgpd: \code{\link{fitmgng}},
+  \code{\link{fitmnormgpd}}, \code{\link{itmnormgpd}}
 }
 \author{
 Alfadino Akbar and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fititmgng}
+\concept{gng}
+\concept{itmgng}
+\concept{itmnormgpd}

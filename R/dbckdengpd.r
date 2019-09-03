@@ -144,8 +144,11 @@
 #' and \code{\link[ks:kde]{dkde}} in \code{\link[ks:kde]{ks}} package.
 #' 
 #' @aliases bckdengpd dbckdengpd pbckdengpd qbckdengpd rbckdengpd
-#' @family  kden kdengpd kdengpdcon bckden bckdengpd bckdengpdcon
-#'          fkden fkdengpd fkdengpdcon fbckden fbckdengpd fbckdengpdcon
+#' @family  kdengpd
+#' @family  bckden
+#' @family  bckdengpd
+#' @family  bckdengpdcon
+#' @family  fbckdengpd
 #' 
 #' @examples
 #' \dontrun{

@@ -6,35 +6,16 @@
 \alias{nlbetagpd}
 \alias{proflubetagpd}
 \alias{nlubetagpd}
-\alias{lbetagpd}
-\alias{fbetagpd}
-\alias{nlbetagpd}
-\alias{proflubetagpd}
-\alias{nlubetagpd}
-\alias{nlbetagpd}
-\alias{fbetagpd}
-\alias{lbetagpd}
-\alias{proflubetagpd}
-\alias{nlubetagpd}
-\alias{proflubetagpd}
-\alias{fbetagpd}
-\alias{lbetagpd}
-\alias{nlbetagpd}
-\alias{nlubetagpd}
-\alias{nlubetagpd}
-\alias{fbetagpd}
-\alias{lbetagpd}
-\alias{nlbetagpd}
-\alias{proflubetagpd}
 \title{MLE Fitting of beta Bulk and GPD Tail Extreme Value Mixture Model}
 \usage{
-fbetagpd(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL,
-  std.err = TRUE, method = "BFGS", control = list(maxit = 10000),
-  finitelik = TRUE, ...)
+fbetagpd(x, phiu = TRUE, useq = NULL, fixedu = FALSE,
+  pvector = NULL, std.err = TRUE, method = "BFGS",
+  control = list(maxit = 10000), finitelik = TRUE, ...)
 
-lbetagpd(x, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1, bshape2),
-  sigmau = sqrt(bshape1 * bshape2/(bshape1 + bshape2)^2/(bshape1 + bshape2 +
-  1)), xi = 0, phiu = TRUE, log = TRUE)
+lbetagpd(x, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1,
+  bshape2), sigmau = sqrt(bshape1 * bshape2/(bshape1 +
+  bshape2)^2/(bshape1 + bshape2 + 1)), xi = 0, phiu = TRUE,
+  log = TRUE)
 
 nlbetagpd(pvector, x, phiu = TRUE, finitelik = FALSE)
 
@@ -143,7 +124,7 @@ When \code{pvector=NULL} then the initial values are:
 }
 }
 \section{Acknowledgments}{
- See Acknowledgments in
+ Thanks to Vathy Kamulete of the Royal Bank of Canada for reporting a bug in the likelihood function. See Acknowledgments in
   \code{\link[evmix:fnormgpd]{fnormgpd}}, type \code{help fnormgpd}. Based on code
 by Anna MacDonald produced for MATLAB.
 }
@@ -212,8 +193,17 @@ industrial applications. PhD thesis, University of Canterbury, New Zealand.
 \code{\link[stats:Beta]{dbeta}},
  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
 
-Other betagpd betagpdcon fbetagpd fbetagpdcon normgpd fnormgpd: \code{\link{fbetagpdcon}}
+Other betagpd: \code{\link{betagpdcon}},
+  \code{\link{betagpd}}, \code{\link{fbetagpdcon}}
+
+Other betagpdcon: \code{\link{betagpdcon}},
+  \code{\link{betagpd}}, \code{\link{fbetagpdcon}}
+
+Other fbetagpd: \code{\link{betagpd}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{betagpd}
+\concept{betagpdcon}
+\concept{fbetagpd}

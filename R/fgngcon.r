@@ -109,7 +109,10 @@
 #'  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
 #'  
 #' @aliases fgngcon lgngcon nlgngcon proflugngcon nlugngcon
-#' @family  normgpd normgpdcon gng gngcon fnormgpd fnormgpdcon fgng fgngcon
+#' @family  normgpdcon
+#' @family  gng
+#' @family  gngcon
+#' @family  fgngcon
 #' 
 #' @examples
 #' \dontrun{

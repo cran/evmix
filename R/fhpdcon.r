@@ -100,15 +100,16 @@
 #' @seealso \code{\link[stats:Normal]{dnorm}},
 #'  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
 #'  
-#' The \code{\link[condmixt:condmixt-package]{condmixt}} package written by one of the
+#' The condmixt package written by one of the
 #' original authors of the hybrid Pareto model (Carreau and Bengio, 2008) also has 
 #' similar functions for the likelihood of the hybrid Pareto 
-#' \code{\link[condmixt:hpareto.negloglike]{hpareto.negloglike}} and
-#' fitting \code{\link[condmixt:hpareto.negloglike]{hpareto.fit}}.
+#' (hpareto.negloglike) and fitting (hpareto.fit).
 #' 
 #' @aliases fhpdcon lhpdcon nlhpdcon profluhpdcon nluhpdcon
-#' @family  hpd hpdcon normgpd normgpdcon gng gngcon
-#'          fhpd fhpdcon fnormgpd fnormgpdcon fgng fgngcon
+#' @family  hpd
+#' @family  hpdcon
+#' @family  normgpdcon
+#' @family  fhpdcon
 #' 
 #' @examples
 #' \dontrun{

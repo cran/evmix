@@ -6,26 +6,6 @@
 \alias{pweibullgpdcon}
 \alias{qweibullgpdcon}
 \alias{rweibullgpdcon}
-\alias{dweibullgpdcon}
-\alias{weibullgpdcon}
-\alias{pweibullgpdcon}
-\alias{qweibullgpdcon}
-\alias{rweibullgpdcon}
-\alias{pweibullgpdcon}
-\alias{weibullgpdcon}
-\alias{dweibullgpdcon}
-\alias{qweibullgpdcon}
-\alias{rweibullgpdcon}
-\alias{qweibullgpdcon}
-\alias{weibullgpdcon}
-\alias{dweibullgpdcon}
-\alias{pweibullgpdcon}
-\alias{rweibullgpdcon}
-\alias{rweibullgpdcon}
-\alias{weibullgpdcon}
-\alias{dweibullgpdcon}
-\alias{pweibullgpdcon}
-\alias{qweibullgpdcon}
 \title{Weibull Bulk and GPD Tail Extreme Value Mixture Model with Single Continuity Constraint}
 \usage{
 dweibullgpdcon(x, wshape = 1, wscale = 1, u = qweibull(0.9, wshape,
@@ -37,8 +17,8 @@ pweibullgpdcon(q, wshape = 1, wscale = 1, u = qweibull(0.9, wshape,
 qweibullgpdcon(p, wshape = 1, wscale = 1, u = qweibull(0.9, wshape,
   wscale), xi = 0, phiu = TRUE, lower.tail = TRUE)
 
-rweibullgpdcon(n = 1, wshape = 1, wscale = 1, u = qweibull(0.9, wshape,
-  wscale), xi = 0, phiu = TRUE)
+rweibullgpdcon(n = 1, wshape = 1, wscale = 1, u = qweibull(0.9,
+  wshape, wscale), xi = 0, phiu = TRUE)
 }
 \arguments{
 \item{x}{quantiles}
@@ -181,8 +161,24 @@ events with threshold estimation. Statistical Modelling. 4(3), 227-244.
 \seealso{
 \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:Weibull]{dweibull}}
 
-Other weibullgpd weibullgpdcon fweibullgpd fweibullgpdcon: \code{\link{weibullgpd}}
+Other weibullgpd: \code{\link{fitmweibullgpd}},
+  \code{\link{fweibullgpdcon}}, \code{\link{fweibullgpd}},
+  \code{\link{itmweibullgpd}}, \code{\link{weibullgpd}}
+
+Other weibullgpdcon: \code{\link{fweibullgpdcon}},
+  \code{\link{fweibullgpd}}, \code{\link{itmweibullgpd}},
+  \code{\link{weibullgpd}}
+
+Other itmweibullgpd: \code{\link{fitmweibullgpd}},
+  \code{\link{fweibullgpdcon}}, \code{\link{fweibullgpd}},
+  \code{\link{itmweibullgpd}}, \code{\link{weibullgpd}}
+
+Other fweibullgpdcon: \code{\link{fweibullgpdcon}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fweibullgpdcon}
+\concept{itmweibullgpd}
+\concept{weibullgpd}
+\concept{weibullgpdcon}

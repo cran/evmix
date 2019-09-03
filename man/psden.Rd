@@ -6,26 +6,6 @@
 \alias{ppsden}
 \alias{qpsden}
 \alias{rpsden}
-\alias{dpsden}
-\alias{psden}
-\alias{ppsden}
-\alias{qpsden}
-\alias{rpsden}
-\alias{ppsden}
-\alias{psden}
-\alias{dpsden}
-\alias{qpsden}
-\alias{rpsden}
-\alias{qpsden}
-\alias{psden}
-\alias{dpsden}
-\alias{ppsden}
-\alias{rpsden}
-\alias{rpsden}
-\alias{psden}
-\alias{dpsden}
-\alias{ppsden}
-\alias{qpsden}
 \title{P-Splines probability density function}
 \usage{
 dpsden(x, beta = NULL, nbinwidth = NULL, xrange = NULL, nseg = 10,
@@ -37,8 +17,8 @@ ppsden(q, beta = NULL, nbinwidth = NULL, xrange = NULL, nseg = 10,
 qpsden(p, beta = NULL, nbinwidth = NULL, xrange = NULL, nseg = 10,
   degree = 3, design.knots = NULL, lower.tail = TRUE)
 
-rpsden(n = 1, beta = NULL, nbinwidth = NULL, xrange = NULL, nseg = 10,
-  degree = 3, design.knots = NULL)
+rpsden(n = 1, beta = NULL, nbinwidth = NULL, xrange = NULL,
+  nseg = 10, degree = 3, design.knots = NULL)
 }
 \arguments{
 \item{x}{quantiles}
@@ -216,8 +196,17 @@ Statistical Science 11(2), 89-121.
 \seealso{
 \code{\link[splines:splineDesign]{splineDesign}}.
 
-Other psden fpsden: \code{\link{fpsden}}
+Other psden: \code{\link{fpsdengpd}}, \code{\link{fpsden}},
+  \code{\link{psdengpd}}
+
+Other psdengpd: \code{\link{fpsdengpd}},
+  \code{\link{psdengpd}}
+
+Other fpsden: \code{\link{fpsden}}
 }
 \author{
 Alfadino Akbar and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}.
 }
+\concept{fpsden}
+\concept{psden}
+\concept{psdengpd}

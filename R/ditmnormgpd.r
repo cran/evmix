@@ -92,7 +92,9 @@
 #' @seealso \code{\link[evmix:normgpd]{normgpd}}, \code{\link[evmix:gpd]{gpd}}
 #'    and \code{\link[stats:Normal]{dnorm}}
 #' @aliases itmnormgpd ditmnormgpd pitmnormgpd qitmnormgpd ritmnormgpd
-#' @family  litmnormgpd fitmnormgpd
+#' @family  itmnormgpd
+#' @family  normgpd
+#' @family  fititmnormgpd
 #' 
 #' @examples
 #' \dontrun{

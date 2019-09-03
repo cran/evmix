@@ -90,7 +90,10 @@
 #'  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
 #'  
 #' @aliases fweibullgpdcon lweibullgpdcon nlweibullgpdcon profluweibullgpdcon nluweibullgpdcon
-#' @family  weibullgpd weibullgpdcon fweibullgpd fweibullgpdcon normgpd fnormgpd
+#' @family  weibullgpd
+#' @family  weibullgpdcon
+#' @family  itmweibullgpd
+#' @family  fweibullgpdcon
 #' 
 #' @examples
 #' \dontrun{
@@ -360,8 +363,8 @@ lweibullgpdcon <- function(x, wshape = 1, wscale = 1, u = qweibull(0.9, wshape, 
   if ((wscale <= 0) | (wshape <= 0) | (u <= 0) | (u <= min(x)) | (u >= max(x))) {
     l = -Inf
   } else {
+    pu = pweibull(u, wshape, wscale)
     if (is.logical(phiu)) {
-      pu = pweibull(u, wshape, wscale)
       if (phiu) {
         phiu = 1 - pu
       } else {

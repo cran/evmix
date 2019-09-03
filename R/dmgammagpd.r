@@ -113,10 +113,12 @@
 #' @seealso \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:GammaDist]{dgamma}}
 #' 
 #' @aliases mgammagpd dmgammagpd pmgammagpd qmgammagpd rmgammagpd
-#' @family  mgamma fmgamma
-#'          gammagpd gammagpdcon fgammagpd fgammagpdcon normgpd fnormgpd
-#'          mgammagpd mgammagpdcon fmgammagpd fmgammagpdcon 
-#'
+#' @family  gammagpd
+#' @family  mgamma
+#' @family  mgammagpd
+#' @family  mgammagpdcon
+#' @family  fmgammagpd
+#'  
 #' @examples
 #' \dontrun{
 #' set.seed(1)

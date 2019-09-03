@@ -114,7 +114,8 @@
 #' @seealso \code{\link[evmix:kden]{kden}}.
 #'  
 #' @aliases fpsden lpsden nlpsden iwlspsden cvpsden
-#' @family  psden fpsden
+#' @family  psden
+#' @family  fpsden
 #' 
 #' @examples
 #' \dontrun{

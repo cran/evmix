@@ -159,7 +159,8 @@
 #'   \code{\link[MASS:fitdistr]{fitdistr}}
 #'   
 #' @aliases fgpd lgpd nlgpd
-#' @family  gpd fgpd
+#' @family gpd
+#' @family fgpd
 #'   
 #' @examples
 #' set.seed(1)

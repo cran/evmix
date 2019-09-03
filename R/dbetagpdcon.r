@@ -90,7 +90,9 @@
 #'
 #' @seealso \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:Beta]{dbeta}}
 #' @aliases betagpdcon dbetagpdcon pbetagpdcon qbetagpdcon rbetagpdcon
-#' @family  betagpd betagpdcon fbetagpd fbetagpdcon
+#' @family  betagpd
+#' @family  betagpdcon
+#' @family  fbetagpdcon
 #' 
 #' @examples
 #' \dontrun{

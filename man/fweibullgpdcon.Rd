@@ -6,31 +6,11 @@
 \alias{nlweibullgpdcon}
 \alias{profluweibullgpdcon}
 \alias{nluweibullgpdcon}
-\alias{lweibullgpdcon}
-\alias{fweibullgpdcon}
-\alias{nlweibullgpdcon}
-\alias{profluweibullgpdcon}
-\alias{nluweibullgpdcon}
-\alias{nlweibullgpdcon}
-\alias{fweibullgpdcon}
-\alias{lweibullgpdcon}
-\alias{profluweibullgpdcon}
-\alias{nluweibullgpdcon}
-\alias{profluweibullgpdcon}
-\alias{fweibullgpdcon}
-\alias{lweibullgpdcon}
-\alias{nlweibullgpdcon}
-\alias{nluweibullgpdcon}
-\alias{nluweibullgpdcon}
-\alias{fweibullgpdcon}
-\alias{lweibullgpdcon}
-\alias{nlweibullgpdcon}
-\alias{profluweibullgpdcon}
 \title{MLE Fitting of Weibull Bulk and GPD Tail Extreme Value Mixture Model with Single Continuity Constraint}
 \usage{
 fweibullgpdcon(x, phiu = TRUE, useq = NULL, fixedu = FALSE,
-  pvector = NULL, std.err = TRUE, method = "BFGS", control = list(maxit
-  = 10000), finitelik = TRUE, ...)
+  pvector = NULL, std.err = TRUE, method = "BFGS",
+  control = list(maxit = 10000), finitelik = TRUE, ...)
 
 lweibullgpdcon(x, wshape = 1, wscale = 1, u = qweibull(0.9, wshape,
   wscale), xi = 0, phiu = TRUE, log = TRUE)
@@ -209,8 +189,24 @@ events with threshold estimation. Statistical Modelling. 4(3), 227-244.
 \code{\link[stats:Weibull]{dweibull}},
  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
 
-Other weibullgpd weibullgpdcon fweibullgpd fweibullgpdcon normgpd fnormgpd: \code{\link{fweibullgpd}}
+Other weibullgpd: \code{\link{fitmweibullgpd}},
+  \code{\link{fweibullgpd}}, \code{\link{itmweibullgpd}},
+  \code{\link{weibullgpdcon}}, \code{\link{weibullgpd}}
+
+Other weibullgpdcon: \code{\link{fweibullgpd}},
+  \code{\link{itmweibullgpd}}, \code{\link{weibullgpdcon}},
+  \code{\link{weibullgpd}}
+
+Other itmweibullgpd: \code{\link{fitmweibullgpd}},
+  \code{\link{fweibullgpd}}, \code{\link{itmweibullgpd}},
+  \code{\link{weibullgpdcon}}, \code{\link{weibullgpd}}
+
+Other fweibullgpdcon: \code{\link{weibullgpdcon}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fweibullgpdcon}
+\concept{itmweibullgpd}
+\concept{weibullgpd}
+\concept{weibullgpdcon}

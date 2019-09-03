@@ -6,32 +6,13 @@
 \alias{nlpsdengpd}
 \alias{proflupsdengpd}
 \alias{nlupsdengpd}
-\alias{lpsdengpd}
-\alias{fpsdengpd}
-\alias{nlpsdengpd}
-\alias{proflupsdengpd}
-\alias{nlupsdengpd}
-\alias{nlpsdengpd}
-\alias{fpsdengpd}
-\alias{lpsdengpd}
-\alias{proflupsdengpd}
-\alias{nlupsdengpd}
-\alias{proflupsdengpd}
-\alias{fpsdengpd}
-\alias{lpsdengpd}
-\alias{nlpsdengpd}
-\alias{nlupsdengpd}
-\alias{nlupsdengpd}
-\alias{fpsdengpd}
-\alias{lpsdengpd}
-\alias{nlpsdengpd}
-\alias{proflupsdengpd}
 \title{MLE Fitting of P-splines Density Estimate for Bulk and GPD Tail Extreme Value Mixture Model}
 \usage{
-fpsdengpd(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL,
-  lambdaseq = NULL, breaks = NULL, xrange = NULL, nseg = 10,
-  degree = 3, design.knots = NULL, ord = 2, std.err = TRUE,
-  method = "BFGS", control = list(maxit = 10000), finitelik = TRUE, ...)
+fpsdengpd(x, phiu = TRUE, useq = NULL, fixedu = FALSE,
+  pvector = NULL, lambdaseq = NULL, breaks = NULL, xrange = NULL,
+  nseg = 10, degree = 3, design.knots = NULL, ord = 2,
+  std.err = TRUE, method = "BFGS", control = list(maxit = 10000),
+  finitelik = TRUE, ...)
 
 lpsdengpd(x, psdenx, u = NULL, sigmau = NULL, xi = 0, phiu = TRUE,
   bsplinefit = NULL, phib = NULL, log = TRUE)
@@ -40,10 +21,11 @@ nlpsdengpd(pvector, x, psdenx, phiu = TRUE, bsplinefit, phib = NULL,
   finitelik = FALSE)
 
 proflupsdengpd(u, pvector, x, psdenx, phiu = TRUE, bsplinefit,
-  method = "BFGS", control = list(maxit = 10000), finitelik = TRUE, ...)
+  method = "BFGS", control = list(maxit = 10000), finitelik = TRUE,
+  ...)
 
-nlupsdengpd(pvector, u, x, psdenx, phiu = TRUE, bsplinefit = bsplinefit,
-  phib = NULL, finitelik = FALSE)
+nlupsdengpd(pvector, u, x, psdenx, phiu = TRUE,
+  bsplinefit = bsplinefit, phib = NULL, finitelik = FALSE)
 }
 \arguments{
 \item{x}{vector of sample data}
@@ -259,7 +241,17 @@ Journal 10(1), 33-59. Available from \url{http://www.ine.pt/revstat/pdf/rs120102
 \seealso{
 \code{\link[evmix:fpsden]{fpsden}}, \code{\link[evmix:normgpd]{fnormgpd}},
 \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
+
+Other psden: \code{\link{fpsden}}, \code{\link{psdengpd}},
+  \code{\link{psden}}
+
+Other psdengpd: \code{\link{psdengpd}}, \code{\link{psden}}
+
+Other fpsdengpd: \code{\link{psdengpd}}
 }
 \author{
 Alfadino Akbar and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fpsdengpd}
+\concept{psden}
+\concept{psdengpd}

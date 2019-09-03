@@ -106,7 +106,10 @@
 #' @seealso   \code{\link[evmix:gng]{gng}}, \code{\link[evmix:normgpd]{normgpd}},
 #'            \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:Normal]{dnorm}}
 #' @aliases itmgng ditmgng pitmgng qitmgng ritmgng
-#' @family  normgpd normgpdcon gng gngcon fnormgpd fnormgpdcon fgng fgngcon
+#' @family  itmgng
+#' @family  gng
+#' @family  itmnormgpd
+#' @family  fititmgng
 #' 
 #' @examples
 #' \dontrun{

@@ -6,9 +6,9 @@
 \usage{
 pickandsplot(data, orderlim = NULL, tlim = NULL, y.alpha = FALSE,
   alpha = 0.05, ylim = NULL, legend.loc = "topright",
-  try.thresh = quantile(data, 0.9, na.rm = TRUE), main = "Pickand's Plot",
-  xlab = "order", ylab = ifelse(y.alpha, " tail index - alpha",
-  "shape  - xi"), ...)
+  try.thresh = quantile(data, 0.9, na.rm = TRUE),
+  main = "Pickand's Plot", xlab = "order", ylab = ifelse(y.alpha,
+  " tail index - alpha", "shape  - xi"), ...)
 }
 \arguments{
 \item{data}{vector of sample data}

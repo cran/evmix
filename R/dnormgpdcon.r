@@ -88,7 +88,10 @@
 #'
 #' @seealso \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:Normal]{dnorm}}
 #' @aliases normgpdcon dnormgpdcon pnormgpdcon qnormgpdcon rnormgpdcon
-#' @family  normgpd normgpdcon gng gngcon fnormgpd fnormgpdcon fgng fgngcon
+#' @family  normgpd
+#' @family  normgpdcon
+#' @family  gngcon
+#' @family  fnormgpdcon
 #' 
 #' @examples
 #' \dontrun{

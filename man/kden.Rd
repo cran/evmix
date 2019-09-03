@@ -6,26 +6,6 @@
 \alias{pkden}
 \alias{qkden}
 \alias{rkden}
-\alias{dkden}
-\alias{kden}
-\alias{pkden}
-\alias{qkden}
-\alias{rkden}
-\alias{pkden}
-\alias{kden}
-\alias{dkden}
-\alias{qkden}
-\alias{rkden}
-\alias{qkden}
-\alias{kden}
-\alias{dkden}
-\alias{pkden}
-\alias{rkden}
-\alias{rkden}
-\alias{kden}
-\alias{dkden}
-\alias{pkden}
-\alias{qkden}
 \title{Kernel Density Estimation, With Variety of Kernels}
 \usage{
 dkden(x, kerncentres, lambda = NULL, bw = NULL, kernel = "gaussian",
@@ -37,7 +17,8 @@ pkden(q, kerncentres, lambda = NULL, bw = NULL, kernel = "gaussian",
 qkden(p, kerncentres, lambda = NULL, bw = NULL, kernel = "gaussian",
   lower.tail = TRUE)
 
-rkden(n = 1, kerncentres, lambda = NULL, bw = NULL, kernel = "gaussian")
+rkden(n = 1, kerncentres, lambda = NULL, bw = NULL,
+  kernel = "gaussian")
 }
 \arguments{
 \item{x}{quantiles}
@@ -232,12 +213,41 @@ Wand, M. and Jones, M.C. (1995). Kernel Smoothing. Chapman && Hall.
 \code{\link[stats:density]{density}}, \code{\link[stats:bandwidth]{bw.nrd0}}
 and \code{\link[ks:kde]{dkde}} in \code{\link[ks:kde]{ks}} package.
 
-Other kden kdengpd kdengpdcon bckden bckdengpd bckdengpdcon
-         fkden fkdengpd fkdengpdcon fbckden fbckdengpd fbckdengpdcon: \code{\link{bckdengpdcon}},
-  \code{\link{bckdengpd}}, \code{\link{bckden}},
-  \code{\link{fbckden}}, \code{\link{fkden}},
+Other kden: \code{\link{bckden}}, \code{\link{fbckden}},
+  \code{\link{fgkgcon}}, \code{\link{fgkg}},
+  \code{\link{fkdengpdcon}}, \code{\link{fkdengpd}},
+  \code{\link{fkden}}, \code{\link{kdengpdcon}},
+  \code{\link{kdengpd}}
+
+Other kdengpd: \code{\link{bckdengpd}},
+  \code{\link{fbckdengpd}}, \code{\link{fgkg}},
+  \code{\link{fkdengpdcon}}, \code{\link{fkdengpd}},
+  \code{\link{fkden}}, \code{\link{gkg}},
   \code{\link{kdengpdcon}}, \code{\link{kdengpd}}
+
+Other gkg: \code{\link{fgkgcon}}, \code{\link{fgkg}},
+  \code{\link{fkdengpd}}, \code{\link{gkgcon}},
+  \code{\link{gkg}}, \code{\link{kdengpd}}
+
+Other bckden: \code{\link{bckdengpdcon}},
+  \code{\link{bckdengpd}}, \code{\link{bckden}},
+  \code{\link{fbckdengpdcon}}, \code{\link{fbckdengpd}},
+  \code{\link{fbckden}}, \code{\link{fkden}}
+
+Other bckdengpd: \code{\link{bckdengpdcon}},
+  \code{\link{bckdengpd}}, \code{\link{bckden}},
+  \code{\link{fbckdengpdcon}}, \code{\link{fbckdengpd}},
+  \code{\link{fbckden}}, \code{\link{fkdengpd}},
+  \code{\link{gkg}}, \code{\link{kdengpd}}
+
+Other fkden: \code{\link{fkden}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}.
 }
+\concept{bckden}
+\concept{bckdengpd}
+\concept{fkden}
+\concept{gkg}
+\concept{kden}
+\concept{kdengpd}

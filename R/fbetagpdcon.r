@@ -93,7 +93,9 @@
 #'  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
 #'  
 #' @aliases fbetagpdcon lbetagpdcon nlbetagpdcon proflubetagpdcon nlubetagpdcon
-#' @family  betagpd betagpdcon fbetagpd fbetagpdcon normgpd fnormgpd
+#' @family  betagpd
+#' @family  betagpdcon
+#' @family  fbetagpdcon
 #' 
 #' @examples
 #' \dontrun{
@@ -376,8 +378,8 @@ lbetagpdcon <- function(x, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1, bsh
   if ((bshape2 <= 0) | (bshape1 <= 0) | (u <= 0) | (u >= 1) | (u <= min(x)) | (u >= max(x))) {
     l = -Inf
   } else {
+    pu = pbeta(u, bshape1, bshape2)
     if (is.logical(phiu)) {
-      pu = pbeta(u, bshape1, bshape2)
       if (phiu) {
         phiu = 1 - pu
       } else {

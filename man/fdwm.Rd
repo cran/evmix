@@ -4,12 +4,6 @@
 \alias{fdwm}
 \alias{ldwm}
 \alias{nldwm}
-\alias{ldwm}
-\alias{fdwm}
-\alias{nldwm}
-\alias{nldwm}
-\alias{fdwm}
-\alias{ldwm}
 \title{MLE Fitting of Dynamically Weighted Mixture Model}
 \usage{
 fdwm(x, pvector = NULL, std.err = TRUE, method = "BFGS",
@@ -173,7 +167,11 @@ estimation without threshold selection. Extremes 5 (3), 219-235
 }
 \seealso{
 \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
+
+Other fdwm: \code{\link{dwm}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{dwm}
+\concept{fdwm}

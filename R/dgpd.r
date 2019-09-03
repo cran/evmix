@@ -112,7 +112,8 @@
 #' @seealso \code{\link[evd:gpd]{evd}} package and \code{\link[evd:fpot]{fpot}}
 #' 
 #' @aliases gpd dgpd pgpd qgpd rgpd
-#' @family  gpd fgpd
+#' @family  gpd
+#' @family  fgpd
 #' 
 #' @examples
 #' set.seed(1)

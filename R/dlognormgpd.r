@@ -82,7 +82,10 @@
 #'
 #' @seealso \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:Lognormal]{dlnorm}}
 #' @aliases lognormgpd dlognormgpd plognormgpd qlognormgpd rlognormgpd
-#' @family  lognormgpd lognormgpdcon normgpd normgpdcon flognormgpd flognormgpdcon fnormgpd fnormgpdcon
+#' @family  lognormgpd
+#' @family  lognormgpdcon
+#' @family  normgpd
+#' @family  flognormgpd
 #' 
 #' @examples
 #' \dontrun{

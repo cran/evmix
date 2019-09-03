@@ -6,40 +6,20 @@
 \alias{pgngcon}
 \alias{qgngcon}
 \alias{rgngcon}
-\alias{dgngcon}
-\alias{gngcon}
-\alias{pgngcon}
-\alias{qgngcon}
-\alias{rgngcon}
-\alias{pgngcon}
-\alias{gngcon}
-\alias{dgngcon}
-\alias{qgngcon}
-\alias{rgngcon}
-\alias{qgngcon}
-\alias{gngcon}
-\alias{dgngcon}
-\alias{pgngcon}
-\alias{rgngcon}
-\alias{rgngcon}
-\alias{gngcon}
-\alias{dgngcon}
-\alias{pgngcon}
-\alias{qgngcon}
 \title{Normal Bulk with GPD Upper and Lower Tails Extreme Value Mixture Model
  with Single Continuity Constraint at Thresholds}
 \usage{
-dgngcon(x, nmean = 0, nsd = 1, ul = qnorm(0.1, nmean, nsd), xil = 0,
-  phiul = TRUE, ur = qnorm(0.9, nmean, nsd), xir = 0, phiur = TRUE,
-  log = FALSE)
+dgngcon(x, nmean = 0, nsd = 1, ul = qnorm(0.1, nmean, nsd),
+  xil = 0, phiul = TRUE, ur = qnorm(0.9, nmean, nsd), xir = 0,
+  phiur = TRUE, log = FALSE)
 
-pgngcon(q, nmean = 0, nsd = 1, ul = qnorm(0.1, nmean, nsd), xil = 0,
-  phiul = TRUE, ur = qnorm(0.9, nmean, nsd), xir = 0, phiur = TRUE,
-  lower.tail = TRUE)
+pgngcon(q, nmean = 0, nsd = 1, ul = qnorm(0.1, nmean, nsd),
+  xil = 0, phiul = TRUE, ur = qnorm(0.9, nmean, nsd), xir = 0,
+  phiur = TRUE, lower.tail = TRUE)
 
-qgngcon(p, nmean = 0, nsd = 1, ul = qnorm(0.1, nmean, nsd), xil = 0,
-  phiul = TRUE, ur = qnorm(0.9, nmean, nsd), xir = 0, phiur = TRUE,
-  lower.tail = TRUE)
+qgngcon(p, nmean = 0, nsd = 1, ul = qnorm(0.1, nmean, nsd),
+  xil = 0, phiul = TRUE, ur = qnorm(0.9, nmean, nsd), xir = 0,
+  phiur = TRUE, lower.tail = TRUE)
 
 rgngcon(n = 1, nmean = 0, nsd = 1, ul = qnorm(0.1, nmean, nsd),
   xil = 0, phiul = TRUE, ur = qnorm(0.9, nmean, nsd), xir = 0,
@@ -213,12 +193,37 @@ for forecasting the market crisis. Applied Financial Econometrics 20(1), 63-72.
 \seealso{
 \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:Normal]{dnorm}}
 
-Other normgpd normgpdcon gng gngcon fnormgpd fnormgpdcon fgng fgngcon: \code{\link{fgngcon}},
-  \code{\link{fgng}}, \code{\link{fitmgng}},
+Other normgpd: \code{\link{fgng}}, \code{\link{fhpd}},
+  \code{\link{fitmnormgpd}}, \code{\link{flognormgpd}},
   \code{\link{fnormgpdcon}}, \code{\link{fnormgpd}},
-  \code{\link{gng}}, \code{\link{itmgng}},
+  \code{\link{gng}}, \code{\link{hpdcon}},
+  \code{\link{hpd}}, \code{\link{itmnormgpd}},
+  \code{\link{lognormgpdcon}}, \code{\link{lognormgpd}},
   \code{\link{normgpdcon}}, \code{\link{normgpd}}
+
+Other normgpdcon: \code{\link{fgngcon}},
+  \code{\link{fhpdcon}}, \code{\link{flognormgpdcon}},
+  \code{\link{fnormgpdcon}}, \code{\link{fnormgpd}},
+  \code{\link{gng}}, \code{\link{hpdcon}},
+  \code{\link{hpd}}, \code{\link{normgpdcon}},
+  \code{\link{normgpd}}
+
+Other gng: \code{\link{fgngcon}}, \code{\link{fgng}},
+  \code{\link{fitmgng}}, \code{\link{fnormgpd}},
+  \code{\link{gng}}, \code{\link{itmgng}},
+  \code{\link{normgpd}}
+
+Other gngcon: \code{\link{fgngcon}}, \code{\link{fgng}},
+  \code{\link{fnormgpdcon}}, \code{\link{gng}},
+  \code{\link{normgpdcon}}
+
+Other fgngcon: \code{\link{fgngcon}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fgngcon}
+\concept{gng}
+\concept{gngcon}
+\concept{normgpd}
+\concept{normgpdcon}

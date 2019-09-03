@@ -6,43 +6,26 @@
 \alias{pmgammagpd}
 \alias{qmgammagpd}
 \alias{rmgammagpd}
-\alias{dmgammagpd}
-\alias{mgammagpd}
-\alias{pmgammagpd}
-\alias{qmgammagpd}
-\alias{rmgammagpd}
-\alias{pmgammagpd}
-\alias{mgammagpd}
-\alias{dmgammagpd}
-\alias{qmgammagpd}
-\alias{rmgammagpd}
-\alias{qmgammagpd}
-\alias{mgammagpd}
-\alias{dmgammagpd}
-\alias{pmgammagpd}
-\alias{rmgammagpd}
-\alias{rmgammagpd}
-\alias{mgammagpd}
-\alias{dmgammagpd}
-\alias{pmgammagpd}
-\alias{qmgammagpd}
 \title{Mixture of Gammas Bulk and GPD Tail Extreme Value Mixture Model}
 \usage{
-dmgammagpd(x, mgshape = 1, mgscale = 1, mgweight = NULL, u = qgamma(0.9,
-  mgshape[[1]], 1/mgscale[[1]]), sigmau = sqrt(mgshape[[1]]) * mgscale[[1]],
-  xi = 0, phiu = TRUE, log = FALSE)
+dmgammagpd(x, mgshape = 1, mgscale = 1, mgweight = NULL,
+  u = qgamma(0.9, mgshape[[1]], 1/mgscale[[1]]),
+  sigmau = sqrt(mgshape[[1]]) * mgscale[[1]], xi = 0, phiu = TRUE,
+  log = FALSE)
 
-pmgammagpd(q, mgshape = 1, mgscale = 1, mgweight = NULL, u = qgamma(0.9,
-  mgshape[[1]], 1/mgscale[[1]]), sigmau = sqrt(mgshape[[1]]) * mgscale[[1]],
-  xi = 0, phiu = TRUE, lower.tail = TRUE)
+pmgammagpd(q, mgshape = 1, mgscale = 1, mgweight = NULL,
+  u = qgamma(0.9, mgshape[[1]], 1/mgscale[[1]]),
+  sigmau = sqrt(mgshape[[1]]) * mgscale[[1]], xi = 0, phiu = TRUE,
+  lower.tail = TRUE)
 
-qmgammagpd(p, mgshape = 1, mgscale = 1, mgweight = NULL, u = qgamma(0.9,
-  mgshape[[1]], 1/mgscale[[1]]), sigmau = sqrt(mgshape[[1]]) * mgscale[[1]],
-  xi = 0, phiu = TRUE, lower.tail = TRUE)
+qmgammagpd(p, mgshape = 1, mgscale = 1, mgweight = NULL,
+  u = qgamma(0.9, mgshape[[1]], 1/mgscale[[1]]),
+  sigmau = sqrt(mgshape[[1]]) * mgscale[[1]], xi = 0, phiu = TRUE,
+  lower.tail = TRUE)
 
 rmgammagpd(n = 1, mgshape = 1, mgscale = 1, mgweight = NULL,
-  u = qgamma(0.9, mgshape[[1]], 1/mgscale[[1]]), sigmau = sqrt(mgshape[[1]])
-  * mgscale[[1]], xi = 0, phiu = TRUE)
+  u = qgamma(0.9, mgshape[[1]], 1/mgscale[[1]]),
+  sigmau = sqrt(mgshape[[1]]) * mgscale[[1]], xi = 0, phiu = TRUE)
 }
 \arguments{
 \item{x}{quantiles}
@@ -195,14 +178,32 @@ Bayesian approach to extreme value estimation. Statistical Computing, 22(2), 661
 \seealso{
 \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:GammaDist]{dgamma}}
 
-Other mgamma fmgamma
-         gammagpd gammagpdcon fgammagpd fgammagpdcon normgpd fnormgpd
-         mgammagpd mgammagpdcon fmgammagpd fmgammagpdcon: \code{\link{fgammagpdcon}},
-  \code{\link{fgammagpd}}, \code{\link{fmgammagpdcon}},
+Other gammagpd: \code{\link{fgammagpdcon}},
+  \code{\link{fgammagpd}}, \code{\link{fmgammagpd}},
+  \code{\link{fmgamma}}, \code{\link{gammagpdcon}},
+  \code{\link{gammagpd}}
+
+Other mgamma: \code{\link{fmgammagpdcon}},
   \code{\link{fmgammagpd}}, \code{\link{fmgamma}},
-  \code{\link{gammagpdcon}}, \code{\link{gammagpd}},
   \code{\link{mgammagpdcon}}, \code{\link{mgamma}}
+
+Other mgammagpd: \code{\link{fgammagpd}},
+  \code{\link{fmgammagpdcon}}, \code{\link{fmgammagpd}},
+  \code{\link{fmgamma}}, \code{\link{gammagpd}},
+  \code{\link{mgammagpdcon}}, \code{\link{mgamma}}
+
+Other mgammagpdcon: \code{\link{fgammagpdcon}},
+  \code{\link{fmgammagpdcon}}, \code{\link{fmgammagpd}},
+  \code{\link{fmgamma}}, \code{\link{gammagpdcon}},
+  \code{\link{mgammagpdcon}}, \code{\link{mgamma}}
+
+Other fmgammagpd: \code{\link{fmgammagpd}}
 }
 \author{
 Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fmgammagpd}
+\concept{gammagpd}
+\concept{mgamma}
+\concept{mgammagpd}
+\concept{mgammagpdcon}

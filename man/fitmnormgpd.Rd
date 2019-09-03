@@ -6,41 +6,21 @@
 \alias{nlitmnormgpd}
 \alias{profluitmnormgpd}
 \alias{nluitmnormgpd}
-\alias{litmnormgpd}
-\alias{fitmnormgpd}
-\alias{nlitmnormgpd}
-\alias{profluitmnormgpd}
-\alias{nluitmnormgpd}
-\alias{nlitmnormgpd}
-\alias{fitmnormgpd}
-\alias{litmnormgpd}
-\alias{profluitmnormgpd}
-\alias{nluitmnormgpd}
 \alias{profleuitmnormgpd}
-\alias{fitmnormgpd}
-\alias{litmnormgpd}
-\alias{nlitmnormgpd}
-\alias{profluitmnormgpd}
-\alias{nluitmnormgpd}
 \alias{nleuitmnormgpd}
-\alias{fitmnormgpd}
-\alias{litmnormgpd}
-\alias{nlitmnormgpd}
-\alias{profluitmnormgpd}
-\alias{nluitmnormgpd}
 \title{MLE Fitting of Normal Bulk and GPD Tail Interval Transition Mixture Model}
 \usage{
 fitmnormgpd(x, eseq = NULL, useq = NULL, fixedeu = FALSE,
-  pvector = NULL, std.err = TRUE, method = "BFGS", control = list(maxit
-  = 10000), finitelik = TRUE, ...)
+  pvector = NULL, std.err = TRUE, method = "BFGS",
+  control = list(maxit = 10000), finitelik = TRUE, ...)
 
-litmnormgpd(x, nmean = 0, nsd = 1, epsilon = nsd, u = qnorm(0.9, nmean,
-  nsd), sigmau = nsd, xi = 0, log = TRUE)
+litmnormgpd(x, nmean = 0, nsd = 1, epsilon = nsd, u = qnorm(0.9,
+  nmean, nsd), sigmau = nsd, xi = 0, log = TRUE)
 
 nlitmnormgpd(pvector, x, finitelik = FALSE)
 
-profleuitmnormgpd(eu, pvector, x, method = "BFGS", control = list(maxit =
-  10000), finitelik = TRUE, ...)
+profleuitmnormgpd(eu, pvector, x, method = "BFGS", control = list(maxit
+  = 10000), finitelik = TRUE, ...)
 
 nleuitmnormgpd(pvector, epsilon, u, x, finitelik = FALSE)
 }
@@ -204,7 +184,21 @@ estimation. arxiv:0902.4137
 \seealso{
 \code{\link[evmix:fnormgpd]{fnormgpd}}, \code{\link[stats:Normal]{dnorm}},
  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
+
+Other normgpd: \code{\link{fgng}}, \code{\link{fhpd}},
+  \code{\link{flognormgpd}}, \code{\link{fnormgpdcon}},
+  \code{\link{fnormgpd}}, \code{\link{gngcon}},
+  \code{\link{gng}}, \code{\link{hpdcon}},
+  \code{\link{hpd}}, \code{\link{itmnormgpd}},
+  \code{\link{lognormgpdcon}}, \code{\link{lognormgpd}},
+  \code{\link{normgpdcon}}, \code{\link{normgpd}}
+
+Other itmnormgpd: \code{\link{fitmgng}},
+  \code{\link{itmgng}}, \code{\link{itmnormgpd}}
 }
 \author{
 Alfadino Akbar and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fitmnormgpd}
+\concept{itmnormgpd}
+\concept{normgpd}

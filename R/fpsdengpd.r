@@ -119,7 +119,9 @@
 #' \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
 #'  
 #' @aliases fpsdengpd lpsdengpd nlpsdengpd proflupsdengpd nlupsdengpd
-#' @family  psdengpd fpsdengpd normgpd fnormgpd psden fpsden
+#' @family  psden
+#' @family  psdengpd
+#' @family  fpsdengpd
 #' 
 #' @examples
 #' \dontrun{
@@ -276,7 +278,7 @@ fpsdengpd <- function(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NUL
     # For given u, phiu can be determined as we are conditioning on P-splines DE
     #     phiu == TRUE it comes from bulk model
     #     phiu == FALSE it comes from new parameter
-    # Usually phiu is updated for bulk nmodel parameters, but due to conditioning
+    # Usually phiu is updated for bulk model parameters, but due to conditioning
     # we can pre-define it in the likelihood
     # Gives computational efficiency as avoids integrating P-splines DE upto u on
     # each optimisation step
@@ -460,17 +462,18 @@ lpsdengpd <- function(x, psdenx, u = NULL, sigmau = NULL, xi = 0, phiu = TRUE, b
     l = -Inf
   } else {
     if (is.null(phib)) {# usual (not fixed u) case
+
+      pu = with(bsplinefit, try(integrate(pscounts, lower = u, upper = xrange[2],
+                                          beta = beta, design.knots = design.knots, degree = degree,
+                                          subdivisions = 10000, rel.tol = 1e-9, stop.on.error = FALSE)))
+      
+      if (inherits(pu, "try-error")) {
+        pu$value = NA
+        stop("failed to numerically evaluate cdf of P-spline density estimate")
+      }
+      pu = 1 - pu$value/bsplinefit$nbinwidth
+
       if (is.logical(phiu)) {
-        pu = with(bsplinefit, try(integrate(pscounts, lower = u, upper = xrange[2],
-                                            beta = beta, design.knots = design.knots, degree = degree,
-                                            subdivisions = 10000, rel.tol = 1e-9, stop.on.error = FALSE)))
-    
-        if (inherits(pu, "try-error")) {
-          pu$value = NA
-          stop("failed to numerically evaluate cdf of P-spline density estimate")
-        }
-        pu = 1 - pu$value/bsplinefit$nbinwidth
-    
         if (phiu) {
           phiu = 1 - pu
         } else {
@@ -478,6 +481,7 @@ lpsdengpd <- function(x, psdenx, u = NULL, sigmau = NULL, xi = 0, phiu = TRUE, b
         }
       }
       phib = (1 - phiu) / pu
+      
     } else { # fixed u case, where phib is predefined in fitting function
       pu = (1 - phiu) / phib
     }

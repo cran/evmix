@@ -6,33 +6,15 @@
 \alias{pmgamma}
 \alias{qmgamma}
 \alias{rmgamma}
-\alias{dmgamma}
-\alias{mgamma}
-\alias{pmgamma}
-\alias{qmgamma}
-\alias{rmgamma}
-\alias{pmgamma}
-\alias{mgamma}
-\alias{dmgamma}
-\alias{qmgamma}
-\alias{rmgamma}
-\alias{qmgamma}
-\alias{mgamma}
-\alias{dmgamma}
-\alias{pmgamma}
-\alias{rmgamma}
-\alias{rmgamma}
-\alias{mgamma}
-\alias{dmgamma}
-\alias{pmgamma}
-\alias{qmgamma}
 \title{Mixture of Gammas Distribution}
 \usage{
 dmgamma(x, mgshape = 1, mgscale = 1, mgweight = NULL, log = FALSE)
 
-pmgamma(q, mgshape = 1, mgscale = 1, mgweight = NULL, lower.tail = TRUE)
+pmgamma(q, mgshape = 1, mgscale = 1, mgweight = NULL,
+  lower.tail = TRUE)
 
-qmgamma(p, mgshape = 1, mgscale = 1, mgweight = NULL, lower.tail = TRUE)
+qmgamma(p, mgshape = 1, mgscale = 1, mgweight = NULL,
+  lower.tail = TRUE)
 
 rmgamma(n = 1, mgshape = 1, mgscale = 1, mgweight = NULL)
 }
@@ -154,14 +136,26 @@ McLachlan, G.J. and Peel, D. (2000). Finite Mixture Models. Wiley.
 \code{\link[evmix:gammagpd]{gammagpd}}, \code{\link[evmix:gpd]{gpd}}
 and \code{\link[stats:GammaDist]{dgamma}}
 
-Other mgamma fmgamma
-         gammagpd gammagpdcon fgammagpd fgammagpdcon normgpd fnormgpd
-         mgammagpd mgammagpdcon fmgammagpd fmgammagpdcon: \code{\link{fgammagpdcon}},
-  \code{\link{fgammagpd}}, \code{\link{fmgammagpdcon}},
+Other mgamma: \code{\link{fmgammagpdcon}},
   \code{\link{fmgammagpd}}, \code{\link{fmgamma}},
-  \code{\link{gammagpdcon}}, \code{\link{gammagpd}},
   \code{\link{mgammagpdcon}}, \code{\link{mgammagpd}}
+
+Other mgammagpd: \code{\link{fgammagpd}},
+  \code{\link{fmgammagpdcon}}, \code{\link{fmgammagpd}},
+  \code{\link{fmgamma}}, \code{\link{gammagpd}},
+  \code{\link{mgammagpdcon}}, \code{\link{mgammagpd}}
+
+Other mgammagpdcon: \code{\link{fgammagpdcon}},
+  \code{\link{fmgammagpdcon}}, \code{\link{fmgammagpd}},
+  \code{\link{fmgamma}}, \code{\link{gammagpdcon}},
+  \code{\link{mgammagpdcon}}, \code{\link{mgammagpd}}
+
+Other fmgamma: \code{\link{fmgamma}}
 }
 \author{
 Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fmgamma}
+\concept{mgamma}
+\concept{mgammagpd}
+\concept{mgammagpdcon}

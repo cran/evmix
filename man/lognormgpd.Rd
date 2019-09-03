@@ -6,26 +6,6 @@
 \alias{plognormgpd}
 \alias{qlognormgpd}
 \alias{rlognormgpd}
-\alias{dlognormgpd}
-\alias{lognormgpd}
-\alias{plognormgpd}
-\alias{qlognormgpd}
-\alias{rlognormgpd}
-\alias{plognormgpd}
-\alias{lognormgpd}
-\alias{dlognormgpd}
-\alias{qlognormgpd}
-\alias{rlognormgpd}
-\alias{qlognormgpd}
-\alias{lognormgpd}
-\alias{dlognormgpd}
-\alias{plognormgpd}
-\alias{rlognormgpd}
-\alias{rlognormgpd}
-\alias{lognormgpd}
-\alias{dlognormgpd}
-\alias{plognormgpd}
-\alias{qlognormgpd}
 \title{Log-Normal Bulk and GPD Tail Extreme Value Mixture Model}
 \usage{
 dlognormgpd(x, lnmean = 0, lnsd = 1, u = qlnorm(0.9, lnmean, lnsd),
@@ -37,8 +17,8 @@ plognormgpd(q, lnmean = 0, lnsd = 1, u = qlnorm(0.9, lnmean, lnsd),
 qlognormgpd(p, lnmean = 0, lnsd = 1, u = qlnorm(0.9, lnmean, lnsd),
   sigmau = lnsd, xi = 0, phiu = TRUE, lower.tail = TRUE)
 
-rlognormgpd(n = 1, lnmean = 0, lnsd = 1, u = qlnorm(0.9, lnmean, lnsd),
-  sigmau = lnsd, xi = 0, phiu = TRUE)
+rlognormgpd(n = 1, lnmean = 0, lnsd = 1, u = qlnorm(0.9, lnmean,
+  lnsd), sigmau = lnsd, xi = 0, phiu = TRUE)
 }
 \arguments{
 \item{x}{quantiles}
@@ -172,8 +152,26 @@ threshold method. Water Resources Research. 48, W10541.
 \seealso{
 \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:Lognormal]{dlnorm}}
 
-Other lognormgpd lognormgpdcon normgpd normgpdcon flognormgpd flognormgpdcon fnormgpd fnormgpdcon: \code{\link{lognormgpdcon}}
+Other lognormgpd: \code{\link{flognormgpdcon}},
+  \code{\link{flognormgpd}}, \code{\link{lognormgpdcon}}
+
+Other lognormgpdcon: \code{\link{flognormgpdcon}},
+  \code{\link{flognormgpd}}, \code{\link{lognormgpdcon}}
+
+Other normgpd: \code{\link{fgng}}, \code{\link{fhpd}},
+  \code{\link{fitmnormgpd}}, \code{\link{flognormgpd}},
+  \code{\link{fnormgpdcon}}, \code{\link{fnormgpd}},
+  \code{\link{gngcon}}, \code{\link{gng}},
+  \code{\link{hpdcon}}, \code{\link{hpd}},
+  \code{\link{itmnormgpd}}, \code{\link{lognormgpdcon}},
+  \code{\link{normgpdcon}}, \code{\link{normgpd}}
+
+Other flognormgpd: \code{\link{flognormgpd}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{flognormgpd}
+\concept{lognormgpd}
+\concept{lognormgpdcon}
+\concept{normgpd}

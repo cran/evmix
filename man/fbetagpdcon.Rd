@@ -6,34 +6,14 @@
 \alias{nlbetagpdcon}
 \alias{proflubetagpdcon}
 \alias{nlubetagpdcon}
-\alias{lbetagpdcon}
-\alias{fbetagpdcon}
-\alias{nlbetagpdcon}
-\alias{proflubetagpdcon}
-\alias{nlubetagpdcon}
-\alias{nlbetagpdcon}
-\alias{fbetagpdcon}
-\alias{lbetagpdcon}
-\alias{proflubetagpdcon}
-\alias{nlubetagpdcon}
-\alias{proflubetagpdcon}
-\alias{fbetagpdcon}
-\alias{lbetagpdcon}
-\alias{nlbetagpdcon}
-\alias{nlubetagpdcon}
-\alias{nlubetagpdcon}
-\alias{fbetagpdcon}
-\alias{lbetagpdcon}
-\alias{nlbetagpdcon}
-\alias{proflubetagpdcon}
 \title{MLE Fitting of beta Bulk and GPD Tail Extreme Value Mixture Model with Single Continuity Constraint}
 \usage{
-fbetagpdcon(x, phiu = TRUE, useq = NULL, fixedu = FALSE, pvector = NULL,
-  std.err = TRUE, method = "BFGS", control = list(maxit = 10000),
-  finitelik = TRUE, ...)
+fbetagpdcon(x, phiu = TRUE, useq = NULL, fixedu = FALSE,
+  pvector = NULL, std.err = TRUE, method = "BFGS",
+  control = list(maxit = 10000), finitelik = TRUE, ...)
 
-lbetagpdcon(x, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1, bshape2),
-  xi = 0, phiu = TRUE, log = TRUE)
+lbetagpdcon(x, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1,
+  bshape2), xi = 0, phiu = TRUE, log = TRUE)
 
 nlbetagpdcon(pvector, x, phiu = TRUE, finitelik = FALSE)
 
@@ -212,8 +192,17 @@ industrial applications. PhD thesis, University of Canterbury, New Zealand.
 \code{\link[stats:Beta]{dbeta}},
  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
 
-Other betagpd betagpdcon fbetagpd fbetagpdcon normgpd fnormgpd: \code{\link{fbetagpd}}
+Other betagpd: \code{\link{betagpdcon}},
+  \code{\link{betagpd}}, \code{\link{fbetagpd}}
+
+Other betagpdcon: \code{\link{betagpdcon}},
+  \code{\link{betagpd}}, \code{\link{fbetagpd}}
+
+Other fbetagpdcon: \code{\link{betagpdcon}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{betagpd}
+\concept{betagpdcon}
+\concept{fbetagpdcon}

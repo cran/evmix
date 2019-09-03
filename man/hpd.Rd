@@ -6,26 +6,6 @@
 \alias{phpd}
 \alias{qhpd}
 \alias{rhpd}
-\alias{dhpd}
-\alias{hpd}
-\alias{phpd}
-\alias{qhpd}
-\alias{rhpd}
-\alias{phpd}
-\alias{hpd}
-\alias{dhpd}
-\alias{qhpd}
-\alias{rhpd}
-\alias{qhpd}
-\alias{hpd}
-\alias{dhpd}
-\alias{phpd}
-\alias{rhpd}
-\alias{rhpd}
-\alias{hpd}
-\alias{dhpd}
-\alias{phpd}
-\alias{qhpd}
 \title{Hybrid Pareto Extreme Value Mixture Model}
 \usage{
 dhpd(x, nmean = 0, nsd = 1, xi = 0, log = FALSE)
@@ -164,14 +144,40 @@ the univariate case. Extremes 12 (1), 53-76.
 \seealso{
 \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:Normal]{dnorm}}.
 
-The \code{\link[condmixt:condmixt-package]{condmixt}} package written by one of the
+The condmixt package written by one of the
 original authors of the hybrid Pareto model (Carreau and Bengio, 2008) also has 
-similar functions for the hybrid Pareto \code{\link[condmixt:hpareto]{hpareto}} and
-mixture of hybrid Paretos \code{\link[condmixt:hparetomixt]{hparetomixt}}, which are
+similar functions for the hybrid Pareto (hpareto) and
+mixture of hybrid Paretos (hparetomixt), which are
 more flexible as they also permit the model to be truncated at zero.
 
-Other hpd hpdcon fhpd fhpdcon normgpd normgpdcon fnormgpd fnormgpdcon: \code{\link{hpdcon}}
+Other hpd: \code{\link{fhpdcon}}, \code{\link{fhpd}},
+  \code{\link{hpdcon}}
+
+Other hpdcon: \code{\link{fhpdcon}}, \code{\link{fhpd}},
+  \code{\link{hpdcon}}
+
+Other normgpd: \code{\link{fgng}}, \code{\link{fhpd}},
+  \code{\link{fitmnormgpd}}, \code{\link{flognormgpd}},
+  \code{\link{fnormgpdcon}}, \code{\link{fnormgpd}},
+  \code{\link{gngcon}}, \code{\link{gng}},
+  \code{\link{hpdcon}}, \code{\link{itmnormgpd}},
+  \code{\link{lognormgpdcon}}, \code{\link{lognormgpd}},
+  \code{\link{normgpdcon}}, \code{\link{normgpd}}
+
+Other normgpdcon: \code{\link{fgngcon}},
+  \code{\link{fhpdcon}}, \code{\link{flognormgpdcon}},
+  \code{\link{fnormgpdcon}}, \code{\link{fnormgpd}},
+  \code{\link{gngcon}}, \code{\link{gng}},
+  \code{\link{hpdcon}}, \code{\link{normgpdcon}},
+  \code{\link{normgpd}}
+
+Other fhpd: \code{\link{fhpd}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fhpd}
+\concept{hpd}
+\concept{hpdcon}
+\concept{normgpd}
+\concept{normgpdcon}

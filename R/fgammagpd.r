@@ -90,9 +90,10 @@
 #'  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
 #'  
 #' @aliases fgammagpd lgammagpd nlgammagpd proflugammagpd nlugammagpd
-#' @family  mgamma fmgamma
-#'          gammagpd gammagpdcon fgammagpd fgammagpdcon normgpd fnormgpd
-#'          mgammagpd mgammagpdcon fmgammagpd fmgammagpdcon 
+#' @family  gammagpd
+#' @family  gammagpdcon
+#' @family  mgammagpd
+#' @family  fgammagpd
 #' 
 #' @examples
 #' \dontrun{

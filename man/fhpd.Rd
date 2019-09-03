@@ -4,12 +4,6 @@
 \alias{fhpd}
 \alias{lhpd}
 \alias{nlhpd}
-\alias{lhpd}
-\alias{fhpd}
-\alias{nlhpd}
-\alias{nlhpd}
-\alias{fhpd}
-\alias{lhpd}
 \title{MLE Fitting of Hybrid Pareto Extreme Value Mixture Model}
 \usage{
 fhpd(x, pvector = NULL, std.err = TRUE, method = "BFGS",
@@ -179,15 +173,32 @@ the univariate case. Extremes 12 (1), 53-76.
 \seealso{
 \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
 
-The \code{\link[condmixt:condmixt-package]{condmixt}} package written by one of the
+The condmixt package written by one of the
 original authors of the hybrid Pareto model (Carreau and Bengio, 2008) also has 
 similar functions for the likelihood of the hybrid Pareto 
-\code{\link[condmixt:hpareto.negloglike]{hpareto.negloglike}} and
-fitting \code{\link[condmixt:hpareto.negloglike]{hpareto.fit}}.
+(hpareto.negloglike) and fitting (hpareto.fit).
 
-Other hpd hpdcon normgpd normgpdcon gng gngcon
-         fhpd fhpdcon fnormgpd fnormgpdcon fgng fgngcon: \code{\link{fhpdcon}}
+Other hpd: \code{\link{fhpdcon}}, \code{\link{hpdcon}},
+  \code{\link{hpd}}
+
+Other hpdcon: \code{\link{fhpdcon}}, \code{\link{hpdcon}},
+  \code{\link{hpd}}
+
+Other normgpd: \code{\link{fgng}},
+  \code{\link{fitmnormgpd}}, \code{\link{flognormgpd}},
+  \code{\link{fnormgpdcon}}, \code{\link{fnormgpd}},
+  \code{\link{gngcon}}, \code{\link{gng}},
+  \code{\link{hpdcon}}, \code{\link{hpd}},
+  \code{\link{itmnormgpd}}, \code{\link{lognormgpdcon}},
+  \code{\link{lognormgpd}}, \code{\link{normgpdcon}},
+  \code{\link{normgpd}}
+
+Other fhpd: \code{\link{hpd}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fhpd}
+\concept{hpd}
+\concept{hpdcon}
+\concept{normgpd}

@@ -6,36 +6,17 @@
 \alias{nlitmgng}
 \alias{profluitmgng}
 \alias{nluitmgng}
-\alias{litmgng}
-\alias{fitmgng}
-\alias{nlitmgng}
-\alias{profluitmgng}
-\alias{nluitmgng}
-\alias{nlitmgng}
-\alias{fitmgng}
-\alias{litmgng}
-\alias{profluitmgng}
-\alias{nluitmgng}
 \alias{profleuitmgng}
-\alias{fitmgng}
-\alias{litmgng}
-\alias{nlitmgng}
-\alias{profluitmgng}
-\alias{nluitmgng}
 \alias{nleuitmgng}
-\alias{fitmgng}
-\alias{litmgng}
-\alias{nlitmgng}
-\alias{profluitmgng}
-\alias{nluitmgng}
 \title{MLE Fitting of Normal Bulk and GPD for Both Tails Interval Transition Mixture Model}
 \usage{
-fitmgng(x, eseq = NULL, ulseq = NULL, urseq = NULL, fixedeu = FALSE,
-  pvector = NULL, std.err = TRUE, method = "BFGS", control = list(maxit
-  = 10000), finitelik = TRUE, ...)
+fitmgng(x, eseq = NULL, ulseq = NULL, urseq = NULL,
+  fixedeu = FALSE, pvector = NULL, std.err = TRUE, method = "BFGS",
+  control = list(maxit = 10000), finitelik = TRUE, ...)
 
-litmgng(x, nmean = 0, nsd = 1, epsilon = nsd, ul = 0, sigmaul = 1,
-  xil = 0, ur = 0, sigmaur = 1, xir = 0, log = TRUE)
+litmgng(x, nmean = 0, nsd = 1, epsilon = nsd, ul = 0,
+  sigmaul = 1, xil = 0, ur = 0, sigmaur = 1, xir = 0,
+  log = TRUE)
 
 nlitmgng(pvector, x, finitelik = FALSE)
 
@@ -225,12 +206,20 @@ estimation. arxiv:0902.4137
 \code{\link[evmix:fgng]{fgng}}, \code{\link[stats:Normal]{dnorm}},
  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}
 
-Other normgpd normgpdcon gng gngcon fnormgpd fnormgpdcon fgng fgngcon: \code{\link{fgngcon}},
-  \code{\link{fgng}}, \code{\link{fnormgpdcon}},
+Other itmgng: \code{\link{itmgng}}
+
+Other itmnormgpd: \code{\link{fitmnormgpd}},
+  \code{\link{itmgng}}, \code{\link{itmnormgpd}}
+
+Other gng: \code{\link{fgngcon}}, \code{\link{fgng}},
   \code{\link{fnormgpd}}, \code{\link{gngcon}},
   \code{\link{gng}}, \code{\link{itmgng}},
-  \code{\link{normgpdcon}}, \code{\link{normgpd}}
+  \code{\link{normgpd}}
 }
 \author{
 Alfadino Akbar and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fitmgng}
+\concept{gng}
+\concept{itmgng}
+\concept{itmnormgpd}

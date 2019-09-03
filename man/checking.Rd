@@ -11,15 +11,6 @@
 \alias{check.logic}
 \alias{check.text}
 \alias{check.inputn}
-\alias{check.param}
-\alias{check.posparam}
-\alias{check.quant}
-\alias{check.prob}
-\alias{check.n}
-\alias{check.logic}
-\alias{check.nparam}
-\alias{check.inputn}
-\alias{check.text}
 \alias{check.phiu}
 \alias{check.optim}
 \alias{check.control}
@@ -29,8 +20,8 @@
 \alias{check.design.knots}
 \title{Internal functions for checking function input arguments}
 \usage{
-check.param(param, allowvec = FALSE, allownull = FALSE, allowmiss = FALSE,
-  allowna = FALSE, allowinf = FALSE)
+check.param(param, allowvec = FALSE, allownull = FALSE,
+  allowmiss = FALSE, allowna = FALSE, allowinf = FALSE)
 
 check.posparam(param, allowvec = FALSE, allownull = FALSE,
   allowmiss = FALSE, allowna = FALSE, allowinf = FALSE,
@@ -50,7 +41,8 @@ check.inputn(inputn, allowscalar = FALSE, allowzero = FALSE)
 
 check.text(textarg, allowvec = FALSE, allownull = FALSE)
 
-check.phiu(phiu, allowvec = FALSE, allownull = FALSE, allowfalse = FALSE)
+check.phiu(phiu, allowvec = FALSE, allownull = FALSE,
+  allowfalse = FALSE)
 
 check.optim(method)
 
@@ -139,3 +131,4 @@ positive parameters, in such cases use \code{\link[evmix:checking]{check.param}}
 \author{
 Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}.
 }
+\concept{checking}

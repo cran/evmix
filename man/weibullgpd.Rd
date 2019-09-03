@@ -6,43 +6,23 @@
 \alias{pweibullgpd}
 \alias{qweibullgpd}
 \alias{rweibullgpd}
-\alias{dweibullgpd}
-\alias{weibullgpd}
-\alias{pweibullgpd}
-\alias{qweibullgpd}
-\alias{rweibullgpd}
-\alias{pweibullgpd}
-\alias{weibullgpd}
-\alias{dweibullgpd}
-\alias{qweibullgpd}
-\alias{rweibullgpd}
-\alias{qweibullgpd}
-\alias{weibullgpd}
-\alias{dweibullgpd}
-\alias{pweibullgpd}
-\alias{rweibullgpd}
-\alias{rweibullgpd}
-\alias{weibullgpd}
-\alias{dweibullgpd}
-\alias{pweibullgpd}
-\alias{qweibullgpd}
 \title{Weibull Bulk and GPD Tail Extreme Value Mixture Model}
 \usage{
-dweibullgpd(x, wshape = 1, wscale = 1, u = qweibull(0.9, wshape, wscale),
-  sigmau = sqrt(wscale^2 * gamma(1 + 2/wshape) - (wscale * gamma(1 +
-  1/wshape))^2), xi = 0, phiu = TRUE, log = FALSE)
+dweibullgpd(x, wshape = 1, wscale = 1, u = qweibull(0.9, wshape,
+  wscale), sigmau = sqrt(wscale^2 * gamma(1 + 2/wshape) - (wscale *
+  gamma(1 + 1/wshape))^2), xi = 0, phiu = TRUE, log = FALSE)
 
-pweibullgpd(q, wshape = 1, wscale = 1, u = qweibull(0.9, wshape, wscale),
-  sigmau = sqrt(wscale^2 * gamma(1 + 2/wshape) - (wscale * gamma(1 +
-  1/wshape))^2), xi = 0, phiu = TRUE, lower.tail = TRUE)
+pweibullgpd(q, wshape = 1, wscale = 1, u = qweibull(0.9, wshape,
+  wscale), sigmau = sqrt(wscale^2 * gamma(1 + 2/wshape) - (wscale *
+  gamma(1 + 1/wshape))^2), xi = 0, phiu = TRUE, lower.tail = TRUE)
 
-qweibullgpd(p, wshape = 1, wscale = 1, u = qweibull(0.9, wshape, wscale),
-  sigmau = sqrt(wscale^2 * gamma(1 + 2/wshape) - (wscale * gamma(1 +
-  1/wshape))^2), xi = 0, phiu = TRUE, lower.tail = TRUE)
+qweibullgpd(p, wshape = 1, wscale = 1, u = qweibull(0.9, wshape,
+  wscale), sigmau = sqrt(wscale^2 * gamma(1 + 2/wshape) - (wscale *
+  gamma(1 + 1/wshape))^2), xi = 0, phiu = TRUE, lower.tail = TRUE)
 
-rweibullgpd(n = 1, wshape = 1, wscale = 1, u = qweibull(0.9, wshape,
-  wscale), sigmau = sqrt(wscale^2 * gamma(1 + 2/wshape) - (wscale * gamma(1 +
-  1/wshape))^2), xi = 0, phiu = TRUE)
+rweibullgpd(n = 1, wshape = 1, wscale = 1, u = qweibull(0.9,
+  wshape, wscale), sigmau = sqrt(wscale^2 * gamma(1 + 2/wshape) - (wscale
+  * gamma(1 + 1/wshape))^2), xi = 0, phiu = TRUE)
 }
 \arguments{
 \item{x}{quantiles}
@@ -174,8 +154,24 @@ events with threshold estimation. Statistical Modelling. 4(3), 227-244.
 \seealso{
 \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:Weibull]{dweibull}}
 
-Other weibullgpd weibullgpdcon fweibullgpd fweibullgpdcon: \code{\link{weibullgpdcon}}
+Other weibullgpd: \code{\link{fitmweibullgpd}},
+  \code{\link{fweibullgpdcon}}, \code{\link{fweibullgpd}},
+  \code{\link{itmweibullgpd}}, \code{\link{weibullgpdcon}}
+
+Other weibullgpdcon: \code{\link{fweibullgpdcon}},
+  \code{\link{fweibullgpd}}, \code{\link{itmweibullgpd}},
+  \code{\link{weibullgpdcon}}
+
+Other itmweibullgpd: \code{\link{fitmweibullgpd}},
+  \code{\link{fweibullgpdcon}}, \code{\link{fweibullgpd}},
+  \code{\link{itmweibullgpd}}, \code{\link{weibullgpdcon}}
+
+Other fweibullgpd: \code{\link{fweibullgpd}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fweibullgpd}
+\concept{itmweibullgpd}
+\concept{weibullgpd}
+\concept{weibullgpdcon}

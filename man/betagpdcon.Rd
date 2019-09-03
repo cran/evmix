@@ -6,39 +6,19 @@
 \alias{pbetagpdcon}
 \alias{qbetagpdcon}
 \alias{rbetagpdcon}
-\alias{dbetagpdcon}
-\alias{betagpdcon}
-\alias{pbetagpdcon}
-\alias{qbetagpdcon}
-\alias{rbetagpdcon}
-\alias{pbetagpdcon}
-\alias{betagpdcon}
-\alias{dbetagpdcon}
-\alias{qbetagpdcon}
-\alias{rbetagpdcon}
-\alias{qbetagpdcon}
-\alias{betagpdcon}
-\alias{dbetagpdcon}
-\alias{pbetagpdcon}
-\alias{rbetagpdcon}
-\alias{rbetagpdcon}
-\alias{betagpdcon}
-\alias{dbetagpdcon}
-\alias{pbetagpdcon}
-\alias{qbetagpdcon}
 \title{Beta Bulk and GPD Tail Extreme Value Mixture Model with Single Continuity Constraint}
 \usage{
-dbetagpdcon(x, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1, bshape2),
-  xi = 0, phiu = TRUE, log = FALSE)
+dbetagpdcon(x, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1,
+  bshape2), xi = 0, phiu = TRUE, log = FALSE)
 
-pbetagpdcon(q, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1, bshape2),
-  xi = 0, phiu = TRUE, lower.tail = TRUE)
+pbetagpdcon(q, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1,
+  bshape2), xi = 0, phiu = TRUE, lower.tail = TRUE)
 
-qbetagpdcon(p, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1, bshape2),
-  xi = 0, phiu = TRUE, lower.tail = TRUE)
+qbetagpdcon(p, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1,
+  bshape2), xi = 0, phiu = TRUE, lower.tail = TRUE)
 
-rbetagpdcon(n = 1, bshape1 = 1, bshape2 = 1, u = qbeta(0.9, bshape1,
-  bshape2), xi = 0, phiu = TRUE)
+rbetagpdcon(n = 1, bshape1 = 1, bshape2 = 1, u = qbeta(0.9,
+  bshape1, bshape2), xi = 0, phiu = TRUE)
 }
 \arguments{
 \item{x}{quantiles}
@@ -181,8 +161,17 @@ industrial applications. PhD thesis, University of Canterbury, New Zealand.
 \seealso{
 \code{\link[evmix:gpd]{gpd}} and \code{\link[stats:Beta]{dbeta}}
 
-Other betagpd betagpdcon fbetagpd fbetagpdcon: \code{\link{betagpd}}
+Other betagpd: \code{\link{betagpd}},
+  \code{\link{fbetagpdcon}}, \code{\link{fbetagpd}}
+
+Other betagpdcon: \code{\link{betagpd}},
+  \code{\link{fbetagpdcon}}, \code{\link{fbetagpd}}
+
+Other fbetagpdcon: \code{\link{fbetagpdcon}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{betagpd}
+\concept{betagpdcon}
+\concept{fbetagpdcon}

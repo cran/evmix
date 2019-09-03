@@ -130,8 +130,11 @@
 #' and \code{\link[ks:kde]{dkde}} in \code{\link[ks:kde]{ks}} package.
 #' 
 #' @aliases gkg dgkg pgkg qgkg rgkg
-#' @family  kden kdengpd kdengpdcon gkg gkgcon bckden bckdengpd bckdengpdcon
-#'          fkden fkdengpd fkdengpdcon fgkg fgkgcon fbckden fbckdengpd fbckdengpdcon
+#' @family  kdengpd
+#' @family  gkg
+#' @family  gkgcon
+#' @family  bckdengpd
+#' @family  fgkg
 #' 
 #' @examples
 #' \dontrun{

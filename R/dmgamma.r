@@ -82,9 +82,10 @@
 #' and \code{\link[stats:GammaDist]{dgamma}}
 #' 
 #' @aliases mgamma dmgamma pmgamma qmgamma rmgamma
-#' @family  mgamma fmgamma
-#'          gammagpd gammagpdcon fgammagpd fgammagpdcon normgpd fnormgpd
-#'          mgammagpd mgammagpdcon fmgammagpd fmgammagpdcon 
+#' @family  mgamma
+#' @family  mgammagpd
+#' @family  mgammagpdcon
+#' @family  fmgamma
 #'
 #' @examples
 #' \dontrun{

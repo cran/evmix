@@ -6,39 +6,19 @@
 \alias{ppsdengpd}
 \alias{qpsdengpd}
 \alias{rpsdengpd}
-\alias{dpsdengpd}
-\alias{psdengpd}
-\alias{ppsdengpd}
-\alias{qpsdengpd}
-\alias{rpsdengpd}
-\alias{ppsdengpd}
-\alias{psdengpd}
-\alias{dpsdengpd}
-\alias{qpsdengpd}
-\alias{rpsdengpd}
-\alias{qpsdengpd}
-\alias{psdengpd}
-\alias{dpsdengpd}
-\alias{ppsdengpd}
-\alias{rpsdengpd}
-\alias{rpsdengpd}
-\alias{psdengpd}
-\alias{dpsdengpd}
-\alias{ppsdengpd}
-\alias{qpsdengpd}
 \title{P-Splines Density Estimate and GPD Tail Extreme Value Mixture Model}
 \usage{
-dpsdengpd(x, beta = NULL, nbinwidth = NULL, xrange = NULL, nseg = 10,
-  degree = 3, u = NULL, sigmau = NULL, xi = 0, phiu = TRUE,
-  design.knots = NULL, log = FALSE)
+dpsdengpd(x, beta = NULL, nbinwidth = NULL, xrange = NULL,
+  nseg = 10, degree = 3, u = NULL, sigmau = NULL, xi = 0,
+  phiu = TRUE, design.knots = NULL, log = FALSE)
 
-ppsdengpd(q, beta = NULL, nbinwidth = NULL, xrange = NULL, nseg = 10,
-  degree = 3, u = NULL, sigmau = NULL, xi = 0, phiu = TRUE,
-  design.knots = NULL, lower.tail = TRUE)
+ppsdengpd(q, beta = NULL, nbinwidth = NULL, xrange = NULL,
+  nseg = 10, degree = 3, u = NULL, sigmau = NULL, xi = 0,
+  phiu = TRUE, design.knots = NULL, lower.tail = TRUE)
 
-qpsdengpd(p, beta = NULL, nbinwidth = NULL, xrange = NULL, nseg = 10,
-  degree = 3, u = NULL, sigmau = NULL, xi = 0, phiu = TRUE,
-  design.knots = NULL, lower.tail = TRUE)
+qpsdengpd(p, beta = NULL, nbinwidth = NULL, xrange = NULL,
+  nseg = 10, degree = 3, u = NULL, sigmau = NULL, xi = 0,
+  phiu = TRUE, design.knots = NULL, lower.tail = TRUE)
 
 rpsdengpd(n = 1, beta = NULL, nbinwidth = NULL, xrange = NULL,
   nseg = 10, degree = 3, u = NULL, sigmau = NULL, xi = 0,
@@ -186,7 +166,18 @@ Statistical Science 11(2), 89-121.
 }
 \seealso{
 \code{\link[evmix:psden]{psden}} and \code{\link[evmix:fpsden]{fpsden}}.
+
+Other psden: \code{\link{fpsdengpd}}, \code{\link{fpsden}},
+  \code{\link{psden}}
+
+Other psdengpd: \code{\link{fpsdengpd}},
+  \code{\link{psden}}
+
+Other fpsdengpd: \code{\link{fpsdengpd}}
 }
 \author{
 Alfadino Akbar and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}.
 }
+\concept{fpsdengpd}
+\concept{psden}
+\concept{psdengpd}

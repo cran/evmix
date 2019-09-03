@@ -6,43 +6,25 @@
 \alias{nlgkgcon}
 \alias{proflugkgcon}
 \alias{nlugkgcon}
-\alias{lgkgcon}
-\alias{fgkgcon}
-\alias{nlgkgcon}
-\alias{proflugkgcon}
-\alias{nlugkgcon}
-\alias{nlgkgcon}
-\alias{fgkgcon}
-\alias{lgkgcon}
-\alias{proflugkgcon}
-\alias{nlugkgcon}
-\alias{proflugkgcon}
-\alias{fgkgcon}
-\alias{lgkgcon}
-\alias{nlgkgcon}
-\alias{nlugkgcon}
-\alias{nlugkgcon}
-\alias{fgkgcon}
-\alias{lgkgcon}
-\alias{nlgkgcon}
-\alias{proflugkgcon}
 \title{MLE Fitting of Kernel Density Estimate for Bulk and GPD for Both Tails with 
  Single Continuity Constraint at Both Thresholds Extreme Value Mixture Model}
 \usage{
 fgkgcon(x, phiul = TRUE, phiur = TRUE, ulseq = NULL, urseq = NULL,
   fixedu = FALSE, pvector = NULL, kernel = "gaussian",
   add.jitter = FALSE, factor = 0.1, amount = NULL, std.err = TRUE,
-  method = "BFGS", control = list(maxit = 10000), finitelik = TRUE, ...)
+  method = "BFGS", control = list(maxit = 10000), finitelik = TRUE,
+  ...)
 
 lgkgcon(x, lambda = NULL, ul = 0, xil = 0, phiul = TRUE, ur = 0,
-  xir = 0, phiur = TRUE, bw = NULL, kernel = "gaussian", log = TRUE)
+  xir = 0, phiur = TRUE, bw = NULL, kernel = "gaussian",
+  log = TRUE)
 
 nlgkgcon(pvector, x, phiul = TRUE, phiur = TRUE, kernel = "gaussian",
   finitelik = FALSE)
 
 proflugkgcon(ulr, pvector, x, phiul = TRUE, phiur = TRUE,
-  kernel = "gaussian", method = "BFGS", control = list(maxit = 10000),
-  finitelik = TRUE, ...)
+  kernel = "gaussian", method = "BFGS", control = list(maxit =
+  10000), finitelik = TRUE, ...)
 
 nlugkgcon(pvector, ul, ur, x, phiul = TRUE, phiur = TRUE,
   kernel = "gaussian", finitelik = FALSE)
@@ -317,9 +299,32 @@ Wand, M. and Jones, M.C. (1995). Kernel Smoothing. Chapman && Hall.
 and \code{\link[ks:kde]{dkde}} in \code{\link[ks:kde]{ks}} package.
  \code{\link[evmix:fgpd]{fgpd}} and \code{\link[evmix:gpd]{gpd}}.
 
-Other kdengpd kdengpdcon fkdengpd fkdengpdcon normgpd fnormgpd gkg gkgcon fgkg fgkgcon
-         kden bckden bckdengpd bckdengpdcon fkden fbckden fbckdengpd fbckdengpdcon: \code{\link{fgkg}}
+Other kden: \code{\link{bckden}}, \code{\link{fbckden}},
+  \code{\link{fgkg}}, \code{\link{fkdengpdcon}},
+  \code{\link{fkdengpd}}, \code{\link{fkden}},
+  \code{\link{kdengpdcon}}, \code{\link{kdengpd}},
+  \code{\link{kden}}
+
+Other kdengpdcon: \code{\link{bckdengpdcon}},
+  \code{\link{fbckdengpdcon}}, \code{\link{fkdengpdcon}},
+  \code{\link{fkdengpd}}, \code{\link{gkgcon}},
+  \code{\link{kdengpdcon}}, \code{\link{kdengpd}}
+
+Other gkg: \code{\link{fgkg}}, \code{\link{fkdengpd}},
+  \code{\link{gkgcon}}, \code{\link{gkg}},
+  \code{\link{kdengpd}}, \code{\link{kden}}
+
+Other gkgcon: \code{\link{fgkg}},
+  \code{\link{fkdengpdcon}}, \code{\link{gkgcon}},
+  \code{\link{gkg}}, \code{\link{kdengpdcon}}
+
+Other fgkgcon: \code{\link{gkgcon}}
 }
 \author{
 Yang Hu and Carl Scarrott \email{carl.scarrott@canterbury.ac.nz}
 }
+\concept{fgkgcon}
+\concept{gkg}
+\concept{gkgcon}
+\concept{kden}
+\concept{kdengpdcon}
